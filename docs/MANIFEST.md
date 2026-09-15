@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.372"
+manifest_version: "10.373"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -27089,6 +27089,41 @@ LIVE:                           NOT_AUTHORIZED.
 **Next governed step:** bounded Review A of EVID-07 correction 003 + formal evidence at Commit `27bd472efeab9a9538bde62ccfeca5c0a1ce48c9` — determines whether `-MAJ-05` and `P3-FEATURE-QG-EVID-07` close.
 
 **Files changed:** Commit A (already pushed) — `docs/engineering/testing.md`, `python/feature-engine/{pyproject.toml,requirements-dev.lock.txt,README.md,tests/test_i13_properties.py}`. This entry (Commit B) — `docs/governance/quality-gate/feature-engine-evid07-property-based-mechanism-candidate-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no other file touched. `manifest_version` `"10.371"` → `"10.372"`.
+
+## `feature-engine` — EVID-07 Root-Cause Consolidation + Stabilization 001: Review A `REVISION_REQUIRED` remediated (`-MAJ-06`/`-07`/`-08`/`-MIN-01`), formal evidence rerun against Commit A2, PO approval-date factual correction (2026-09-15)
+
+**Consolidated stabilization transaction — vai trò: `Feature Engine EVID-07 Root-Cause Consolidation + Stabilization Executor`.** Bounded Review A of EVID-07 correction 003 returned `REVISION_REQUIRED — 0 Blocker / 3 Major / 1 Minor` (Risk R1): `-MAJ-01` through `-05` **CLOSED — REVIEW A VALIDATED** (unchanged), but three NEW findings on the formal evidence itself — `-MAJ-06` (replay oracle was replay-vs-replay, not live-vs-replay), `-MAJ-07` (Case-2 out-of-set causation semantics mis-modeled), `-MAJ-08` (formal package artifact identity internally contradictory) — plus `-MIN-01` (dev Hypothesis profile diverged from approved mechanism). Per instruction, this is **not** a normal bounded correction round — ONE consolidated transaction: root causes recorded (RC-1..RC-5), exact defects corrected, formal evidence rerun against a fresh exact executable boundary (**Commit A2**), corrected evidence recorded in this same following docs-only commit (**Commit B2**).
+
+**Root causes (full detail: candidate §13).** RC-1: test prose drift from reviewed semantics conflated "future unrelated event" with "already-applied out-of-set cause" (caused `-MAJ-07`). RC-2: the replay-reconstruction oracle folded BOTH its reference and replay sides from the same persisted `canonical_events` list — replay-vs-replay, not live-vs-replay (caused `-MAJ-06`). RC-3: package provenance prose mixed a universal-wheel filename (`hypothesis-6.168.0-py3-none-any.whl`, which does not exist for this package/version) with the actual platform wheel used (`cp313-cp313-macosx_11_0_arm64`) (caused `-MAJ-08`). RC-4: the `dev` Hypothesis profile carried a locally-tuned `max_examples=25` though approved semantics specify the library's own default (caused `-MIN-01`). RC-5: the Testing Convention v0.17 PO decision date was transcribed as `2026-09-14` instead of the actual `2026-09-15` — R0 factual bookkeeping only, decision text unchanged and valid.
+
+**Commit A2** (executable, `e901f1857b1049ebc0bb4bdfd7a047e40e1174ed`, parent `86470d105f0608f0708be7c694a6f331486edf09`) — `docs/engineering/testing.md` (approved_at/last_review + banner corrected `2026-09-14 → 2026-09-15`), `python/feature-engine/README.md` (matching pointer-sentence correction only), `python/feature-engine/tests/test_i13_properties.py`: (a) `test_regime_catch_up_reconstruction_matches_reference_history` now maintains a REAL `reference_live_view` `FeatureCurrentView` updated contemporaneously with reference generation, compared against a separately-rebuilt `replay_view`; (b) the mismodeled Case-2 property split into `test_p_run_sort_never_waits_for_a_future_unrelated_event` and `test_p_run_sort_never_waits_for_an_already_applied_out_of_set_cause` (the latter demonstrating "already applied" via a real `AuthoritativeSubjectOwner` commit); (c) `dev` profile's `max_examples=25` removed, now Hypothesis's own library default, verified by a new `test_dev_profile_uses_hypothesis_library_default_max_examples`. No production `src/feature_engine/**` change. No dependency-version change.
+
+**Formal evidence rerun against exact Commit A2.** `HYPOTHESIS_PROFILE=ci pytest -q tests/test_i13_properties.py --hypothesis-show-statistics` run TWICE: **20 passed both times** (18 → 20: `-MAJ-07`'s split nets +1, `-MIN-01`'s verification test nets +1), statistically identical, no `Flaky`. Full regression `HYPOTHESIS_PROFILE=ci pytest -q`: **388 passed** (368 pre-existing + 20). `ruff check src tests`: 2 pre-existing unrelated findings, unchanged. `mypy src tests`: success, 34 source files. Package artifact identity re-verified (`-MAJ-08`) via a FRESH scratch download: `hypothesis-6.168.0-cp313-cp313-macosx_11_0_arm64.whl`, 784558 bytes, SHA-256 `92cff497b92e2285ff6a94193fdee04aba483a4115d501c1f9a570bd103fcd20`; `sortedcontainers-2.4.0-py2.py3-none-any.whl`, 29575 bytes, SHA-256 `a163dcaede0f1c021485e957a39245190e74249897e2ae4b2aa38595db237ee0` — both verified against PyPI's own JSON API. Package versions unchanged (`6.168.0`/`2.4.0`). Full exact-command/hash/statistics record: candidate §12 (wholesale replacement of the superseded Commit-A evidence).
+
+**Approval-date reconciliation (R0).** Testing Convention v0.17 Product Owner decision date corrected: `2026-09-14 → 2026-09-15`. Decision text/authority/Review A CLEAN-0/0/0/Risk-R1 all unchanged.
+
+**Finding states.**
+
+```text
+P3-FEATURE-QG-EVID07-A-MAJ-01/-02/-03/-04/-05: CLOSED — REVIEW A
+                                VALIDATED (unchanged).
+P3-FEATURE-QG-EVID07-A-MAJ-06: REMEDIATED — PENDING REVIEW A RE-REVIEW.
+P3-FEATURE-QG-EVID07-A-MAJ-07: REMEDIATED — PENDING REVIEW A RE-REVIEW.
+P3-FEATURE-QG-EVID07-A-MAJ-08: REMEDIATED — PENDING REVIEW A RE-REVIEW.
+P3-FEATURE-QG-EVID07-A-MIN-01: REMEDIATED — PENDING REVIEW A RE-REVIEW.
+P3-FEATURE-QG-EVID-07:          EVIDENCE PRODUCED — PENDING REVIEW A
+                                VALIDATION (not CLOSED, not FINAL PASS;
+                                none of the four new findings self-closed).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+```
+
+**Not performed, not claimed:** no new ADR; no Review B; no additional Product Owner decision; no standalone Risk Classification transaction; no production source change; no dependency-version change; no Contract/Constitution/Registry change; no CI workflow; no module approval; no LIVE authorization. This transaction does not self-close its own evidence finding or the four findings above — closure remains Review A's own determination.
+
+**Next governed step:** bounded Review A of stabilization 001 + exact Commit A2 formal evidence — determines whether `-MAJ-06`/`-07`/`-08`/`-MIN-01` close and the final `P3-FEATURE-QG-EVID-07` disposition.
+
+**Files changed:** Commit A2 (already pushed) — `docs/engineering/testing.md`, `python/feature-engine/{README.md,tests/test_i13_properties.py}`. This entry (Commit B2) — `docs/governance/quality-gate/feature-engine-evid07-property-based-mechanism-candidate-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no other file touched. `manifest_version` `"10.372"` → `"10.373"`.
 
 ## Decision Log
 

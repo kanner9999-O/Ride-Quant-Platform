@@ -1,10 +1,43 @@
 ---
 id: feature-engine-evid07-property-based-mechanism-candidate-001
 title: "Feature Engine — `P3-FEATURE-QG-EVID-07` Python Property-Based Testing Mechanism — CANDIDATE"
-candidate_version: "0.4"
-status: "EVIDENCE PRODUCED — PENDING REVIEW A VALIDATION — BOUNDED CORRECTION 003 (P3-FEATURE-QG-EVID07-A-MAJ-01/-02/-03/-04 CLOSED — REVIEW A VALIDATED; -MAJ-05 REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW; formal I-13 property evidence produced against commit 27bd472efeab9a9538bde62ccfeca5c0a1ce48c9)"
+candidate_version: "0.5"
+status: "EVIDENCE PRODUCED — PENDING REVIEW A VALIDATION — CORRECTION-CHAIN ROOT-CAUSE CONSOLIDATION + STABILIZATION 001 (P3-FEATURE-QG-EVID07-A-MAJ-01/-02/-03/-04/-05 CLOSED — REVIEW A VALIDATED; -MAJ-06/-07/-08/-MIN-01 REMEDIATED — PENDING REVIEW A RE-REVIEW; formal I-13 property evidence produced against commit e901f1857b1049ebc0bb4bdfd7a047e40e1174ed)"
 performed_at: "2026-09-11"
 repository_head_at_authoring: "310a83e22c868611028e5804c524fb5a4e9f57da"
+stabilization_001:
+  role: "Feature Engine EVID-07 Root-Cause Consolidation + Stabilization Executor"
+  applied_at_repository_head_a2: "e901f1857b1049ebc0bb4bdfd7a047e40e1174ed"
+  a2_parent: "86470d105f0608f0708be7c694a6f331486edf09"
+  corrected_candidate_blob_before_correction: "42aee062841d5f389ec213a056d374b717a1a4de"
+  superseded_evidence_attempt: "27bd472efeab9a9538bde62ccfeca5c0a1ce48c9 (Commit A, superseded -- see §13 root-cause record)"
+  review_a_result_addressed:
+    disposition: "REVISION_REQUIRED — 0 Blocker / 3 Major / 1 Minor"
+    risk: "R1"
+    findings:
+      - id: P3-FEATURE-QG-EVID07-A-MAJ-01
+        status: "CLOSED — REVIEW A VALIDATED"
+      - id: P3-FEATURE-QG-EVID07-A-MAJ-02
+        status: "CLOSED — REVIEW A VALIDATED"
+      - id: P3-FEATURE-QG-EVID07-A-MAJ-03
+        status: "CLOSED — REVIEW A VALIDATED"
+      - id: P3-FEATURE-QG-EVID07-A-MAJ-04
+        status: "CLOSED — REVIEW A VALIDATED"
+      - id: P3-FEATURE-QG-EVID07-A-MAJ-05
+        status: "CLOSED — REVIEW A VALIDATED"
+      - id: P3-FEATURE-QG-EVID07-A-MAJ-06
+        status: "REMEDIATED — PENDING REVIEW A RE-REVIEW"
+      - id: P3-FEATURE-QG-EVID07-A-MAJ-07
+        status: "REMEDIATED — PENDING REVIEW A RE-REVIEW"
+      - id: P3-FEATURE-QG-EVID07-A-MAJ-08
+        status: "REMEDIATED — PENDING REVIEW A RE-REVIEW"
+      - id: P3-FEATURE-QG-EVID07-A-MIN-01
+        status: "REMEDIATED — PENDING REVIEW A RE-REVIEW"
+  r0_factual_correction:
+    subject: "Testing Convention v0.17 Product Owner decision date"
+    was: "2026-09-14"
+    corrected_to: "2026-09-15"
+    decision_text: "unchanged and valid"
 bounded_correction_003:
   applied_at_repository_head: "27bd472efeab9a9538bde62ccfeca5c0a1ce48c9"
   corrected_candidate_blob_before_correction: "bf347512d649ee9d6284851a7e10a95fd3e3df51"
@@ -45,6 +78,20 @@ bounded_correction_002:
 
 # Feature Engine — `P3-FEATURE-QG-EVID-07` Python Property-Based Testing Mechanism — CANDIDATE 001
 
+> **CORRECTION-CHAIN ROOT-CAUSE CONSOLIDATION + STABILIZATION 001 (this transaction)** — vai trò: `Feature Engine EVID-07 Root-Cause Consolidation + Stabilization Executor`. Correction 003 did not stabilize: bounded Review A re-review found `-MAJ-01`/`-02`/`-03`/`-04`/`-05` **CLOSED — REVIEW A VALIDATED**, but surfaced three NEW Major findings (`-MAJ-06`/`-07`/`-08`) and one new Minor (`-MIN-01`) on the formal evidence itself — disposition **`REVISION_REQUIRED — 0 Blocker / 3 Major / 1 Minor`**, Risk `R1`. Per instruction, this is **not** a normal `bounded correction 004` — it is ONE consolidated root-cause-consolidation + stabilization transaction: root causes recorded below (§13), exact defects corrected, formal evidence rerun against a fresh exact executable commit (**Commit A2**, `e901f1857b1049ebc0bb4bdfd7a047e40e1174ed`, parent `86470d105f0608f0708be7c694a6f331486edf09`), corrected evidence recorded in this SAME following docs-only commit (**Commit B2**). The previously-recorded formal evidence result (against Commit A, `27bd472efeab9a9538bde62ccfeca5c0a1ce48c9`) is **superseded** — §12 below is replaced wholesale with A2's own exact evidence, not merged/appended alongside the stale result. An additional R0 factual defect is folded into this same transaction (per instruction, not a separate transaction): the Testing Convention v0.17 Product Owner decision date was recorded as `2026-09-14`; the actual decision in the governing conversation occurred on `2026-09-15` — corrected in `docs/engineering/testing.md` (Commit A2) and reconciled here/in MANIFEST/CHANGELOG (Commit B2); the decision text itself is unchanged and valid. No new ADR, no Review B, no new Product Owner decision, no production `src/feature_engine/**` change, no dependency version change — same discipline as every prior transaction in this chain.
+>
+> `P3-FEATURE-QG-EVID07-A-MAJ-01: CLOSED — REVIEW A VALIDATED`
+> `P3-FEATURE-QG-EVID07-A-MAJ-02: CLOSED — REVIEW A VALIDATED`
+> `P3-FEATURE-QG-EVID07-A-MAJ-03: CLOSED — REVIEW A VALIDATED`
+> `P3-FEATURE-QG-EVID07-A-MAJ-04: CLOSED — REVIEW A VALIDATED`
+> `P3-FEATURE-QG-EVID07-A-MAJ-05: CLOSED — REVIEW A VALIDATED`
+> `P3-FEATURE-QG-EVID07-A-MAJ-06: REMEDIATED — PENDING REVIEW A RE-REVIEW`
+> `P3-FEATURE-QG-EVID07-A-MAJ-07: REMEDIATED — PENDING REVIEW A RE-REVIEW`
+> `P3-FEATURE-QG-EVID07-A-MAJ-08: REMEDIATED — PENDING REVIEW A RE-REVIEW`
+> `P3-FEATURE-QG-EVID07-A-MIN-01: REMEDIATED — PENDING REVIEW A RE-REVIEW`
+>
+> `P3-FEATURE-QG-EVID-07: EVIDENCE PRODUCED — PENDING REVIEW A VALIDATION` (unchanged label — none of the four new findings is self-closed, and this transaction does not self-close its own evidence finding; closure remains Review A's own determination, per Chapter 0 §3).
+
 > **Bounded correction 003 (this transaction) + formal evidence record** — vai trò: `Feature Engine EVID-07 Integrated Execution Executor`. Records, as already-completed governance input to this integrated transaction (not re-run, not re-litigated here): (1) Product Owner decision (verbatim) — **"APPROVE Testing Convention v0.17 — Python property-based testing mechanism: Hypothesis — ADR_OPTIONAL, ADR NOT AUTHORED."** — decision date `2026-09-14`, recorded in full in `docs/engineering/testing.md`'s own v0.17 approval banner (reviewed boundary `81605fd1ca099eae48b937ced3c775e271dee2e2`, reviewed blob `708744f0464720cb14ceafbe75bb422200a57820`, Review A CLEAN 0 Blocker / 0 Major / 0 Minor, Risk Classification R1, no Independent Review B required at R1); (2) ADR-043 implementation Review A's own CLEAN 0/0/0 final disposition (reviewed boundary `81605fd1ca099eae48b937ced3c775e271dee2e2`), recorded in full in `python/feature-engine/README.md`; (3) Review A's re-review disposition on bounded correction 002 (mechanically recorded per the established convention this file already uses for correction 002 itself — no separate transcript file, consistent with the incoming task input): `-MAJ-01`/`-MAJ-02`/`-MAJ-03` remain **CLOSED — REVIEW A VALIDATED** (not re-litigated, not reopened absent a fresh direct contradiction, none found); `-MAJ-04` (Hypothesis reproducibility contract, §5) is now **CLOSED — REVIEW A VALIDATED**; `-MAJ-05` (concurrent/competing-transition applicability, §6) was found on re-review to still rest on a rationale that has since become stale now that ADR-043's actual per-subject ownership runtime is implemented and Review-A-validated — remediated again in this transaction (below), **not** closed by this transaction.
 >
 > Same integrated transaction (Commit `27bd472efeab9a9538bde62ccfeca5c0a1ce48c9`, this file's own boundary): `hypothesis==6.168.0` / `sortedcontainers==2.4.0` installed and pinned (`python/feature-engine/pyproject.toml` `[project.optional-dependencies].dev`; `requirements-dev.lock.txt`), formal I-13 property-based evidence authored (`python/feature-engine/tests/test_i13_properties.py`, 18 tests across all 6 property categories §6 requires), and formal evidence recorded against the exact pushed boundary — full record in §12 below. This corrects/supersedes §9's now-stale "Not performed" claims about installation/authoring/testing.md-editing (those were true when §9 was written, prior to this transaction; §9 itself is left textually unedited, as historical record, with a pointer notice added) and supersedes §6's `-MAJ-05` "one instance per Feature subject" rationale with the current, Review-A-validated ADR-043 authority stack (§6 correction notice, below).
@@ -75,7 +122,9 @@ bounded_correction_002:
 
 > **Status banner (superseded by bounded correction 003 — historical, left unedited for the record):** `CANDIDATE / NOT EFFECTIVE — BOUNDED CORRECTION 002 PENDING REVIEW A RE-REVIEW (MAJ-04/-05 ONLY)`. This remains a **QG-scoped analysis/rationale transaction only** — vai trò: `Feature Engine EVID-07 Property-Based Mechanism Candidate Author`. It does **not** install any dependency, does **not** edit `pyproject.toml`/`requirements-dev.lock.txt`, does **not** modify any Feature Engine production or test file, does **not** measure anything, and does **not** close `P3-FEATURE-QG-EVID-07`. Per `-MAJ-03`'s remediation (below), this file does **not** itself canonicalize the mechanism/tool decision — that decision is canonicalized in `docs/engineering/testing.md`'s own "Python property-based testing mechanism — CANDIDATE" subsection (v0.17, added this same transaction), through its own governed candidate lifecycle. Per `-MAJ-02`'s remediation, the governance path is `Executor → Review A + Risk Classification → Product Owner Decision → Execution` (Chapter 0 §3, ADR-042): Review A determines technical disposition/eligibility and may close Review A findings on re-review, but Review A does **not** approve — Product Owner is the sole approval authority, and no Product Owner decision is recorded or implied anywhere in this file.
 >
-> **Current status banner (bounded correction 003, this transaction):** `EVIDENCE PRODUCED — PENDING REVIEW A VALIDATION — CANDIDATE v0.4`. This transaction is no longer QG-scoped-rationale-only: the Testing Convention v0.17 mechanism (Hypothesis) received its Product Owner decision on `2026-09-14` (recorded in `testing.md`), was installed/pinned into `python/feature-engine/pyproject.toml` and `requirements-dev.lock.txt`, and formal I-13 property-based evidence was authored (`tests/test_i13_properties.py`) and run against the exact committed boundary `27bd472efeab9a9538bde62ccfeca5c0a1ce48c9` — full record in §12. `P3-FEATURE-QG-EVID-07` is recorded **`EVIDENCE PRODUCED — PENDING REVIEW A VALIDATION`**, explicitly not `CLOSED` and not `FINAL PASS` — closure remains Review A's own determination, per Chapter 0 §3 and this file's own `-MAJ-02` governance path (unchanged). The Feature Engine module remains **NOT APPROVED**; LIVE remains **NOT_AUTHORIZED**.
+> **Status banner (superseded by stabilization 001 — historical, left unedited for the record):** `EVIDENCE PRODUCED — PENDING REVIEW A VALIDATION — CANDIDATE v0.4`. This transaction is no longer QG-scoped-rationale-only: the Testing Convention v0.17 mechanism (Hypothesis) received its Product Owner decision on `2026-09-14` (recorded in `testing.md`), was installed/pinned into `python/feature-engine/pyproject.toml` and `requirements-dev.lock.txt`, and formal I-13 property-based evidence was authored (`tests/test_i13_properties.py`) and run against the exact committed boundary `27bd472efeab9a9538bde62ccfeca5c0a1ce48c9` — full record in §12. `P3-FEATURE-QG-EVID-07` is recorded **`EVIDENCE PRODUCED — PENDING REVIEW A VALIDATION`**, explicitly not `CLOSED` and not `FINAL PASS` — closure remains Review A's own determination, per Chapter 0 §3 and this file's own `-MAJ-02` governance path (unchanged). The Feature Engine module remains **NOT APPROVED**; LIVE remains **NOT_AUTHORIZED**.
+>
+> **Current status banner (stabilization 001, this transaction):** `EVIDENCE PRODUCED — PENDING REVIEW A VALIDATION — CANDIDATE v0.5`. The `27bd472e...` evidence above is **superseded** — Review A found it `REVISION_REQUIRED` (`-MAJ-06`/`-07`/`-08`/`-MIN-01`). Root causes recorded in §13; defects corrected against Commit A2 `e901f1857b1049ebc0bb4bdfd7a047e40e1174ed`; formal evidence rerun and recorded fresh in §12 (wholesale replacement, not an appendix to the stale result). Testing Convention v0.17's Product Owner decision date is now correctly recorded as `2026-09-15` (R0 correction, §13 RC-5; decision text unchanged). `P3-FEATURE-QG-EVID-07` remains **`EVIDENCE PRODUCED — PENDING REVIEW A VALIDATION`** — not `CLOSED`, not `FINAL PASS`. The Feature Engine module remains **NOT APPROVED**; LIVE remains **NOT_AUTHORIZED**.
 
 ## 0. Baseline / boundary verification (fresh, this transaction — not assumed)
 
@@ -1155,53 +1204,74 @@ No edit to `docs/engineering/testing.md` — verified byte-unchanged, blob
    None of steps 1-7 is performed by this transaction.
 ```
 
-## 12. Formal evidence record (bounded correction 003, this transaction)
+## 12. Formal evidence record (stabilization 001, this transaction — WHOLESALE REPLACEMENT of the superseded correction-003 evidence below)
+
+> The formal evidence record previously recorded here (tested boundary `27bd472efeab9a9538bde62ccfeca5c0a1ce48c9`) is **superseded** — Review A found it `REVISION_REQUIRED` (`-MAJ-06`/`-07`/`-08`/`-MIN-01`, root causes at §13). This section is replaced wholesale with the corrected evidence obtained against **Commit A2**, not appended alongside the stale result.
 
 ```text
 Tested boundary (exact, pushed, verified `main == origin/main` before AND
-  after this run): 27bd472efeab9a9538bde62ccfeca5c0a1ce48c9
-  (parent: 81605fd1ca099eae48b937ced3c775e271dee2e2 — the ADR-043
-  implementation Review A CLEAN boundary).
-Commit A contents (exactly): docs/engineering/testing.md,
-  python/feature-engine/README.md, python/feature-engine/pyproject.toml,
-  python/feature-engine/requirements-dev.lock.txt,
-  python/feature-engine/tests/test_i13_properties.py (new file). No
-  production `src/feature_engine/**` file touched (verified
-  `git diff --stat 81605fd1c.. 27bd472e -- python/feature-engine/src`
-  empty).
+  after this run): e901f1857b1049ebc0bb4bdfd7a047e40e1174ed ("Commit A2",
+  parent: 86470d105f0608f0708be7c694a6f331486edf09 — the correction-003
+  docs-only boundary). Superseded prior evidence boundary (historical,
+  no longer qualifying): 27bd472efeab9a9538bde62ccfeca5c0a1ce48c9.
+Commit A2 contents (exactly): docs/engineering/testing.md,
+  python/feature-engine/README.md (tiny wording correction only, same
+  approval-date reference), python/feature-engine/tests/
+  test_i13_properties.py. No production `src/feature_engine/**` file
+  touched, no dependency-version file touched (verified `git diff
+  --stat 86470d1.. e901f185 -- python/feature-engine/src
+  python/feature-engine/pyproject.toml
+  python/feature-engine/requirements-dev.lock.txt` empty).
 
-Package identity and provenance (re-verified live this transaction,
-  §7's own install-time contract — not copied from §3/§5):
-  hypothesis: PyPI, version 6.168.0 (latest at verification time, `pip
-    index versions hypothesis`). Development Status :: 5 -
-    Production/Stable. License-Expression: MPL-2.0. Requires-Python:
-    >=3.10 (compatible with this project's `>=3.13`). Requires-Dist
-    (unconditional at Python >=3.11): sortedcontainers>=2.1.0,<3.0.0.
-    Wheel: hypothesis-6.168.0-py3-none-any.whl — content verified via
-    `pip download --no-deps --no-cache-dir` into a scratch directory
-    OUTSIDE the repository; cross-checked against PyPI's own JSON API
-    (`https://pypi.org/pypi/hypothesis/6.168.0/json`).
-    hypothesis-6.168.0-cp313-cp313-macosx_11_0_arm64.whl SHA-256:
-    92cff497b92e2285ff6a94193fdee04aba483a4115d501c1f9a570bd103fcd20
-    (matches PyPI's own declared digest for this exact platform wheel,
-    byte-identical).
-  sortedcontainers: PyPI, version 2.4.0. License: Apache 2.0. No further
-    Requires-Dist (pure-Python leaf). Wheel:
-    sortedcontainers-2.4.0-py2.py3-none-any.whl SHA-256:
-    a163dcaede0f1c021485e957a39245190e74249897e2ae4b2aa38595db237ee0
-    (matches PyPI's own declared digest).
-  Required API surface confirmed importable at 6.168.0: `hypothesis.given`,
-    `hypothesis.example`, `hypothesis.settings`,
-    `hypothesis.reproduce_failure`,
-    `hypothesis.stateful.RuleBasedStateMachine`, `hypothesis.stateful.rule`,
-    `hypothesis.stateful.invariant`, `hypothesis.stateful.precondition`.
-  No fact contradicted the approved v0.17 candidate (§3/§5 of this file,
-    testing.md's own v0.17 subsection) — no silent substitution occurred,
-    no STOP condition triggered.
+Package identity and provenance (`-MAJ-08` corrected — re-downloaded
+  fresh this transaction into a NEW scratch directory OUTSIDE the
+  repository, not copied from the superseded record above; captured
+  DIRECTLY from the downloaded filename, not manually transcribed):
+  hypothesis, version 6.168.0, for this exact Python 3.13/macOS ARM64
+    qualifying environment: `pip download --no-deps --no-cache-dir`
+    selected exactly ONE coherent artifact —
+    `hypothesis-6.168.0-cp313-cp313-macosx_11_0_arm64.whl`, size 784558
+    bytes, SHA-256 `92cff497b92e2285ff6a94193fdee04aba483a4115d501c1f9a
+    570bd103fcd20` — verified byte-identical against PyPI's own JSON API
+    declared digest for this exact filename
+    (`https://pypi.org/pypi/hypothesis/6.168.0/json`). `-MAJ-08`'s root
+    cause (§13 RC-3): the prior evidence record's own §3/§5 prose
+    additionally described this artifact once as
+    `hypothesis-6.168.0-py3-none-any.whl` — a UNIVERSAL-wheel filename
+    that does not exist for this package/version at all (PyPI's file
+    index for `hypothesis==6.168.0` lists ONLY CPython-version- and
+    platform-tagged wheels, e.g. `cp313-cp313-macosx_11_0_arm64`,
+    `cp313-cp313-manylinux_2_17_x86_64`, etc. — Hypothesis is NOT
+    distributed as a universal `py3-none-any` wheel; verified directly
+    against the live PyPI file listing, this transaction). The record
+    now names exactly ONE artifact identity, consistently, everywhere:
+    `hypothesis-6.168.0-cp313-cp313-macosx_11_0_arm64.whl` / 784558
+    bytes / SHA-256 `92cff497...03fcd20`.
+  sortedcontainers, version 2.4.0: `sortedcontainers-2.4.0-py2.py3-
+    none-any.whl` (this one genuinely IS a universal wheel — pure-Python,
+    consistent with its own PyPI file listing), size 29575 bytes,
+    SHA-256 `a163dcaede0f1c021485e957a39245190e74249897e2ae4b2aa38595db
+    237ee0` — verified byte-identical against PyPI's own JSON API
+    declared digest.
+  Development Status :: 5 - Production/Stable; License-Expression:
+    MPL-2.0; Requires-Python: >=3.10; Requires-Dist (unconditional at
+    Python >=3.11): sortedcontainers>=2.1.0,<3.0.0 — all re-confirmed
+    unchanged from the wheel METADATA of the newly-downloaded artifact
+    this transaction.
+  Package versions unchanged (`hypothesis==6.168.0`,
+    `sortedcontainers==2.4.0` remain exactly the approved v0.17
+    candidate's own versions — no STOP condition was triggered; the
+    version identity was never in question, only the recorded artifact
+    FILENAME/hash-pairing prose).
+  Required API surface re-confirmed importable at 6.168.0: `hypothesis.
+    given`, `hypothesis.example`, `hypothesis.settings`, `hypothesis.
+    reproduce_failure`, `hypothesis.stateful.RuleBasedStateMachine`,
+    `hypothesis.stateful.rule`, `hypothesis.stateful.invariant`,
+    `hypothesis.stateful.precondition`.
 
 Interpreter / tool identities (this transaction, exact venv used for the
   qualifying run — python/feature-engine/.venv, matching the committed
-  lock discipline):
+  lock discipline, unchanged from the superseded record):
   Python 3.13.6
   pytest 9.1.1
   hypothesis 6.168.0
@@ -1209,92 +1279,122 @@ Interpreter / tool identities (this transaction, exact venv used for the
   Clean-environment re-verification (SEPARATE, fresh venv strictly
     outside the repository, built from `pip install -r
     requirements-dev.lock.txt` + `pip install -e .` reading the
-    COMMITTED lock file, not from memory/cache reuse): `pip check` ->
-    "No broken requirements found." Same import surface confirmed. Both
-    formal property-only runs (below) additionally re-executed
-    successfully in this clean environment as a cross-check.
+    COMMITTED lock file): `pip check` -> "No broken requirements found."
   Production dependency surface confirmed unchanged: `[project]
-    dependencies = []` in pyproject.toml (hypothesis/sortedcontainers
-    are `[project.optional-dependencies].dev`-only, never a runtime
-    dependency).
+    dependencies = []` in pyproject.toml.
 
-Hypothesis execution profiles (tests/test_i13_properties.py, module
-  level):
+Hypothesis execution profiles (`-MIN-01` corrected —
+  tests/test_i13_properties.py, module level):
   "ci": derandomize=True, print_blob=True, database=None,
-    max_examples=200, suppress_health_check=[HealthCheck.too_slow].
-  "dev": max_examples=25 (interactive default, not used for this formal
-    evidence run).
+    max_examples=200, suppress_health_check=[HealthCheck.too_slow] —
+    UNCHANGED, exactly the approved formal-evidence semantics.
+  "dev": `settings.register_profile("dev")` with NO `max_examples`
+    override (corrected — previously `max_examples=25`, a locally-tuned
+    value that diverged from the approved mechanism's own "library
+    default" semantics, §13 RC-4) — now uses Hypothesis's own unmodified
+    library default. Verified PROGRAMMATICALLY, not merely by omission:
+    `test_dev_profile_uses_hypothesis_library_default_max_examples`
+    asserts `settings.get_profile("dev").max_examples ==
+    settings.get_profile("default").max_examples` — this test itself
+    passed in both formal runs below.
   Loaded via `settings.load_profile(os.environ.get("HYPOTHESIS_PROFILE",
     "dev"))` — formal evidence commands below explicitly set
     `HYPOTHESIS_PROFILE=ci`, never relying on environment
-    auto-detection.
+    auto-detection. No change to formal "ci" evidence semantics from
+    this correction.
   `TestRegimeLegalTransitionMachine.settings` overrides
-    `stateful_step_count=12` (bounded multi-step lineage generation) on
-    top of the loaded "ci" profile's other values (max_examples=200,
-    derandomize=True, print_blob=True, database=None).
+    `stateful_step_count=12` on top of the loaded "ci" profile's other
+    values — unchanged.
 
-Formal property evidence command (executed TWICE against this exact
-  commit, per instruction — no retry-until-green, both runs required to
+Formal property evidence command (executed TWICE against exact Commit
+  A2, per instruction — no retry-until-green, both runs required to
   pass independently):
   `HYPOTHESIS_PROFILE=ci pytest -q tests/test_i13_properties.py
   --hypothesis-show-statistics`
-  Run 1 result: 18 passed in 2.11s.
-  Run 2 result: 18 passed in 1.94s.
+  Run 1 result: 20 passed in 1.98s.
+  Run 2 result: 20 passed in 2.15s.
+  (20, not 18: `-MAJ-07`'s correction replaced one mismodeled property
+  with two correctly-distinguished properties, net +1, and `-MIN-01`'s
+  correction added one dedicated verification test, net +1 — 18 - 1 + 2
+  + 1 = 20.)
   Both runs produced statistically identical Hypothesis statistics per
-    test (identical pass/generate counts per test; the only textual
-    difference between the two runs' raw output was non-semantic
-    Python object memory-address/hash noise in printed debug repr
-    strings — confirmed via `diff` after filtering those lines; no
-    difference in any pass/fail/invalid count). No `Flaky` result
-    occurred on either run. Representative per-test statistics (both
-    runs identical):
-    TestRegimeLegalTransitionMachine: 200 passing, 0 failing state
-      sequences, stopped at max_examples=200.
-    test_p_run_sort_permutation_invariant_preserves_hard_constraints:
-      200 passing, 0 failing, 0 invalid.
-    test_adr043_successor_generation_fences_stale_predecessor_and_sees_
-      canonical_state: 200 passing, 0 failing, 0 invalid.
-    test_adr043_two_racing_successor_acquisitions_only_the_later_one_wins:
-      1 passing (single fixed `st.just(None)` case, by construction), 0
-      failing.
-    test_adr043_different_subjects_remain_fully_independent: 200
+    test (identical pass/generate/invalid counts per test; the only
+    textual difference between the two runs' raw output was non-semantic
+    generate-phase timing noise and Python object memory-address/hash
+    noise in printed debug repr strings — confirmed via `diff` after
+    filtering those lines; zero difference in any pass/fail/invalid
+    count). No `Flaky` result occurred on either run
+    (`grep -i flaky` on both raw outputs: no match). Per-test statistics
+    (both runs identical on pass/fail/invalid counts):
+    TestRegimeLegalTransitionMachine: 200 passing, 0 failing, 237
+      invalid (Hypothesis's own `RuleStrategy` filter-retry accounting
+      for the bounded, narrowing precondition set as
+      `generation_count` advances — not a failure).
+    test_second_original_against_non_invalidated_lineage_fails_closed,
+      test_double_invalidation_fails_closed,
+      test_stale_nonexistent_lineage_successor_invalidation_fails_closed,
+      test_fork_attempt_second_successor_of_same_prior_head_fails_closed,
+      test_foreign_scope_fails_closed,
+      test_p_run_sort_tie_break_matches_stream_id_then_sequence_for_
+      unrelated_events,
+      test_adr043_successor_generation_fences_stale_predecessor_and_
+      sees_canonical_state,
+      test_adr043_different_subjects_remain_fully_independent: each 200
       passing, 0 failing, 0 invalid.
-    test_regime_catch_up_reconstruction_matches_reference_history: 200
-      passing, 0 failing, 28 invalid (`assume()`-filtered draws — a
-      normal, expected outcome of Hypothesis's own filtering machinery,
-      not a failure; both runs identical at exactly 28).
+    test_swing_revision_skip_fails_closed: 21 passing, 0 failing, 21
+      invalid (`assume(swing_definition_version == "swd-1")` filters the
+      other sampled value — expected, not a failure).
+    test_p_run_sort_permutation_invariant_preserves_hard_constraints:
+      200 passing, 0 failing, 22 invalid.
+    test_p_run_sort_identical_duplicate_ref_dedups_deterministically,
+      test_p_run_sort_conflicting_duplicate_ref_fails_closed_both_orders:
+      each 100 passing, 0 failing, 0 invalid.
+    test_p_run_sort_cycle_fails_closed: 3 passing, 0 failing, 0 invalid
+      (bounded `st.integers(min_value=2, max_value=4)` domain).
+    test_p_run_sort_never_waits_for_a_future_unrelated_event (`-MAJ-07`
+      corrected Case 2): 200 passing, 0 failing, 20 invalid.
+    test_p_run_sort_never_waits_for_an_already_applied_out_of_set_cause
+      (`-MAJ-07` corrected distinct counterpart, not Hypothesis-decorated
+      — exercises a real `AuthoritativeSubjectOwner` commit): 1/1
+      passed, deterministic.
+    test_adr043_two_racing_successor_acquisitions_only_the_later_one_wins:
+      1 passing (fixed `st.just(None)` case, by construction), 0
+      failing.
+    test_regime_catch_up_reconstruction_matches_reference_history
+      (`-MAJ-06` corrected live-vs-replay oracle): 200 passing, 0
+      failing, 31 invalid.
     test_swing_catch_up_reconstructs_non_selected_swing_evidence: 16
-      passing (bounded by the `assume(swing_a_pivot != swing_b_pivot)`
-      filter over a small integer domain), 0 failing.
+      passing (bounded by `assume(swing_a_pivot != swing_b_pivot)` over
+      a small integer domain), 0 failing.
+    test_dev_profile_uses_hypothesis_library_default_max_examples
+      (`-MIN-01` corrected, not Hypothesis-decorated): 1/1 passed,
+      deterministic.
   No property test discovered a production defect. No production
-    source file was modified in this transaction (verified above).
-  No weakening of any assertion was performed to make a property pass.
-  `.hypothesis/` was never committed (auto-`.gitignore`d by Hypothesis
-    itself; confirmed via `git status --porcelain=v1
-    --ignored=matching -- .hypothesis` showing `!!` markers both before
-    and after this run).
+    source file was modified in this transaction. No weakening of any
+    assertion was performed to make a property pass. `.hypothesis/` was
+    never committed (auto-`.gitignore`d by Hypothesis; confirmed via
+    `git status --porcelain=v1 --ignored=matching -- .hypothesis`
+    showing `!!` markers both before and after this run).
 
-Full regression command and result (same exact commit, "ci" profile):
-  `HYPOTHESIS_PROFILE=ci pytest -q` -> 386 passed in 2.55s (368 tests
-  from the pre-existing suite, unchanged, + 18 new I-13 property tests
+Full regression command and result (exact Commit A2, "ci" profile):
+  `HYPOTHESIS_PROFILE=ci pytest -q` -> 388 passed in 2.45s (368
+  pre-existing tests, unchanged, + 20 I-13 property/verification tests
   — zero regressions in any pre-existing test).
 
-Static analysis commands and results (same exact commit):
+Static analysis commands and results (exact Commit A2):
   `ruff check src tests` -> 2 findings, BOTH pre-existing and unrelated
     (E501 line-too-long, `src/feature_engine/authority_resolver.py:465`
-    and `:528` — confirmed via prior `git stash`-based comparison, in
-    an earlier transaction in this same chain, that these findings
-    predate this entire work chain; NOT introduced, NOT fixed, by this
-    transaction, per instruction not to touch pre-existing unrelated
-    findings). Ruff is therefore NOT claimed "clean" — it is claimed
-    "2 pre-existing, unrelated findings, unchanged."
+    and `:528` — unchanged from every prior transaction in this chain;
+    NOT introduced, NOT fixed, by this transaction). Ruff is therefore
+    NOT claimed "clean" — it is claimed "2 pre-existing, unrelated
+    findings, unchanged."
   `mypy src tests` -> "Success: no issues found in 34 source files."
 
 Evidence-category mapping — the 5 required I-13 evidence categories
   (Constitution 02-platform-invariants.md I-13 Verification clause),
   mapped to exact committed test identifiers in
-  `python/feature-engine/tests/test_i13_properties.py` at commit
-  27bd472efeab9a9538bde62ccfeca5c0a1ce48c9 (sufficient for an
+  `python/feature-engine/tests/test_i13_properties.py` at Commit A2
+  `e901f1857b1049ebc0bb4bdfd7a047e40e1174ed` (sufficient for an
   independent reviewer to re-run each by name, e.g.
   `HYPOTHESIS_PROFILE=ci pytest -q tests/test_i13_properties.py::<name>
   --hypothesis-show-statistics`):
@@ -1316,10 +1416,13 @@ Evidence-category mapping — the 5 required I-13 evidence categories
        dedups_deterministically`,
        `test_p_run_sort_conflicting_duplicate_ref_fails_closed_both_
        orders`, `test_p_run_sort_cycle_fails_closed`,
-       `test_p_run_sort_never_waits_for_a_cause_outside_the_apply_set`
-       — generated-order-independence evidence for the real
-       `p_run_sort` (Chapter 8 §8.3.4 P_stream ∪ P_causation)
-       underlying the same transition graph's application order.
+       `test_p_run_sort_never_waits_for_a_future_unrelated_event`
+       (`-MAJ-07` corrected Case 2),
+       `test_p_run_sort_never_waits_for_an_already_applied_out_of_set_
+       cause` (`-MAJ-07` corrected distinct counterpart) —
+       generated-order-independence evidence for the real `p_run_sort`
+       (Chapter 8 §8.3.4 P_stream ∪ P_causation) underlying the same
+       transition graph's application order.
 
   2. Illegal-transition rejection:
      `test_second_original_against_non_invalidated_lineage_fails_closed`,
@@ -1358,15 +1461,23 @@ Evidence-category mapping — the 5 required I-13 evidence categories
      remain fully independent.
 
   5. Replay / catch-up reconstruction:
-     `test_regime_catch_up_reconstruction_matches_reference_history`,
+     `test_regime_catch_up_reconstruction_matches_reference_history`
+     (`-MAJ-06` corrected: a REAL `reference_live_view` `FeatureCurrentView`
+     is updated CONTEMPORANEOUSLY with reference generation — immediately
+     after every emitted event/batch — and `reference_live_result` is
+     captured only once generation completes; the replay side
+     (`replay_view`) is a SEPARATE `FeatureCurrentView` rebuilt
+     AFTERWARD purely from the persisted `canonical_events` obtained via
+     catch-up; the two sides never share a construction path),
      `test_swing_catch_up_reconstructs_non_selected_swing_evidence` —
      for generated reference lineages (bounded original/invalidation/
-     replacement chains, including mid-invalidation-pending endings),
-     a FRESH engine + fresh owner catching up via
-     `AuthoritativeLineageHistoryProvider` and a `RaisingRecordedTimeSource`
-     (proving no live clock is consulted) reconstructs an IDENTICAL
-     lineage/head/`FeatureCurrentView` state to the reference, with zero
-     new ref allocation (`fresh_allocator._sequences == {}`).
+     replacement chains, including mid-invalidation-pending endings), a
+     FRESH engine + fresh owner catching up via
+     `AuthoritativeLineageHistoryProvider` and a
+     `RaisingRecordedTimeSource` (proving no live clock is consulted)
+     reconstructs an IDENTICAL lineage/head/`FeatureCurrentView` state
+     to the LIVE reference, with zero new ref allocation
+     (`fresh_allocator._sequences == {}`).
 
 Real-vs-test-double boundary discipline (unchanged from §6/README):
   `RegimePassthroughFeatureEngine`, `SwingDistanceFeatureEngine`,
@@ -1388,4 +1499,88 @@ Overall qualifying-run result: SUCCESS. No STOP condition (HEAD drift,
   triggered at any point in this transaction.
 ```
 
-`P3-FEATURE-QG-EVID-07: EVIDENCE PRODUCED — PENDING REVIEW A VALIDATION` (final disposition recorded by this transaction — not `CLOSED`, not `FINAL PASS`; closure remains Review A's own determination on bounded review of this correction 003, per Chapter 0 §3).
+`P3-FEATURE-QG-EVID-07: EVIDENCE PRODUCED — PENDING REVIEW A VALIDATION` (final disposition recorded by this transaction — not `CLOSED`, not `FINAL PASS`; closure remains Review A's own determination on review of stabilization 001, per Chapter 0 §3).
+
+## 13. Root-cause consolidation (stabilization 001, this transaction)
+
+Review A's `REVISION_REQUIRED` disposition on bounded correction 003 (§ banner above) surfaced a pattern, not four unrelated defects — recorded here so the SAME class of defect is less likely to recur in a future transaction, per instruction ("do not introduce another governance workflow around it" — this is a record, not a new process).
+
+```text
+RC-1 — test prose drift from reviewed semantics (caused -MAJ-07).
+  Some evidence tests were implemented from abbreviated task prose
+  instead of validating the exact reviewed semantic distinction between
+  (a) a future, unrelated event (no P_stream/P_causation relationship
+  at all) and (b) an already-applied, out-of-set causal predecessor (a
+  genuine causation edge to an event that already resolved outside the
+  current apply set). `test_p_run_sort_never_waits_for_a_cause_outside_
+  the_apply_set` collapsed both into one property that actually only
+  modeled (b) while being narrated/labeled as (a) ("hypothetical event
+  outside its own certified apply set"). Corrected (§12 category 1):
+  split into `test_p_run_sort_never_waits_for_a_future_unrelated_event`
+  (models (a) — the comparison identity is never placed in any
+  envelope's `causation_refs`) and
+  `test_p_run_sort_never_waits_for_an_already_applied_out_of_set_cause`
+  (models (b) — "already applied" demonstrated via a real
+  `AuthoritativeSubjectOwner` commit, not merely asserted in prose).
+
+RC-2 — oracle construction reused persisted history on both sides
+  (caused -MAJ-06).
+  `test_regime_catch_up_reconstruction_matches_reference_history`'s
+  "reference" side and its replay side were BOTH folded, after the
+  fact, from the identical `canonical_events` list — a replay-vs-replay
+  comparison, not a live-vs-replay one; it could not actually detect a
+  defect where catch-up/replay silently diverges from genuine live
+  behavior, because both sides used the same input by construction.
+  Corrected (§12 category 5): the reference side is now a REAL
+  `FeatureCurrentView` (`reference_live_view`) updated CONTEMPORANEOUSLY
+  with reference generation, immediately after each engine emission;
+  the replay side (`replay_view`) remains a separate reconstruction from
+  persisted `canonical_events`, built afterward. The two sides are now
+  structurally independent.
+
+RC-3 — package provenance was manually transcribed from mixed artifact
+  identities (caused -MAJ-08).
+  The evidence record's own §3/§5 prose named the Hypothesis wheel once
+  as `hypothesis-6.168.0-py3-none-any.whl` (a universal-wheel filename)
+  while the ACTUAL artifact downloaded/hashed/used throughout was the
+  platform-specific `hypothesis-6.168.0-cp313-cp313-macosx_11_0_arm64.
+  whl` — an internally contradictory record naming two different files
+  for what must be one coherent artifact identity. Root mechanism:
+  Hypothesis does not in fact ship a universal wheel for this version at
+  all (confirmed against PyPI's live file listing, this transaction) —
+  the `py3-none-any` mention was a transcription error, not a real
+  alternate artifact. Corrected (§12): the record now names exactly ONE
+  Hypothesis artifact — filename, byte size, and SHA-256 all captured
+  directly from a freshly re-downloaded file this transaction, not
+  copied from prior prose.
+
+RC-4 — non-formal profile tuning escaped the approved mechanism (caused
+  -MIN-01).
+  `settings.register_profile("dev", max_examples=25)` introduced a
+  locally-tuned bound, although the approved Testing Convention v0.17
+  semantics (§5 of this file) specify the `dev` profile as ordinary
+  local Hypothesis behavior — i.e. the library's own default
+  `max_examples`, not a project-chosen number. Corrected (§12): the
+  override was removed; `dev` now inherits Hypothesis's own unmodified
+  default, verified programmatically (`test_dev_profile_uses_hypothesis_
+  library_default_max_examples`), not merely by the absence of a kwarg.
+
+RC-5 — lifecycle date was copied from an incorrect task assumption (R0
+  factual bookkeeping only, not a Review A finding).
+  The Testing Convention v0.17 Product Owner decision itself, and its
+  exact text, were always correct and valid — but the recorded decision
+  DATE was transcribed as `2026-09-14` when the actual Product Owner
+  decision, in the governing conversation, occurred on `2026-09-15`.
+  Corrected in `docs/engineering/testing.md` (Commit A2: frontmatter
+  `approved_at`/`last_review`, the approval banner's decision-date line,
+  and the mechanical lifecycle-change sentence) and reconciled here/in
+  MANIFEST/CHANGELOG (Commit B2). This is R0 bookkeeping, not a
+  Review A finding, and does not alter approval authority, decision
+  content, Review A's own CLEAN 0/0/0 disposition, or Risk R1.
+
+This consolidation is the correction-chain's response to the
+  `REVISION_REQUIRED` disposition — it does not introduce a new ADR, a
+  new Review B, a new Product Owner decision, or a standalone Risk
+  Classification transaction; per instruction, it is folded entirely
+  into this one stabilization transaction.
+```

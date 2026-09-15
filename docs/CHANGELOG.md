@@ -2,6 +2,24 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-15 — feature-engine: EVID-07 Root-Cause Consolidation + Stabilization 001 — Review A `REVISION_REQUIRED` on correction 003 remediated (`-MAJ-06`/`-07`/`-08`/`-MIN-01`), formal evidence rerun against Commit A2, PO approval-date factual correction
+
+**Consolidated stabilization transaction — vai trò: `Feature Engine EVID-07 Root-Cause Consolidation + Stabilization Executor`.** Bounded Review A of correction 003 returned `REVISION_REQUIRED — 0 Blocker / 3 Major / 1 Minor` (R1): `-MAJ-01`..`-05` CLOSED — REVIEW A VALIDATED (unchanged); three NEW findings on the formal evidence itself (`-MAJ-06` replay oracle was replay-vs-replay not live-vs-replay; `-MAJ-07` Case-2 out-of-set causation mis-modeled; `-MAJ-08` package artifact identity internally contradictory) plus `-MIN-01` (dev Hypothesis profile diverged from approved mechanism). Per instruction, not a normal correction round — one consolidated transaction: root causes (RC-1..RC-5), exact defects corrected, formal evidence rerun against a fresh exact boundary (Commit A2), corrected evidence recorded in this same docs-only commit (Commit B2).
+
+**Root causes (full detail: candidate §13).** RC-1: test prose drift conflated "future unrelated event" with "already-applied out-of-set cause" (`-MAJ-07`). RC-2: the replay-reconstruction oracle folded both reference and replay sides from the same persisted `canonical_events` list (`-MAJ-06`). RC-3: package provenance prose mixed a nonexistent universal-wheel filename with the actual platform wheel used (`-MAJ-08`). RC-4: `dev` profile carried a locally-tuned `max_examples=25` though approved semantics specify the library default (`-MIN-01`). RC-5: PO decision date transcribed as `2026-09-14` instead of the actual `2026-09-15` (R0, decision text unchanged/valid).
+
+**Commit A2** `e901f1857b1049ebc0bb4bdfd7a047e40e1174ed` (parent `86470d105f0608f0708be7c694a6f331486edf09`) — `docs/engineering/testing.md` (approval date corrected), `python/feature-engine/README.md` (pointer-sentence correction only), `python/feature-engine/tests/test_i13_properties.py`: live-vs-replay oracle fix, Case-2 split into two correctly-distinguished properties, `dev` profile default restored + verified programmatically. No production `src/feature_engine/**` change. No dependency-version change.
+
+**Formal evidence rerun against exact Commit A2.** Formal command run twice: **20 passed both times** (18 → 20), statistically identical, no `Flaky`. Full regression: **388 passed** (368 + 20). `ruff check src tests`: 2 pre-existing unrelated findings, unchanged. `mypy src tests`: success, 34 files. Fresh artifact re-verification (`-MAJ-08`): `hypothesis-6.168.0-cp313-cp313-macosx_11_0_arm64.whl` (784558 bytes, SHA-256 `92cff497b92e2285ff6a94193fdee04aba483a4115d501c1f9a570bd103fcd20`), `sortedcontainers-2.4.0-py2.py3-none-any.whl` (29575 bytes, SHA-256 `a163dcaede0f1c021485e957a39245190e74249897e2ae4b2aa38595db237ee0`) — both verified against PyPI's JSON API; package versions unchanged. Exact record: candidate §12 (wholesale replacement of the superseded Commit-A evidence).
+
+**Finding states.** `P3-FEATURE-QG-EVID07-A-MAJ-01`..`-05`: `CLOSED — REVIEW A VALIDATED`. `-MAJ-06`/`-07`/`-08`/`-MIN-01`: `REMEDIATED — PENDING REVIEW A RE-REVIEW` (none self-closed). `P3-FEATURE-QG-EVID-07`: **`EVIDENCE PRODUCED — PENDING REVIEW A VALIDATION`** — not `CLOSED`, not `FINAL PASS`.
+
+**Not performed:** no new ADR; no Review B; no additional Product Owner decision; no standalone Risk Classification transaction; no production source change; no dependency-version change; no Contract/Constitution/Registry change; no CI workflow; no module approval; no LIVE authorization.
+
+**Files changed:** Commit A2 (already pushed) — `docs/engineering/testing.md`, `python/feature-engine/{README.md,tests/test_i13_properties.py}`. Commit B2 (this entry) — `docs/governance/quality-gate/feature-engine-evid07-property-based-mechanism-candidate-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.372"` → `"10.373"`. Feature module remains NOT APPROVED. LIVE remains NOT_AUTHORIZED.
+
+**Next governed step:** bounded Review A of stabilization 001 + exact Commit A2 formal evidence.
+
 ## [Unreleased] — 2026-09-15 — feature-engine: EVID-07 Integrated Execution — Testing Convention v0.17 `Approved` (Hypothesis), ADR-043 implementation Review A `CLEAN`, formal I-13 property evidence produced (candidate bounded correction 003, `EVIDENCE PRODUCED — PENDING REVIEW A VALIDATION`)
 
 **Integrated execution transaction — vai trò: `Feature Engine EVID-07 Integrated Execution Executor`.** Two exact commits on `main`: Commit A `27bd472efeab9a9538bde62ccfeca5c0a1ce48c9` (executable boundary, parent `81605fd1ca099eae48b937ced3c775e271dee2e2`) and this entry's own Commit B (docs/bookkeeping only).
