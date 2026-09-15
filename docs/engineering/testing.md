@@ -2,18 +2,38 @@
 id: engineering-testing
 title: "Engineering Foundation — Testing Convention"
 version: "0.17"
-status: Draft
+status: Approved
 owner: Product Owner
-reviewers: []
-approved_by: null
-approved_at: null
+reviewers: [ChatGPT]
+approved_by: Product Owner
+approved_at: "2026-09-14"
 created_at: "2026-08-12"
-last_review: null
+last_review: "2026-09-14"
 next_review: null
 depends_on: ["../constitution/03-engineering-principles", "../constitution/13-quality-gates", "../adr/ADR-008", "naming", "coding-standard", "error-handling", "config", "logging"]
 ---
 
 # Engineering Foundation — Testing Convention
+
+**v0.17 APPROVAL — mechanical (2026-09-14), vai trò: `Testing Convention v0.17 Mechanical Approval Recorder` (EVID-07 Integrated Execution transaction).** Product Owner decision (verbatim): **"APPROVE Testing Convention v0.17 — Python property-based testing mechanism: Hypothesis — ADR_OPTIONAL, ADR NOT AUTHORED."** Decision date: `2026-09-14`.
+
+**Reviewed semantic candidate boundary:** `81605fd1ca099eae48b937ced3c775e271dee2e2` (the Feature Engine ADR-043 implementation bounded-correction-002 commit — the exact, immutable repository state this Review A/approval covers; `testing.md` itself was untouched between the v0.17 candidate-authoring transaction and this approval, confirmed by the reviewed file blob below). **Reviewed file blob:** `708744f0464720cb14ceafbe75bb422200a57820` (this exact `testing.md` content, byte-for-byte, as it stood at the reviewed boundary — the CANDIDATE banner/content immediately below, preserved unedited).
+
+**Review evidence tại approval này (already completed, recorded — không phải recorder self-closure):**
+
+```text
+Review A — ChatGPT, reviewed boundary 81605fd1ca099eae48b937ced3c775e271dee2e2,
+  reviewed blob 708744f0464720cb14ceafbe75bb422200a57820:
+  Blocker 0 / Major 0 / Minor 0.
+  Risk Classification: R1.
+  FINAL REVIEW A VALIDATION: CLEAN — READY_FOR_PRODUCT_OWNER_DECISION.
+No Independent Review B performed for this approval (not required at R1
+  per ADR-042's own risk-scaled review discipline — unlike v0.16's own
+  R2-scale mutation-compatibility decision above, which required and
+  received Review B).
+```
+
+`status: Draft → Approved`, `approved_by: null → Product Owner`, `approved_at: null → "2026-09-14"`, `reviewers: [] → [ChatGPT]`, `last_review: null → "2026-09-14"` — `version` KHÔNG bump (pure mechanical lifecycle approval, đúng Chapter 0 §8, same precedent as v0.4/v0.7/v0.12/v0.16) — VẪN `"0.17"`. **The exact v0.17 mechanism content is preserved byte-equivalent below** — `hypothesis` (FEATURE-ENGINE-ONLY scope), `ADR_OPTIONAL — ADR NOT AUTHORED` — this approval record does NOT retroactively rewrite that CANDIDATE-authored text as though it had already been approved when written; the banner immediately below remains historical, describing the state truthfully AS OF 2026-09-14 authoring (still-Draft, pending decision) — the decision this banner records was made and recorded ONLY after that candidate content was reviewed CLEAN. Installation/pinning of `hypothesis==6.168.0`/`sortedcontainers==2.4.0` into `python/feature-engine` and the formal property-based test suite are performed in the SAME integrated EVID-07 transaction this approval belongs to (Commit A) — re-verified directly against the live package index at install time (§ below), not merely inherited from the candidate's own earlier verification.
 
 **v0.17 CANDIDATE amendment (2026-09-14), KHÔNG self-approved — status: `Approved → Draft`.** `version: "0.16" → "0.17"`, `approved_by`/`approved_at` (v0.16's own values) reset to `null`/`null` for the document's CURRENT lifecycle state — v0.16's own approval record is PRESERVED UNEDITED immediately below as historical evidence of what WAS approved, exactly the same discipline already used for the v0.2→v0.3 Go branch-coverage candidate addition. Vai trò: `Feature Engine EVID-07 Property-Based Mechanism Candidate Bounded Correction Executor` — added ONE new subsection, "Python property-based testing mechanism — CANDIDATE," under "## Framework/tool selection" (below), remediating `P3-FEATURE-QG-EVID07-A-MAJ-03` (a standalone `P3-FEATURE-QG-EVID-07` Quality-Gate candidate document risked becoming a competing tooling SSOT; the actual mechanism/tool decision is now canonicalized HERE, under this document's own Chapter 3 §3.2 authority). **No other section's content changed** — §1-§16, Framework/tool-selection's three existing subsections (Go branch-coverage, Python coverage.py, Python mutmut), Non-goals, prior ADR-scope disposition, and Change History below are all byte-equivalent to v0.16 except for this one new addition and this banner/frontmatter. **This v0.17 addition does NOT install/pin `hypothesis`, does NOT modify Feature Engine production/test code, does NOT close `P3-FEATURE-QG-EVID-07`, and is NOT itself approved** — pending Review A + Risk Classification, then a separate Product Owner decision, per Chapter 0 §3/ADR-042.
 
