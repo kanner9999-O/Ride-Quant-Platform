@@ -43,7 +43,7 @@ LIVE: NOT_AUTHORIZED.
 | `EVID-03` (12-method blind spot) | Test-effectiveness — mutation-surface completeness | **NEEDS_GOVERNED_DESIGN_OR_MECHANISM** | 5 high-materiality methods structurally outside mutmut 3.7.0's mutation surface; no qualifying supplemental mechanism/fault-injection/risk-acceptance evidence exists | A governed decision on which of three paths to pursue (Testing Convention v0.16 §5c) | One of: (a) an accepted supplemental mutation-testing mechanism reaching decorated classes now exists; (b) governed deterministic fault-injection evidence is authored and pinned per method; (c) Product Owner explicitly records risk-acceptance naming the 5 residuals |
 | `EVID-04` | I-2 Decision Parity / Tier-1 Parity Test | **BLOCKED_BY_EXTERNAL_DEPENDENCY** | I-2's own Verification (golden event-log test, canonical semantic-decision hash comparison across all 4 execution modes at the **Decision** layer) cannot be performed — no Decision Engine/Strategy Plugin Host exists anywhere in the repository (confirmed: `python/`, `go/` contain only feature-engine, raw-regime-engine, structure-engine, market-data-ingestion, market-reference-service) | Decision Engine + a parity harness (Chapter 14 §14.2 sequence) | Decision Engine exists and a parity harness reproduces the same canonical Decision hash across Replay/Backtest/Paper/Live for a real scenario touching Feature Engine's own output |
 | `EVID-05` | I-5 Decision-Time Observable Dependency | **NEEDS_GOVERNED_DESIGN_OR_MECHANISM** (split — see §2) | (a) no self-contained-replay test proves `on_candle`/`on_swing_confirmed`/etc. never re-touch the filesystem after construction-time authority resolution; (b) `ComputationCursor` carries `input_contract_ref`/`stream_registry_version` (identity/version strings) but no content-identity **checksum** referenced from the event, so I-5's "checksum của mọi artifact phải khớp" clause is structurally unverifiable today | (a) none — test-only, exercises already-existing cached-authority design; (b) a schema/design decision — plausibly an Event-Schema-adjacent change requiring a **fresh Chapter 0 §4b run** | (a) a self-contained replay test passes with network/filesystem cut after materialization; (b) either `ComputationCursor` (or an equivalent persisted-evidence mechanism) carries a verifiable content-identity checksum, checked against the resolved authority at replay time |
-| `EVID-06` | I-6 Fail-Safe by Scope | **NEEDS_GOVERNED_DESIGN_OR_MECHANISM** (interpretation sub-step now **RESOLVED**, §9 — fault-injection tests/formal evidence still not authored) | I-6's actual Verification is fault injection per scope + blast-radius confirmation + a risk-not-increased assertion "theo risk metric/policy authoritative" — Feature Engine (a pure Compute Engine, no risk/exposure semantics of its own) has no resolved interpretation of how "risk-not-increased" applies to it at all | ~~A design/interpretation decision (likely affecting every Compute-Engine-class module identically — structure-engine, raw-regime-engine, feature-engine — so plausibly `ADR_REQUIRED` under Chapter 0 §4b's ">1 module" trigger)~~ **CORRECTED (§9, this transaction):** the interpretation is fully derivable, Feature-Engine-only, from already-Locked authority (I-6 itself + I-9's own Scope boundary line + already-approved ADR-043 + already-Locked feature.md subject identity) — **`ADR_NOT_REQUIRED`**, not `ADR_REQUIRED`; the old ">1 module" assumption was never verified against source and does not hold once actually derived. Genuine fault-injection tests (not merely exception-raising unit tests) still need authoring — see §9's evidence-matrix design. | The interpretation decision is recorded (§9, this transaction), then genuine fault-injection tests (not merely exception-raising unit tests) are authored per applicable scope with blast-radius and risk-not-increased assertions — **not performed by this transaction** |
+| `EVID-06` | I-6 Fail-Safe by Scope | **NEEDS_GOVERNED_DESIGN_OR_MECHANISM** (interpretation sub-step RE-DERIVED on corrected authority, §9, bounded correction 001 — **pending Review A re-review of `P3-FEATURE-QG-EVID06-A-MAJ-01`..`-04`**; fault-injection tests/formal evidence still not authored; even once local evidence passes, final disposition is `OPEN — PARTIALLY SATISFIED / BLOCKED_BY_EXTERNAL_DEPENDENCY`, never `CLOSED — PASS`, §9.4b) | I-6's actual Verification is fault injection per scope + blast-radius confirmation + a risk-not-increased assertion "theo risk metric/policy authoritative" — Feature Engine (a pure Compute Engine, no risk/exposure semantics of its own) has no resolved interpretation of how "risk-not-increased" applies to it at all | ~~A design/interpretation decision (likely affecting every Compute-Engine-class module identically — structure-engine, raw-regime-engine, feature-engine — so plausibly `ADR_REQUIRED` under Chapter 0 §4b's ">1 module" trigger)~~ **CORRECTED (§9, this transaction; re-grounded, bounded correction 001):** the interpretation is fully derivable, Feature-Engine-only, from already-EFFECTIVE authority — I-6 itself (Locked) + I-9's own Scope boundary line (Locked) + Approved ADR-043's own ownership/fail-closed semantics (Draft `feature.md` cited only as supporting current-model context, never as the binding source, §9.1) — **`ADR_NOT_REQUIRED`**, not `ADR_REQUIRED`; the old ">1 module" assumption was never verified against source and does not hold once actually derived. Genuine fault-injection tests (not merely exception-raising unit tests) still need authoring — see §9's evidence-matrix design. | The interpretation decision is recorded (§9, this transaction), pending Review A re-review, then genuine fault-injection tests (not merely exception-raising unit tests) are authored per applicable scope with blast-radius and risk-not-increased assertions — **not performed by this transaction** |
 | `EVID-07` | I-13 State Transition Integrity / property-based evidence | **NEEDS_GOVERNED_DESIGN_OR_MECHANISM** | No Python property-based testing framework is approved or installed anywhere in the repository (confirmed: zero "hypothesis" references in `testing.md` or any `pyproject.toml`) — I-13's Verification explicitly requires "Property-based test trên transition graph authoritative" | A full governed mechanism-selection sequence, mirroring Testing Convention v0.16's own already-completed mutmut precedent (candidate authoring → Review A/B → Product Owner decision → install/pin → measurement) | A property-based framework is Approved, installed, pinned, and produces transition-graph/illegal-transition/concurrent-transition/replay-reconstruction evidence for Feature Engine's own state-machine entities (e.g. `_WindowLineage`'s VALID/PENDING_CORRECTION lifecycle, `FeatureCurrentView`'s row lifecycle) |
 | `EVID-08` | I-1 Explainability / Decision-Pipeline trace completeness | **BLOCKED_BY_EXTERNAL_DEPENDENCY** | I-1's Verification requires 100% trace-completeness across "Toàn bộ Decision Pipeline (Structure/Regime/Feature → Strategy → Decision → Risk Gateway → Execution)" — Strategy/Decision/Risk Gateway/Execution Engine are all unbuilt | Full Decision/Risk/Execution evidence path (superset of EVID-04's own dependency) | The complete pipeline exists and produces production Decision/Risk Action evidence; Feature-local causation evidence (`causation_refs`, `input_fact_refs`, `computation_cursor`) already exists and is preserved as supporting-only evidence, never sufficient alone |
 
@@ -192,27 +192,37 @@ moves the one dimension with an already-approved, already-EFFECTIVE numeric
 gate — no other blocker has a comparably concrete, immediately-startable
 scope.
 
-## 9. `EVID-06` applicability / fail-safe design interpretation (this transaction)
+## 9. `EVID-06` applicability / fail-safe design interpretation
+
+> **Bounded correction 001 (this transaction) — vai trò: `Feature Engine EVID-06 Applicability / Fail-Safe Design Bounded Correction Executor`.** Review A of §9 (as originally authored) returned `REVISION_REQUIRED — 0 Blocker / 4 Major / 0 Minor`, Risk `R1`: `P3-FEATURE-QG-EVID06-A-MAJ-01` (§9.1 cited Draft `feature.md` as if it were Locked/binding authority), `-MAJ-02` (§9.2/§9.3 claimed a WINDOW fail-safe tier and a blanket "every fail-closed check runs before mutation" that current engine code does not actually support — `_check_recorded_time` mutates subject-wide `_last_input_recorded_time` BEFORE the later lineage check that raises `FeatureLineageError`), `-MAJ-03` (§9.3/§9.6's shared-authority matrix row conflated construction-time provider-resolution failure with runtime frontier/cursor validation against an already-cached authority — two distinct fault classes with two distinct injection points and blast radii), `-MAJ-04` (§9.4 did not yet state the exact required EVID-06 closure disposition — local Feature Engine evidence passing must never be written as `P3-FEATURE-QG-EVID-06 = CLOSED — PASS` while the mandatory risk-not-increased assertion remains externally blocked). All four remediated below, in place, re-grounded against fresh direct source reads (`regime_passthrough.py` `prepare_regime_classified`/`_check_recorded_time`, `contracts.py` `resolve_computation_cursor`, `docs/domain/feature.md` frontmatter, `docs/adr/ADR-043.md` semantics 1/5, `docs/architecture/module-registry.yaml` frontmatter) — none self-closed here; closure is Review A's own re-review determination, per Chapter 0 §3. No ADR authored, no Review B, no Product Owner decision, no production/test code touched by this correction.
+>
+> `P3-FEATURE-QG-EVID06-A-MAJ-01: REMEDIATED — PENDING REVIEW A RE-REVIEW`
+> `P3-FEATURE-QG-EVID06-A-MAJ-02: REMEDIATED — PENDING REVIEW A RE-REVIEW`
+> `P3-FEATURE-QG-EVID06-A-MAJ-03: REMEDIATED — PENDING REVIEW A RE-REVIEW`
+> `P3-FEATURE-QG-EVID06-A-MAJ-04: REMEDIATED — PENDING REVIEW A RE-REVIEW`
 
 **Vai trò: `Feature Engine EVID-06 Applicability / Fail-Safe Design Executor`.** Resolves ONLY the semantic/applicability question needed to make `EVID-06` testable — does NOT write fault-injection tests, does NOT close `EVID-06`, does NOT author an ADR, does NOT modify production code/Constitution/Domain Contract/Risk semantics. Fresh authority read this transaction (superseding this plan's own earlier, unverified ">1 module → likely `ADR_REQUIRED`" guess at the §1 row/§4 step-2 text above, now struck through and corrected in place): `docs/constitution/02-platform-invariants.md` I-6 (§112-126) and I-9 (§158-172, specifically its Scope line); `docs/constitution/13-quality-gates.md` §13.2/§13.4-13.6 (Tier 1, I-6 evidence row, Chaos/fault-injection category trigger); `docs/constitution/07-module-taxonomy.md` §I-6 cross-reference (line 79); `docs/domain/feature.md` (subject/scope identity, existing fail-closed discipline already present at §4/replay-preparation); `docs/architecture/module-registry.yaml` (`feature-engine` entry, `quality_tier: Tier 1`, `depends_on`); `python/feature-engine/README.md`; `python/feature-engine/src/feature_engine/{errors.py, ownership.py, regime_passthrough.py, swing_distance.py, current_view.py, authority_resolver.py}` (full read); `python/feature-engine/tests/{test_ownership.py, test_regime_passthrough.py, test_swing_distance.py, test_current_view.py}` (representative fault-path tests); `docs/adr/ADR-043.md` (no I-6/fail-safe language present — checked, not assumed); grep across every ADR/architecture doc for "I-6"/fail-safe/degraded-mode/risk-boundary authority (no Feature-Engine-specific or Compute-Engine-class-wide fail-safe ADR exists anywhere in the repository).
 
 ### 9.1 Key Question 1 — is existing authority sufficient?
 
-**Yes.** No new authority is created or required by this interpretation; `no new authority → no ADR` applies. The interpretation is a direct, single-module reading of ALREADY-Locked text:
+**`-MAJ-01` correction notice:** the original §9.1 (below, corrected in place) leaned on `docs/domain/feature.md` as if it were binding, Locked-equivalent authority. Freshly re-verified this transaction: `feature.md` frontmatter reads `version: "0.6"`, `status: Draft`, `approved_by: null`, `approved_at: null` — it is **not** Locked, **not** Approved, and carries no binding authority equivalent to Constitution or an Approved ADR. It is not discarded — it remains cited below, explicitly labeled as **current Draft Domain Contract / current repository domain model**, useful for implementation/domain context, but it is never the authority ROOT that justifies a governed conclusion. Every claim below is re-grounded in text that is actually effective: I-6/I-9 (Constitution, Locked), ADR-043 (Approved, v0.2), and `module-registry.yaml` (cited only for the specific facts Chapter 13 §13.4 already treats it as authoritative for — module classification/tier — not as a Locked document in its own right; its own frontmatter itself reads "status: Draft, NOT Approved/Locked" at the package-lifecycle level, separate from its individually Product-Owner-approved `quality_tier` field pin).
 
-- I-6 itself (Chapter 2, Locked) is self-scoping: `Scope: Mọi Compute Engine, Projection, Runtime Service` — Feature Engine (`module_type: compute_engine`, `module-registry.yaml`) is directly, unambiguously in scope. No new invariant text is needed to establish applicability.
-- I-9's own Scope line (Chapter 2, Locked) already draws the exact boundary this finding needs: *"ranh giới (boundary) giữa Feature Engine (analytical float được phép) và Execution/Ledger (bắt buộc lossless decimal từ đầu đến cuối)"* — i.e. Constitution itself already states, in already-Locked text, that Feature Engine's outputs are analytical (pre-financial), not financial/risk values. This single line resolves most of Key Question 3 without inventing anything.
-- `feature.md` (Domain Contract) already declares Context snapshot / trade signal / action recommendation / entry-exit setup **out of scope by domain definition** (§"Out of scope theo ranh giới domain") — adding any risk semantics to Feature Engine would violate its own already-Locked Domain Contract boundary, not merely be unnecessary.
-- `feature.md` already defines `feature_subject_id` as the domain's own smallest independent identity/isolation unit, explicitly: *"Hai Feature subject trên cùng instrument nhưng khác `venue_id` hoặc `timeframe` là hai subject **độc lập hoàn toàn**."* This is existing Domain Contract authority, not invented for this transaction.
-- ADR-043 (Approved, v0.2) already establishes the per-subject ownership/fencing/catch-up architecture; its implementation (Review A CLEAN, README) already fails closed at ~30 identified fault points, all BEFORE any authoritative append (confirmed by direct source read — see §9.4).
-- `module-registry.yaml` already confirms Feature Engine has **no** `depends_on` edge toward Risk Gateway/Execution Engine/Decision Authority Service — it is strictly upstream of any risk-bearing module, consuming only `market-data-ingestion`/`structure-engine`/`raw-regime-engine`.
+**Yes, existing authority is sufficient.** No new authority is created or required by this interpretation; `no new authority → no ADR` applies. The interpretation is a direct, single-module reading of already-EFFECTIVE authority:
+
+- I-6 itself (Chapter 2, **Locked**) is self-scoping: `Scope: Mọi Compute Engine, Projection, Runtime Service` — Feature Engine (`module_type: compute_engine`, per `module-registry.yaml`'s own entry) is directly, unambiguously in scope. No new invariant text is needed to establish applicability.
+- I-9's own Scope line (Chapter 2, **Locked**) already draws the exact boundary this finding needs: *"ranh giới (boundary) giữa Feature Engine (analytical float được phép) và Execution/Ledger (bắt buộc lossless decimal từ đầu đến cuối)"* — i.e. Constitution itself, in already-Locked text, states that Feature Engine's outputs are analytical (pre-financial), not financial/risk values. This single Locked line resolves most of Key Question 3 without inventing anything and without relying on `feature.md` at all.
+- ADR-043 (**Approved**, v0.2) is the actual binding runtime/isolation authority for ownership/concurrency, not `feature.md`. Its own semantics, verified fresh this transaction: semantic 1 — *"Per-subject exclusive ownership. For any `feature_subject_id`, at most one runtime owner may hold authority to validate and emit authoritative Feature transitions at any instant. Different subjects may be owned by different owners concurrently — horizontal scale is by subject partitioning/affinity, not by a single global process."*; semantic 5 — *"Fail closed on uncertain ownership, state, or precedence. If the system cannot prove exclusive current ownership, authoritative state catch-up/current-head correctness, or a deterministic precedence between two competing attempts... that subject scope fails closed — no best-effort winner selection, no wall-clock election."* These two Approved-ADR sentences are the actual authority root for §9.3's subject-scope isolation floor and §9.2's fail-closed formulation — not `feature.md`'s own subject-identity prose (which remains true as domain fact/current-model context, feature.md §1, but is Draft, not the binding source). ADR-043's implementation (Review A CLEAN, README) fails closed at the ~30 identified fault points in §9.5, confirmed by direct source read.
+- `module-registry.yaml`'s `feature-engine` entry (cited for module classification, per Chapter 13 §13.4's own "khi registry active, mapping resolve từ registry" treatment — the specific authority basis Chapter 13, Locked, grants it) confirms `module_type: compute_engine`, `owns_authoritative_state: true`, `quality_tier: Tier 1` (individually Product-Owner-approved field), and **no** `depends_on` edge toward Risk Gateway/Execution Engine/Decision Authority Service — Feature Engine is strictly upstream of any risk-bearing module, consuming only `market-data-ingestion`/`structure-engine`/`raw-regime-engine`.
 - The remediation plan's own `EVID-04`/`EVID-08` findings (unchanged by this transaction) already confirm, as an independently-established repository fact, that **no Decision Engine, Risk Gateway, or Execution Engine exists anywhere in this repository yet** — so there is structurally no "authoritative risk metric/policy" reachable from Feature Engine to consult, today, by construction.
+- `feature.md` (Draft, current repository domain model) is retained ONLY as supporting/current-model context for two facts that also independently follow from I-6/I-9/ADR-043 without it: (a) Feature Engine's own domain scope excludes trade signal/action recommendation/entry-exit setup (consistent with, not the source of, I-9's Locked analytical-float boundary); (b) `feature_subject_id`'s five-field identity composition (`instrument_id`, `venue_id`, `timeframe`, `feature_type`, `feature_definition_version`) is the same identity unit ADR-043 semantics 1 (Approved) already binds ownership exclusivity to — ADR-043 is the authority for the OWNERSHIP/isolation consequence; `feature.md` merely describes the identity fields as current implementation/domain fact, not as the binding source of the isolation guarantee.
 
-None of the above required a new decision, a new cross-module contract, or an edit to any Locked document — every fact was already present. The old plan's ">1 module, likely `ADR_REQUIRED`" framing (§1/§4, corrected above) was an unverified assumption made before any of this was actually read; it does not survive contact with the source. No genuine architecture/authority gap exists — two or more materially different valid behaviors are NOT possible under current authority; the interpretation below is the unique reading current authority implies.
+None of the above required a new decision, a new cross-module contract, or an edit to any Locked/Approved document — every fact was already present in effective authority. The old plan's ">1 module, likely `ADR_REQUIRED`" framing (§1/§4, corrected in a prior transaction) does not survive contact with the source, and neither did the original §9.1's over-reliance on Draft `feature.md`, now corrected. No genuine architecture/authority gap exists — two or more materially different valid behaviors are NOT possible under current EFFECTIVE authority (I-6 + I-9 + ADR-043 + module-registry.yaml's specific authoritative fields); the interpretation below is the unique reading that authority implies.
 
 ### 9.2 Key Question 2 — safe-state interpretation for Feature Engine
 
-The task's own candidate formulation is verified against source, not accepted blindly, and matches ALREADY-implemented behavior almost exactly:
+**`-MAJ-02` correction notice:** the original §9.2 (corrected below) asserted "every fail-closed check runs BEFORE mutation/append." Freshly re-read this transaction, `regime_passthrough.py`'s `prepare_regime_classified` disproves this as a blanket claim: `_resolve_cursor`/`_check_scope`/`_check_contract`/dimension/version checks run first and ARE mutation-free (confirmed: `_check_scope`/`_check_contract`/`resolve_computation_cursor` read `self`/arguments only, never assign to `self`), but immediately after them, `self._check_recorded_time(fact.recorded_time)` (line 300) **unconditionally sets** `self._last_input_recorded_time = recorded_time` — a subject-wide field — BEFORE the subsequent lineage-key lookup (line 302 onward) that may still raise `FeatureLineageError`/`EvidenceReferenceConflictError`. A rejected input for one window CAN therefore durably advance subject-shared `_last_input_recorded_time`, which could cause a LATER, otherwise-legitimate input for a DIFFERENT window of the SAME subject to be spuriously rejected by `_check_recorded_time`'s own monotonicity check. The corrected formulation below distinguishes the two kinds of state precisely instead of claiming a blanket pre-mutation guarantee.
+
+The task's own candidate safe-state formulation is verified against source, not accepted blindly — the AUTHORITATIVE half holds exactly; the "preserve already-committed history" half is corrected to name the real distinction:
 
 ```text
 When correctness cannot be proven for one Feature scope:
@@ -220,7 +230,7 @@ When correctness cannot be proven for one Feature scope:
     (never emit a FeatureComputed/FeatureFactInvalidated built on
     unverified/unprovable state)
   do not fabricate/fallback/guess
-    (no error class below ever substitutes a default/guessed value;
+    (no error class in §9.5 ever substitutes a default/guessed value;
     every one raises instead)
   do not advance authoritative Feature state/frontier
     (StaleOwnershipGenerationError: "no sequence consumed, no event
@@ -228,84 +238,128 @@ When correctness cannot be proven for one Feature scope:
     CATCHING_UP -> ACTIVE transition fails closed instead of advancing;
     CanonicalHistoryMismatchError: catch-up fails closed rather than
     preferring either candidate)
-  preserve already-committed history
-    (every fail-closed check below runs BEFORE mutation/append -- never
-    a rollback of already-persisted facts; confirmed by source read,
-    not assumed)
-  keep unrelated subjects/scopes operational
+  preserve already-committed history vs. process-local prepare-side
+    state -- these are DIFFERENT, verified separately, never conflated:
+    AUTHORITATIVE COMMITTED HISTORY (already-appended FeatureComputed/
+      FeatureFactInvalidated, already-successful FencedFeatureCommitter
+      commits): never rolled back, never modified, by any fail-closed
+      path identified in §9.5 -- confirmed by source read.
+    PROCESS-LOCAL PREPARE-SIDE ANALYTICAL STATE (e.g.
+      _last_input_recorded_time): MAY be mutated by a `prepare_*` call
+      that later still raises for an UNRELATED reason (§9.3's own
+      concrete example). This is safe, not a defect this transaction
+      diagnoses or fixes: the mutation stays SUBJECT-bounded (never
+      crosses to a different feature_subject_id's own instance
+      attribute), and it can only cause a LATER legitimate input to be
+      REJECTED more conservatively than strictly necessary -- it can
+      never cause a wrong/uncertain value to be silently ACCEPTED as
+      authoritative. The evidence suite (§9.6) must prove exactly this:
+      any prepare-side mutation after a failed authoritative attempt
+      either (a) remains bounded by the declared fail-safe scope (here:
+      subject), or (b) causes that scope/owner to become unusable and
+      require the governed recovery path already proven in ownership.py
+      (fresh engine + fresh owner + fresh generation + catch-up).
+  keep unrelated subjects operational
     (verified structurally, §9.3 -- separate engine/owner/committer
-    instances per feature_subject_id, separate per-window dict entries
-    within a subject; no shared mutable state links independent scopes
-    except where explicitly identified, §9.3)
+    instances per feature_subject_id; no shared mutable state links
+    two DIFFERENT subjects anywhere in the reviewed source)
 ```
 
 `FeatureCurrentView` is explicitly `"non-authoritative projection... never used as authoritative input anywhere"` (its own module docstring) — I-6's binding obligation for Feature Engine attaches to the **authoritative emission path** (`on_regime_classified`/`on_swing_confirmed`/`on_candle`/`process_certified_frontier` and the ADR-043 ownership/commit layer), consistent with `module-registry.yaml`'s own `owns_authoritative_state: true` classification, and with Chapter 7 §I-6's own text that non-critical projections are explicitly permitted more latitude to degrade — the view utility is not the primary surface this interpretation targets.
 
 ### 9.3 Smallest legitimate fault scope(s) and escalation
 
-Verified directly against source (not asserted); four tiers, in ascending order — **not** the task's example "instrument" tier, which does not exist as a distinct boundary in this architecture (explained below):
+**`-MAJ-02` correction notice:** the original §9.3 (corrected below) asserted a WINDOW-level tier on the theory that `FeatureLineageError` "touches ONLY the W1 dict entry." Disproven this transaction by direct code read of `prepare_regime_classified` (§9.2's own correction): `_check_recorded_time` mutates the SUBJECT-wide `_last_input_recorded_time` field BEFORE the window-keyed lineage lookup that eventually raises `FeatureLineageError` — so the very fault previously cited as proof of window isolation is not, in fact, window-bounded; it carries a subject-level side effect. Re-derivation per the four required conditions (fail before any subject-shared mutable state changes; leave every other window's future legal transitions unaffected; not terminalize/fence the owner; not alter subject-level cursor/time/cache state): the zero-mutation checks (`_check_scope`, `_check_contract`, `_resolve_cursor`/`resolve_computation_cursor`, dimension/version checks) run BEFORE `_check_recorded_time` and never touch ANY window-keyed structure at all — they are not "window-scoped," they are stateless, per-call rejections that never reach window-level state in the first place. `FeatureLineageError` itself — the one fault that DOES touch a window-keyed dict entry — is reached only AFTER `_check_recorded_time`'s subject-wide mutation, so it does not satisfy condition 1 either. **No currently-implemented fault satisfies all four conditions at window granularity. WINDOW is removed as an EVID-06 fail-safe tier.** `FeatureCurrentView`'s own per-window dict isolation (noted in the prior draft) is a PROJECTION-layer property only — explicitly non-authoritative (§9.2) — and is not a substitute for authoritative-engine fail-safe evidence, per instruction. The authoritative isolation FLOOR is `feature_subject_id`, not window; three tiers remain, in ascending order — **not** the task's example "instrument" tier, which does not exist as a distinct boundary in this architecture (explained below):
 
 ```text
-1. WINDOW  (within one feature_subject_id)
-   Evidence: FeatureCurrentView._windows and both engines' _lineage are
-   both keyed by (window_start, window_end) WITHIN one subject/scope --
-   an illegal-transition raise (FeatureLineageError,
-   EligibleSwingComputationDefectError) for window W1 touches ONLY the
-   W1 dict entry; W2 (same subject) and every other subject are
-   structurally untouched by that call.
-   Faults: FeatureLineageError, EligibleSwingComputationDefectError,
-   most per-fact admissibility checks (EvidenceCardinalityError,
-   DefinitionVersionMismatchError, RegimeDimensionMismatchError,
-   ProhibitedInputError, InvalidSwingEligibilityInputError).
-
-2. SUBJECT  (feature_subject_id -- one engine + one owner instance,
-   ALL windows of that subject)
+1. SUBJECT  (feature_subject_id -- one engine + one owner instance;
+   the FLOOR tier -- default authoritative isolation unit)
    Evidence: both engines' own docstring, "One instance per Feature
-   subject" (regime_passthrough.py, swing_distance.py); ADR-043's
-   AuthoritativeSubjectOwner/SubjectOwnershipAuthority/
-   FencedFeatureCommitter are keyed per feature_subject_id, not per
-   window -- a fenced/terminal owner blocks ALL windows for that
-   subject until a fresh engine + fresh owner + fresh generation +
-   catch-up (ADR043-IMPL-A-MAJ-05). Escalates from window scope
-   whenever the fault's root cause is subject-level shared state
-   (ownership generation, engine construction-time cached authority,
-   allocator), not one window's lineage entry.
+   subject" (regime_passthrough.py, swing_distance.py); ADR-043
+   (Approved) semantic 1 -- "at most one runtime owner may hold
+   authority to validate and emit authoritative Feature transitions
+   [per feature_subject_id] at any instant. Different subjects may be
+   owned by different owners concurrently" -- and semantic 5 -- "that
+   subject scope fails closed." AuthoritativeSubjectOwner/
+   SubjectOwnershipAuthority/FencedFeatureCommitter are keyed per
+   feature_subject_id, not per window; a fenced/terminal owner blocks
+   ALL windows for that subject until a fresh engine + fresh owner +
+   fresh generation + catch-up (ADR043-IMPL-A-MAJ-05). Within this
+   tier, two sub-cases (§9.2's own distinction, not a finer tier):
+   (a) faults that never touch subject-shared state at all before
+   raising (ForeignScopeError and the other zero-mutation checks --
+   the strictest possible instance of this tier, but still SUBJECT
+   tier, not a separate WINDOW tier, since no window-keyed structure
+   is ever consulted); (b) faults that DO mutate subject-shared
+   process-local state (_last_input_recorded_time) before or instead
+   of an authoritative append -- bounded to this SAME subject, never
+   crossing to a different feature_subject_id.
    Faults: StaleOwnershipGenerationError, OwnershipAuthorityUnavailableError,
    DualOwnershipError, EngineNotPristineForCatchUpError,
    UnprovenCatchUpError, CanonicalHistoryMismatchError,
    NonMonotonicApplicationOrderError, ProviderFrontierMismatchError,
    IncompleteCertifiedFrontierError, ConflictingUpstreamEnvelopeError,
    RecordedTimeSourceViolationError, NonMonotonicRecordedTimeError,
-   ForeignScopeError (rejected before any state read/write at all --
-   the narrowest possible instance of this tier).
+   FeatureLineageError, EligibleSwingComputationDefectError,
+   EvidenceCardinalityError, DefinitionVersionMismatchError,
+   RegimeDimensionMismatchError, ProhibitedInputError,
+   InvalidSwingEligibilityInputError, ForeignScopeError, and (§9's
+   own `-MAJ-03` correction below) the RUNTIME half of frontier/cursor
+   validation against an already-cached authority
+   (RegistryContractMismatchError, StreamPositionsUniverseMismatchError,
+   CursorRelationalInvariantViolationError, when raised against a
+   caller-supplied EvaluationFrontier at an already-constructed
+   engine's normal processing call, not at construction).
 
-3. SHARED UPSTREAM AUTHORITY / DEFINITION  (every subject depending on
+2. SHARED UPSTREAM AUTHORITY / DEFINITION  (every subject depending on
    the SAME Input Contract, Output Contract, or FeatureDefinition/
-   formula resolution)
-   Evidence: InputContractAuthorityProvider/
-   OutputEventContractAuthorityProvider are Protocol boundaries a
-   caller may legitimately share across many engine instances of the
-   same feature_computation_profile; authority is resolved ONCE at
-   construction and cached (`self._resolved_input_contract`) -- so a
-   newly-broken artifact fails EVERY NEW construction/resolution
-   attempt under that profile, but does NOT retroactively affect
-   already-constructed subjects with already-cached authority (no
-   rollback of running state). Escalates from subject scope only when
-   the root cause is the SHARED authority artifact/definition itself,
-   not one subject's own instance state.
-   Faults: UnresolvedComputationCursorAuthorityError,
-   InputContractIdentityMismatchError, RegistryContractMismatchError,
-   StreamPositionsUniverseMismatchError,
-   CursorRelationalInvariantViolationError, UnsupportedMergePolicyError,
+   formula RESOLUTION -- construction-time only, `-MAJ-03` corrected)
+   Evidence: `InputContractAuthorityProvider.resolve(...)`/
+   `OutputEventContractAuthorityProvider.resolve()` are each called
+   EXACTLY ONCE, in `__init__`, for both engines (confirmed by source
+   grep -- no other call site exists anywhere in regime_passthrough.py/
+   swing_distance.py); the result is cached (`self._resolved_input_
+   contract`, `self._output_authority`) and NEVER re-resolved by any
+   runtime/processing call. A caller may legitimately share one
+   provider instance across many engine constructions of the same
+   feature_computation_profile -- so a newly-broken provider/artifact
+   fails EVERY NEW construction attempt under that profile, but does
+   NOT retroactively affect already-constructed subjects with
+   already-cached authority (no rollback of running state; §9.6 rows
+   split this precisely from the DIFFERENT runtime fault below).
+   Escalates from subject scope only when the root cause is the SHARED
+   authority artifact/definition's own RESOLUTION, not one subject's
+   already-cached instance state or a malformed runtime argument.
+   Faults (construction-time resolution only):
+   UnresolvedComputationCursorAuthorityError,
+   InputContractIdentityMismatchError, UnsupportedMergePolicyError,
    UnresolvedOutputContractAuthorityError,
    OutputEventContractUnresolvableError,
    OutputEventContractIdentityMismatchError,
-   OutputEventContractNotPublishedError, OutputStreamEligibilityError,
-   UnsupportedFeatureFormulaError (construction-time, unconditional --
-   every subject of that feature_type/definition fails identically),
-   UnsupportedDistanceRepresentationError.
+   OutputEventContractNotPublishedError, OutputStreamEligibilityError.
+   `RegistryContractMismatchError`/`StreamPositionsUniverseMismatchError`/
+   `CursorRelationalInvariantViolationError` are REMOVED from this tier
+   (`-MAJ-03` correction) -- they are raised inside
+   `resolve_computation_cursor` against an ALREADY-cached, already-
+   verified `VerifiedInputContractAuthority` and a caller-supplied
+   `EvaluationFrontier` at NORMAL RUNTIME processing, never at provider
+   resolution; their actual scope is the one subject/call being
+   processed (tier 1), never the shared provider/artifact.
+   `UnsupportedDistanceRepresentationError` (per-call, not construction)
+   remains listed here only as a SUPPORTING fail-closed fact about
+   distance-representation semantics, not a qualifying fault-injection
+   target (same demotion as the formula case immediately below).
+   `UnsupportedFeatureFormulaError` (construction-time, unconditional --
+   `-MAJ-03` correction): a PERMANENTLY unsupported Candle formula
+   capability is a design-time fail-closed boundary (no formula is
+   ever authoritatively pinned for that `formula_id` anywhere in this
+   repository), not a genuine injected runtime/resilience fault against
+   an otherwise-healthy capability -- it remains supporting fail-closed
+   evidence (feeding §9.5's catalog) but does NOT count as one of the
+   minimum qualifying I-6 fault-injection rows in §9.6; a toggleable
+   resolver/authority/ownership/history failure is preferred there.
 
-4. WHOLE FEATURE ENGINE  (shared, stateless logic defect --
+3. WHOLE FEATURE ENGINE  (shared, stateless logic defect --
    e.g. a genuine bug in p_run_sort itself, not bad input)
    This is the architecture's actual ceiling, not "toàl platform":
    module-registry.yaml's own depends_on direction confirms Feature
@@ -326,11 +380,17 @@ Verified directly against source (not asserted); four tiers, in ascending order 
    injection isolation test is meaningful here; escalation to this
    tier is a correctness question, not a blast-radius question.
 
-NOT a distinct tier: "instrument". feature_subject_id already fully
-  captures {instrument_id, venue_id, timeframe, feature_type,
-  feature_definition_version} identity, and feature.md's own text
-  explicitly declares subjects sharing an instrument but differing in
-  ANY other field "hoàn toàn độc lập" -- forcing an "instrument-wide"
+NOT a distinct tier: "instrument" (`-MAJ-01` re-grounded: source + ADR-043,
+  not feature.md, now the cited authority). `FeatureScope` (contracts.py)
+  is a five-field dataclass -- instrument_id, venue_id, timeframe,
+  feature_type, feature_definition_version -- and `feature_subject_id`
+  is `deterministic_id("feature", ...)` over ALL FIVE fields (source
+  read, this transaction): two scopes differing in ANY one field,
+  including venue_id/timeframe while sharing instrument_id, produce a
+  DIFFERENT feature_subject_id. Combined with ADR-043 (Approved)
+  semantic 1's "different subjects may be owned by different owners
+  concurrently," this is sufficient, already-effective authority (no
+  feature.md reliance needed) to conclude: forcing an "instrument-wide"
   fault boundary distinct from subject/shared-authority scope would
   invent a tier current architecture does not provide, the same
   discipline this task's own instruction applies in the opposite
@@ -346,9 +406,12 @@ NOT a distinct tier: "instrument". feature_subject_id already fully
 Feature Engine itself only proves: no new uncertain authoritative
   Feature output is emitted for the affected scope.
 It does NOT itself assert financial risk, because it has none to
-  assert -- I-9's own Scope line already draws this boundary in
-  already-Locked Constitution text (§9.1), and feature.md's own
-  out-of-scope declaration forbids inventing one.
+  assert -- I-9's own Scope line ALONE already draws this boundary in
+  already-Locked Constitution text (§9.1): Feature Engine outputs
+  analytical float, not financial/risk values. (feature.md's own
+  out-of-scope declaration is consistent with this Locked boundary,
+  supporting/current-model context only, per §9.1's `-MAJ-01`
+  correction -- not itself required to reach this conclusion.)
 Actual "risk-not-increased" verification (I-6's own "theo risk model
   authoritative" clause) belongs downstream to Risk Gateway/Decision
   Pipeline -- and is NOT locally measurable today, for the exact same
@@ -364,18 +427,25 @@ Interpretation B (a stronger Compute-Engine-local surrogate already defined by e
 
 ```text
 LOCALLY TESTABLE NOW (Feature Engine's own EVID-06 evidence):
-  - blast-radius correctness: a fault in one scope (window/subject/
-    shared-authority, §9.3) fails that scope closed and leaves
-    unrelated scopes fully operational (§9.5 evidence matrix).
+  - blast-radius correctness: a fault in one scope (subject/shared-
+    authority, §9.3 -- WINDOW removed, `-MAJ-02`) fails that scope
+    closed and leaves unrelated scopes fully operational (§9.6
+    evidence matrix).
   - "no new uncertain authoritative Feature output is emitted": every
-    identified fault class raises BEFORE any FeatureComputed/
-    FeatureFactInvalidated append and BEFORE any FencedFeatureCommitter
-    commit -- already true of the implementation (§9.2), to be proven
-    by fault-injection tests, not merely exception-raising unit tests
-    (the current gap, per §2's own correction above).
-  - already-committed history is never modified/rolled back by a
-    fail-safe action (structural: no fault path below ever mutates a
-    prior fact).
+    identified fault class in §9.5 raises BEFORE any authoritative
+    FeatureComputed/FeatureFactInvalidated append and BEFORE any
+    successful FencedFeatureCommitter commit -- this narrower,
+    ACCURATE claim holds (confirmed by source read); the broader
+    "before any mutation whatsoever" claim does NOT hold (`-MAJ-02`,
+    §9.2's own correction) and is not repeated here. To be proven by
+    fault-injection tests, not merely exception-raising unit tests
+    (the pre-existing gap, per §2's own correction above).
+  - already-committed AUTHORITATIVE history (already-appended facts,
+    already-successful commits) is never modified/rolled back by a
+    fail-safe action (structural: no fault path in §9.5 mutates a
+    prior authoritative fact) -- distinct from process-local
+    prepare-side state, which MAY mutate within the bound scope
+    (§9.2's corrected formulation).
 
 EXTERNALLY BLOCKED (platform-level financial risk assertion,
   NOT locally provable, tracked as a NEW EVID-06 sub-dependency
@@ -388,21 +458,38 @@ EXTERNALLY BLOCKED (platform-level financial risk assertion,
     affected scope is a NECESSARY precondition for downstream risk not
     increasing, but is NOT a platform-level risk-not-increased proof
     by itself -- the two must never be conflated in the eventual
-    EVID-06 evidence record.
+    EVID-06 evidence record (§9.4b's closure rule makes this binding).
 ```
 
-### 9.5 Key Question 4 — fault catalog (grouped by scope, §9.3's tiers; source-grounded, no invented types)
+#### 9.4b `-MAJ-04` correction — EVID-06 closure semantics (both halves of I-6 Verification are mandatory)
+
+Locked I-6's own Verification clause requires BOTH: fault-injection/blast-radius evidence AND an assertion that the permitted fail-safe action does not increase risk per an authoritative risk metric/policy. The LOCAL half (above) can be evidenced now; the PLATFORM half is EXTERNALLY BLOCKED (no Risk Gateway exists). Therefore, once local fault-injection evidence (§9.6) passes, the correct disposition is **NOT** `P3-FEATURE-QG-EVID-06 = CLOSED — PASS` — `EVID-06` may close only when ALL mandatory I-6 verification evidence applicable to its gate has been produced. The correct future disposition, reusing this repository's own existing status vocabulary (`BLOCKED_BY_EXTERNAL_DEPENDENCY`, already used for `EVID-04`/`EVID-08` in this same document — no new lifecycle taxonomy invented) is:
 
 ```text
-WINDOW scope:
-  FeatureLineageError (fork/skip/double-invalidation/premature-
-    replacement -- current_view.py + both engines' _lineage)
-  EligibleSwingComputationDefectError (swing_distance.py)
-  EvidenceCardinalityError, DefinitionVersionMismatchError,
-    RegimeDimensionMismatchError, ProhibitedInputError,
-    InvalidSwingEligibilityInputError (per-fact admissibility gates)
+P3-FEATURE-QG-EVID-06:
+  OPEN — PARTIALLY SATISFIED / BLOCKED_BY_EXTERNAL_DEPENDENCY
 
-SUBJECT scope:
+local Feature Engine fail-safe evidence (fault injection + blast
+  radius + no-new-uncertain-authoritative-output + committed-history
+  preservation, §9.6):
+  SATISFIED (once the §9.6 evidence transaction, not this one,
+  produces it -- NOT yet satisfied by this transaction).
+
+platform risk-not-increased assertion (I-6's own "theo risk model
+  authoritative" clause):
+  BLOCKED — authoritative Risk Gateway/risk-policy execution path
+  absent from this repository (same external-dependency class as
+  EVID-04/EVID-08).
+```
+
+This split is a conceptual completeness distinction for evidence-recording purposes, not a new governance finding/process — it does not create a separate `EVID-06-LOCAL` finding identifier unless a future formal-evidence transaction's own authoring finds repository convention requires one at that time; this transaction does not decide that question.
+
+### 9.5 Key Question 4 — fault catalog (grouped by scope, §9.3's corrected tiers; source-grounded, no invented types)
+
+```text
+SUBJECT scope (the floor -- `-MAJ-02` correction folds the former
+  WINDOW-labeled faults in here; `-MAJ-03` correction moves the
+  runtime frontier/cursor faults in here from shared-authority):
   ownership/fencing (ADR-043): StaleOwnershipGenerationError,
     OwnershipAuthorityUnavailableError, DualOwnershipError,
     EngineNotPristineForCatchUpError
@@ -411,23 +498,37 @@ SUBJECT scope:
   P_run/apply-set (per-subject certified frontier):
     NonMonotonicApplicationOrderError, ConflictingUpstreamEnvelopeError
   recorded-time: RecordedTimeSourceViolationError,
-    NonMonotonicRecordedTimeError
-  scope admissibility: ForeignScopeError (narrowest instance --
-    stateless rejection)
+    NonMonotonicRecordedTimeError (the latter's own mutate-before-
+    lineage-check behavior is §9.2/§9.3's own corrected example)
+  lineage/admissibility (window-keyed WITHIN this subject, but the
+    isolation FLOOR that actually matters for I-6 is the subject, not
+    the window -- `-MAJ-02`): FeatureLineageError,
+    EligibleSwingComputationDefectError, EvidenceCardinalityError,
+    DefinitionVersionMismatchError, RegimeDimensionMismatchError,
+    ProhibitedInputError, InvalidSwingEligibilityInputError
+  runtime frontier/cursor validation against an ALREADY-cached
+    authority (`-MAJ-03`: moved here from shared-authority --
+    RegistryContractMismatchError, StreamPositionsUniverseMismatchError,
+    CursorRelationalInvariantViolationError, raised inside
+    resolve_computation_cursor at normal per-call processing, never at
+    provider resolution)
+  scope admissibility: ForeignScopeError (zero subject-state touched
+    at all -- the strictest instance of this tier, not a separate tier)
 
-SHARED UPSTREAM AUTHORITY / DEFINITION scope:
-  input-contract: UnresolvedComputationCursorAuthorityError,
-    InputContractIdentityMismatchError, RegistryContractMismatchError,
-    StreamPositionsUniverseMismatchError,
-    CursorRelationalInvariantViolationError, UnsupportedMergePolicyError
-  output-contract: UnresolvedOutputContractAuthorityError,
+SHARED UPSTREAM AUTHORITY / DEFINITION scope (construction-time
+  resolution only -- `-MAJ-03` correction):
+  input-contract resolution: UnresolvedComputationCursorAuthorityError,
+    InputContractIdentityMismatchError, UnsupportedMergePolicyError
+  output-contract resolution: UnresolvedOutputContractAuthorityError,
     OutputEventContractUnresolvableError,
     OutputEventContractIdentityMismatchError,
     OutputEventContractNotPublishedError, OutputStreamEligibilityError
-  formula/representation: UnsupportedFeatureFormulaError (construction-
-    time, unconditional), UnsupportedDistanceRepresentationError
+  formula/representation (supporting fail-closed evidence only, NOT a
+    qualifying §9.6 fault-injection row -- `-MAJ-03`):
+    UnsupportedFeatureFormulaError (construction-time, unconditional),
+    UnsupportedDistanceRepresentationError
 
-WHOLE FEATURE ENGINE scope (correctness, not isolation -- §9.3 tier 4):
+WHOLE FEATURE ENGINE scope (correctness, not isolation -- §9.3 tier 3):
   a genuine defect in shared, stateless p_run_sort logic itself --
   already the evidence question EVID-07 (CLOSED — PASS) answers, not a
   new fault-injection target.
@@ -437,26 +538,12 @@ Every entry above is a class that already exists in `errors.py` and is already r
 
 ### 9.6 Key Question 5 — future fault-injection evidence matrix (design only, NOT implemented)
 
-Sized deliberately between "one row per exception type" (too narrow -- mechanical, does not prove isolation, just re-proves what `test_ownership.py`/`test_regime_passthrough.py`/`test_swing_distance.py` already prove today) and "one blanket module-down test" (too broad -- would not distinguish which scope tier actually bounds the blast radius). One representative fault per scope tier, covering all four tiers from §9.3:
+**`-MAJ-02`/`-MAJ-03` correction notice:** row [1] (WINDOW) is removed — no currently-implemented fault satisfies §9.3's four window-isolation conditions (§9.3's own correction). Row [5] (formerly a single mixed SHARED UPSTREAM AUTHORITY row) is split: the construction/resolution fault stays here as a genuine shared-authority row; the runtime frontier/cursor fault is relocated to a new SUBJECT-scope row [5], since its actual scope is the one subject/call being processed against an already-cached authority, never the shared provider (`-MAJ-03`). Row [6] (`UnsupportedFeatureFormulaError`) is removed as a qualifying row — a permanently-unsupported formula is a design-time boundary, not an injected fault against an otherwise-healthy capability (`-MAJ-03`); it remains catalogued in §9.5 as supporting evidence only. Former row [4] is split into two distinct catch-up fault semantics per instruction (unproven proof vs. canonical mismatch).
+
+Sized deliberately between "one row per exception type" (too narrow -- mechanical, does not prove isolation, just re-proves what `test_ownership.py`/`test_regime_passthrough.py`/`test_swing_distance.py` already prove today) and "one blanket module-down test" (too broad -- would not distinguish which scope tier actually bounds the blast radius). Six toggleable resolver/authority/ownership/history/frontier rows across §9.3's two isolation-relevant tiers (subject; shared-authority) — no manufactured module-wide row (§9.3 tier 3 is a correctness question EVID-07 already answers, not fabricated here to fill a table):
 
 ```text
-[1] WINDOW -- FeatureLineageError (fork attempt on window W1)
-  injected boundary: second RegimeClassified fact targeting an
-    already-superseded head for W1, subject A.
-  affected scope: window W1 of subject A only.
-  expected fail-safe: FeatureLineageError raised; W1's lineage head
-    unchanged (still the legitimate winner).
-  unaffected control: window W2 of the SAME subject A (independent
-    dict entry) continues accepting legal transitions; subject B
-    (different feature_subject_id) continues fully independently.
-  must-not-advance: no new FeatureComputed/FeatureFactInvalidated for
-    W1; engine._lineage[W1] byte-identical before/after the attempt.
-  recovery: none needed -- W1 remains valid at its pre-attempt head;
-    a correctly-targeted future replacement is still accepted normally.
-  proves: per-window isolation WITHIN one subject, not just
-    cross-subject isolation.
-
-[2] SUBJECT -- StaleOwnershipGenerationError (fenced predecessor
+[1] SUBJECT -- StaleOwnershipGenerationError (fenced predecessor
     attempts commit after handoff)
   injected boundary: owner_0 (subject A, generation N) attempts
     FencedFeatureCommitter.commit(...) after owner_1 (generation N+1)
@@ -479,7 +566,7 @@ Sized deliberately between "one row per exception type" (too narrow -- mechanica
   proves: subject-level fencing does not leak into a second,
     independent subject sharing the same authority infrastructure.
 
-[3] SUBJECT -- OwnershipAuthorityUnavailableError (owner goes
+[2] SUBJECT -- OwnershipAuthorityUnavailableError (owner goes
     permanently terminal after a prior uncertain commit outcome)
   injected boundary: a StaleOwnershipGenerationError (as in [2]) is
     allowed to mark owner_0 REVOKED/terminal for subject A.
@@ -503,8 +590,8 @@ Sized deliberately between "one row per exception type" (too narrow -- mechanica
   proves: permanent subject-level failure does not cascade, and
     recovery is subject-scoped, not module-wide.
 
-[4] SUBJECT -- UnprovenCatchUpError / CanonicalHistoryMismatchError
-    (history provider cannot positively prove catch-up)
+[3] SUBJECT -- UnprovenCatchUpError (history provider cannot
+    positively prove catch-up)
   injected boundary: AuthoritativeLineageHistoryProvider returns an
     incomplete/ambiguous result (neither a genuine event list nor
     positive proof of emptiness) for subject A's catch-up.
@@ -522,51 +609,101 @@ Sized deliberately between "one row per exception type" (too narrow -- mechanica
   proves: an ambiguous PROOF failure for one subject does not block or
     corrupt a different subject's own, independently-resolving proof.
 
-[5] SHARED UPSTREAM AUTHORITY -- UnresolvedComputationCursorAuthorityError
-    / RegistryContractMismatchError (Input Contract for feature_type=X
-    becomes unresolvable/mismatched)
-  injected boundary: the InputContractAuthorityProvider shared by
-    every feature_type=X subject starts returning an invalid/
-    unresolvable authority (simulating a broken/missing artifact).
-  affected scope: EVERY NEW engine construction or frontier-processing
-    call for feature_type=X attempted AFTER the break.
-  expected fail-safe: construction/processing raises the appropriate
-    error; no engine for feature_type=X is usable while the condition
-    holds.
+[4] SUBJECT -- CanonicalHistoryMismatchError (recomputed historical
+    candidate diverges from the canonical committed record)
+  injected boundary: AuthoritativeLineageHistoryProvider's canonical
+    history for subject A does not match what PreparedTransition.
+    reconcile recomputes from the SAME certified upstream replay
+    (batch-length or content mismatch).
+  affected scope: subject A's catch-up reconciliation only.
+  expected fail-safe: CanonicalHistoryMismatchError raised; catch-up
+    fails closed rather than silently preferring either the freshly
+    recomputed candidate or the canonical record.
+  unaffected control: subject B's own independent catch-up (correct,
+    matching canonical/recomputed history) completes normally.
+  must-not-advance: subject A's owner never reaches ACTIVE via this
+    catch-up attempt; no authoritative work performed for A.
+  recovery: a corrected canonical-history/upstream-replay input allows
+    a fresh catch-up attempt for A to succeed normally.
+  proves: a genuine catch-up MISMATCH (distinct fault semantics from
+    [3]'s ambiguous/incomplete PROOF) is bounded to the one subject
+    whose canonical record actually diverges.
+
+[5] SUBJECT -- runtime frontier/cursor mismatch against an
+    already-cached authority (`-MAJ-03`: RegistryContractMismatchError
+    / StreamPositionsUniverseMismatchError /
+    CursorRelationalInvariantViolationError)
+  injected boundary: a malformed/incompatible EvaluationFrontier
+    (wrong stream_registry_version, wrong stream_positions key set, or
+    a relational-invariant violation) is passed to an ALREADY-
+    constructed engine's normal processing call for subject A -- the
+    engine's own cached VerifiedInputContractAuthority is untouched
+    and correct; only the CALLER-SUPPLIED frontier for this one call
+    is bad. This is explicitly NOT a provider-outage test (`-MAJ-03`)
+    -- the provider/artifact is healthy throughout.
+  affected scope: this one processing call for subject A.
+  expected fail-safe: resolve_computation_cursor raises the applicable
+    error; no ComputationCursor is assembled, no PreparedTransition
+    constructed.
+  unaffected control: a subsequent, correctly-formed frontier for
+    subject A processes normally afterward (the engine's own cached
+    authority was never invalidated by the bad call); subject B
+    (own, independently-supplied frontier) is fully unaffected
+    throughout.
+  must-not-advance: no new authoritative output for subject A from the
+    malformed-frontier call; engine's cached authority/lineage
+    unchanged.
+  recovery: none needed beyond supplying a correctly-formed frontier
+    on the next call -- the engine itself was never made unusable.
+  proves: a bad RUNTIME ARGUMENT for one subject's one call is
+    distinct from a bad SHARED PROVIDER/ARTIFACT ([6] below) -- same
+    error-type family, structurally different fault/injection point/
+    blast radius, must never be tested as if interchangeable.
+
+[6] SHARED UPSTREAM AUTHORITY -- construction-time Input/Output
+    Contract resolver failure (`-MAJ-03` corrected: construction-time
+    resolution ONLY, never mixed with [5]'s runtime fault)
+  injected boundary: InputContractAuthorityProvider.resolve(...) (or
+    OutputEventContractAuthorityProvider.resolve()) fails or returns
+    an invalid authority for feature_type=X's shared provider instance
+    -- simulating a broken/missing artifact at RESOLUTION time, before
+    any engine for feature_type=X exists yet.
+  affected scope: EVERY NEW engine construction attempt for
+    feature_type=X using that provider, from the break onward.
+  expected fail-safe: construction itself raises the applicable
+    resolution error (UnresolvedComputationCursorAuthorityError /
+    InputContractIdentityMismatchError / UnresolvedOutputContract
+    AuthorityError / OutputEventContract* family); no new engine for
+    feature_type=X becomes usable while the condition holds.
   unaffected control (two distinct controls, both required): (a) an
     engine for feature_type=X constructed and already caching valid
     authority BEFORE the break continues serving its already-resolved
-    work normally (cached, never re-resolved per-call); (b) a subject
-    of feature_type=Y (a DIFFERENT Input Contract instance) is fully
-    unaffected regardless of construction order.
+    work normally -- cached, never re-resolved per-call, and (per [5]
+    above) not even vulnerable to a runtime frontier fault touching
+    this same provider; (b) a subject of feature_type=Y (a DIFFERENT
+    Input/Output Contract provider instance) is fully unaffected
+    regardless of construction order.
   must-not-advance: no new authoritative output for feature_type=X
     from any NEWLY-affected construction attempt.
-  recovery: once the Input Contract artifact resolves correctly again,
-    a fresh engine construction for feature_type=X succeeds normally;
+  recovery: once the provider/artifact resolves correctly again, a
+    fresh engine construction for feature_type=X succeeds normally;
     already-running engines were never affected and need no recovery.
-  proves: shared-authority-scope faults are bounded by "which artifact
-    is actually broken," not "which subject," and do not retroactively
-    corrupt already-cached, already-running state.
+  proves: shared-authority-scope faults are bounded by "which
+    provider/artifact resolution is actually broken, and only for NEW
+    construction," not "which subject" and not "which already-cached
+    engine's ongoing runtime calls" -- the precise distinction [5] vs
+    [6] makes structurally explicit (`-MAJ-03`).
 
-[6] SHARED DEFINITION -- UnsupportedFeatureFormulaError (construction-
-    time, unconditional, CandleWindowFeatureEngine)
-  injected boundary: attempt to construct an engine for a
-    feature_type/definition requiring an unresolved formula.
-  affected scope: every subject of that exact feature_type +
-    feature_definition_version.
-  expected fail-safe: construction itself raises; no instance of that
-    definition is ever usable.
-  unaffected control: subjects of OTHER feature_types (Regime
-    pass-through, Swing distance -- definitions with a resolved
-    formula) construct and operate normally, unaffected.
-  must-not-advance: zero output ever for the unresolved definition
-    (this is a permanent, not transient, fail-closed state until a
-    governed formula-resolution decision is made -- out of scope here).
-  recovery: not applicable until a separate, future governed decision
-    resolves the formula -- correctly reported as "no recovery
-    expectation" rather than inventing one.
-  proves: definition-wide fault scope is bounded by the shared
-    definition, not by instrument/venue/timeframe.
+Supporting fail-closed evidence, NOT a qualifying row above
+  (`-MAJ-03`): `UnsupportedFeatureFormulaError` (construction-time,
+  unconditional, CandleWindowFeatureEngine) is a PERMANENT design-time
+  boundary -- no formula is ever authoritatively pinned for that
+  `formula_id` anywhere in this repository, so there is no "otherwise-
+  healthy capability" to toggle a fault into and back out of. It
+  remains catalogued (§9.5) as supporting fail-closed evidence, and is
+  deliberately excluded from the minimum qualifying fault-injection
+  set — rows [1]-[6] above are all genuinely toggleable (a healthy
+  capability can be made to fail and, where applicable, recover).
 
 If a fault legitimately affects module-global authority (WHOLE FEATURE
   ENGINE tier, §9.3/§9.5), module-global failure IS correct and no
@@ -634,7 +771,7 @@ Materially significant module-internal
 Result: ADR_NOT_REQUIRED.
 ```
 
-Per instruction: the design only describes evidence for already-authoritative semantics (I-6, I-9, ADR-043, feature.md — all already Locked/Approved) — no ADR is authored by this transaction, none is required.
+Per instruction: the design only describes evidence for already-authoritative semantics — I-6/I-9 (Locked), ADR-043 (Approved), and the specific `module-registry.yaml` fields Chapter 13 already treats as authoritative once the registry is active (§9.1's `-MAJ-01` correction: Draft `feature.md` is never cited as the binding source here, only as supporting current-model context) — no ADR is authored by this transaction, none is required.
 
 ### 9.8 Not performed by this transaction (explicit)
 
@@ -642,15 +779,24 @@ Per instruction: the design only describes evidence for already-authoritative se
 No fault-injection test authored. No production source file touched
   (verified `git diff --quiet -- python/feature-engine/src
   python/feature-engine/tests`, this transaction). No Constitution/
-  Domain Contract/Risk-semantics edit. No ADR authored. No Review A,
-  Review B, Risk Classification, or Product Owner decision performed.
+  Domain Contract/Risk-semantics edit. No ADR authored. No Review B,
+  Risk Classification, or Product Owner decision performed. This
+  transaction only CORRECTS §9's own interpretation/design in place,
+  addressing `P3-FEATURE-QG-EVID06-A-MAJ-01`..`-04` (bounded correction
+  001 banner, top of §9) — none of the four is self-closed here;
+  closure of each is Review A's own re-review determination, per
+  Chapter 0 §3.
   `P3-FEATURE-QG-EVID-06` disposition unchanged: still OPEN,
-  `NEEDS_GOVERNED_DESIGN_OR_MECHANISM` — only its interpretation
-  sub-step is now resolved (§9.1-§9.6); fault-injection authoring and
-  formal evidence remain a SEPARATE future governed transaction. Overall
-  Feature Engine Chapter 13 Quality Gate: unchanged, FAIL — evidence
+  `NEEDS_GOVERNED_DESIGN_OR_MECHANISM` — its interpretation sub-step is
+  now RE-derived on corrected authority (§9.1-§9.6, this bounded
+  correction), pending Review A re-review; fault-injection authoring
+  and formal evidence remain a SEPARATE future governed transaction,
+  and even once local evidence passes, `EVID-06` may NOT be written as
+  `CLOSED — PASS` while the platform risk-not-increased assertion
+  remains `BLOCKED_BY_EXTERNAL_DEPENDENCY` (§9.4b). Overall Feature
+  Engine Chapter 13 Quality Gate: unchanged, FAIL — evidence
   (EVID-04/EVID-06/EVID-08 remain OPEN/blocking). Feature Engine module
   approval: NOT APPROVED (unaffected). LIVE: NOT_AUTHORIZED (unaffected).
 ```
 
-**Next governed step (not performed by this transaction):** Review A of this §9 interpretation/design; if CLEAN, a separate fault-injection implementation/evidence transaction authors the §9.6 matrix (and any additional rows Review A requests) against real Feature Engine source, then a formal Chapter 13 §13.9-style evidence transaction records measurement and, only if it genuinely passes — including the LOCAL half of §9.4's split, never claiming the externally-blocked platform-level half — closes `P3-FEATURE-QG-EVID-06`.
+**Next governed step (not performed by this transaction):** bounded Review A re-review of `P3-FEATURE-QG-EVID06-A-MAJ-01`..`-04`. If CLEAN, a separate Feature-local fault-injection implementation/evidence transaction may proceed to author the §9.6 matrix (and any additional rows Review A requests) against real Feature Engine source, then a formal Chapter 13 §13.9-style evidence transaction records measurement — but it must NOT claim full `P3-FEATURE-QG-EVID-06` closure while the mandatory platform risk-not-increased assertion remains externally blocked; the correct resulting disposition is §9.4b's `OPEN — PARTIALLY SATISFIED / BLOCKED_BY_EXTERNAL_DEPENDENCY`, not `CLOSED — PASS`.
