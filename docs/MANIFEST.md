@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.386"
+manifest_version: "10.387"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -27537,6 +27537,52 @@ Feature module approval: NOT APPROVED. LIVE: NOT_AUTHORIZED.
 **Next governed step:** ChatGPT bounded Review A re-review of `P3-FEATURE-EVID03-COND2-RES-A-MAJ-01` and `-MAJ-02`.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-identity-resolution-001.json` (corrected in place — no new artifact), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md` (Condition-2 row corrected), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no source/test/tooling/dependency file touched. `manifest_version` `"10.385"` → `"10.386"`.
+
+## `feature-engine` — `P3-FEATURE-QG-EVID-03` fresh formal current-boundary mutation measurement + exact historical §4.1(a) semantic-continuity mapping (Condition 2: `FAIL / PARTIALLY SATISFIED — 42/170 resolved`)
+
+**Consolidated transaction — vai trò: `Feature Engine EVID-03 Current-Boundary Formal Mutation Measurement + Exact Historical §4.1(a) Identity Mapper`.** Folds the already-completed bounded Review A re-review: `P3-FEATURE-EVID03-COND2-RES-A-MAJ-01`/`-MAJ-02` both `CLOSED — BOUNDED REVIEW A RE-REVIEW` (CLEAN 0/0/0, R1). The 4 `resolve_output_contract_refs` identities, already substantively reviewed with no finding, are now Review-A-validated and transition from `CANDIDATE_RECLASSIFY_4_1_B` to `RESOLVED_BY_GOVERNED_RECLASSIFICATION` — governedly resolved before fresh measurement: **14/170**.
+
+**Fresh full mutation run** (fresh disposable venv from the pinned lock, `mutants/` absent beforehand, `python -m tooling run` to natural completion, NOT reusing evidence-003's statuses): 2629 mutants, `killed=2153, survived=474, timeout=2 (raw)`. Both raw timeouts individually triaged (2 isolated re-runs each, fresh, independent of prior triage): `ownership.x_p_run_sort__mutmut_82` **CONFIRMED_TIMEOUT** (2/2, ~28.1-28.6s); `contracts.x__construct_verified_authority__mutmut_6` (a DIFFERENT mutant than any previously triaged) **NOT REPRODUCED** — 2/2 killed (~3.6-3.7s), consistent with the already-documented `BadTestExecutionCommandsException` cohort. Corrected population: `killed=2154, survived=474, confirmed_timeout=1`. **Condition 1 raw score: 81.97033092430583%** — still `< 87.001959503592%`, `FAIL — criteria` (normal run-to-run variance vs. the prior 81.93229364777483%).
+
+**The complete current 2629-mutant mapping (id → status) durably persisted for the first time** (`feature-engine-mutation-step9-formal-evidence-004.json`, sorted-mapping SHA-256 pinned) — not merely an aggregate count.
+
+**Exact historical 170-identity semantic-continuity mapping performed** — for each of the 42 exact-string-present historical IDs, the CURRENT mutation diff (`python -m tooling show`) was compared against the HISTORICAL description (`feature-engine-mutation-baseline-001-analysis.md` §1.6), per this task's own explicit "no positional-ID assumption" instruction:
+
+```text
+14  RESOLVED_BY_GOVERNED_RECLASSIFICATION (unchanged, not reopened)
+28  RESOLVED_BY_EXISTING_KILL (NEW — exact ID present, semantic
+    fingerprint CONTINUOUS, formal status killed)
+10  IDENTITY_COLLISION_OR_SEMANTIC_DISCONTINUITY (exact ID present,
+    but the CURRENT mutation is materially different from the
+    historical one -- current status NOT credited; includes BOTH of
+    the previously-tracked "still-present survivors," whose current
+    mutation is an unrelated string-marker change, not the historical
+    self._stream_id=None gap)
+118 REMAIN_UNRESOLVED (absent from the current population)
+sum = 170
+```
+
+**10/42 (23.8%) exact-string-present identities were found positionally drifted** — confirming this task's own warning against assuming sequential `mutmut_N` semantic stability was materially necessary, not a hypothetical concern.
+
+```text
+Condition 1: FAIL — criteria (81.97033092430583% < 87.001959503592%).
+Condition 2: FAIL / PARTIALLY SATISFIED — 42/170 resolved (14 governed +
+  28 newly-resolved-by-kill). NOT 170/170. No replacement mutant IDs
+  authorized.
+Condition 3: SATISFIED — REVIEW A VALIDATED (preserved, unchanged, not
+  reopened, no new fault-injection run).
+Current-boundary P3-FEATURE-QG-EVID-03: OPEN / FAIL.
+Historical EVID-03 PASS: preserved, unaffected.
+Feature module approval: NOT APPROVED. LIVE: NOT_AUTHORIZED.
+```
+
+**Fresh ADR Scope Rule:** `ADR_NOT_REQUIRED` — applies already-approved §4.1(a)/(b) mechanisms via a fresh formal measurement, invents no new process.
+
+**Not performed:** no `src/**`/test/tooling/dependency change (verified before and after — identical tree/blob identities); no mutmut config change; no survivor remediation; no replacement 170-mutant set; no old-ID→new-ID rebasing; no self-validation of the 28 new kill rows or 10 collision rows; no re-decision of the 10 candidate-001 identities' own equivalence semantics; no Condition-2 closure; no Condition-3 reopening; no EVID-03 closure; no Feature Engine approval; no LIVE authorization.
+
+**Next governed step:** ChatGPT live-repo verification + Review A of the fresh formal mutation evidence and exact historical-identity mapping.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-004.json` (new, additive; historical evidence-001/-002/-003/-003-correction-001 byte-unchanged), `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-identity-resolution-001.json` (updated in place, not a new artifact), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no source/test/tooling/dependency file touched; scratch venv/mutants workspace (untracked) removed, not committed. `manifest_version` `"10.386"` → `"10.387"`.
 
 ## Decision Log
 
