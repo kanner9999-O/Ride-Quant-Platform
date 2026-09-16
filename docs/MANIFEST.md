@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.380"
+manifest_version: "10.381"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -27328,6 +27328,38 @@ Candidate state:  CANDIDATE — PENDING BOUNDED REVIEW A RE-REVIEW (not
 **Next governed step:** ChatGPT bounded Review A re-review of `P3-FEATURE-EVID03-COND3-AMEND-A-MIN-01`.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-surface-completeness-design-001-amendment-001.md` (corrected in place — not a new Amendment-002/correction artifact), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no source/test/tooling/dependency file touched. `manifest_version` `"10.379"` → `"10.380"`.
+
+## `feature-engine` — `P3-FEATURE-QG-EVID-03` Condition-3 Amendment 001 approval recorded (`APPROVED — DESIGN AMENDMENT EFFECTIVE`)
+
+**Consolidated transaction — vai trò: `Feature Engine EVID-03 Condition-3 Amendment Approval Recorder`.** Mechanical recording only, transcribing already-completed external governance steps — this transaction performs none of them itself: ChatGPT bounded Review A re-review of `P3-FEATURE-EVID03-COND3-AMEND-A-MIN-01` returned `CLEAN — 0 Blocker / 0 Major / 0 Minor`; Risk Classification `R1`; Review B `NOT REQUIRED`; `ADR_OPTIONAL` (ADR not authored). Product Owner decision (verbatim): **"APPROVE Feature Engine EVID-03 Condition-3 Current-Boundary Fault-Spec Amendment 001 at boundary db37fa3eec53f7150c58659d4bd82bf1c251d07d."**
+
+```text
+Approved scope: the 4 new current-boundary target methods
+  (contracts.PreparedTransition.reconcile,
+  contracts.PreparedFeatureComputed.finalize,
+  contracts.InputMergePolicy.__post_init__,
+  ownership.AuthoritativeSubjectOwner.state) and their 4 exact fault specs
+  (FI-PREPTRANS-RECONCILE-01, FI-PFC-FINALIZE-01,
+  FI-INPUTMERGE-POSTINIT-01, FI-OWNER-STATE-01).
+Historical 5-method/10-fault design (design-001.md): unchanged, not
+  reapproved, not reopened.
+Amendment 001 lifecycle: CANDIDATE — PENDING BOUNDED REVIEW A RE-REVIEW ->
+  APPROVED — DESIGN AMENDMENT EFFECTIVE / IMPLEMENTATION NOT YET PERFORMED.
+Current target population after approval: 9 methods, 14 fault
+  specifications (unchanged content from the corrected candidate).
+Condition 3:      still UNRESOLVED -- approval covers DESIGN/fault-
+  specification content only; no fault executed, no evidence exists yet
+  from this recording transaction.
+P3-FEATURE-QG-EVID-03: OPEN / blocking, unaffected.
+Feature module approval: NOT APPROVED.
+LIVE:              NOT_AUTHORIZED.
+```
+
+**Not performed:** no `src/**`/test/tooling/dependency change; no fault injection executed; no mutation run; no Condition-2 work; no ADR authored; no new Review A/Review B/Risk Classification/Product Owner decision performed or fabricated by this transaction; no self-approval; no Condition-3 closure.
+
+**Next governed step (within this same executor task):** implement the approved 14-fault/9-method tooling extension and execute it against the exact implementation-boundary commit.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-surface-completeness-design-001-amendment-001.md` (approval recorded in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `design-001.md` and `evidence-002.json` byte-unchanged; no source/test/tooling/dependency file touched. `manifest_version` `"10.380"` → `"10.381"`.
 
 ## Decision Log
 

@@ -1,7 +1,7 @@
 # Feature Engine — Mutation-Surface Completeness (Condition 3) Design — Amendment 001 (Current-Boundary Target-Population Extension)
 
 ```yaml
-status: CANDIDATE — PENDING BOUNDED REVIEW A RE-REVIEW
+status: APPROVED — DESIGN AMENDMENT EFFECTIVE / IMPLEMENTATION NOT YET PERFORMED
 artifact_id: feature-engine-mutation-surface-completeness-design-001-amendment-001
 amends: feature-engine-mutation-surface-completeness-design-001
 created_for: >
@@ -10,7 +10,7 @@ created_for: >
   newly-material current-boundary methods identified by the EVID-03
   current-boundary applicability analysis (P3-FEATURE-EVID03-REBASE-A-MAJ-01,
   CLOSED — BOUNDED REVIEW A RE-REVIEW).
-transaction_kind: DESIGN ONLY — AMENDMENT CANDIDATE, NOT APPROVED
+transaction_kind: DESIGN ONLY — NOW APPROVED; IMPLEMENTATION NOT YET PERFORMED
 production_changed: false
 tests_changed: false
 tooling_changed: false
@@ -22,8 +22,28 @@ repository_head_at_authoring: b5014955c77964a9a5ceb0f22a1b79a297be595b
 bounded_correction_001:
   applied_at_repository_head: dd2a923f0283e9b2cbb73d3085c699c61e3d834f
   reviewer_finding_addressed: P3-FEATURE-EVID03-COND3-AMEND-A-MIN-01
-  finding_status: "REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW"
+  finding_status: "CLOSED — BOUNDED REVIEW A RE-REVIEW"
+approval_recording_001:
+  recorded_at_repository_head: db37fa3eec53f7150c58659d4bd82bf1c251d07d
+  review_a:
+    reviewer: "ChatGPT — AI Technical Architect / Review A"
+    reviewed_boundary: db37fa3eec53f7150c58659d4bd82bf1c251d07d
+    performed_by: "external to this recording transaction — this transaction only transcribes the completed review's own outcome"
+    closures:
+      - id: P3-FEATURE-EVID03-COND3-AMEND-A-MIN-01
+        status: "CLOSED — BOUNDED REVIEW A RE-REVIEW"
+    counts: { blocker: 0, major: 0, minor: 0 }
+    disposition: "CLEAN — READY_FOR_RISK_CLASSIFICATION"
+  risk_classification: "R1"
+  review_b: "NOT REQUIRED"
+  adr_disposition: "ADR_OPTIONAL — ADR NOT AUTHORED"
+  product_owner_decision:
+    verbatim: "APPROVE Feature Engine EVID-03 Condition-3 Current-Boundary Fault-Spec Amendment 001 at boundary db37fa3eec53f7150c58659d4bd82bf1c251d07d."
+    authority: "Product Owner — sole approval authority"
+  approved_scope: "The 4 new current-boundary target methods (contracts.PreparedTransition.reconcile, contracts.PreparedFeatureComputed.finalize, contracts.InputMergePolicy.__post_init__, ownership.AuthoritativeSubjectOwner.state) and their 4 exact fault specifications (FI-PREPTRANS-RECONCILE-01, FI-PFC-FINALIZE-01, FI-INPUTMERGE-POSTINIT-01, FI-OWNER-STATE-01). The historical 5-method/10-fault design (feature-engine-mutation-surface-completeness-design-001.md) remains unchanged, not reapproved, not reopened."
 ```
+
+**Approval recording (this revision, mechanical only):** ChatGPT bounded Review A re-review of the amendment 001 correction closed `P3-FEATURE-EVID03-COND3-AMEND-A-MIN-01` — `CLEAN — 0 Blocker / 0 Major / 0 Minor`, Risk Classification `R1`, Review B `NOT REQUIRED`, `ADR_OPTIONAL` (ADR not authored, unchanged from the candidate's own §6 classification). The Product Owner then recorded an explicit APPROVE decision at this exact boundary. This transaction performed none of those steps itself — it only mechanically transcribes their already-completed outcomes. **This amendment's DESIGN is now `APPROVED — DESIGN AMENDMENT EFFECTIVE`.** Approval covers the DESIGN/fault-specification content only — it does **not** itself execute any fault, does not add or modify any test, and does not close Condition 3 or `P3-FEATURE-QG-EVID-03`. A separate, later implementation transaction (tracked in this same executor task, Part B/C below) still builds the tooling extension and runs the now-approved population before any Condition-3 evidence exists at the current boundary.
 
 **Bounded correction 001:** ChatGPT bounded Review A returned
 `REVISION_REQUIRED — 0 Blocker / 0 Major / 1 Minor` (R1):
@@ -40,8 +60,8 @@ method, fault ID, `old_string`/`new_string`, materiality classification,
 the candidate total (9 methods), the historical five-target design, the
 harness semantics, `ADR_SCOPE_DISPOSITION` (`ADR_OPTIONAL`), or any
 historical evidence is altered by this correction. **Finding state:**
-`REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW` — not self-closed.
-Candidate remains `CANDIDATE — PENDING BOUNDED REVIEW A RE-REVIEW`.
+`CLOSED — BOUNDED REVIEW A RE-REVIEW` (see approval recording below —
+this candidate is now `APPROVED — DESIGN AMENDMENT EFFECTIVE`).
 
 This document does **not** modify, rewrite, or supersede
 `feature-engine-mutation-surface-completeness-design-001.md` — that document,
@@ -376,10 +396,11 @@ Evaluated independently for extending fault-spec content to 4 new targets under 
 Condition 1:                    unaffected by this document.
 Condition 2:                    unaffected by this document (separate,
                                  130-identity §4.1(b) resolution track).
-Condition 3:                    UNRESOLVED. This candidate amendment is
-                                 CANDIDATE — PENDING BOUNDED REVIEW A
-                                 RE-REVIEW -- not approved, not effective,
-                                 no fault executed.
+Condition 3:                    UNRESOLVED. This amendment's DESIGN is
+                                 APPROVED — DESIGN AMENDMENT EFFECTIVE, but
+                                 IMPLEMENTATION NOT YET PERFORMED -- no
+                                 fault executed by this approval recording,
+                                 no Condition-3 evidence exists yet.
 design-001 (historical):        PRESERVED, unchanged, 5-target/10-fault
                                  approval fully intact.
 evidence-002.json (historical): PRESERVED, unchanged, valid for its own
@@ -393,6 +414,6 @@ LIVE:                           NOT_AUTHORIZED.
 
 ## 8. Not performed by this transaction
 
-No `src/**` change. No test change. No tooling change. No dependency change. No fault injection executed. No mutation run. No Condition-2 work. No survivor remediation. No threshold change. No EVID-03 closure. No Feature Engine approval. No LIVE authorization. **No self-approval** — this candidate is recorded `CANDIDATE — PENDING BOUNDED REVIEW A RE-REVIEW` and is not, and cannot be, closed by this executor.
+No `src/**` change. No test change. No tooling change. No dependency change. No fault injection executed by this approval-recording transaction. No mutation run. No Condition-2 work. No survivor remediation. No threshold change. No EVID-03 closure. No Feature Engine approval. No LIVE authorization. This recording transcribes an externally-completed Review A / Risk Classification / Product Owner decision; it does not itself perform or fabricate any of those steps.
 
-**Next governed step:** ChatGPT bounded Review A re-review of `P3-FEATURE-EVID03-COND3-AMEND-A-MIN-01`. After that: Risk Classification required; if this candidate remains a semantic amendment to the Product-Owner-approved Condition-3 design (the expected case), Product Owner approval is required before these 4 new fault specs may be used as formal Condition-3 evidence. No Review B automatically triggered by this candidate's own risk tier; an optional advisory cross-check may be added later only if the Product Owner chooses, per current ADR-042 governance.
+**Next governed step (within this same executor task):** implement the approved 14-fault/9-method population in `tooling/fault_injection/` and execute it against the exact implementation-boundary commit, producing formal current-boundary Condition-3 evidence — pending its own subsequent Review A.
