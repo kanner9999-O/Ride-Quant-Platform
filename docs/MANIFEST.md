@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.381"
+manifest_version: "10.382"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -27360,6 +27360,35 @@ LIVE:              NOT_AUTHORIZED.
 **Next governed step (within this same executor task):** implement the approved 14-fault/9-method tooling extension and execute it against the exact implementation-boundary commit.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-surface-completeness-design-001-amendment-001.md` (approval recorded in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `design-001.md` and `evidence-002.json` byte-unchanged; no source/test/tooling/dependency file touched. `manifest_version` `"10.380"` → `"10.381"`.
+
+## `feature-engine` — `P3-FEATURE-QG-EVID-03` Condition-3 execution finding recorded; `FI-INPUTMERGE-POSTINIT-01` bounded design correction authored (`CANDIDATE — PENDING REVIEW A`)
+
+**Consolidated transaction — vai trò: `EVID-03 Condition-3 Amendment 001 FI-INPUTMERGE Bounded Design Correction Executor`.** ChatGPT Review A of the current-boundary Condition-3 execution attempt confirmed the prior executor's STOP was correct: `P3-FEATURE-EVID03-COND3-EXEC-A-MAJ-01`, `REVISION_REQUIRED — 0 Blocker / 1 Major / 0 Minor` (R1) — the approved `FI-INPUTMERGE-POSTINIT-01` fault spec deterministically prevents pytest collection (its "valid non-empty algorithm wrongly rejected" direction makes `tests/conftest.py`'s own real, module-level `InputMergePolicy` construction raise at import time) and therefore cannot produce qualifying `DETECTED`/`SURVIVED` evidence under the approved, unmodified harness contract (`TEST_INFRA_ERROR`, never coerced). Observed run (implementation boundary `cda4d0ebaf0f1d9e71bb4be0205380059db7a68b`): 13/14 DETECTED, 0 SURVIVED, 0 CONTROL_FAILED, 0 INJECTION_FAILED, 1 TEST_INFRA_ERROR (`FI-INPUTMERGE-POSTINIT-01`); no formal `evidence-003.json` committed; the raw run remains non-qualifying diagnostic evidence, not committed.
+
+**Corrected fault specification authored (candidate, not implemented in tooling, not approved):** `FI-INPUTMERGE-POSTINIT-01`'s `new_string` corrected from `"if self.algorithm:"` to `"if self.algorithm is None:"` — `fault_class` corrected from `guard_inversion` to `fail_closed_bypass` (matches the already-established taxonomy term for the structurally-identical `FI-OHLCV-FIELD-02` shape). Traced exactly, fresh, against current source: an empty-string `algorithm` still silently escapes the narrowed guard (the intended defect, unchanged); a genuine non-empty `algorithm` — including every real construction in `tests/conftest.py` via `authority_resolver.py`'s own `_extract_merge_policy`, which already guards `algorithm is None` before ever constructing `InputMergePolicy` — never triggers the narrowed guard, eliminating the conftest.py collection collision entirely. Target method, fault ID, target population (9 methods), and harness/mechanism all unchanged. Predicted detecting test: `tests/test_contracts.py::test_input_merge_policy_rejects_empty_algorithm`; required positive control (must continue passing): `tests/test_contracts.py::test_input_merge_policy_accepts_well_formed_value` — both verified by direct source tracing only, no live/formal re-execution performed by this correction transaction.
+
+```text
+Fresh ADR Scope (this one-fault correction, not inherited): ADR_NOT_REQUIRED
+  -- narrower than Amendment 001's own ADR_OPTIONAL; reuses the identical,
+  unmodified mechanism/template; no ADR authored.
+Approval required: Review A REQUIRED, Risk Classification REQUIRED, Product
+  Owner decision REQUIRED before tooling implementation/rerun. Review B NOT
+  REQUIRED by default. No self-approval by this transaction.
+Original FI-INPUTMERGE-POSTINIT-01 spec + its Product Owner approval
+  (approval_recording_001): PRESERVED, byte-verbatim, historical authority
+  of record -- not rewritten, not retroactively reinterpreted.
+Amendment 001 overall: APPROVED — DESIGN AMENDMENT EFFECTIVE for 8/9
+  methods' fault specs (13/14 faults) -- unaffected, not reopened.
+Condition 3: UNRESOLVED. No formal evidence-003 exists.
+P3-FEATURE-QG-EVID-03: OPEN / blocking, unaffected.
+Feature module approval: NOT APPROVED. LIVE: NOT_AUTHORIZED.
+```
+
+**Not performed:** no `src/**`/test/tooling/dependency change; no fault injection executed or re-executed; no mutation run; no Condition-2 work; no survivor remediation; no threshold change; no ADR authored; no Condition-3 closure; no EVID-03 closure; no self-approval.
+
+**Next governed step:** ChatGPT Review A of the `FI-INPUTMERGE-POSTINIT-01` bounded design correction candidate.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-surface-completeness-design-001-amendment-001.md` (correction recorded in place — no new artifact), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no source/test/tooling/dependency file touched. `manifest_version` `"10.381"` → `"10.382"`.
 
 ## Decision Log
 

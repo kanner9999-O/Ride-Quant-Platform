@@ -1,7 +1,16 @@
 # Feature Engine — Mutation-Surface Completeness (Condition 3) Design — Amendment 001 (Current-Boundary Target-Population Extension)
 
 ```yaml
-status: APPROVED — DESIGN AMENDMENT EFFECTIVE / IMPLEMENTATION NOT YET PERFORMED
+status: >
+  APPROVED — DESIGN AMENDMENT EFFECTIVE for 8/9 methods' fault specs (13/14
+  faults: FI-STATIC-PROVIDER-01, FI-OHLCV-FIELD-01/02, FI-DECIMAL-APPLY-01/02,
+  FI-DECIMAL-POSTINIT-01/02, FI-FEATUREDEF-01/02/03, FI-PREPTRANS-RECONCILE-01,
+  FI-PFC-FINALIZE-01, FI-OWNER-STATE-01 — unaffected, not reopened);
+  FI-INPUTMERGE-POSTINIT-01's original approved fault spec is a
+  SUPERSESSION CANDIDATE — PENDING REVIEW A (bounded_correction_002,
+  deterministic TEST_INFRA_ERROR observed, see below) — its ORIGINAL
+  Product Owner approval (approval_recording_001) remains the historical
+  authority of record and is preserved verbatim, not rewritten.
 artifact_id: feature-engine-mutation-surface-completeness-design-001-amendment-001
 amends: feature-engine-mutation-surface-completeness-design-001
 created_for: >
@@ -41,6 +50,20 @@ approval_recording_001:
     verbatim: "APPROVE Feature Engine EVID-03 Condition-3 Current-Boundary Fault-Spec Amendment 001 at boundary db37fa3eec53f7150c58659d4bd82bf1c251d07d."
     authority: "Product Owner — sole approval authority"
   approved_scope: "The 4 new current-boundary target methods (contracts.PreparedTransition.reconcile, contracts.PreparedFeatureComputed.finalize, contracts.InputMergePolicy.__post_init__, ownership.AuthoritativeSubjectOwner.state) and their 4 exact fault specifications (FI-PREPTRANS-RECONCILE-01, FI-PFC-FINALIZE-01, FI-INPUTMERGE-POSTINIT-01, FI-OWNER-STATE-01). The historical 5-method/10-fault design (feature-engine-mutation-surface-completeness-design-001.md) remains unchanged, not reapproved, not reopened."
+execution_finding_001:
+  finding_id: P3-FEATURE-EVID03-COND3-EXEC-A-MAJ-01
+  observed_boundary: cda4d0ebaf0f1d9e71bb4be0205380059db7a68b
+  observed_result: "13/14 DETECTED; FI-INPUTMERGE-POSTINIT-01 = TEST_INFRA_ERROR (evidence_exit_code=4)"
+  cause: "The approved fault's 'valid non-empty algorithm now wrongly raises' direction makes tests/conftest.py's own real, valid InputMergePolicy construction (module-import time, before any test collection) raise -- pytest never collects a single test."
+  disposition: "Executor STOP was correct. No formal evidence-003 committed. Design fault-spec correction required before this one fault can be re-executed."
+  executor_stop: "CONFIRMED CORRECT — REVIEW A P3-FEATURE-EVID03-COND3-EXEC-A-MAJ-01, REVISION_REQUIRED, 0 Blocker / 1 Major / 0 Minor, R1"
+bounded_correction_002_candidate:
+  status: "CANDIDATE — PENDING REVIEW A"
+  candidate_repository_head: cda4d0ebaf0f1d9e71bb4be0205380059db7a68b
+  addresses_finding: P3-FEATURE-EVID03-COND3-EXEC-A-MAJ-01
+  scope: "FI-INPUTMERGE-POSTINIT-01 fault specification ONLY — target method, fault ID, and target population (9 methods / this fault's own membership) unchanged; harness/mechanism unchanged; no other fault spec touched"
+  supersedes_pending_approval: "The ORIGINAL FI-INPUTMERGE-POSTINIT-01 spec recorded under approval_recording_001 above (old_string: \"if not self.algorithm:\", new_string: \"if self.algorithm:\") -- that original spec and its Product Owner approval remain PRESERVED, VERBATIM, as historical authority; this correction does not rewrite or retroactively reinterpret that approval as having covered the corrected spec"
+  requires_before_use_as_evidence: "Review A, Risk Classification, and a fresh Product Owner decision -- self-approval prohibited"
 ```
 
 **Approval recording (this revision, mechanical only):** ChatGPT bounded Review A re-review of the amendment 001 correction closed `P3-FEATURE-EVID03-COND3-AMEND-A-MIN-01` — `CLEAN — 0 Blocker / 0 Major / 0 Minor`, Risk Classification `R1`, Review B `NOT REQUIRED`, `ADR_OPTIONAL` (ADR not authored, unchanged from the candidate's own §6 classification). The Product Owner then recorded an explicit APPROVE decision at this exact boundary. This transaction performed none of those steps itself — it only mechanically transcribes their already-completed outcomes. **This amendment's DESIGN is now `APPROVED — DESIGN AMENDMENT EFFECTIVE`.** Approval covers the DESIGN/fault-specification content only — it does **not** itself execute any fault, does not add or modify any test, and does not close Condition 3 or `P3-FEATURE-QG-EVID-03`. A separate, later implementation transaction (tracked in this same executor task, Part B/C below) still builds the tooling extension and runs the now-approved population before any Condition-3 evidence exists at the current boundary.
@@ -74,6 +97,97 @@ candidate: four NEW target methods and four NEW fault specifications only.
 It is authored, not approved — **no fault is executed, no test is added, no
 production file is touched, and Condition 3 is not marked resolved by this
 document.**
+
+## Execution finding `P3-FEATURE-EVID03-COND3-EXEC-A-MAJ-01` and bounded correction 002 (candidate)
+
+**Execution finding, ChatGPT Review A — `REVISION_REQUIRED — 0 Blocker / 1 Major / 0 Minor` (R1):** the approved 14-fault population was executed against implementation boundary `cda4d0ebaf0f1d9e71bb4be0205380059db7a68b` (a separate tooling-implementation commit, not this document). Result: **13/14 DETECTED**, 0 SURVIVED, 0 CONTROL_FAILED, 0 INJECTION_FAILED, **1 TEST_INFRA_ERROR** — `FI-INPUTMERGE-POSTINIT-01` (`evidence_exit_code=4`). **Root cause, confirmed by direct, reproducible manual verification (disposable isolated checkout, not the formal harness, canonical checkout untouched):** the approved fault's second direction — a genuinely valid, non-empty `algorithm` now wrongly raising `UnsupportedMergePolicyError` — makes `tests/conftest.py`'s own real, module-level `InputMergePolicy` construction (via `resolve_input_contract_authority_from_repository` → `_extract_merge_policy`, executed at test-COLLECTION time, before any test runs) raise on import. pytest never collects a single test and exits with a conftest-load `ImportError` (code 4) — correctly, per the approved harness's own unmodified contract (`classify_verdict`: any exit code outside `{0, 1}` is `TEST_INFRA_ERROR`, never coerced into `DETECTED`/`SURVIVED`), classified `TEST_INFRA_ERROR`, never `DETECTED`. **The Executor's STOP after this run was correct — no formal `evidence-003.json` was committed; the raw run remains non-qualifying diagnostic evidence, not committed to this repository.** No other fault, and no target method's own DETECTED status among the other 8 methods, is affected or reopened by this finding.
+
+**Why this is a bounded DESIGN correction, not a contextual `old_string`/`new_string` adjustment:** the originally-approved fault deliberately inverted the guard in BOTH directions (empty accepted; valid rejected) — a genuine two-directional `guard_inversion`. The corrected fault below changes the defect's own shape (a one-directional, narrowly-targeted acceptance-of-invalid-input, not a symmetric inversion) and its honest `fault_class` label changes accordingly. Per this repository's own established precedent (contextual re-pointing of an `old_string`/`new_string` at drifted line numbers does not require new governance; a change to what the fault MEANS does), this is treated as a bounded semantic correction requiring its own Review A / Risk Classification / Product Owner decision before use — exactly the same discipline `bounded_correction_001` above already applied to `FI-OWNER-STATE-01`'s readiness classification.
+
+**Corrected `FI-INPUTMERGE-POSTINIT-01` fault specification (CANDIDATE — not yet approved):**
+
+```text
+fault_id:              FI-INPUTMERGE-POSTINIT-01 (unchanged)
+qualified_method:      contracts.InputMergePolicy.__post_init__ (unchanged)
+source_file:            src/feature_engine/contracts.py (unchanged)
+fault_class:            fail_closed_bypass (CORRECTED from guard_inversion --
+                        see rationale below; matches the existing taxonomy
+                        term already used for the structurally identical
+                        FI-OHLCV-FIELD-02 shape: one specific invalid input
+                        silently escapes an otherwise-intact fail-closed
+                        guard, rather than the guard's direction inverting
+                        symmetrically for both valid and invalid inputs)
+old_string:              "if not self.algorithm:" (unchanged from the
+                        original approved spec -- still unique, verified
+                        fresh: occurs exactly once in contracts.py)
+new_string (CORRECTED): "if self.algorithm is None:"
+  (was: "if self.algorithm:")
+semantic_defect (corrected): narrows the guard's trigger condition from
+  "falsy" (empty string OR None) to "literally None only". Traced exactly,
+  fresh, against current source:
+  - algorithm="" (the intended defect target): "" is None -> False -> guard
+    does NOT fire -> EMPTY algorithm SILENTLY ACCEPTED (exactly, and only,
+    the intended material defect).
+  - algorithm=<any genuine non-empty string> (the ordinary/valid case,
+    including every real construction in tests/conftest.py via
+    authority_resolver.py's own _extract_merge_policy, which itself
+    already guards `if algorithm is None ... : return None` BEFORE ever
+    constructing InputMergePolicy -- so algorithm reaching __post_init__
+    from that path is always a genuine, non-None, non-empty string):
+    <string> is None -> False -> guard does NOT fire -> construction
+    succeeds, IDENTICAL to unfaulted behavior. This is the fix: the
+    "valid non-empty algorithm wrongly rejected" direction is eliminated
+    entirely -- conftest.py's own module-level construction can never
+    observe this fault, so test collection can never be broken by it.
+  - algorithm=None (type-illegal for the `algorithm: str` field; not a
+    realistic runtime input given mypy --strict and the resolver's own
+    None-guard above; included only for completeness): both original and
+    corrected code raise identically -- no behavior change for this
+    unreachable case.
+activation_uniqueness:  old_string verified fresh: exactly one occurrence
+                        in contracts.py. new_string ("if self.algorithm is
+                        None:") verified fresh: zero occurrences anywhere
+                        in contracts.py before patch, so exactly one after
+                        a single-token replacement.
+predicted_detecting_test: tests/test_contracts.py::
+                        test_input_merge_policy_rejects_empty_algorithm
+                        (pytest.raises(UnsupportedMergePolicyError) around
+                        InputMergePolicy(algorithm="", ...) -- would no
+                        longer raise under the corrected fault, so this
+                        test FAILS -- DETECTED).
+required_positive_control: tests/test_contracts.py::
+                        test_input_merge_policy_accepts_well_formed_value
+                        MUST continue to pass unaffected under the
+                        corrected fault (traced above: a valid algorithm
+                        never triggers the narrowed guard) -- this is the
+                        exact regression the corrected spec is designed to
+                        eliminate, verified by direct source tracing, not
+                        assumed.
+conftest_collision_eliminated: yes -- traced exactly above via
+                        authority_resolver.py's own _extract_merge_policy
+                        None-guard; no live/formal re-execution performed
+                        by this correction transaction (PROHIBITED --
+                        deferred to a later, separately-approved
+                        implementation/rerun transaction).
+```
+
+**Fresh Chapter 0 §4b ADR Scope Rule (this one-fault correction, not inherited from Amendment 001's own `ADR_OPTIONAL`):**
+
+| §4b criterion | Applies here? |
+|---|---|
+| Platform Invariant / Event Schema / Module Taxonomy change | No. |
+| Governance/Approval-process change | No — reuses the identical, already-established evidentiary-design pattern (a named fault targeting a named method's fail-closed guard, per design-001 §3's own template); corrects ONE fault's own semantic defect, invents no new mechanism, process, role, or review stage. |
+| Affects >1 module | No — `feature-engine` only, one method, one fault ID. |
+| Hard to reverse | No — a documentation-only candidate correction; trivially revisable/re-correctable again if wrong. |
+| Locked-ADR modification | No. |
+
+**Disposition: `ADR_NOT_REQUIRED`.** This is narrower than Amendment 001's own `ADR_OPTIONAL` (which introduced 4 wholly new target methods/faults) and narrower still than design-001's own `ADR_OPTIONAL` (which introduced the entire mechanism) — this correction touches exactly one already-approved fault ID's own `new_string`/`fault_class`, using the identical, unmodified template and mechanism. No ADR authored.
+
+**Approval requirement (not self-approved by this transaction):** Review A REQUIRED. Risk Classification REQUIRED. Product Owner decision REQUIRED before this corrected spec may be implemented in `tooling/fault_injection/faults.py` or used to produce Condition-3 evidence. Review B NOT REQUIRED by default (matches the risk/review pattern already applied to `bounded_correction_001` and to Amendment 001 itself). This candidate is **not** implemented in tooling by this transaction, and the previously-approved (now superseded-pending-approval) original spec's own historical Product Owner approval record (`approval_recording_001`) is preserved byte-verbatim above, not rewritten.
+
+**Current executable state (unaffected, not reverted):** implementation Commit B (`cda4d0ebaf0f1d9e71bb4be0205380059db7a68b`, `tooling/fault_injection/faults.py`, etc.) truthfully implements the currently-approved ORIGINAL `FI-INPUTMERGE-POSTINIT-01` spec and is preserved as the historical stopped-execution boundary. After this correction candidate itself receives Review A / Risk Classification / Product Owner approval, a later implementation transaction will update exactly `FI-INPUTMERGE-POSTINIT-01` in `faults.py` and re-run all 14 faults against that new executable boundary — not performed here.
+
+**Next governed step:** ChatGPT Review A of the `FI-INPUTMERGE-POSTINIT-01` bounded design correction candidate (`bounded_correction_002_candidate`).
 
 ## 0. Authority resolved fresh this transaction
 
@@ -396,11 +510,20 @@ Evaluated independently for extending fault-spec content to 4 new targets under 
 Condition 1:                    unaffected by this document.
 Condition 2:                    unaffected by this document (separate,
                                  130-identity §4.1(b) resolution track).
-Condition 3:                    UNRESOLVED. This amendment's DESIGN is
-                                 APPROVED — DESIGN AMENDMENT EFFECTIVE, but
-                                 IMPLEMENTATION NOT YET PERFORMED -- no
-                                 fault executed by this approval recording,
-                                 no Condition-3 evidence exists yet.
+Condition 3:                    UNRESOLVED. 13/14 approved faults executed
+                                 and DETECTED against implementation
+                                 boundary cda4d0ebaf0f1d9e71bb4be0205380059db7a68b
+                                 (8/9 methods qualify) -- NOT formal
+                                 evidence (no evidence-003.json exists;
+                                 the run is non-qualifying diagnostic
+                                 output only). 1/14 (FI-INPUTMERGE-POSTINIT-01)
+                                 is a deterministic TEST_INFRA_ERROR,
+                                 root-caused (see finding above); its
+                                 corrected fault spec is
+                                 CANDIDATE — PENDING REVIEW A
+                                 (bounded_correction_002_candidate), not
+                                 yet implemented in tooling, not yet
+                                 re-executed.
 design-001 (historical):        PRESERVED, unchanged, 5-target/10-fault
                                  approval fully intact.
 evidence-002.json (historical): PRESERVED, unchanged, valid for its own
@@ -414,6 +537,6 @@ LIVE:                           NOT_AUTHORIZED.
 
 ## 8. Not performed by this transaction
 
-No `src/**` change. No test change. No tooling change. No dependency change. No fault injection executed by this approval-recording transaction. No mutation run. No Condition-2 work. No survivor remediation. No threshold change. No EVID-03 closure. No Feature Engine approval. No LIVE authorization. This recording transcribes an externally-completed Review A / Risk Classification / Product Owner decision; it does not itself perform or fabricate any of those steps.
+No `src/**` change. No test change. No tooling change. No dependency change. No fault injection executed or re-executed by this correction transaction. No mutation run. No Condition-2 work. No survivor remediation. No threshold change. No Condition-3 closure. No EVID-03 closure. No Feature Engine approval. No LIVE authorization. No self-approval — `bounded_correction_002_candidate` is recorded `CANDIDATE — PENDING REVIEW A` and is not, and cannot be, closed by this executor.
 
-**Next governed step (within this same executor task):** implement the approved 14-fault/9-method population in `tooling/fault_injection/` and execute it against the exact implementation-boundary commit, producing formal current-boundary Condition-3 evidence — pending its own subsequent Review A.
+**Next governed step:** ChatGPT Review A of the `FI-INPUTMERGE-POSTINIT-01` bounded design correction candidate (`bounded_correction_002_candidate`).
