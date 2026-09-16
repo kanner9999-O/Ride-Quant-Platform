@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.384"
+manifest_version: "10.385"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -27450,6 +27450,51 @@ Feature module approval: NOT APPROVED. LIVE: NOT_AUTHORIZED.
 **Next governed step:** ChatGPT live-repo verification + Review A of current-boundary Condition-3 evidence-003.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-surface-completeness-evidence-003.json` (new, additive; historical evidence-001/-002 byte-unchanged), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md` (minimal correction of a now-stale `EVID-03` current-state row — "no qualifying evidence exists" was factually contradicted by this transaction's own result), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no source/product-test/harness/dependency file touched. `manifest_version` `"10.383"` → `"10.384"`.
+
+## `feature-engine` — `P3-FEATURE-QG-EVID-03` Condition-2 material-gap identity-resolution candidate (`RESOLUTION CANDIDATE — PENDING REVIEW A`); Condition-3 folded to `SATISFIED — REVIEW A VALIDATED`
+
+**Consolidated transaction — vai trò: `Feature Engine EVID-03 Condition-2 Historical Identity Resolution Executor`.** Folds already-completed Condition-3 Review A closure (CLEAN — 0/0/0, R1: `evidence-003.json`, 14/14 DETECTED, 9/9 methods) into current-state bookkeeping — **Condition 3: `EVIDENCE PRODUCED — PASS CANDIDATE — PENDING REVIEW A` → `SATISFIED — REVIEW A VALIDATED`** — while performing this transaction's own primary work: individual per-identity resolution of the 170 historical Condition-2 material-gap mutant identities (`feature-engine-mutation-threshold-proposal-001.md` §4.1).
+
+**Fresh accounting verified before proceeding:** 170 = 36 (present, killed) + 4 (present, survived, previously reclassified) + 2 (present, survived, not reclassified) + 128 (absent/discontinuous) — reconciles exactly, per `feature-engine-mutation-step9-formal-evidence-003.json`'s own `historical_170_id_comparison`.
+
+**All 170 identities individually processed** (one coherent candidate, not 130 separate transactions):
+- **2 still-present survivors** (`regime_passthrough...__init____mutmut_39`, `swing_distance...__init____mutmut_59`): treated strictly — exact-ID match confirmed in current `survivor_mutant_ids`; current source confirms the identical `constructed_object_field_not_independently_asserted` gap shape (`self._stream_id` field, unasserted) persists. `REMAIN_UNRESOLVED` — no reclassification manufactured.
+- **4 existing reclassifications preserved** (`current_view...on_feature_computed__mutmut_19/29`, `swing_distance.x__total_order_key__mutmut_3`, `swing_distance..._select_eligible_swing__mutmut_22`): verified fresh against `feature-engine-mutant-reclassification-candidate-001.md` (APPROVED/EFFECTIVE, 10 identities total, Review A + Review B + Product Owner). Not re-decided. `PRESERVE_EXISTING_RECLASSIFICATION`.
+- **6 of that same original 10** are now absent (renamed into the ADR-043 `_prepare_X` two-phase architecture) — the original call-site-specific equivalence argument does not automatically transfer without fresh, function-specific re-verification (not performed here, effort-bounded) — `REMAIN_UNRESOLVED`, not manufactured.
+- **4 new evidence-backed §4.1(b) reclassification candidates** — all four `contracts.x_resolve_output_contract_refs__mutmut_*` identities: the function is entirely absent from current source, and its own implementing commit (`7754c440dc9b08b18680c6112fb9696d34b6d994`) explicitly declares the old caller-injected-string mechanism "obsolete", replaced by a materially stronger, resolver-verified, fail-closed ADR-039/ADR-040 invariant (`output_contract_resolver.py`, `VerifiedOutputEventContractAuthority`). `CANDIDATE_RECLASSIFY_4_1_B` — concrete, contemporaneous, reviewed evidence, not mere ID disappearance.
+- **Remaining 158** (30 distinct functions, concentration-analyzed): for each, current source checked fresh — many historical functions renamed into the ADR-043 `_prepare_X` pattern (successor named per row), others unchanged. Per this task's own explicit standard ("function rewritten"/"method moved" alone is NOT sufficient), all conservatively `REMAIN_UNRESOLVED` where no affirmative removal evidence exists.
+
+```text
+Row-level totals (this artifact's own 170-row table):
+  preserved_prior_reclassification:      4
+  new_4_1_b_reclassification_candidates: 4 (CANDIDATE, pending Review A)
+  remain_unresolved (row-level):         162
+  sum:                                   170
+Effective Condition-2 aggregate state (incorporating the separate,
+  already-valid 36-killed fact, not individually re-partitioned by this
+  transaction without a prohibited mutmut run):
+  already resolved (kill + preserved reclass): 40
+  candidate pending review (reclass):            4
+  genuinely open:                              126
+  sum:                                          170
+Condition 2: RESOLUTION CANDIDATE — PENDING REVIEW A. NOT 170/170.
+  No replacement mutant IDs authorized.
+Condition 3: SATISFIED — REVIEW A VALIDATED (folded, this transaction).
+Condition 1: FAIL — criteria, unchanged.
+Current-boundary P3-FEATURE-QG-EVID-03: OPEN / FAIL.
+Historical EVID-03 PASS: preserved, unaffected.
+Feature module approval: NOT APPROVED. LIVE: NOT_AUTHORIZED.
+```
+
+**Fresh ADR Scope Rule (this transaction, not inherited):** `ADR_NOT_REQUIRED` — applies the already-approved item-8/§4.1(b) individually-pinned-identity mechanism to 4 specific candidate identities; invents no new governance/approval process, touches no invariant/schema/taxonomy/cross-module contract, fully reversible.
+
+**Review/approval routing:** Review A REQUIRED, Risk Classification R1, Review B NOT REQUIRED, Product Owner NOT REQUIRED merely to apply existing §4.1(b), ADR NOT_REQUIRED.
+
+**Not performed:** no `src/**`/test/tooling/dependency change; no mutmut run; no survivor remediation; no replacement 170-mutant set; no old-ID→new-ID rebasing; no aggregate mutation-score change; no self-validation of the 4 proposed reclassifications; no Condition-2 closure; no EVID-03 closure; no Feature Engine approval; no LIVE authorization.
+
+**Next governed step:** ChatGPT Review A of the Condition-2 §4.1 historical identity-resolution candidate.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-identity-resolution-001.json` (new, additive), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md` (Condition-3 folded to SATISFIED — REVIEW A VALIDATED; Condition-2 row pointer added), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no source/test/tooling/dependency file touched. `manifest_version` `"10.384"` → `"10.385"`.
 
 ## Decision Log
 
