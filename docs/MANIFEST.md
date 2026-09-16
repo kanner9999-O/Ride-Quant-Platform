@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.377"
+manifest_version: "10.378"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -27219,6 +27219,42 @@ LIVE:                           NOT_AUTHORIZED.
 **Next governed step:** ChatGPT live-repo verification + Review A of this current-boundary evidence/result.
 
 **Files changed:** Commit A (already pushed) — `python/feature-engine/tests/test_replay_preparation.py`. This entry (docs-only) — `docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-003.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; historical evidence 001/001-correction-001/002 byte-unchanged; no source/tooling/dependency file touched. `manifest_version` `"10.376"` → `"10.377"`.
+
+## `feature-engine` — `P3-FEATURE-QG-EVID-03` Evidence-003 timeout-fidelity bounded correction (Review A `REVISION_REQUIRED`, `P3-PY-MUT-STEP9-003-A-MAJ-01` remediated)
+
+**Consolidated transaction — vai trò: `EVID-03 Evidence-003 Timeout Fidelity Bounded Correction Executor`.** ChatGPT bounded Review A of evidence-003 returned `REVISION_REQUIRED — 0 Blocker / 1 Major / 0 Minor` (R1): `P3-PY-MUT-STEP9-003-A-MAJ-01` — evidence-003 recorded one raw `timeout` (killed=2153, survived=475, timeout=1) but never individually re-ran/reproduced it before marking Condition 1 `FAIL — criteria`/usable, contrary to Testing Convention v0.17's own timeout-treatment rule (an unresolved/unreproduced timeout is `FAIL — evidence` for that mutant, not creditable). No ADR, no PO decision, no Review B triggered by this correction alone.
+
+**Executable boundary unchanged from evidence-003:** verified fresh — Commit A `596ad027955445be2d85036e1b52f226c8a42fde` (parent `a494fa21ff935d509081ed39e7f9499731fb0625`); current HEAD's `python/feature-engine/{src/feature_engine,tests,tooling}` tree hashes and `pyproject.toml`/`requirements-dev.lock.txt` blob hashes are byte-identical to Commit A's — the intervening docs-only commits did not alter the evaluated boundary.
+
+**Fresh full mutation run required** (the original evidence-003 workspace had already been removed; the exact raw-timeout mutant identity was never durably pinned). Fresh venv from `requirements-dev.lock.txt`, `mutants/` absent beforehand, `python -m tooling run` to natural completion: **2629 total**, initial raw population `killed=2152, survived=475, timeout=2` — materially different from evidence-003's own original population (per this correction's own Branch-C instruction, NOT forced to match; recorded and triaged as measured).
+
+**Both raw timeouts isolated (`python -m tooling run <mutant_id>`, 2 consecutive re-runs each):** `feature_engine.ownership.x_p_run_sort__mutmut_82` (`remaining.discard(chosen) → remaining.discard(None)`, topological-sort loop never shrinks `remaining` — genuine non-termination) **CONFIRMED — 2/2 timeout, ~28.1s both times** → `confirmed_timeout` credited. `feature_engine.contracts.x__construct_verified_authority__mutmut_47` (`object.__setattr__` 3-arg → 2-arg, should raise `TypeError` near-instantly, structurally inconsistent with a hang) **DOES NOT REPRODUCE — 2/2 killed, ~4s both times**; root cause traced to the already-documented, non-biasing `BadTestExecutionCommandsException` cohort (baseline-001 §3, previously observed 165× at the 1531-mutant population) — not a manual reclassification, the mechanical result of the same governed reproduction procedure applied to both candidates.
+
+**Corrected, fully-triaged qualifying-run population:** `killed=2153, survived=475, timeout=1, confirmed_timeout=1`, all other statuses 0, sum=2629=total, `not_checked=0`. Corrected raw score `(killed+confirmed_timeout)/(total-skipped)*100` = **81.93229364777483%** — still `< 87.001959503592%`. Sorted mutant-ID→result mapping sha256 `42cc19bcdcdceff09db4a938a8cb86cb956d76aed4a8831f0927ed3298267d4a`, identical to evidence-003's own original mapping hash (independent cross-check, not assumed).
+
+```text
+Condition 1 (corrected, this transaction):
+  FAIL — criteria (81.93229364777483% < 87.001959503592%,
+  complete timeout triage: confirmed_timeout=1, no unresolved
+  timeout remains).
+Condition 2: CURRENT-BOUNDARY APPLICABILITY REQUIRES
+  REBASE/INTERPRETATION (unchanged, not redesigned).
+Condition 3: STALE_FOR_CURRENT_BOUNDARY — RE-EVIDENCE_REQUIRED
+  (unchanged, not redesigned).
+P3-FEATURE-QG-EVID-03 (historical, boundary 977c7e8/c220b62a):
+  CLOSED — PASS — REVIEW A VALIDATED (unchanged, preserved).
+EVID-04 / EVID-06 / EVID-08:    unaffected, not opened.
+EVID-07:                        CLOSED — PASS (unaffected).
+Overall Feature Chapter 13 QG:  FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+LIVE:                           NOT_AUTHORIZED.
+```
+
+**Not performed:** no production `src/**` change; no test change; no tooling/shim change; no dependency change; no survivor remediation; no threshold adjustment; no equivalent-mutant reclassification decision; no Condition-2 rebase; no Condition-3 re-evidence; no ADR; no PO decision; no Review B; no Feature module approval; no LIVE authorization. `feature-engine-mutation-step9-formal-evidence-003.json` and historical evidence-001/-001-correction-001/-002 remain byte-unchanged.
+
+**Next governed step:** ChatGPT bounded Review A re-review of `P3-PY-MUT-STEP9-003-A-MAJ-01`.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-003-correction-001.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no source/test/tooling/dependency file touched; `mutants/` working directory (untracked) removed, not committed. `manifest_version` `"10.377"` → `"10.378"`.
 
 ## Decision Log
 

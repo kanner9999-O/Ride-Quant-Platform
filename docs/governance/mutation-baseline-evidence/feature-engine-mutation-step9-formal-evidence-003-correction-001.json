@@ -1,0 +1,232 @@
+{
+  "artifact_id": "feature-engine-mutation-step9-formal-evidence-003-correction-001",
+  "schema_note": "Bounded correction to feature-engine-mutation-step9-formal-evidence-003.json, addressing Review A finding P3-PY-MUT-STEP9-003-A-MAJ-01 (evidence-003 recorded one raw timeout without deterministic reproduction/triage before marking the measurement usable and classifying Condition 1 as FAIL - criteria). Follows the same additive-correction convention already established by feature-engine-mutation-step9-formal-evidence-001-correction-001.json. Does NOT overwrite, rewrite, or invalidate evidence-003.json, historical evidence-002.json, evidence-001.json, or evidence-001-correction-001.json -- all remain immutable.",
+  "corrects_finding_ids": [
+    "P3-PY-MUT-STEP9-003-A-MAJ-01"
+  ],
+  "original_artifact_reference": {
+    "path": "docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-003.json",
+    "immutable": true,
+    "original_condition_1_evaluation": {
+      "measured": 81.89425637124383,
+      "result": "FAIL",
+      "defect": "The one raw timeout (killed=2153, survived=475, timeout=1, confirmed_timeout=0 as originally recorded) was disclosed but never individually re-run in isolation to determine whether it was a genuine, reproducible timeout or a transient/environmental artifact -- Testing Convention v0.17's own governed rule requires that reproduction BEFORE a formal run containing a timeout can be accepted as complete Chapter-13 evidence. Evidence-003 simultaneously marked the measurement 'usable' and classified the result FAIL - criteria without performing that required step."
+    }
+  },
+  "commit_a_unchanged": {
+    "sha": "596ad027955445be2d85036e1b52f226c8a42fde",
+    "parent": "a494fa21ff935d509081ed39e7f9499731fb0625",
+    "note": "Verified fresh this transaction: python/feature-engine/{src/feature_engine,tests,tooling} tree hashes and pyproject.toml/requirements-dev.lock.txt blob hashes at current HEAD (eebcdec823f3aa07512f2f3540bd3bef83943223, docs-only commits since Commit A) are byte-identical to Commit A itself -- no docs-only commit altered the evaluated executable boundary. This correction evaluates the SAME exact boundary evidence-003 did; a full worktree checkout was not required since current HEAD's mutation-relevant identities already equal Commit A's.",
+    "src_tree": "d8218bf201461d4826dda1ce981dc78958cb9aec",
+    "tests_tree": "764608a6f8fa0acff79d0e2bc4d67028548b12c0",
+    "tooling_tree": "c9aec7409a70a1c978814f1148ec6a6b3259b34b",
+    "pyproject_toml_blob": "6fa4b74582dea5dd023f216f7fa10a9efdcc16db",
+    "requirements_dev_lock_txt_blob": "a1481d6f7912a034a2a416227496ea47198671be"
+  },
+  "rerun_required": true,
+  "rerun_reasoning": "The original evidence-003 mutation workspace (mutants/, transient venv) had already been removed per this repository's own established discipline (durable evidence is the committed artifact, not the transient working directory) before Review A's finding was raised. The exact raw timeout mutant identity from that original run was never durably pinned in evidence-003.json (only the aggregate count, timeout=1). A fresh full run against the SAME exact executable boundary was therefore performed to recover a candidate raw timeout population for triage, per this correction's own governing instruction (Branch C: 'a fresh full run may be required... this new full measurement becomes the candidate evidence boundary').",
+  "fresh_run_confirmation": {
+    "mutants_dir_absent_before_run": true,
+    "no_cached_verdicts_reused": true,
+    "venv": "freshly created (.step9venv), dependencies installed from requirements-dev.lock.txt, feature-engine installed editable (--no-deps); pip check clean",
+    "invocation_cwd": "python/feature-engine",
+    "command": "python -m tooling run",
+    "run_completed_to_natural_end": true,
+    "total_mutants_processed": 2629,
+    "workspace_preserved_for_triage": true,
+    "workspace_removed_after_triage_complete": true
+  },
+  "raw_population_materially_different_from_evidence_003_branch_C": {
+    "evidence_003_original_raw": {
+      "killed": 2153,
+      "survived": 475,
+      "timeout": 1,
+      "total": 2629
+    },
+    "this_fresh_run_initial_raw": {
+      "killed": 2152,
+      "survived": 475,
+      "timeout": 2,
+      "total": 2629
+    },
+    "reasoning": "A fresh full run against the byte-identical executable boundary produced a DIFFERENT raw population than evidence-003's own original run (killed 2152 vs 2153, timeout 2 vs 1) -- consistent with a transient, non-deterministic mutant execution outcome rather than a source/config change (verified: src/tests/tooling/pyproject/lock all byte-identical to Commit A, see commit_a_unchanged above). Per this correction's own governing instruction, this new, actual population is NOT forced to match evidence-003 -- every raw timeout in THIS qualifying run is triaged below before any Condition-1 disposition is assigned."
+  },
+  "timeout_isolation_triage": [
+    {
+      "mutant_id": "feature_engine.ownership.x_p_run_sort__mutmut_82",
+      "source_function": "src/feature_engine/ownership.py -- p_run_sort (topological-sort loop)",
+      "mutation_diff": "remaining.discard(chosen) -> remaining.discard(None)",
+      "mutation_analysis": "remaining is the not-yet-ordered node set in p_run_sort's topological-sort loop; discarding None (never a member) instead of the just-chosen ref means remaining is NEVER reduced on any iteration -- a genuine, deterministic non-termination (infinite loop) for any non-trivial input, not a borderline-timing artifact.",
+      "timeout_constant": 1.0,
+      "timeout_multiplier": 15.0,
+      "isolated_invocation": "python -m tooling run feature_engine.ownership.x_p_run_sort__mutmut_82",
+      "isolated_run_1": {
+        "result": "timeout",
+        "duration_seconds": 28.154
+      },
+      "isolated_run_2": {
+        "result": "timeout",
+        "duration_seconds": 28.129
+      },
+      "reproducibility": "CONFIRMED -- 2/2 consecutive isolated executions timeout, consistent duration (~28.1s both times)",
+      "disposition": "confirmed_timeout -- credited in the raw mutation-effectiveness numerator"
+    },
+    {
+      "mutant_id": "feature_engine.contracts.x__construct_verified_authority__mutmut_47",
+      "source_function": "src/feature_engine/contracts.py -- _construct_verified_authority",
+      "mutation_diff": "object.__setattr__(instance, \"stream_registry_content_id\", stream_registry_content_id) -> object.__setattr__(instance, stream_registry_content_id)",
+      "mutation_analysis": "Removes the required 'name' positional argument from object.__setattr__ (3 args -> 2 args) -- object.__setattr__ requires exactly 3 arguments, so this raises TypeError immediately at the mutated call site. This is structurally INCONSISTENT with a genuine timeout (a TypeError should surface as a fast test failure, exit code 1, 'killed' -- not a hang).",
+      "timeout_constant": 1.0,
+      "timeout_multiplier": 15.0,
+      "isolated_invocation": "python -m tooling run feature_engine.contracts.x__construct_verified_authority__mutmut_47",
+      "isolated_run_1": {
+        "result": "killed",
+        "duration_seconds": 3.866
+      },
+      "isolated_run_2": {
+        "result": "killed",
+        "duration_seconds": 4.18
+      },
+      "reproducibility": "DOES NOT REPRODUCE AS TIMEOUT -- 2/2 consecutive isolated executions killed (consistent ~4s duration, consistent with the TypeError analysis above)",
+      "root_cause_of_original_transient_timeout_observation": "The isolated re-run's own captured output shows mutmut.__main__.BadTestExecutionCommandsException raised during test-selection execution for this mutant -- the SAME already-documented, non-biasing transient mechanism this repository's own governance history already diagnosed (feature-engine-mutation-baseline-001-analysis.md S3: 165 occurrences at the 1531-mutant population, 'mutmut's own run reconciled cleanly to natural end... despite these occurrences'). This is NOT a genuine mutation-testing timeout outcome for this mutant; it is the same known cohort, now scaled to the larger 2629-mutant population.",
+      "disposition": "NOT CONFIRMED as a genuine, reproducible timeout. Per governing instruction, NOT credited as confirmed_timeout. This correction does not perform a formal mutant-status reclassification (prohibited) -- it reports the exact, reproducible, mechanically-obtained outcome of the SAME governed isolation-rerun procedure applied to the other timeout above, using the identically-approved 'python -m tooling run <mutant_id>' mechanism with zero manual editing of any status field. mutmut's own persistent per-mutant result cache now reflects this mutant's most recent, reproducible outcome (killed) as a direct, mechanical consequence of running the tool-approved reproduction command twice, not of any manual override."
+    }
+  ],
+  "corrected_qualifying_run_population": {
+    "killed": 2153,
+    "survived": 475,
+    "timeout": 1,
+    "no_tests": 0,
+    "not_checked": 0,
+    "skipped": 0,
+    "suspicious": 0,
+    "caught_by_type_check": 0,
+    "segfault": 0,
+    "check_was_interrupted_by_user": 0,
+    "total": 2629,
+    "sum_equals_total": true,
+    "not_checked_is_zero": true,
+    "source": "mutmut's own export-cicd-stats output AND python -m tooling results --all true, captured AFTER both isolated timeout-triage re-runs above completed (i.e. reflecting the fully-triaged, reproduction-confirmed state of the qualifying run's own persistent result cache).",
+    "note_on_coincidence_with_evidence_003": "This corrected population (killed=2153, survived=475, timeout=1) is numerically identical in composition to evidence-003's own originally-reported, untriaged population. This is a coincidence of this specific measurement, not an assumption -- it was not forced to match; it is the actual, independently-triaged outcome of a fresh run that initially differed (2152/475/2) before isolation resolved mutant_47 back to killed.",
+    "sorted_mutant_id_to_result_mapping_sha256": "42cc19bcdcdceff09db4a938a8cb86cb956d76aed4a8831f0927ed3298267d4a",
+    "per_source_file_breakdown": {
+      "ownership": {
+        "killed": 214,
+        "survived": 87,
+        "other": 1,
+        "total": 302
+      },
+      "swing_distance": {
+        "killed": 791,
+        "survived": 88,
+        "other": 0,
+        "total": 879
+      },
+      "output_contract_resolver": {
+        "killed": 118,
+        "survived": 30,
+        "other": 0,
+        "total": 148
+      },
+      "authority_resolver": {
+        "killed": 286,
+        "survived": 97,
+        "other": 0,
+        "total": 383
+      },
+      "replay_preparation": {
+        "killed": 25,
+        "survived": 20,
+        "other": 0,
+        "total": 45
+      },
+      "candle_window": {
+        "killed": 28,
+        "survived": 0,
+        "other": 0,
+        "total": 28
+      },
+      "regime_passthrough": {
+        "killed": 314,
+        "survived": 41,
+        "other": 0,
+        "total": 355
+      },
+      "current_view": {
+        "killed": 98,
+        "survived": 6,
+        "other": 0,
+        "total": 104
+      },
+      "contracts": {
+        "killed": 273,
+        "survived": 104,
+        "other": 0,
+        "total": 377
+      },
+      "identity": {
+        "killed": 6,
+        "survived": 2,
+        "other": 0,
+        "total": 8
+      }
+    }
+  },
+  "confirmed_timeout_count": 1,
+  "raw_mutation_effectiveness_metric_corrected": {
+    "formula": "(killed + confirmed_timeout) / (total - skipped) * 100",
+    "killed": 2153,
+    "confirmed_timeout": 1,
+    "total": 2629,
+    "skipped": 0,
+    "result_percent": 81.93229364777483,
+    "result_percent_full_precision": "81.93229364777483"
+  },
+  "condition_1_evaluation_corrected": {
+    "required": ">= 87.001959503592%",
+    "measured": 81.93229364777483,
+    "result": "FAIL",
+    "reasoning": "Following complete, deterministic reproduction/triage of every raw timeout in the qualifying run (both mutants isolated and re-run twice each), the corrected raw score 81.93229364777483% remains far below the approved 87.001959503592% threshold. This is now valid, complete formal Chapter-13 evidence per Testing Convention v0.17's own timeout-reproduction rule -- no unresolved/unreproduced timeout remains in the qualifying population.",
+    "disposition": "FAIL - criteria (validly classified, timeout-fidelity defect P3-PY-MUT-STEP9-003-A-MAJ-01 now resolved)"
+  },
+  "condition_2_disposition_unchanged": "CURRENT-BOUNDARY APPLICABILITY REQUIRES REBASE/INTERPRETATION (carried forward from evidence-003.json verbatim, not redesigned by this correction)",
+  "condition_3_disposition_unchanged": "STALE_FOR_CURRENT_BOUNDARY -- RE-EVIDENCE_REQUIRED (carried forward from evidence-003.json verbatim, not redesigned by this correction)",
+  "historical_evidence_preserved": {
+    "P3_FEATURE_QG_EVID_03_historical": "CLOSED - PASS - REVIEW A VALIDATED (boundary 977c7e87507a382dd4a021673f1e582eaa85ff82 / c220b62a097aa036413865ff0222c5c136f6f05f) -- unchanged, not disputed, not reopened by this correction",
+    "evidence_002_json": "byte-unchanged, not modified",
+    "evidence_003_json": "byte-unchanged, not modified -- this correction is a SEPARATE, additive artifact",
+    "evidence_001_json_and_correction_001": "byte-unchanged, not modified"
+  },
+  "finding_states_recorded_by_this_correction": [
+    {
+      "id": "P3-PY-MUT-STEP9-003-A-MAJ-01",
+      "status": "REMEDIATED -- PENDING BOUNDED REVIEW A RE-REVIEW"
+    }
+  ],
+  "not_self_closed": true,
+  "not_performed_by_this_correction": [
+    "No production src/** change.",
+    "No mutation-tooling/shim change.",
+    "No dependency change.",
+    "No mutation-killing test authored.",
+    "No threshold change.",
+    "No mutant-status reclassification decision (equivalent-mutant sense) authored or requested.",
+    "No Condition-2 rebase performed.",
+    "No Condition-3 re-evidence performed.",
+    "No ADR. No Product Owner decision. No Review B.",
+    "No Feature module approval. No LIVE authorization.",
+    "No rewriting of evidence-003.json or historical evidence-002.json/001.json."
+  ],
+  "state_summary": {
+    "P3_FEATURE_QG_EVID_03_historical": "CLOSED - PASS - REVIEW A VALIDATED (unchanged)",
+    "P3_FEATURE_QG_EVID_03_current_boundary": "FAIL - criteria (corrected, this artifact, boundary 596ad027955445be2d85036e1b52f226c8a42fde, pending bounded Review A re-review of P3-PY-MUT-STEP9-003-A-MAJ-01)",
+    "P3_FEATURE_QG_EVID_04": "OPEN / blocking (unaffected)",
+    "P3_FEATURE_QG_EVID_06": "OPEN - PARTIALLY SATISFIED / BLOCKED_BY_EXTERNAL_DEPENDENCY (unaffected)",
+    "P3_FEATURE_QG_EVID_07": "CLOSED - PASS (unaffected)",
+    "P3_FEATURE_QG_EVID_08": "OPEN / blocking (unaffected)",
+    "overall_feature_chapter_13_qg": "FAIL - evidence (unaffected)",
+    "feature_module_approval": "NOT APPROVED",
+    "phase_3_approval_gate": "NOT opened",
+    "live": "NOT_AUTHORIZED"
+  }
+}
