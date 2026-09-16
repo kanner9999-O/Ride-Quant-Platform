@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.387"
+manifest_version: "10.388"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -27583,6 +27583,31 @@ Feature module approval: NOT APPROVED. LIVE: NOT_AUTHORIZED.
 **Next governed step:** ChatGPT live-repo verification + Review A of the fresh formal mutation evidence and exact historical-identity mapping.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-004.json` (new, additive; historical evidence-001/-002/-003/-003-correction-001 byte-unchanged), `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-identity-resolution-001.json` (updated in place, not a new artifact), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no source/test/tooling/dependency file touched; scratch venv/mutants workspace (untracked) removed, not committed. `manifest_version` `"10.386"` → `"10.387"`.
+
+## `feature-engine` — `P3-FEATURE-QG-EVID-03` Evidence-004 governance-provenance correction (`P3-FEATURE-EVID03-STEP9-004-A-MAJ-01`)
+
+**Consolidated transaction — vai trò: `Feature Engine EVID-03 Evidence-004 Governance-Provenance Correction Executor`.** ChatGPT bounded Review A of `feature-engine-mutation-step9-formal-evidence-004.json` returned `REVISION_REQUIRED — 0 Blocker / 1 Major / 0 Minor` (R1): `P3-FEATURE-EVID03-STEP9-004-A-MAJ-01` — the technical mutation measurement and historical semantic-continuity mapping are NOT disputed; the defect is governance provenance in exactly 4 of the 170 rows. The four `contracts.x_resolve_output_contract_refs__mutmut_{8,9,12,13}` rows each falsely claimed "Already-completed Review A + Independent Review B + Product Owner APPROVE lifecycle" — no Review B and no Product Owner decision occurred for these four; the correct, already-recorded routing (`feature-engine-mutation-material-gap-identity-resolution-001.json`'s own `new_4_1_b_candidates_review_a_validated` block) is Review A COMPLETE, Risk R1, **Review B NOT REQUIRED**, **Product Owner NOT REQUIRED**, ADR_NOT_REQUIRED.
+
+**`feature-engine-mutation-step9-formal-evidence-004.json` is immutable, byte-unchanged** (blob `7d1facabeaf1e229dacb010097564a462d3ec2a4`, verified before and after) — per the repository's additive formal-evidence correction precedent, the correction is a **new, additive** artifact: `feature-engine-mutation-step9-formal-evidence-004-correction-001.json`, pinning the original blob/boundary, the exact false sentence removed, the exact corrected routing, and the preserved semantic §4.1(b) justification (`resolve_output_contract_refs` obsoleted/replaced, commit `7754c440dc9b08b18680c6112fb9696d34b6d994`) for each of the 4 identities.
+
+**`feature-engine-mutation-material-gap-identity-resolution-001.json` updated in place** (current-state companion, not immutable formal evidence): the 4 rows' own `specific_justification` text corrected to remove the false Review B/PO claim and state the correct routing explicitly; a new `formal_evidence_004_correction` pointer block added recording `P3-FEATURE-EVID03-STEP9-004-A-MAJ-01: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`. **The 10 `feature-engine-mutant-reclassification-candidate-001.md` identities' own Review A + Independent Review B + Product Owner APPROVE history is genuine and left byte-identical** — verified: this exact phrase still appears, correctly, in exactly those 10 rows (confirmed via fresh grep after the correction).
+
+```text
+Condition 1 score:       81.97033092430583% — UNCHANGED
+2629-mutant map/hash:    4bb5398037863c1d... — UNCHANGED
+Timeout triage:          UNCHANGED
+28 §4.1(a) kills:        UNCHANGED
+10 semantic collisions:  UNCHANGED
+118 absent unresolved:   UNCHANGED
+Condition-2 count:       UNCHANGED — 42/170
+Condition-3:             UNCHANGED — SATISFIED — REVIEW A VALIDATED
+```
+
+**Not performed:** no `src/**`/test/tooling/dependency change; no mutmut run; no timeout rerun; no historical-ID remapping; no survivor remediation; no new reclassification; no threshold change; no Condition-3 work; no ADR; no Review B; no Product Owner decision (requested or fabricated); no EVID-03 closure; no Feature Engine approval; no LIVE authorization; no modification of evidence-004.json.
+
+**Next governed step:** ChatGPT bounded Review A re-review of `P3-FEATURE-EVID03-STEP9-004-A-MAJ-01`.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-004-correction-001.json` (new, additive), `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-identity-resolution-001.json` (updated in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `evidence-004.json` byte-unchanged; no source/test/tooling/dependency file touched. `manifest_version` `"10.387"` → `"10.388"`.
 
 ## Decision Log
 

@@ -1,0 +1,111 @@
+{
+  "artifact_id": "feature-engine-mutation-step9-formal-evidence-004-correction-001",
+  "schema_note": "Additive, non-destructive governance-provenance correction to feature-engine-mutation-step9-formal-evidence-004.json, addressing bounded Review A finding P3-FEATURE-EVID03-STEP9-004-A-MAJ-01. Follows the repository's existing additive formal-evidence correction convention (see feature-engine-mutation-step9-formal-evidence-001-correction-001.json / -003-correction-001.json precedent). Does NOT overwrite, rewrite, or invalidate evidence-004.json -- that artifact remains byte-unchanged, immutable, historical record at its own boundary.",
+  "corrects": "feature-engine-mutation-step9-formal-evidence-004.json",
+  "corrects_finding_ids": [
+    "P3-FEATURE-EVID03-STEP9-004-A-MAJ-01"
+  ],
+  "original_artifact_reference": {
+    "path": "docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-004.json",
+    "blob": "7d1facabeaf1e229dacb010097564a462d3ec2a4",
+    "immutable": true,
+    "original_executable_boundary": "b3d4086033f1c232c0cd8706c9096f50b049de14"
+  },
+  "finding": {
+    "id": "P3-FEATURE-EVID03-STEP9-004-A-MAJ-01",
+    "scope": "Governance provenance only -- exactly 4 of the 170 historical-identity rows in evidence-004.json's own historical_170_semantic_continuity_mapping.all_170_rows",
+    "summary": "The four contracts.x_resolve_output_contract_refs__mutmut_{8,9,12,13} rows in evidence-004.json each contained a specific_justification sentence claiming an 'Already-completed Review A + Independent Review B + Product Owner APPROVE lifecycle' -- this Review B / Product Owner claim is FALSE for these four identities. The technical mutation measurement, the semantic-continuity determination, and the underlying §4.1(b) reclassification rationale (resolve_output_contract_refs obsoleted and replaced by a materially stronger ADR-039/040 invariant) are NOT disputed and are NOT changed by this correction -- only the governance-provenance sentence is corrected."
+  },
+  "no_rerun_confirmation": "No mutation run, no fault-injection run, no timeout re-triage, no historical-ID remapping, no semantic-continuity re-comparison performed by this correction. The technical evidence (2629-mutant mapping, ten-status counts, Condition-1 score, the 28 RESOLVED_BY_EXISTING_KILL rows, the 10 IDENTITY_COLLISION_OR_SEMANTIC_DISCONTINUITY rows, the 118 REMAIN_UNRESOLVED rows) is unchanged and not re-verified by this correction -- it was already correct and is not in scope.",
+  "unchanged_technical_state": {
+    "condition_1_score": "81.97033092430583% — UNCHANGED",
+    "mutant_map_hash": "4bb5398037863c1daa3b784af67a757572422a98ed34b50399af914eb355d7ec — UNCHANGED",
+    "timeout_triage": "UNCHANGED (ownership.x_p_run_sort__mutmut_82 CONFIRMED_TIMEOUT; contracts.x__construct_verified_authority__mutmut_6 NOT REPRODUCED)",
+    "resolved_by_existing_kill_28": "UNCHANGED",
+    "identity_collision_10": "UNCHANGED",
+    "remain_unresolved_118": "UNCHANGED",
+    "condition_2_count": "UNCHANGED — 42/170",
+    "condition_3": "UNCHANGED — SATISFIED — REVIEW A VALIDATED"
+  },
+  "candidate_001_prior_ten_history_untouched": "The 10 identities from feature-engine-mutant-reclassification-candidate-001.md genuinely completed full Review A + Independent Review B + Product Owner APPROVE — that history is accurate, unchanged, and not touched by this correction. This correction applies ONLY to the 4 contracts.x_resolve_output_contract_refs identities; governance-provenance wording is not globally replaced.",
+  "per_identity_corrections": [
+    {
+      "historical_mutant_id": "contracts.x_resolve_output_contract_refs__mutmut_8",
+      "row_location_in_original": "historical_170_semantic_continuity_mapping.all_170_rows (feature-engine-mutation-step9-formal-evidence-004.json)",
+      "incorrect_provenance_removed": "Already-completed Review A + Independent Review B + Product Owner APPROVE lifecycle (feature-engine-mutant-reclassification-candidate-001.md for the first 10; feature-engine-mutation-material-gap-identity-resolution-001.json + this transaction's own bounded-correction Review A for the resolve_output_contract_refs 4).",
+      "why_incorrect": "This sentence falsely claims an Independent Review B and a Product Owner APPROVE decision occurred for this specific identity. Neither occurred. The governing authority for this R1 bounded application of the already-approved §4.1(b) mechanism (feature-engine-mutation-material-gap-identity-resolution-001.json's own new_4_1_b_candidates_review_a_validated block) explicitly and correctly records review_b: NOT REQUIRED and product_owner: NOT REQUIRED for these four identities -- the false claim was an artifact of reusing a shared justification-template string written for the governed-14 group as a whole (which genuinely includes 10 identities, from feature-engine-mutant-reclassification-candidate-001.md, that DID complete full Review A + Review B + Product Owner APPROVE), without excluding these 4 for which that specific lifecycle did not occur.",
+      "correct_provenance": {
+        "review_a": "COMPLETE — no finding (original substantive review); bounded Review A correction/re-review CLEAN — 0 Blocker / 0 Major / 0 Minor",
+        "risk_classification": "R1",
+        "review_b": "NOT REQUIRED",
+        "product_owner": "NOT REQUIRED merely to apply the already-approved §4.1(b) mechanism",
+        "adr": "ADR_NOT_REQUIRED"
+      },
+      "corrected_specific_justification": "Governed §4.1(b) reclassification under the already-approved identity-resolution mechanism (material-gap-identity-resolution-001 new-4.1(b) #1, proposed classification `RESOLVED_OUTPUT_CONTRACT_REFS_OBSOLETED_REPLACED`). The historical mutant targeted a field-substitution gap ('FEATURE_COMPUTED_CONTRACT_ID' -> 'None') inside resolve_output_contract_refs's own hardcoded-string resolution logic -- a mechanism the implementing engineer's own commit message (7754c440dc9b08b18680c6112fb9696d34b6d994) explicitly, contemporaneously declared 'obsolete' and REPLACED with a materially different, stronger, resolver-verified, fail-closed ADR-039/ADR-040 invariant (output_contract_resolver.py + VerifiedOutputEventContractAuthority). The exact code path this mutant modified no longer exists in any form. Semantic candidate was reviewed by ChatGPT Review A with no finding; a subsequent bounded Review A correction/re-review (P3-FEATURE-EVID03-COND2-RES-A-MAJ-01/-MAJ-02) completed CLEAN, Risk R1. Under the active governance applicable to this R1 bounded use of the existing §4.1(b) mechanism, Review B was NOT REQUIRED and Product Owner approval was NOT REQUIRED — neither is claimed or fabricated here. Not re-decided, not re-litigated. Current exact-ID continuity not required. ADR_NOT_REQUIRED."
+    },
+    {
+      "historical_mutant_id": "contracts.x_resolve_output_contract_refs__mutmut_9",
+      "row_location_in_original": "historical_170_semantic_continuity_mapping.all_170_rows (feature-engine-mutation-step9-formal-evidence-004.json)",
+      "incorrect_provenance_removed": "Already-completed Review A + Independent Review B + Product Owner APPROVE lifecycle (feature-engine-mutant-reclassification-candidate-001.md for the first 10; feature-engine-mutation-material-gap-identity-resolution-001.json + this transaction's own bounded-correction Review A for the resolve_output_contract_refs 4).",
+      "why_incorrect": "This sentence falsely claims an Independent Review B and a Product Owner APPROVE decision occurred for this specific identity. Neither occurred. The governing authority for this R1 bounded application of the already-approved §4.1(b) mechanism (feature-engine-mutation-material-gap-identity-resolution-001.json's own new_4_1_b_candidates_review_a_validated block) explicitly and correctly records review_b: NOT REQUIRED and product_owner: NOT REQUIRED for these four identities -- the false claim was an artifact of reusing a shared justification-template string written for the governed-14 group as a whole (which genuinely includes 10 identities, from feature-engine-mutant-reclassification-candidate-001.md, that DID complete full Review A + Review B + Product Owner APPROVE), without excluding these 4 for which that specific lifecycle did not occur.",
+      "correct_provenance": {
+        "review_a": "COMPLETE — no finding (original substantive review); bounded Review A correction/re-review CLEAN — 0 Blocker / 0 Major / 0 Minor",
+        "risk_classification": "R1",
+        "review_b": "NOT REQUIRED",
+        "product_owner": "NOT REQUIRED merely to apply the already-approved §4.1(b) mechanism",
+        "adr": "ADR_NOT_REQUIRED"
+      },
+      "corrected_specific_justification": "Governed §4.1(b) reclassification under the already-approved identity-resolution mechanism (material-gap-identity-resolution-001 new-4.1(b) #2, proposed classification `RESOLVED_OUTPUT_CONTRACT_REFS_OBSOLETED_REPLACED`). The historical mutant targeted a field-substitution gap ('feature_event_contract_version' -> 'None') inside resolve_output_contract_refs's own hardcoded-string resolution logic -- a mechanism the implementing engineer's own commit message (7754c440dc9b08b18680c6112fb9696d34b6d994) explicitly, contemporaneously declared 'obsolete' and REPLACED with a materially different, stronger, resolver-verified, fail-closed ADR-039/ADR-040 invariant (output_contract_resolver.py + VerifiedOutputEventContractAuthority). The exact code path this mutant modified no longer exists in any form. Semantic candidate was reviewed by ChatGPT Review A with no finding; a subsequent bounded Review A correction/re-review (P3-FEATURE-EVID03-COND2-RES-A-MAJ-01/-MAJ-02) completed CLEAN, Risk R1. Under the active governance applicable to this R1 bounded use of the existing §4.1(b) mechanism, Review B was NOT REQUIRED and Product Owner approval was NOT REQUIRED — neither is claimed or fabricated here. Not re-decided, not re-litigated. Current exact-ID continuity not required. ADR_NOT_REQUIRED."
+    },
+    {
+      "historical_mutant_id": "contracts.x_resolve_output_contract_refs__mutmut_12",
+      "row_location_in_original": "historical_170_semantic_continuity_mapping.all_170_rows (feature-engine-mutation-step9-formal-evidence-004.json)",
+      "incorrect_provenance_removed": "Already-completed Review A + Independent Review B + Product Owner APPROVE lifecycle (feature-engine-mutant-reclassification-candidate-001.md for the first 10; feature-engine-mutation-material-gap-identity-resolution-001.json + this transaction's own bounded-correction Review A for the resolve_output_contract_refs 4).",
+      "why_incorrect": "This sentence falsely claims an Independent Review B and a Product Owner APPROVE decision occurred for this specific identity. Neither occurred. The governing authority for this R1 bounded application of the already-approved §4.1(b) mechanism (feature-engine-mutation-material-gap-identity-resolution-001.json's own new_4_1_b_candidates_review_a_validated block) explicitly and correctly records review_b: NOT REQUIRED and product_owner: NOT REQUIRED for these four identities -- the false claim was an artifact of reusing a shared justification-template string written for the governed-14 group as a whole (which genuinely includes 10 identities, from feature-engine-mutant-reclassification-candidate-001.md, that DID complete full Review A + Review B + Product Owner APPROVE), without excluding these 4 for which that specific lifecycle did not occur.",
+      "correct_provenance": {
+        "review_a": "COMPLETE — no finding (original substantive review); bounded Review A correction/re-review CLEAN — 0 Blocker / 0 Major / 0 Minor",
+        "risk_classification": "R1",
+        "review_b": "NOT REQUIRED",
+        "product_owner": "NOT REQUIRED merely to apply the already-approved §4.1(b) mechanism",
+        "adr": "ADR_NOT_REQUIRED"
+      },
+      "corrected_specific_justification": "Governed §4.1(b) reclassification under the already-approved identity-resolution mechanism (material-gap-identity-resolution-001 new-4.1(b) #3, proposed classification `RESOLVED_OUTPUT_CONTRACT_REFS_OBSOLETED_REPLACED`). The historical mutant targeted a field-substitution gap ('FEATURE_FACT_INVALIDATED_CONTRACT_ID' -> 'None') inside resolve_output_contract_refs's own hardcoded-string resolution logic -- a mechanism the implementing engineer's own commit message (7754c440dc9b08b18680c6112fb9696d34b6d994) explicitly, contemporaneously declared 'obsolete' and REPLACED with a materially different, stronger, resolver-verified, fail-closed ADR-039/ADR-040 invariant (output_contract_resolver.py + VerifiedOutputEventContractAuthority). The exact code path this mutant modified no longer exists in any form. Semantic candidate was reviewed by ChatGPT Review A with no finding; a subsequent bounded Review A correction/re-review (P3-FEATURE-EVID03-COND2-RES-A-MAJ-01/-MAJ-02) completed CLEAN, Risk R1. Under the active governance applicable to this R1 bounded use of the existing §4.1(b) mechanism, Review B was NOT REQUIRED and Product Owner approval was NOT REQUIRED — neither is claimed or fabricated here. Not re-decided, not re-litigated. Current exact-ID continuity not required. ADR_NOT_REQUIRED."
+    },
+    {
+      "historical_mutant_id": "contracts.x_resolve_output_contract_refs__mutmut_13",
+      "row_location_in_original": "historical_170_semantic_continuity_mapping.all_170_rows (feature-engine-mutation-step9-formal-evidence-004.json)",
+      "incorrect_provenance_removed": "Already-completed Review A + Independent Review B + Product Owner APPROVE lifecycle (feature-engine-mutant-reclassification-candidate-001.md for the first 10; feature-engine-mutation-material-gap-identity-resolution-001.json + this transaction's own bounded-correction Review A for the resolve_output_contract_refs 4).",
+      "why_incorrect": "This sentence falsely claims an Independent Review B and a Product Owner APPROVE decision occurred for this specific identity. Neither occurred. The governing authority for this R1 bounded application of the already-approved §4.1(b) mechanism (feature-engine-mutation-material-gap-identity-resolution-001.json's own new_4_1_b_candidates_review_a_validated block) explicitly and correctly records review_b: NOT REQUIRED and product_owner: NOT REQUIRED for these four identities -- the false claim was an artifact of reusing a shared justification-template string written for the governed-14 group as a whole (which genuinely includes 10 identities, from feature-engine-mutant-reclassification-candidate-001.md, that DID complete full Review A + Review B + Product Owner APPROVE), without excluding these 4 for which that specific lifecycle did not occur.",
+      "correct_provenance": {
+        "review_a": "COMPLETE — no finding (original substantive review); bounded Review A correction/re-review CLEAN — 0 Blocker / 0 Major / 0 Minor",
+        "risk_classification": "R1",
+        "review_b": "NOT REQUIRED",
+        "product_owner": "NOT REQUIRED merely to apply the already-approved §4.1(b) mechanism",
+        "adr": "ADR_NOT_REQUIRED"
+      },
+      "corrected_specific_justification": "Governed §4.1(b) reclassification under the already-approved identity-resolution mechanism (material-gap-identity-resolution-001 new-4.1(b) #4, proposed classification `RESOLVED_OUTPUT_CONTRACT_REFS_OBSOLETED_REPLACED`). The historical mutant targeted a field-substitution gap ('feature_event_contract_version' -> 'None') inside resolve_output_contract_refs's own hardcoded-string resolution logic -- a mechanism the implementing engineer's own commit message (7754c440dc9b08b18680c6112fb9696d34b6d994) explicitly, contemporaneously declared 'obsolete' and REPLACED with a materially different, stronger, resolver-verified, fail-closed ADR-039/ADR-040 invariant (output_contract_resolver.py + VerifiedOutputEventContractAuthority). The exact code path this mutant modified no longer exists in any form. Semantic candidate was reviewed by ChatGPT Review A with no finding; a subsequent bounded Review A correction/re-review (P3-FEATURE-EVID03-COND2-RES-A-MAJ-01/-MAJ-02) completed CLEAN, Risk R1. Under the active governance applicable to this R1 bounded use of the existing §4.1(b) mechanism, Review B was NOT REQUIRED and Product Owner approval was NOT REQUIRED — neither is claimed or fabricated here. Not re-decided, not re-litigated. Current exact-ID continuity not required. ADR_NOT_REQUIRED."
+    }
+  ],
+  "finding_state": "REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW",
+  "not_self_closed": true,
+  "not_performed_by_this_correction": [
+    "No src/** change.",
+    "No test change.",
+    "No tooling change.",
+    "No dependency change.",
+    "No mutmut run.",
+    "No timeout rerun.",
+    "No historical-ID remapping.",
+    "No survivor remediation.",
+    "No new reclassification.",
+    "No threshold change.",
+    "No Condition-3 work.",
+    "No ADR authored.",
+    "No Review B performed.",
+    "No Product Owner decision requested or fabricated.",
+    "No EVID-03 closure.",
+    "No Feature Engine approval.",
+    "No LIVE authorization.",
+    "No modification of feature-engine-mutation-step9-formal-evidence-004.json (byte-unchanged)."
+  ]
+}
