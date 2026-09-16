@@ -2,15 +2,17 @@
 
 ```yaml
 status: >
-  APPROVED — DESIGN AMENDMENT EFFECTIVE for 8/9 methods' fault specs (13/14
-  faults: FI-STATIC-PROVIDER-01, FI-OHLCV-FIELD-01/02, FI-DECIMAL-APPLY-01/02,
-  FI-DECIMAL-POSTINIT-01/02, FI-FEATUREDEF-01/02/03, FI-PREPTRANS-RECONCILE-01,
-  FI-PFC-FINALIZE-01, FI-OWNER-STATE-01 — unaffected, not reopened);
-  FI-INPUTMERGE-POSTINIT-01's original approved fault spec is a
-  SUPERSESSION CANDIDATE — PENDING REVIEW A (bounded_correction_002,
-  deterministic TEST_INFRA_ERROR observed, see below) — its ORIGINAL
-  Product Owner approval (approval_recording_001) remains the historical
-  authority of record and is preserved verbatim, not rewritten.
+  APPROVED — DESIGN AMENDMENT EFFECTIVE for the full current population (9
+  methods / 14 faults). FI-INPUTMERGE-POSTINIT-01's ORIGINAL fault spec
+  (guard_inversion, new_string "if self.algorithm:") is SUPERSEDED,
+  EFFECTIVE 2026-09-16, by Bounded Correction 002's CORRECTED spec
+  (fail_closed_bypass, new_string "if self.algorithm is None:"),
+  APPROVED — EFFECTIVE per approval_recording_002 below. The ORIGINAL
+  spec and its own Product Owner approval (approval_recording_001) remain
+  preserved verbatim as historical authority of record for the earlier
+  approval/execution boundary — not rewritten, not deleted. No fault has
+  yet been executed against the corrected spec by this recording
+  transaction.
 artifact_id: feature-engine-mutation-surface-completeness-design-001-amendment-001
 amends: feature-engine-mutation-surface-completeness-design-001
 created_for: >
@@ -64,9 +66,35 @@ bounded_correction_002_candidate:
   scope: "FI-INPUTMERGE-POSTINIT-01 fault specification ONLY — target method, fault ID, and target population (9 methods / this fault's own membership) unchanged; harness/mechanism unchanged; no other fault spec touched"
   supersedes_pending_approval: "The ORIGINAL FI-INPUTMERGE-POSTINIT-01 spec recorded under approval_recording_001 above (old_string: \"if not self.algorithm:\", new_string: \"if self.algorithm:\") -- that original spec and its Product Owner approval remain PRESERVED, VERBATIM, as historical authority; this correction does not rewrite or retroactively reinterpret that approval as having covered the corrected spec"
   requires_before_use_as_evidence: "Review A, Risk Classification, and a fresh Product Owner decision -- self-approval prohibited"
+approval_recording_002:
+  recorded_at_repository_head: 89471f41b2518b7c96860b13a550670a4ed50066
+  review_a:
+    reviewer: "ChatGPT — AI Technical Architect / Review A"
+    reviewed_boundary: 89471f41b2518b7c96860b13a550670a4ed50066
+    performed_by: "external to this recording transaction — this transaction only transcribes the completed review's own outcome"
+    result: "CLEAN — 0 Blocker / 0 Major / 0 Minor"
+  risk_classification: "R1"
+  review_b: "NOT REQUIRED"
+  adr_disposition: "ADR_NOT_REQUIRED"
+  product_owner_decision:
+    verbatim: "APPROVE Feature Engine EVID-03 Condition-3 Amendment 001 Bounded Correction 002 for FI-INPUTMERGE-POSTINIT-01 at boundary 89471f41b2518b7c96860b13a550670a4ed50066, with corrected new_string \"if self.algorithm is None:\" and fault_class \"fail_closed_bypass\"."
+    authority: "Product Owner — sole approval authority"
+  effective_spec:
+    fault_id: FI-INPUTMERGE-POSTINIT-01
+    method: contracts.InputMergePolicy.__post_init__
+    source_file: src/feature_engine/contracts.py
+    fault_class: fail_closed_bypass
+    old_string: "if not self.algorithm:"
+    new_string: "if self.algorithm is None:"
+  finding_state: { id: P3-FEATURE-EVID03-COND3-EXEC-A-MAJ-01, status: "CLOSED — DESIGN CORRECTION APPROVED" }
+  bounded_correction_002_state: "APPROVED — EFFECTIVE"
+  current_approved_condition_3_population: "9 methods / 14 faults"
+  not_yet_performed: "No fault executed against the corrected spec by this recording transaction. Implementation (tooling/fault_injection/faults.py) and a fresh 14-fault execution against a new executable boundary are separate, subsequent transaction steps."
 ```
 
 **Approval recording (this revision, mechanical only):** ChatGPT bounded Review A re-review of the amendment 001 correction closed `P3-FEATURE-EVID03-COND3-AMEND-A-MIN-01` — `CLEAN — 0 Blocker / 0 Major / 0 Minor`, Risk Classification `R1`, Review B `NOT REQUIRED`, `ADR_OPTIONAL` (ADR not authored, unchanged from the candidate's own §6 classification). The Product Owner then recorded an explicit APPROVE decision at this exact boundary. This transaction performed none of those steps itself — it only mechanically transcribes their already-completed outcomes. **This amendment's DESIGN is now `APPROVED — DESIGN AMENDMENT EFFECTIVE`.** Approval covers the DESIGN/fault-specification content only — it does **not** itself execute any fault, does not add or modify any test, and does not close Condition 3 or `P3-FEATURE-QG-EVID-03`. A separate, later implementation transaction (tracked in this same executor task, Part B/C below) still builds the tooling extension and runs the now-approved population before any Condition-3 evidence exists at the current boundary.
+
+**Bounded Correction 002 — approval recording (mechanical only, `approval_recording_002` above):** ChatGPT Review A of the correction candidate returned `CLEAN — 0 Blocker / 0 Major / 0 Minor`, Risk Classification `R1`, Review B `NOT REQUIRED`, `ADR_NOT_REQUIRED` (ADR not authored). The Product Owner then recorded an explicit APPROVE decision at this exact boundary (verbatim above). This transaction performs none of those steps itself — it only mechanically transcribes their already-completed outcomes. **`P3-FEATURE-EVID03-COND3-EXEC-A-MAJ-01` is now `CLOSED — DESIGN CORRECTION APPROVED`. Bounded Correction 002 is now `APPROVED — EFFECTIVE`.** The current authoritative `FI-INPUTMERGE-POSTINIT-01` specification is the corrected one (`fault_class: fail_closed_bypass`, `new_string: "if self.algorithm is None:"`) — the current approved Condition-3 population is **9 methods / 14 faults**. This approval covers the corrected fault SPECIFICATION only — it does **not** itself execute any fault; no fault has been run against the corrected spec by this recording transaction. A separate, later implementation transaction (tracked in this same executor task, Part B/C below) updates `tooling/fault_injection/faults.py` and runs the full 14-fault population against a fresh executable boundary before any Condition-3 evidence exists.
 
 **Bounded correction 001:** ChatGPT bounded Review A returned
 `REVISION_REQUIRED — 0 Blocker / 0 Major / 1 Minor` (R1):
@@ -185,9 +213,9 @@ conftest_collision_eliminated: yes -- traced exactly above via
 
 **Approval requirement (not self-approved by this transaction):** Review A REQUIRED. Risk Classification REQUIRED. Product Owner decision REQUIRED before this corrected spec may be implemented in `tooling/fault_injection/faults.py` or used to produce Condition-3 evidence. Review B NOT REQUIRED by default (matches the risk/review pattern already applied to `bounded_correction_001` and to Amendment 001 itself). This candidate is **not** implemented in tooling by this transaction, and the previously-approved (now superseded-pending-approval) original spec's own historical Product Owner approval record (`approval_recording_001`) is preserved byte-verbatim above, not rewritten.
 
-**Current executable state (unaffected, not reverted):** implementation Commit B (`cda4d0ebaf0f1d9e71bb4be0205380059db7a68b`, `tooling/fault_injection/faults.py`, etc.) truthfully implements the currently-approved ORIGINAL `FI-INPUTMERGE-POSTINIT-01` spec and is preserved as the historical stopped-execution boundary. After this correction candidate itself receives Review A / Risk Classification / Product Owner approval, a later implementation transaction will update exactly `FI-INPUTMERGE-POSTINIT-01` in `faults.py` and re-run all 14 faults against that new executable boundary — not performed here.
+**Current executable state at the time this correction was authored (superseded by approval, see `approval_recording_002` above):** implementation Commit B (`cda4d0ebaf0f1d9e71bb4be0205380059db7a68b`, `tooling/fault_injection/faults.py`, etc.) truthfully implemented the then-approved ORIGINAL `FI-INPUTMERGE-POSTINIT-01` spec and is preserved as the historical stopped-execution boundary. Bounded Correction 002 has now been reviewed and approved (`approval_recording_002` above) — the corrected spec is `APPROVED — EFFECTIVE`, not yet implemented in `tooling/fault_injection/faults.py`, not yet executed. A separate, later implementation transaction updates exactly `FI-INPUTMERGE-POSTINIT-01` in `faults.py` and re-runs all 14 faults against a fresh executable boundary.
 
-**Next governed step:** ChatGPT Review A of the `FI-INPUTMERGE-POSTINIT-01` bounded design correction candidate (`bounded_correction_002_candidate`).
+**Next governed step:** implement the approved corrected `FI-INPUTMERGE-POSTINIT-01` spec in `tooling/fault_injection/faults.py` and execute the full 14-fault population against a fresh executable boundary, producing formal current-boundary Condition-3 evidence — pending its own subsequent Review A.
 
 ## 0. Authority resolved fresh this transaction
 
@@ -510,20 +538,21 @@ Evaluated independently for extending fault-spec content to 4 new targets under 
 Condition 1:                    unaffected by this document.
 Condition 2:                    unaffected by this document (separate,
                                  130-identity §4.1(b) resolution track).
-Condition 3:                    UNRESOLVED. 13/14 approved faults executed
-                                 and DETECTED against implementation
+Condition 3:                    UNRESOLVED. The historical 13/14-DETECTED/
+                                 1-TEST_INFRA_ERROR run against implementation
                                  boundary cda4d0ebaf0f1d9e71bb4be0205380059db7a68b
-                                 (8/9 methods qualify) -- NOT formal
-                                 evidence (no evidence-003.json exists;
-                                 the run is non-qualifying diagnostic
-                                 output only). 1/14 (FI-INPUTMERGE-POSTINIT-01)
-                                 is a deterministic TEST_INFRA_ERROR,
-                                 root-caused (see finding above); its
-                                 corrected fault spec is
-                                 CANDIDATE — PENDING REVIEW A
-                                 (bounded_correction_002_candidate), not
-                                 yet implemented in tooling, not yet
-                                 re-executed.
+                                 remains non-qualifying diagnostic output
+                                 only (no evidence-003.json exists, none
+                                 was ever committed). Bounded Correction 002
+                                 (corrected FI-INPUTMERGE-POSTINIT-01 spec:
+                                 fail_closed_bypass, "if self.algorithm is
+                                 None:") is now APPROVED — EFFECTIVE
+                                 (approval_recording_002) but NOT YET
+                                 implemented in tooling/faults.py, NOT YET
+                                 executed. The full 14-fault population
+                                 must be re-run against a fresh executable
+                                 boundary before any Condition-3 evidence
+                                 exists.
 design-001 (historical):        PRESERVED, unchanged, 5-target/10-fault
                                  approval fully intact.
 evidence-002.json (historical): PRESERVED, unchanged, valid for its own
@@ -537,6 +566,6 @@ LIVE:                           NOT_AUTHORIZED.
 
 ## 8. Not performed by this transaction
 
-No `src/**` change. No test change. No tooling change. No dependency change. No fault injection executed or re-executed by this correction transaction. No mutation run. No Condition-2 work. No survivor remediation. No threshold change. No Condition-3 closure. No EVID-03 closure. No Feature Engine approval. No LIVE authorization. No self-approval — `bounded_correction_002_candidate` is recorded `CANDIDATE — PENDING REVIEW A` and is not, and cannot be, closed by this executor.
+No `src/**` change. No test change. No tooling change. No dependency change. No fault injection executed or re-executed. No mutation run. No Condition-2 work. No survivor remediation. No threshold change. No Condition-3 closure. No EVID-03 closure. No Feature Engine approval. No LIVE authorization. This recording transcribes an externally-completed Review A / Risk Classification / Product Owner decision for Bounded Correction 002; it does not itself perform or fabricate any of those steps, and does not itself execute the corrected fault.
 
-**Next governed step:** ChatGPT Review A of the `FI-INPUTMERGE-POSTINIT-01` bounded design correction candidate (`bounded_correction_002_candidate`).
+**Next governed step:** implement the approved corrected `FI-INPUTMERGE-POSTINIT-01` spec in `tooling/fault_injection/faults.py` and execute the full 14-fault population against a fresh executable boundary.

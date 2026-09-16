@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.382"
+manifest_version: "10.383"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -27389,6 +27389,37 @@ Feature module approval: NOT APPROVED. LIVE: NOT_AUTHORIZED.
 **Next governed step:** ChatGPT Review A of the `FI-INPUTMERGE-POSTINIT-01` bounded design correction candidate.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-surface-completeness-design-001-amendment-001.md` (correction recorded in place — no new artifact), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no source/test/tooling/dependency file touched. `manifest_version` `"10.381"` → `"10.382"`.
+
+## `feature-engine` — `P3-FEATURE-QG-EVID-03` Condition-3 Bounded Correction 002 approval recorded (`APPROVED — EFFECTIVE`)
+
+**Consolidated transaction — vai trò: `Feature Engine EVID-03 Condition-3 Correction 002 Approval Recorder`.** Mechanical recording only, transcribing already-completed external governance — this transaction performs none of it itself: ChatGPT Review A of the `FI-INPUTMERGE-POSTINIT-01` bounded design correction candidate returned `CLEAN — 0 Blocker / 0 Major / 0 Minor`; Risk Classification `R1`; Review B `NOT REQUIRED`; `ADR_NOT_REQUIRED` (ADR not authored). Product Owner decision (verbatim): **"APPROVE Feature Engine EVID-03 Condition-3 Amendment 001 Bounded Correction 002 for FI-INPUTMERGE-POSTINIT-01 at boundary 89471f41b2518b7c96860b13a550670a4ed50066, with corrected new_string \"if self.algorithm is None:\" and fault_class \"fail_closed_bypass\"."**
+
+```text
+P3-FEATURE-EVID03-COND3-EXEC-A-MAJ-01: CLOSED — DESIGN CORRECTION APPROVED.
+Bounded Correction 002: APPROVED — EFFECTIVE.
+Current authoritative FI-INPUTMERGE-POSTINIT-01:
+  fault_class = fail_closed_bypass
+  new_string  = "if self.algorithm is None:"
+  (old_string, fault_id, method, source_file unchanged)
+Current approved Condition-3 population: 9 methods / 14 faults.
+Original FI-INPUTMERGE-POSTINIT-01 spec + its own Product Owner approval
+  (approval_recording_001): PRESERVED, byte-verbatim, historical authority
+  of record for the earlier approval/execution boundary.
+Historical stopped run (boundary cda4d0ebaf0f1d9e71bb4be0205380059db7a68b,
+  13/14 DETECTED, 1 TEST_INFRA_ERROR): remains non-qualifying diagnostic
+  output only -- not converted to formal evidence, not reused.
+NOT executed by this recording transaction: no fault has been run against
+  the corrected spec; tooling/fault_injection/faults.py not yet updated.
+Condition 3: UNRESOLVED. No formal evidence-003 exists.
+P3-FEATURE-QG-EVID-03: OPEN / blocking, unaffected.
+Feature module approval: NOT APPROVED. LIVE: NOT_AUTHORIZED.
+```
+
+**Not performed:** no `src/**`/test/tooling/dependency change; no fault injection executed; no mutation run; no Condition-2 work; no ADR authored; no new Review A/Review B/Risk Classification/Product Owner decision performed or fabricated by this transaction; no self-approval; no Condition-3 closure.
+
+**Next governed step (within this same executor task):** implement the approved corrected `FI-INPUTMERGE-POSTINIT-01` spec in `tooling/fault_injection/faults.py` and execute the full 14-fault population against a fresh executable boundary, in a fresh locked environment.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-surface-completeness-design-001-amendment-001.md` (approval recorded in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no source/test/tooling/dependency file touched. `manifest_version` `"10.382"` → `"10.383"`.
 
 ## Decision Log
 
