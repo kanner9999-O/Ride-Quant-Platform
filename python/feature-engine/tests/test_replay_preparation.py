@@ -38,8 +38,35 @@ from feature_engine.errors import (
     ReplayPreparationEvidenceMalformedError,
 )
 
-# tests/ -> feature-engine -> python -> repository root.
-_REPO_ROOT = Path(__file__).resolve().parents[3]
+
+def _find_repo_root(start: Path) -> Path:
+    """Deterministic repository-root discovery, independent of how deeply
+    `start` is nested. Ordinary invocation runs from `python/feature-engine/
+    tests/`; mutmut's own execution model physically copies `tests/` (and
+    `pyproject.toml`) one directory level deeper into `python/feature-engine/
+    mutants/tests/` for its forced-fail/stats-collection phase — a fixed
+    `.parents[N]` depth assumption breaks under that relocation. Walking
+    upward and checking for two specific, jointly-sufficient repository
+    markers (never a bare, generically-common `docs/` directory alone, which
+    several of this same file's own `tmp_path` fixtures create) works
+    correctly at any nesting depth, with no dependency on CWD or any
+    environment variable, and fails loudly rather than silently accepting
+    the first plausible-looking ancestor.
+    """
+    for candidate in (start, *start.parents):
+        if (candidate / "docs" / "architecture" / "input-contract-versions").is_dir() and (
+            candidate / "python" / "feature-engine" / "pyproject.toml"
+        ).is_file():
+            return candidate
+    raise RuntimeError(
+        f"could not locate repository root above {start!r} — expected an ancestor directory containing both "
+        "docs/architecture/input-contract-versions/ and python/feature-engine/pyproject.toml"
+    )
+
+
+# tests/ -> feature-engine -> python -> repository root, from WHEREVER this
+# file is actually running (see _find_repo_root's own docstring above).
+_REPO_ROOT = _find_repo_root(Path(__file__).resolve())
 
 
 def _real_regime_fact() -> FeatureComputed:
