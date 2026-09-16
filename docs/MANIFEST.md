@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.376"
+manifest_version: "10.377"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -27189,6 +27189,36 @@ EVID-07:                        CLOSED — PASS (unaffected).
 ```
 
 **Files changed:** `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no production/test/dependency/Contract/Constitution file touched. `manifest_version` `"10.375"` → `"10.376"`.
+
+## `feature-engine` — `P3-FEATURE-QG-EVID-03` current-boundary re-evaluation: `FAIL — criteria` (historical PASS preserved, unaffected)
+
+**Consolidated transaction — vai trò: `Feature Engine EVID-03 Current-Boundary Re-evaluation Correction Executor`.** Two exact commits: Commit A (executable, `596ad027955445be2d85036e1b52f226c8a42fde`, parent `a494fa21ff935d509081ed39e7f9499731fb0625`) — `python/feature-engine/tests/test_replay_preparation.py` (test-only portability fix: `_REPO_ROOT` now resolved via a marker-based `_find_repo_root` walk instead of a fixed `.parents[3]` depth, so it works correctly under mutmut's own nested `mutants/tests/` working-copy relocation; no production/semantic-assertion change). This entry (docs-only).
+
+**Historical `P3-FEATURE-QG-EVID-03: CLOSED — PASS — REVIEW A VALIDATED`** (boundary `977c7e87507a382dd4a021673f1e582eaa85ff82`, closure `c220b62a097aa036413865ff0222c5c136f6f05f`) **is preserved unchanged and is NOT disputed** — this transaction evaluates a materially later, different executable boundary, not a defect in the historical one.
+
+**Fresh full mutation measurement at exact Commit A** (freshly created venv, `mutants/` absent beforehand, `python -m tooling run`, run to natural completion): the nested-path failure that blocked the immediately prior measurement-only attempt did NOT recur. Current mutant population: **2629** (up from the historical 1531 — `ownership.py`/`output_contract_resolver.py`/`replay_preparation.py` are new modules within `source_paths`). `killed=2153, survived=475, timeout=1 (raw, not reproduced/credited), no_tests=skipped=suspicious=caught_by_type_check=segfault=check_was_interrupted_by_user=not_checked=0`. Raw score `(killed+confirmed_timeout)/(total-skipped)*100` = **81.89425637124383%** — below the approved `87.001959503592%` threshold. Full record: `docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-003.json`.
+
+**Historical 170-ID comparison:** of the exact historical set, 42/170 still exist in the current mutant-ID space (36 killed, 4 survived-and-previously-governedly-reclassified, 2 survived-not-reclassified); 128/170 (75.3%) are absent/discontinuous — the functions they named have been restructured since the historical boundary, shifting mutmut's own per-function numbering. A vanished ID is NOT treated as killed/resolved/failed/equivalent. **Condition-2 disposition: `CONDITION-2 CURRENT-BOUNDARY APPLICABILITY REQUIRES REBASE/INTERPRETATION`** — no replacement identity set generated.
+
+**Condition-3 (mutation-surface completeness) applicability:** historical evidence-002's own pinned `src`/`tests` trees differ from Commit A's (tooling tree unchanged). **Disposition: `STALE_FOR_CURRENT_BOUNDARY — RE-EVIDENCE_REQUIRED`** — not rerun/redesigned in this transaction.
+
+```text
+P3-FEATURE-QG-EVID-03 (historical, boundary 977c7e8/c220b62a):
+  CLOSED — PASS — REVIEW A VALIDATED (unchanged, preserved).
+P3-FEATURE-QG-EVID-03 (current boundary, 596ad027955445be2d85036e1b52f226c8a42fde):
+  FAIL — criteria (Condition 1 measured, genuinely fails: 81.894% <
+  87.001959503592%; Condition 2 requires rebase/interpretation;
+  Condition 3 stale for current boundary).
+EVID-04 / EVID-06 / EVID-08:    unaffected, not opened.
+EVID-07:                        CLOSED — PASS (unaffected).
+Overall Feature Chapter 13 QG:  FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+LIVE:                           NOT_AUTHORIZED.
+```
+
+**Next governed step:** ChatGPT live-repo verification + Review A of this current-boundary evidence/result.
+
+**Files changed:** Commit A (already pushed) — `python/feature-engine/tests/test_replay_preparation.py`. This entry (docs-only) — `docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-003.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; historical evidence 001/001-correction-001/002 byte-unchanged; no source/tooling/dependency file touched. `manifest_version` `"10.376"` → `"10.377"`.
 
 ## Decision Log
 
