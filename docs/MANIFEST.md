@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.385"
+manifest_version: "10.386"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -27495,6 +27495,48 @@ Feature module approval: NOT APPROVED. LIVE: NOT_AUTHORIZED.
 **Next governed step:** ChatGPT Review A of the Condition-2 §4.1 historical identity-resolution candidate.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-identity-resolution-001.json` (new, additive), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md` (Condition-3 folded to SATISFIED — REVIEW A VALIDATED; Condition-2 row pointer added), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no source/test/tooling/dependency file touched. `manifest_version` `"10.384"` → `"10.385"`.
+
+## `feature-engine` — `P3-FEATURE-QG-EVID-03` Condition-2 identity-resolution candidate bounded correction (`P3-FEATURE-EVID03-COND2-RES-A-MAJ-01`/`-MAJ-02` remediated, pending bounded Review A re-review)
+
+**Consolidated transaction — vai trò: `Feature Engine EVID-03 Condition-2 Historical Identity Resolution Bounded Correction Executor`.** ChatGPT bounded Review A returned `REVISION_REQUIRED — 0 Blocker / 2 Major / 0 Minor` (R1):
+
+- **`P3-FEATURE-EVID03-COND2-RES-A-MAJ-01`:** the aggregate "36 killed" figure was incorrectly treated as individually resolving 36 specific §4.1(a) identities (subtracted from "remaining unresolved"). **Corrected:** `feature-engine-mutation-step9-formal-evidence-003.json` does not durably enumerate the exact 36 killed mutant-ID strings (only the aggregate count) and its own text caveats that even an exact-string match does not prove current identity with the historical logical statement — this aggregate is now retained ONLY as a clearly-separated, explicitly-non-identity-level "informational current-measurement comparison," never used or subtracted in the controlling identity-level Condition-2 accounting.
+- **`P3-FEATURE-EVID03-COND2-RES-A-MAJ-02`:** 6 of the 10 already-governedly-APPROVED reclassifications (`feature-engine-mutant-reclassification-candidate-001.md`, `APPROVED / EFFECTIVE FOR CONDITION 2 ONLY`, 10/10 individually resolved) were incorrectly reopened as `REMAIN_UNRESOLVED` merely because their old function names are absent after later refactoring. **Corrected:** the Condition-2 obligation attaches to the exact HISTORICAL identity, not to current mutmut-ID continuity — later disappearance/rename does not revoke an already-governed resolution, and no "transfer" of the old equivalence proof to any successor ID is needed. All 10 identities (verified fresh, exact spelling, against candidate-001's own summary table and full Review A/Review B/Product Owner lifecycle) are now uniformly `PRESERVE_EXISTING_RECLASSIFICATION`.
+
+```text
+Corrected identity-level Condition-2 accounting (controlling; does NOT use
+  the aggregate 36 anywhere):
+  preserved_prior_reclassification:      10
+  new_4_1_b_reclassification_candidates: 4  (unchanged, Review A found no
+    semantic defect in the resolve_output_contract_refs group)
+  remaining_not_individually_resolved:   156
+  sum:                                   170
+Informational-only current-measurement comparison (NOT usable for
+  per-identity accounting): 42 present (36 killed aggregate / 4 reclass /
+  2 unreclassified survived) + 128 absent = 170.
+Future §4.1(a) work (recorded only, not executed): a future fresh, formal
+  mutation measurement must durably pin the exact per-ID mapping/status
+  (not merely an aggregate count) before any row may convert to
+  RESOLVED_BY_EXISTING_KILL. No mutmut run performed by this transaction.
+Condition 2: PARTIALLY RESOLVED / RESOLUTION CANDIDATE — PENDING BOUNDED
+  REVIEW A RE-REVIEW. NOT 40/170, NOT 126 genuinely-open -- those figures
+  removed. No replacement mutant IDs authorized.
+Condition 3: SATISFIED — REVIEW A VALIDATED (unchanged, not reopened).
+Condition 1: FAIL — criteria, unchanged.
+Current-boundary P3-FEATURE-QG-EVID-03: OPEN / FAIL.
+Historical EVID-03 PASS: preserved, unaffected.
+Feature module approval: NOT APPROVED. LIVE: NOT_AUTHORIZED.
+```
+
+**Fresh ADR Scope Rule (this correction, not inherited):** `ADR_NOT_REQUIRED` — fixes an accounting/scope error in how an already-approved mechanism and an already-governed decision are recorded; invents no new governance process, does not touch §4.1 itself.
+
+**Review/approval routing:** Review A REQUIRED, Risk Classification R1, Review B NOT REQUIRED, Product Owner NOT REQUIRED merely to apply existing §4.1(b) or to correct this accounting/scope error, ADR NOT_REQUIRED.
+
+**Not performed:** no `src/**`/test/tooling/dependency change; no mutmut run; no survivor remediation; no replacement 170-mutant set; no old-ID→new-ID rebasing; no aggregate mutation-score change; no self-validation of the 4 proposed reclassifications; no re-decision of the 10 already-governed reclassifications' own equivalence semantics; no Condition-2 closure; no Condition-3 reopening; no EVID-03 closure; no Feature Engine approval; no LIVE authorization.
+
+**Next governed step:** ChatGPT bounded Review A re-review of `P3-FEATURE-EVID03-COND2-RES-A-MAJ-01` and `-MAJ-02`.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-identity-resolution-001.json` (corrected in place — no new artifact), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md` (Condition-2 row corrected), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no source/test/tooling/dependency file touched. `manifest_version` `"10.385"` → `"10.386"`.
 
 ## Decision Log
 
