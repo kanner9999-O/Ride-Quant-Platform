@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.383"
+manifest_version: "10.384"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -27420,6 +27420,36 @@ Feature module approval: NOT APPROVED. LIVE: NOT_AUTHORIZED.
 **Next governed step (within this same executor task):** implement the approved corrected `FI-INPUTMERGE-POSTINIT-01` spec in `tooling/fault_injection/faults.py` and execute the full 14-fault population against a fresh executable boundary, in a fresh locked environment.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-surface-completeness-design-001-amendment-001.md` (approval recorded in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no source/test/tooling/dependency file touched. `manifest_version` `"10.382"` → `"10.383"`.
+
+## `feature-engine` — `P3-FEATURE-QG-EVID-03` current-boundary Condition-3 evidence produced (`EVIDENCE PRODUCED — PASS CANDIDATE — PENDING REVIEW A`, 14/14 DETECTED)
+
+**Consolidated transaction — vai trò: `Feature Engine EVID-03 Condition-3 Correction 002 Approval Recorder + Formal Evidence Executor`.** Implemented the approved Bounded Correction 002 exactly (`tooling/fault_injection/faults.py`: `FI-INPUTMERGE-POSTINIT-01` `fault_class` `guard_inversion` → `fail_closed_bypass`, `new_string` `"if self.algorithm:"` → `"if self.algorithm is None:"`; all other 13 specs byte-unchanged; Commit B `cd032572310c5c30e9ad32ab476be68d4df62145`, parent `c967f337d242c2c926cf313b6a70dfb6bda5c1cb`). `harness.py` unmodified. Verified in a FRESH disposable venv built from the current pinned `requirements-dev.lock.txt` (`pip check` clean, `platformdirs==4.11.5` matching the lock exactly, eliminating the prior diagnostic run's 4.11.7 drift): `pytest -q` 394 passed; `pytest -q tooling/fault_injection/tests` 33 passed; `ruff check tooling/fault_injection` clean (2 pre-existing, unrelated `authority_resolver.py` E501 findings remain, not touched); `mypy src tests` clean.
+
+**Fresh full 14-fault execution against exact Commit B, in the fresh venv:** `python -m tooling.fault_injection --boundary cd032572310c5c30e9ad32ab476be68d4df62145 ...`. Result: **14/14 DETECTED, 0 SURVIVED, 0 CONTROL_FAILED, 0 INJECTION_FAILED, 0 TEST_INFRA_ERROR — 9/9 target methods qualify.** `FI-INPUTMERGE-POSTINIT-01` specifically: control PASS (394 passed), activation unique/valid, evidence run completed an ORDINARY collect-and-run cycle (exit_code=1, not the historical run's collection-crash exit_code=4), verdict `DETECTED`, detecting test exactly `tests/test_contracts.py::test_input_merge_policy_rejects_empty_algorithm` (matching the approved prediction exactly), positive control `test_input_merge_policy_accepts_well_formed_value` confirmed still passing. All 14 records independently verified: isolation HEAD/tree identities == Commit B, clean control PASS, `old_string`/`new_string` uniqueness, single-file/single-hunk activation, canonical checkout untouched, isolation destroyed, ordinary evidence-run completion. Post-run `git worktree list` shows only the canonical checkout.
+
+```text
+Historical stopped run (boundary cda4d0ebaf0f1d9e71bb4be0205380059db7a68b,
+  13/14 DETECTED, 1 TEST_INFRA_ERROR): remains non-qualifying diagnostic
+  output only, NOT reused, NOT converted to formal evidence.
+Current-boundary Condition 3: EVIDENCE PRODUCED — PASS CANDIDATE —
+  PENDING REVIEW A. NOT self-closed.
+Condition 1: FAIL — criteria, unchanged (81.93229364777483% <
+  87.001959503592%).
+Condition 2: unchanged — 130 historical identities unresolved (separate
+  §4.1(b) track).
+Current-boundary P3-FEATURE-QG-EVID-03: OPEN / FAIL (Condition 1 alone
+  already fails the gate).
+Historical EVID-03 PASS: preserved unchanged at its own historical
+  boundary, not disputed.
+Overall Feature Chapter 13 QG: FAIL — evidence, unaffected.
+Feature module approval: NOT APPROVED. LIVE: NOT_AUTHORIZED.
+```
+
+**Not performed:** no `src/**`/test/harness/dependency change beyond the already-approved Correction 002; no additional fault-spec semantic change; no mutmut run; no Condition-1 remediation; no Condition-2 work; no survivor remediation; no threshold change; no ADR; no Review B; no additional Product Owner decision; no self-closing of Condition 3; no EVID-03 closure; no Feature Engine approval; no LIVE authorization.
+
+**Next governed step:** ChatGPT live-repo verification + Review A of current-boundary Condition-3 evidence-003.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-surface-completeness-evidence-003.json` (new, additive; historical evidence-001/-002 byte-unchanged), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md` (minimal correction of a now-stale `EVID-03` current-state row — "no qualifying evidence exists" was factually contradicted by this transaction's own result), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no source/product-test/harness/dependency file touched. `manifest_version` `"10.383"` → `"10.384"`.
 
 ## Decision Log
 
