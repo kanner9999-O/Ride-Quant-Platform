@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.378"
+manifest_version: "10.379"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -27255,6 +27255,42 @@ LIVE:                           NOT_AUTHORIZED.
 **Next governed step:** ChatGPT bounded Review A re-review of `P3-PY-MUT-STEP9-003-A-MAJ-01`.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-003-correction-001.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no source/test/tooling/dependency file touched; `mutants/` working directory (untracked) removed, not committed. `manifest_version` `"10.377"` → `"10.378"`.
+
+## `feature-engine` — `P3-FEATURE-QG-EVID-03` Condition-3 current-boundary fault-spec amendment candidate authored (`CANDIDATE — PENDING REVIEW A`)
+
+**Consolidated transaction — vai trò: `Feature Engine EVID-03 Condition-3 Current-Boundary Fault-Spec Amendment Executor`.** Follows bounded Review A closure of the EVID-03 current-boundary applicability analysis: `P3-FEATURE-EVID03-REBASE-A-MAJ-01`/`-MIN-01`, both **CLOSED — BOUNDED REVIEW A RE-REVIEW** (Blocker 0 / Major 0 / Minor 0, R1) — that analysis and its own closure are not reopened here. `-MAJ-01` required distinguishing the already-approved, reusable Condition-3 harness/mechanism (`feature-engine-mutation-surface-completeness-design-001.md` §2/§2.1/§2.1a) from its separately-scoped, NOT-automatically-reusable 5-method/10-fault approved target population (§3.1–3.5).
+
+**Step 1 — re-verified the original 5 approved targets at current HEAD:** all five (`StaticInputContractAuthorityProvider.resolve`, `OHLCV.field`, `DecimalPrecisionPolicy.apply`/`.__post_init__`, `FeatureDefinition.__post_init__`) still exist, semantically unchanged, every historical fault spec's exact activation string still present and unique (including a fresh re-count confirming `FeatureDefinition.__post_init__`'s 27 guards). No compatibility issue — no historical fault spec rewritten.
+
+**Step 2 — re-verified the 4 newly-material current-boundary candidates**, classified behavior-bearing/materiality/coverage per candidate: `contracts.PreparedTransition.reconcile` (HIGH — ADR-043 §C catch-up fail-closed invariant; masking finding: its own internal length-mismatch guard is unreachable via the sole caller `AuthoritativeSubjectOwner._catch_up`'s own pre-check, mirroring the `MAJ-03` masking pattern — the reachable content-mismatch guard was targeted instead), `contracts.PreparedFeatureComputed.finalize` (MODERATE-HIGH — silent `causation_refs` corruption), `contracts.InputMergePolicy.__post_init__` (MODERATE — directly analogous in shape to the already-approved `DecimalPrecisionPolicy.__post_init__`), `ownership.AuthoritativeSubjectOwner.state` property (MODERATE — no-handle lifecycle-state misreport). Explicitly NOT promoted (fresh inspection found no material error in the prior bounded analysis): `PreparedFeatureFactInvalidated.finalize` (no branch), `VerifiedOutputEventContractAuthority.__init__` (unconditional raise, mirrors the already-not-promoted `VerifiedInputContractAuthority.__init__`), `SubjectOwnershipRegistry.get`/`.set`, Protocol `...` stubs, trivial passthrough properties.
+
+**Step 3 — one minimal fault spec per new target** (not two, per "do not force two faults per method"): `FI-PREPTRANS-RECONCILE-01`, `FI-PFC-FINALIZE-01`, `FI-INPUTMERGE-POSTINIT-01` all **READY** (existing tests directly, cleanly detect each); `FI-OWNER-STATE-01` **GAP** (1 minimal new test named, not authored). Each fault spec: exact unique `old_string`/`new_string`, activation-uniqueness verification, detecting test(s) or required test gap, materiality rationale — design-001 §2.1b template, unamended.
+
+```text
+Historical approved target population:  5 methods (unchanged, re-verified).
+New candidate target population:        4 methods.
+Candidate total after amendment:        9 material methods (current-boundary
+  CANDIDATE only — does not rewrite/supersede evidence-002.json, which
+  remains valid for its own pinned historical boundary/scope).
+Harness/mechanism:                      reusable WITHOUT redesign for these
+  4 faults (all satisfy existing activation/isolation/integrity/control
+  preconditions) — NOT a claim it supports literally any future target.
+ADR Scope (fresh, not inherited):       ADR_OPTIONAL — no ADR authored.
+Condition 3:                            UNRESOLVED. This candidate: CANDIDATE
+  — PENDING REVIEW A. NOT approved, NOT effective, no fault executed, no
+  self-approval.
+design-001 / evidence-002.json:         PRESERVED, byte-unchanged.
+P3-FEATURE-QG-EVID-03:                  OPEN / blocking, unaffected.
+Overall Feature Chapter 13 QG:          FAIL — evidence, unaffected.
+Feature module approval:                NOT APPROVED.
+LIVE:                                   NOT_AUTHORIZED.
+```
+
+**Not performed:** no `src/**`/test/tooling/dependency change; no fault injection executed; no mutation run; no Condition-2 work; no survivor remediation; no threshold change; no EVID-03 closure; no Feature Engine approval; no LIVE authorization; no self-approval.
+
+**Next governed step:** ChatGPT Review A of the Condition-3 current-boundary fault-spec amendment candidate.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-surface-completeness-design-001-amendment-001.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `design-001.md` and `evidence-002.json` byte-unchanged; no source/test/tooling/dependency file touched. `manifest_version` `"10.378"` → `"10.379"`.
 
 ## Decision Log
 
