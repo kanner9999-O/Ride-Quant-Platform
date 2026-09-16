@@ -1016,6 +1016,122 @@ def test_catch_up_mismatch_fails_closed(time_source: FixedDeltaTimeSource) -> No
         owner.acquire_and_activate(catch_up_frontier=frontier_1)
 
 
+def test_failed_catch_up_marks_terminal_with_correct_revoked_handle_and_fences_authority(
+    time_source: FixedDeltaTimeSource,
+) -> None:
+    """`_mark_terminal` (ADR043-IMPL-A-MAJ-05) must produce a REVOKED
+    `OwnerHandle` carrying THIS owner's own exact `feature_subject_id` and
+    `ownership_generation` -- not merely leave `owner.state` as "anything
+    other than ACTIVE" -- and must fence the SAME exact identity/generation
+    pair with the authority, so a genuinely different owner instance racing
+    for the same subject can immediately observe the generation is no
+    longer current.
+    """
+    reference_allocator = SequenceAllocator(
+        module_id="feature-engine", implementation_version="0.1.0", run_id="reference-run"
+    )
+    reference_engine = _regime_engine(reference_allocator, time_source)
+    subject_id = reference_engine.scope.feature_subject_id
+
+    fact_1 = regime_classified_at(reference_allocator, 0, computed_metric="1.50")
+    frontier_1 = frontier_at(fact_1.recorded_time, resolved_input_contract=REGIME_INPUT_CONTRACT)
+    computed_1 = only_computed(reference_engine.on_regime_classified(fact_1, cursor=frontier_1)[0])
+    tampered = dataclasses.replace(computed_1, value=computed_1.value + 1)
+
+    provider = InMemoryLineageHistoryProvider()
+    provider.register_upstream(subject_id, [_regime_envelope(fact_1, kind="regime_classified", frontier=frontier_1)])
+    provider.register_canonical(subject_id, [tampered])
+
+    fresh_allocator = SequenceAllocator(module_id="feature-engine", implementation_version="0.1.0", run_id="fresh-run")
+    fresh_engine = _regime_engine(fresh_allocator, time_source)
+    authority = InMemorySubjectOwnershipAuthority()
+    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=fresh_allocator, time_source=time_source)
+    owner = AuthoritativeSubjectOwner(
+        engine=fresh_engine,
+        authority=authority,
+        committer=committer,
+        history_provider=provider,
+    )
+    assert owner._committed_frontier is None  # noqa: SLF001 -- reset before catch-up is attempted
+    with pytest.raises(CanonicalHistoryMismatchError):
+        owner.acquire_and_activate(catch_up_frontier=frontier_1)
+    # A failed catch-up must never leave a stale/corrupted committed_frontier
+    # behind -- it stays exactly at its pre-attempt reset value.
+    assert owner._committed_frontier is None  # noqa: SLF001
+
+    minted_generation = authority._last_minted[subject_id]  # noqa: SLF001
+
+    assert owner.handle is not None
+    assert owner.handle.feature_subject_id == subject_id
+    assert owner.handle.ownership_generation == minted_generation
+    assert owner.handle.state is SubjectOwnershipState.REVOKED
+    assert owner._usable is False  # noqa: SLF001
+    assert authority.is_current(subject_id, minted_generation) is False
+
+
+def test_revoke_transitions_active_owner_to_revoked_with_correct_handle_and_fences_authority(
+    time_source: FixedDeltaTimeSource,
+) -> None:
+    """`AuthoritativeSubjectOwner.revoke()` (ADR-043 §H) must actually
+    transition an ACTIVE owner to REVOKED -- not merely set `is_terminal`
+    -- with the resulting `OwnerHandle` carrying THIS owner's own exact
+    `feature_subject_id`/`ownership_generation`, and must fence that exact
+    identity/generation pair with the authority so a fresh successor
+    immediately sees it is no longer current.
+    """
+    allocator = SequenceAllocator(module_id="feature-engine", implementation_version="0.1.0", run_id="revoke-run")
+    engine = _regime_engine(allocator, time_source)
+    subject_id = engine.scope.feature_subject_id
+    authority = InMemorySubjectOwnershipAuthority()
+    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=allocator, time_source=time_source)
+    provider = InMemoryLineageHistoryProvider()
+    provider.register_known_empty(subject_id)
+    owner = AuthoritativeSubjectOwner(
+        engine=engine, authority=authority, committer=committer, history_provider=provider
+    )
+    owner.acquire_and_activate(catch_up_frontier=frontier_at(BASE, resolved_input_contract=REGIME_INPUT_CONTRACT))
+    state_after_activate: SubjectOwnershipState = owner.state
+    assert state_after_activate is SubjectOwnershipState.ACTIVE
+    assert owner.handle is not None
+    assert owner.handle.feature_subject_id == subject_id
+    generation = owner.handle.ownership_generation
+    assert authority.is_current(subject_id, generation) is True
+
+    owner.revoke()
+
+    state_after_revoke: SubjectOwnershipState = owner.state
+    assert state_after_revoke is SubjectOwnershipState.REVOKED
+    assert owner.handle is not None
+    assert owner.handle.feature_subject_id == subject_id
+    assert owner.handle.ownership_generation == generation
+    assert owner.is_terminal is True
+    assert owner._usable is False  # noqa: SLF001
+    assert authority.is_current(subject_id, generation) is False
+
+
+def test_revoke_on_never_acquired_owner_marks_terminal_without_a_handle(
+    time_source: FixedDeltaTimeSource,
+) -> None:
+    """Revoking an owner that never successfully acquired (`handle is
+    None`) must still permanently retire it -- never attempt to read a
+    nonexistent handle's own fields.
+    """
+    allocator = SequenceAllocator(module_id="feature-engine", implementation_version="0.1.0", run_id="never-acquired")
+    engine = _regime_engine(allocator, time_source)
+    authority = InMemorySubjectOwnershipAuthority()
+    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=allocator, time_source=time_source)
+    provider = InMemoryLineageHistoryProvider()
+    owner = AuthoritativeSubjectOwner(
+        engine=engine, authority=authority, committer=committer, history_provider=provider
+    )
+    assert owner.handle is None
+
+    owner.revoke()
+
+    assert owner.is_terminal is True
+    assert owner.handle is None
+
+
 def test_catch_up_incomplete_canonical_history_fails_closed(time_source: FixedDeltaTimeSource) -> None:
     reference_allocator = SequenceAllocator(
         module_id="feature-engine", implementation_version="0.1.0", run_id="reference-run"

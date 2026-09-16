@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.388"
+manifest_version: "10.389"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -27608,6 +27608,35 @@ Condition-3:             UNCHANGED — SATISFIED — REVIEW A VALIDATED
 **Next governed step:** ChatGPT bounded Review A re-review of `P3-FEATURE-EVID03-STEP9-004-A-MAJ-01`.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-004-correction-001.json` (new, additive), `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-identity-resolution-001.json` (updated in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `evidence-004.json` byte-unchanged; no source/test/tooling/dependency file touched. `manifest_version` `"10.387"` → `"10.388"`.
+
+## `feature-engine` — `P3-FEATURE-QG-EVID-03` Condition-1 survivor-remediation Wave 1 (folds Evidence-004 correction Review A closure)
+
+**Consolidated transaction — vai trò: `Feature Engine EVID-03 Condition-1 High-Yield Survivor Remediation Executor — Wave 1`.** Starting HEAD `fbcb8f197db1061c950e27c8530b5af0beb6b00c`, verified `main == origin/main`, no drift. **Folded review closure:** final bounded Review A re-review of `P3-FEATURE-EVID03-STEP9-004-A-MAJ-01` returned `CLEAN — 0 Blocker / 0 Major / 0 Minor`, Risk `R1` — `CLOSED — BOUNDED REVIEW A RE-REVIEW`. `feature-engine-mutation-step9-formal-evidence-004.json` + `-004-correction-001.json` together are now `REVIEW A VALIDATED` formal current-boundary evidence; no standalone bookkeeping-only commit was created for this closure, it is folded into this substantive remediation transaction.
+
+**Test-only survivor-remediation wave (`python/feature-engine/tests/**` only; `src/**`/`tooling/**`/dependencies untouched):** read fresh `full_current_mutant_mapping.survivor_mutant_ids` (474 current survivors) from `evidence-004.json` + `-004-correction-001.json`. Computed fresh distribution by module (`contracts` 104, `authority_resolver` 97, `swing_distance` 88, `ownership` 87, `regime_passthrough` 41, `output_contract_resolver` 30, `replay_preparation` 20, `current_view` 6, `identity` 1). Investigated and **rejected** two large high-count candidate clusters (`contracts.resolve_historical_input_contract_authority_from_repository`, 64 survivors; `contracts.resolve_computation_cursor`, 35 survivors, all 35 diffs individually collected and confirmed) as message-text-only mutations — per this repo's own established anti-gaming precedent (`feature-engine-mutation-threshold-proposal-001.md` Candidate 4 rejection), not remediated. Also excluded as `LIKELY_EQUIVALENT`/`STRUCTURALLY_UNREACHABLE`: `ownership.x_p_run_sort`'s `zip(..., strict=False/None/omitted)` mutants (provably equivalent at runtime); `contracts._finalize_prepared_batch`'s `zip(..., strict=True)` mutants (redundant given a pre-existing explicit length check) and its `invalidation_ref`/`invalidation_recorded_time` init-corruption mutants, and `contracts._validate_canonical_recorded_time`'s analogous init-corruption mutants (structurally unreachable — no test file anywhere constructs `PreparedFeatureComputed`/`PreparedFeatureFactInvalidated` directly, confirmed via repo-wide grep); `ownership.AuthoritativeSubjectOwner.acquire_and_activate`'s intermediate (pre-catch-up) `OwnerHandle` mutants 20/21/22/23 (dead/overwritten assignment, confirmed via tracing `_catch_up`, which never reads `self._handle`).
+
+**Selected cluster (22 current survivors, all `TEST_GAP`):** `AuthoritativeSubjectOwner`'s revoke/terminal `OwnerHandle`-construction lifecycle in `ownership.py` — `revoke()` (11 survivors: mutmut 1,2,3,4,5,8,9,10,11,15,16), `_mark_terminal()` (9 survivors: mutmut 3,4,6,8,9,14,15,16,17), and 2 genuine `acquire_and_activate()` survivors (mutmut_29 — the pre-catch-up `_committed_frontier` reset; mutmut_33 — the final `OwnerHandle`'s `feature_subject_id`). Public-API-reachable, materially undertested (essentially zero unit coverage of the constructed `OwnerHandle`'s exact field values beyond `is_terminal`), no production-semantics change needed.
+
+**3 new behaviorally-named tests added** to `python/feature-engine/tests/test_ownership.py`: `test_revoke_transitions_active_owner_to_revoked_with_correct_handle_and_fences_authority`, `test_revoke_on_never_acquired_owner_marks_terminal_without_a_handle`, `test_failed_catch_up_marks_terminal_with_correct_revoked_handle_and_fences_authority` — each asserts the resulting `OwnerHandle`'s exact `feature_subject_id`/`ownership_generation`/state fields and authority-fencing (`authority.is_current(...)`), reusing established repo fixtures/patterns (`InMemorySubjectOwnershipAuthority`, existing `# noqa: SLF001` private-attribute-access precedent).
+
+```text
+Ordinary verification: pytest -q: 397 passed. pytest -q tooling/fault_injection/tests: 33 passed.
+  ruff check tests/test_ownership.py: All checks passed. mypy src tests: Success, 35 source files.
+Targeted mutation verification (fresh disposable venv, `python -m tooling run <id>`,
+  against the new test boundary): 22/22 selected survivors SURVIVED -> killed. Zero residual.
+Estimated Condition-1 numerator: 2155 + 22 = 2177 (killed 2154+22=2176 + confirmed_timeout 1).
+Estimated raw score: 2177 / 2629 = 82.80715...% — still < 87.001959503592%, Condition 1 remains FAIL.
+Remaining approximate gap to minimum threshold numerator 2288: narrows from 133 to 111.
+Full 2629-mutant formal remeasurement explicitly NOT run this wave (targeted-only, per scope).
+```
+
+**Not performed:** no `src/**`/tooling/dependency change; no full formal 2629-mutant remeasurement; no Condition-1 closure claim; no Condition-2 accounting change (unchanged `FAIL / PARTIALLY SATISFIED — 42/170 resolved` — no historical identity rebasing performed even though this wave's cluster sits inside `ownership.py`, a module with unresolved Condition-2 identities); no Condition-3 reopening (unchanged `SATISFIED — REVIEW A VALIDATED`); no EVID-03 closure; no ADR; no Review B; no Product Owner decision; no Feature Engine approval; no LIVE authorization; no standalone remediation-evidence artifact created (outcome persisted in this bookkeeping + the remediation plan doc, per "persist outcome, not ceremony").
+
+**Fresh ADR Scope Rule:** `ADR_NOT_REQUIRED` — bounded test-only remediation within already-approved Testing Convention v0.17 mutation-testing mechanism, no contract/invariant change.
+
+**Next governed step:** ChatGPT live-repo verification + Review A of Condition-1 survivor-remediation Wave 1.
+
+**Files changed:** `python/feature-engine/tests/test_ownership.py`, `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no `src/**`/tooling/dependency file touched; scratch venv/mutants workspace (untracked) removed, not committed. `manifest_version` `"10.388"` → `"10.389"`.
 
 ## Decision Log
 
