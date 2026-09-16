@@ -147,9 +147,9 @@ APPROVED_FAULTS: tuple[FaultSpec, ...] = (
         fault_id="FI-INPUTMERGE-POSTINIT-01",
         method="contracts.InputMergePolicy.__post_init__",
         source_file="src/feature_engine/contracts.py",
-        fault_class="guard_inversion",
+        fault_class="fail_closed_bypass",
         old_string="if not self.algorithm:",
-        new_string="if self.algorithm:",
+        new_string="if self.algorithm is None:",
     ),
     FaultSpec(
         fault_id="FI-OWNER-STATE-01",
