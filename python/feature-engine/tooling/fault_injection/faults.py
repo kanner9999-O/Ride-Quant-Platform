@@ -1,10 +1,14 @@
 """The exact, approved fault population for Condition-3 evidence.
 
-Ten faults across the five high-materiality methods named in `feature-
-engine-mutation-surface-completeness-design-001.md` §3 (APPROVED design).
-Every `old_string`/`new_string` pair below is copied verbatim from that
-approved design's own "Deterministic reproduction contract" for the
-corresponding fault ID — this module does not improvise substitute faults.
+Fourteen faults across nine high-materiality methods: the historical ten
+faults across the five methods named in `feature-engine-mutation-surface-
+completeness-design-001.md` §3 (APPROVED design), plus four faults across
+four additional current-boundary methods named in `feature-engine-mutation-
+surface-completeness-design-001-amendment-001.md` §3 (APPROVED — DESIGN
+AMENDMENT EFFECTIVE). Every `old_string`/`new_string` pair below is copied
+verbatim from the corresponding approved document's own "Deterministic
+reproduction contract" / fault specification for that exact fault ID — this
+module does not improvise substitute faults.
 """
 
 from __future__ import annotations
@@ -118,5 +122,45 @@ APPROVED_FAULTS: tuple[FaultSpec, ...] = (
         fault_class="boundary_flip",
         old_string="if self.window_candle_count is None or self.window_candle_count < 1:",
         new_string="if self.window_candle_count is None or self.window_candle_count <= 1:",
+    ),
+    # --- Amendment 001 (APPROVED — DESIGN AMENDMENT EFFECTIVE): 4 new
+    # current-boundary faults across 4 new target methods, copied verbatim
+    # from feature-engine-mutation-surface-completeness-design-001-
+    # amendment-001.md §3.1-3.4. ---------------------------------------------
+    FaultSpec(
+        fault_id="FI-PREPTRANS-RECONCILE-01",
+        method="contracts.PreparedTransition.reconcile",
+        source_file="src/feature_engine/contracts.py",
+        fault_class="guard_inversion",
+        old_string="if not _prepared_matches_canonical(prepared, canonical):",
+        new_string="if _prepared_matches_canonical(prepared, canonical):",
+    ),
+    FaultSpec(
+        fault_id="FI-PFC-FINALIZE-01",
+        method="contracts.PreparedFeatureComputed.finalize",
+        source_file="src/feature_engine/contracts.py",
+        fault_class="silent_corruption",
+        old_string="causation_refs = (*causation_refs, invalidation_ref)",
+        new_string="causation_refs = (*causation_refs,)",
+    ),
+    FaultSpec(
+        fault_id="FI-INPUTMERGE-POSTINIT-01",
+        method="contracts.InputMergePolicy.__post_init__",
+        source_file="src/feature_engine/contracts.py",
+        fault_class="guard_inversion",
+        old_string="if not self.algorithm:",
+        new_string="if self.algorithm:",
+    ),
+    FaultSpec(
+        fault_id="FI-OWNER-STATE-01",
+        method="ownership.AuthoritativeSubjectOwner.state",
+        source_file="src/feature_engine/ownership.py",
+        fault_class="silent_corruption",
+        old_string=(
+            "return self._handle.state if self._handle is not None else SubjectOwnershipState.INACTIVE"
+        ),
+        new_string=(
+            "return self._handle.state if self._handle is not None else SubjectOwnershipState.ACTIVE"
+        ),
     ),
 )

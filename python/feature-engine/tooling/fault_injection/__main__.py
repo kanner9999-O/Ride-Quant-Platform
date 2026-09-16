@@ -1,10 +1,14 @@
 """Entrypoint: `python -m tooling.fault_injection --boundary <sha> --output <path>`.
 
-Runs the full approved 10-fault population (`faults.APPROVED_FAULTS`)
+Runs the full current approved fault population (`faults.APPROVED_FAULTS` —
+14 faults across 9 methods: the historical 10/5 from `feature-engine-
+mutation-surface-completeness-design-001.md`, plus the 4/4 approved by
+`feature-engine-mutation-surface-completeness-design-001-amendment-001.md`)
 against the exact pinned repository boundary, one isolated `git worktree`
 checkout per fault, and writes one JSON evidence artifact (schema per
-`feature-engine-mutation-surface-completeness-design-001.md` §2.1b,
-extended per this implementation transaction's own bounded corrections).
+design-001 §2.1b, extended per this implementation transaction's own
+bounded corrections). The rollup below is population-size-generic — it
+does not assume any fixed method count.
 
 This script performs no repository-state mutation of its own beyond
 disposable, per-fault `git worktree` checkouts under `--work-root` — the
@@ -42,6 +46,10 @@ def _record_to_json(record: FaultEvidenceRecord) -> dict[str, object]:
 
 
 def _rollup(records: list[FaultEvidenceRecord]) -> dict[str, object]:
+    """Population-size-generic rollup — makes no assumption about how many
+    target methods or faults are in `records`; a future amendment changing
+    either count needs no change here.
+    """
     by_method: dict[str, list[str]] = {}
     verdict_by_fault_id = {r.fault_id: r.verdict for r in records}
     for r in records:
@@ -52,8 +60,10 @@ def _rollup(records: list[FaultEvidenceRecord]) -> dict[str, object]:
     }
     return {
         "methods": by_method,
+        "target_method_count": len(by_method),
+        "fault_count": len(records),
         "method_has_at_least_one_detected_fault": method_qualifies,
-        "five_of_five_completion_criterion_supported": len(method_qualifies) == 5 and all(method_qualifies.values()),
+        "all_target_methods_have_detected_fault": len(method_qualifies) > 0 and all(method_qualifies.values()),
     }
 
 

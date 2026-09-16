@@ -41,3 +41,26 @@ def test_approved_fault_new_string_uniquely_located_after_patch(fault: FaultSpec
         "this fault would false-to-label as activated under a `>= 1` check "
         "(the exact MAJ-01 regression); the approved uniqueness contract requires `== 1`"
     )
+
+
+# --- current approved population shape (design-001 §3 + amendment-001 §3) --
+
+
+def test_approved_fault_population_count_matches_approved_amendment_001() -> None:
+    assert len(APPROVED_FAULTS) == 14, (
+        "APPROVED_FAULTS must contain exactly the current approved population: "
+        "10 historical (design-001) + 4 new (amendment-001, APPROVED)"
+    )
+
+
+def test_approved_fault_target_method_count_matches_approved_amendment_001() -> None:
+    methods = {f.method for f in APPROVED_FAULTS}
+    assert len(methods) == 9, (
+        "APPROVED_FAULTS must cover exactly the current approved target population: "
+        "5 historical methods (design-001) + 4 new methods (amendment-001, APPROVED)"
+    )
+
+
+def test_approved_fault_ids_are_unique() -> None:
+    fault_ids = [f.fault_id for f in APPROVED_FAULTS]
+    assert len(fault_ids) == len(set(fault_ids)), "every fault_id in APPROVED_FAULTS must be unique"
