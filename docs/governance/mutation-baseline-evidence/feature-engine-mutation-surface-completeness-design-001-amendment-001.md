@@ -1,7 +1,7 @@
 # Feature Engine — Mutation-Surface Completeness (Condition 3) Design — Amendment 001 (Current-Boundary Target-Population Extension)
 
 ```yaml
-status: CANDIDATE — PENDING REVIEW A
+status: CANDIDATE — PENDING BOUNDED REVIEW A RE-REVIEW
 artifact_id: feature-engine-mutation-surface-completeness-design-001-amendment-001
 amends: feature-engine-mutation-surface-completeness-design-001
 created_for: >
@@ -19,7 +19,29 @@ formal_step9_qg_evaluation_performed: false
 evid_03_closed: false
 condition_3_closed: false
 repository_head_at_authoring: b5014955c77964a9a5ceb0f22a1b79a297be595b
+bounded_correction_001:
+  applied_at_repository_head: dd2a923f0283e9b2cbb73d3085c699c61e3d834f
+  reviewer_finding_addressed: P3-FEATURE-EVID03-COND3-AMEND-A-MIN-01
+  finding_status: "REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW"
 ```
+
+**Bounded correction 001:** ChatGPT bounded Review A returned
+`REVISION_REQUIRED — 0 Blocker / 0 Major / 1 Minor` (R1):
+`P3-FEATURE-EVID03-COND3-AMEND-A-MIN-01` — `FI-OWNER-STATE-01` was
+incorrectly classified `GAP`; the fault itself was valid, but a fresh
+re-read of `tests/test_ownership.py` shows two existing tests already
+exercise the exact handle-less branch this fault corrupts, requiring no
+new test. §3.4 and the §3 test-readiness summary below are corrected
+in place (candidate not yet approved — corrected directly, not via a
+separate Amendment-002/correction artifact, per this task's own
+instruction). `FI-PREPTRANS-RECONCILE-01`/`FI-PFC-FINALIZE-01`/
+`FI-INPUTMERGE-POSTINIT-01` are unaffected, not reopened. No target
+method, fault ID, `old_string`/`new_string`, materiality classification,
+the candidate total (9 methods), the historical five-target design, the
+harness semantics, `ADR_SCOPE_DISPOSITION` (`ADR_OPTIONAL`), or any
+historical evidence is altered by this correction. **Finding state:**
+`REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW` — not self-closed.
+Candidate remains `CANDIDATE — PENDING BOUNDED REVIEW A RE-REVIEW`.
 
 This document does **not** modify, rewrite, or supersede
 `feature-engine-mutation-surface-completeness-design-001.md` — that document,
@@ -233,7 +255,7 @@ representative pair; a future amendment may add it if reviewers want full guard-
 
 ---
 
-### 3.4 `FI-OWNER-STATE-01` — no-handle lifecycle-state misreport
+### 3.4 `FI-OWNER-STATE-01` — no-handle lifecycle-state misreport (readiness corrected: READY, `P3-FEATURE-EVID03-COND3-AMEND-A-MIN-01`)
 
 ```text
 fault_id:            FI-OWNER-STATE-01
@@ -251,19 +273,43 @@ activation_uniqueness: exact full-line string occurs exactly once in
                        ownership.py (verified: grep -c returns 1; the
                        structurally similar line at ownership.py:729 uses a
                        distinct "current_state = " prefix, not matched)
-detecting_test(s):     GAP -- see below.
-readiness:             GAP -- no existing test directly asserts `.state` on
-                       a handle-less (never-activated / pre-acquisition)
-                       AuthoritativeSubjectOwner instance; every existing
-                       `owner.state` assertion in tests/test_ownership.py
-                       (13 occurrences) is taken AFTER some acquisition/
-                       revocation/failure sequence has already assigned a
-                       real handle, never on a pristine, handle-less
-                       instance.
-minimum_test_required: A new, minimal direct test (NOT authored by this
-                       amendment): construct a fresh AuthoritativeSubjectOwner
-                       with no acquire_and_activate call yet performed, and
-                       assert owner.state is SubjectOwnershipState.INACTIVE.
+detecting_test(s):     tests/test_ownership.py::
+                       test_acquire_and_activate_rejects_a_non_pristine_engine
+                       (line 571-574: owner is freshly constructed, line
+                       571's pytest.raises(EngineNotPristineForCatchUpError)
+                       fires from the pristine-engine guard BEFORE any handle
+                       is ever assigned -- line 574's own comment confirms
+                       "no generation was ever minted" -- then line 573
+                       asserts owner.state is not SubjectOwnershipState.
+                       ACTIVE) and tests/test_ownership.py::
+                       test_acquire_and_activate_fails_closed_on_invalid_frontier_even_with_proven_empty_history
+                       (line 697-706: owner is freshly constructed, line
+                       703's pytest.raises(RegistryContractMismatchError)
+                       fires from the frontier-validation guard BEFORE any
+                       handle is assigned -- line 707 confirms
+                       owner._committed_frontier is None -- then line 706
+                       asserts state_after_failure is not
+                       SubjectOwnershipState.ACTIVE). Corroborating,
+                       non-primary: the same "state is not ACTIVE"
+                       assertion pattern also recurs at lines 921
+                       (test_absent_provider_history_cannot_activate) and
+                       1008 (test_catch_up_mismatch_fails_closed).
+readiness:             READY (corrected -- Review A finding
+                       P3-FEATURE-EVID03-COND3-AMEND-A-MIN-01) -- fresh
+                       re-read of tests/test_ownership.py confirms owner has
+                       genuinely NO handle/generation at both cited
+                       assertion points (verified directly: the rejecting
+                       guard in each case fires strictly before any handle
+                       assignment, not merely before successful activation),
+                       so both already exercise exactly the `self._handle is
+                       None` branch this fault corrupts. Under this fault
+                       (INACTIVE -> ACTIVE in that branch), owner.state
+                       would return ACTIVE at both assertion points,
+                       directly failing `assert owner.state is not
+                       SubjectOwnershipState.ACTIVE` / `assert
+                       state_after_failure is not SubjectOwnershipState.
+                       ACTIVE`. No new test is required.
+minimum_test_required: NONE.
 why_detection_matters: `.state` is the public lifecycle-observation surface
                        other code/tests read to decide whether ownership
                        exclusivity may be assumed; silently reporting ACTIVE
@@ -287,7 +333,7 @@ evidence-002.json, which remains valid, unmodified evidence for its own
 pinned historical boundary and its own 5-method/10-fault scope.
 ```
 
-**Test-readiness summary:** `FI-PREPTRANS-RECONCILE-01` READY, `FI-PFC-FINALIZE-01` READY, `FI-INPUTMERGE-POSTINIT-01` READY, `FI-OWNER-STATE-01` GAP (1 new test required). 3 of 4 new faults are executable against the EXISTING governed suite with no new test; only `FI-OWNER-STATE-01` blocks on the one minimal test named above — none of the 4 is claimed READY merely because an adjacent happy-path test exists elsewhere.
+**Test-readiness summary (corrected — `P3-FEATURE-EVID03-COND3-AMEND-A-MIN-01`):** `FI-PREPTRANS-RECONCILE-01` READY, `FI-PFC-FINALIZE-01` READY, `FI-INPUTMERGE-POSTINIT-01` READY, `FI-OWNER-STATE-01` READY. **4 of 4 new faults** are executable against the EXISTING governed suite with **no new test required** — none of the 4 is claimed READY merely because an adjacent happy-path test exists elsewhere; `FI-OWNER-STATE-01` specifically is READY because two existing tests genuinely exercise the handle-less (`self._handle is None`) branch this fault corrupts, not merely a related-but-distinct scenario (§3.4 above).
 
 ## 5. Harness/mechanism reuse — precise scope
 
@@ -331,8 +377,9 @@ Condition 1:                    unaffected by this document.
 Condition 2:                    unaffected by this document (separate,
                                  130-identity §4.1(b) resolution track).
 Condition 3:                    UNRESOLVED. This candidate amendment is
-                                 PENDING REVIEW A -- not approved, not
-                                 effective, no fault executed.
+                                 CANDIDATE — PENDING BOUNDED REVIEW A
+                                 RE-REVIEW -- not approved, not effective,
+                                 no fault executed.
 design-001 (historical):        PRESERVED, unchanged, 5-target/10-fault
                                  approval fully intact.
 evidence-002.json (historical): PRESERVED, unchanged, valid for its own
@@ -346,6 +393,6 @@ LIVE:                           NOT_AUTHORIZED.
 
 ## 8. Not performed by this transaction
 
-No `src/**` change. No test change. No tooling change. No dependency change. No fault injection executed. No mutation run. No Condition-2 work. No survivor remediation. No threshold change. No EVID-03 closure. No Feature Engine approval. No LIVE authorization. **No self-approval** — this candidate is recorded `CANDIDATE — PENDING REVIEW A` and is not, and cannot be, closed by this executor.
+No `src/**` change. No test change. No tooling change. No dependency change. No fault injection executed. No mutation run. No Condition-2 work. No survivor remediation. No threshold change. No EVID-03 closure. No Feature Engine approval. No LIVE authorization. **No self-approval** — this candidate is recorded `CANDIDATE — PENDING BOUNDED REVIEW A RE-REVIEW` and is not, and cannot be, closed by this executor.
 
-**Next governed step:** ChatGPT Review A of this Condition-3 current-boundary fault-spec amendment candidate. After Review A: Risk Classification required; if this candidate remains a semantic amendment to the Product-Owner-approved Condition-3 design (the expected case), Product Owner approval is required before these 4 new fault specs may be used as formal Condition-3 evidence. No Review B automatically triggered by this candidate's own risk tier; an optional advisory cross-check may be added later only if the Product Owner chooses, per current ADR-042 governance.
+**Next governed step:** ChatGPT bounded Review A re-review of `P3-FEATURE-EVID03-COND3-AMEND-A-MIN-01`. After that: Risk Classification required; if this candidate remains a semantic amendment to the Product-Owner-approved Condition-3 design (the expected case), Product Owner approval is required before these 4 new fault specs may be used as formal Condition-3 evidence. No Review B automatically triggered by this candidate's own risk tier; an optional advisory cross-check may be added later only if the Product Owner chooses, per current ADR-042 governance.

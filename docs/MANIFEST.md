@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.379"
+manifest_version: "10.380"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -27291,6 +27291,43 @@ LIVE:                                   NOT_AUTHORIZED.
 **Next governed step:** ChatGPT Review A of the Condition-3 current-boundary fault-spec amendment candidate.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-surface-completeness-design-001-amendment-001.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `design-001.md` and `evidence-002.json` byte-unchanged; no source/test/tooling/dependency file touched. `manifest_version` `"10.378"` → `"10.379"`.
+
+## `feature-engine` — `P3-FEATURE-QG-EVID-03` Condition-3 amendment 001 bounded correction (`P3-FEATURE-EVID03-COND3-AMEND-A-MIN-01` remediated, candidate remains pending Review A re-review)
+
+**Consolidated transaction — vai trò: `Feature Engine EVID-03 Condition-3 Amendment 001 Bounded Correction Executor`.** ChatGPT bounded Review A of the Condition-3 amendment candidate returned `REVISION_REQUIRED — 0 Blocker / 0 Major / 1 Minor` (R1): `P3-FEATURE-EVID03-COND3-AMEND-A-MIN-01` — `FI-OWNER-STATE-01` was incorrectly classified `GAP`; the fault itself was valid, but existing tests already detect the no-handle → `ACTIVE` corruption, so no new test is required. `FI-PREPTRANS-RECONCILE-01`/`FI-PFC-FINALIZE-01`/`FI-INPUTMERGE-POSTINIT-01` (all `READY`) are Review-A-clean, not reopened.
+
+**Fresh re-read of `python/feature-engine/tests/test_ownership.py`** located two existing tests that genuinely exercise the exact handle-less (`self._handle is None`) branch `FI-OWNER-STATE-01` corrupts — in both cases the owner is freshly constructed and the rejecting guard fires strictly BEFORE any handle is ever assigned:
+
+```text
+tests/test_ownership.py::test_acquire_and_activate_rejects_a_non_pristine_engine
+  -- line 571 pytest.raises(EngineNotPristineForCatchUpError) fires before
+  any handle assignment ("no generation was ever minted", line 574's own
+  comment); line 573 asserts owner.state is not SubjectOwnershipState.ACTIVE.
+tests/test_ownership.py::test_acquire_and_activate_fails_closed_on_invalid_frontier_even_with_proven_empty_history
+  -- line 703 pytest.raises(RegistryContractMismatchError) fires before any
+  handle assignment (line 707 confirms owner._committed_frontier is None);
+  line 706 asserts state_after_failure is not SubjectOwnershipState.ACTIVE.
+```
+
+Under `FI-OWNER-STATE-01` (`INACTIVE` → `ACTIVE` in the handle-less branch), `owner.state` would return `ACTIVE` at both assertion points, directly failing both existing assertions. **Corrected: `FI-OWNER-STATE-01` readiness = `READY`, `minimum_test_required: NONE`.**
+
+```text
+Corrected test-readiness summary: 4 of 4 new faults READY, 0 GAP (was
+  3 READY / 1 GAP).
+Unaltered: the 4 target methods; all 4 fault IDs; every old_string/
+  new_string; materiality classifications; candidate total = 9 methods;
+  the historical 5-target design; harness semantics; ADR_SCOPE_DISPOSITION
+  = ADR_OPTIONAL; historical evidence (design-001.md, evidence-002.json —
+  both byte-unchanged).
+Candidate state:  CANDIDATE — PENDING BOUNDED REVIEW A RE-REVIEW (not
+  approved, no self-approval).
+```
+
+**Not performed:** no `src/**` change; no test change (correction is documentation-only, `tests/**` byte-unchanged); no tooling/dependency change; no fault injection executed; no mutation run; no Condition-2 work; no survivor remediation; no ADR; no PO decision; no self-approval.
+
+**Next governed step:** ChatGPT bounded Review A re-review of `P3-FEATURE-EVID03-COND3-AMEND-A-MIN-01`.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-surface-completeness-design-001-amendment-001.md` (corrected in place — not a new Amendment-002/correction artifact), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no source/test/tooling/dependency file touched. `manifest_version` `"10.379"` → `"10.380"`.
 
 ## Decision Log
 
