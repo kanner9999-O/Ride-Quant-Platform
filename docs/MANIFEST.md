@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.375"
+manifest_version: "10.376"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -27171,6 +27171,24 @@ LIVE:                           NOT_AUTHORIZED (unaffected).
 **Next governed step:** bounded Review A of the Feature-local EVID-06 fault-injection evidence at exact Commit `2cee6e2cfd9538955c9591663a527b96c80e347d`.
 
 **Files changed:** Commit A (already pushed) — `python/feature-engine/tests/test_i6_fail_safe_scope.py`. This entry (Commit B) — `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no other file touched. `manifest_version` `"10.374"` → `"10.375"`.
+
+## `feature-engine` — Feature-local `EVID-06` evidence `SATISFIED — REVIEW A VALIDATED` (R0 bookkeeping)
+
+**R0 deterministic bookkeeping — vai trò: `Feature Engine EVID-06 Bookkeeping Executor`.** Records the already-completed Review A result on the Feature-local fault-injection evidence at exact executable boundary `2cee6e2cfd9538955c9591663a527b96c80e347d`: **CLEAN — 0 Blocker / 0 Major / 0 Minor**. No new review performed by this transaction; full reasoning lives in `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md` §9.9, not duplicated here.
+
+```text
+Feature-local fail-safe evidence: SATISFIED — REVIEW A VALIDATED.
+P3-FEATURE-QG-EVID-06:
+  OPEN — PARTIALLY SATISFIED / BLOCKED_BY_EXTERNAL_DEPENDENCY (unchanged).
+platform risk-not-increased assertion:
+  BLOCKED_BY_EXTERNAL_DEPENDENCY (unaffected).
+Feature module approval:       NOT APPROVED (unaffected).
+LIVE:                           NOT_AUTHORIZED (unaffected).
+EVID-04 / EVID-08:              unaffected, not opened.
+EVID-07:                        CLOSED — PASS (unaffected).
+```
+
+**Files changed:** `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no production/test/dependency/Contract/Constitution file touched. `manifest_version` `"10.375"` → `"10.376"`.
 
 ## Decision Log
 
