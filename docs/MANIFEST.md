@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.389"
+manifest_version: "10.390"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -27637,6 +27637,43 @@ Full 2629-mutant formal remeasurement explicitly NOT run this wave (targeted-onl
 **Next governed step:** ChatGPT live-repo verification + Review A of Condition-1 survivor-remediation Wave 1.
 
 **Files changed:** `python/feature-engine/tests/test_ownership.py`, `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no `src/**`/tooling/dependency file touched; scratch venv/mutants workspace (untracked) removed, not committed. `manifest_version` `"10.388"` → `"10.389"`.
+
+## `feature-engine` — `P3-FEATURE-QG-EVID-03` Condition-1 survivor-remediation Wave 2 (folds Wave 1 Review A closure)
+
+**Consolidated transaction — vai trò: `Feature Engine EVID-03 Condition-1 High-Yield Survivor Remediation Executor — Wave 2`.** Starting HEAD `4bf617c465124fa7c91fc2a9c4bd1406f90a2406`, verified `main == origin/main`, no drift. **Folded review closure:** Wave 1 Review A returned `CLEAN — 0 Blocker / 0 Major / 0 Minor`, Risk `R1` — `REVIEW A VALIDATED`; recorded here, no standalone bookkeeping-only commit.
+
+**Working survivor-set reconciliation:** evidence-004's 474 survivor IDs minus the exact 22 Wave-1 IDs = **452**, verified exactly (all 22 Wave-1 IDs confirmed present in the 474 before subtraction; no drift). Fresh distribution recomputed by module/qualified-function/mutation-family over the 452.
+
+**Test-only wave (`python/feature-engine/tests/**` only):** investigated and **rejected** as message-text-dominated (anti-gaming precedent, `feature-engine-mutation-threshold-proposal-001.md` Candidate 4): `authority_resolver.resolve_input_contract_authority_from_repository` (18 survivors — 16 message-text + 2 provably-equivalent `decode("utf-8")`→`decode("UTF-8")`), `replay_preparation.prepare_replay_evidence` (20 survivors, all confirmed pure message-text via full diff collection), `swing_distance.SwingDistanceFeatureEngine.__init__` (26 survivors, all message-text).
+
+**Selected cluster (26 candidates diff-reviewed, 19 remediated):** `SwingDistanceFeatureEngine`'s internal window-preparation/eligibility/lineage logic in `swing_distance.py` (`_prepare_original`, `_prepare_replacement_only`, `_prepare_invalidate_and_replace`, `_prepare_invalidate_and_reattempt`, `_prepare_preempt_settled_window`, `_prepare_recompute`, `_prepare_reevaluate_all_windows`, `_select_eligible_swing`, `_swing_state_as_of`, `is_pristine_for_authoritative_catchup`, `prepare_swing_invalidated`). Excluded with reasoning: 3 **PROVABLY EQUIVALENT** (a `max(...)` floor computation's `state.recorded_time` term is structurally redundant — any SELECTED swing state already satisfies `recorded_time <= cursor.recorded_time` via `is_visible_at_cursor`'s own visibility branch, so `cursor.recorded_time` always dominates); 2 **STRUCTURALLY_UNREACHABLE** (`_prepare_recompute`'s `assert ... and ...`→`or` — both operands are always simultaneously None or simultaneously set at its only 2 call sites; `_prepare_reevaluate_all_windows`'s `if candle is None: continue`→`break` — `_lineage`/`_candle_by_window` are always populated together per key, so this condition can never be True via any public call sequence); 2 **UNCLEAR/deferred** (`_select_eligible_swing`'s tie-break `swing_id`-argument corruption — genuine `TEST_GAP` in principle, but a precise tie down to that exact criterion cannot be constructed with the natural per-call `SequenceAllocator` without a fragile/implementation-focused test; deferred to a future wave).
+
+**8 tests added/modified** in `python/feature-engine/tests/test_swing_distance.py` (3 new: `test_original_computation_records_default_causation_flags_evidence_and_lineage`, `test_swing_state_as_of_known_swing_id_reconstructs_full_state`, `test_pending_correction_resolved_by_candle_correction_once_replacement_swing_becomes_cursor_visible`; 5 extended: `test_no_eligible_swing_is_valid_absence`, `test_pending_window_resolved_by_newly_visible_replacement_revision`, `test_settled_valid_window_preempted_by_higher_priority_corrected_revision`, `test_candle_distinct_correction_ref_enters_lineage_even_when_value_unchanged`, and a new sibling of `test_swing_state_as_of_unknown_swing_id_returns_none`) — asserting constructor-set field completeness on `PreparedFeatureComputed`/`FeatureComputed`/`FeatureFactInvalidated` and private lineage state (`used_swing_id`/`invalidated`, per this file's own established `# noqa: SLF001` precedent), never message text, never mutant-ID-named.
+
+```text
+Ordinary verification: pytest -q: 400 passed. pytest -q tests/test_swing_distance.py: 124 passed.
+  pytest -q tooling/fault_injection/tests: 33 passed.
+  ruff check src tests tooling: 2 pre-existing unrelated E501 findings in authority_resolver.py
+  (lines 465, 528) unchanged — zero new findings from this wave's test-only changes.
+  mypy src tests: Success, 35 source files.
+Targeted mutation verification (fresh disposable venv, `python -m tooling run <id>`, fresh
+  `mutants/` workspace forced per mutant -- see methodology note below): 19/19 selected
+  survivors SURVIVED -> killed. Zero residual.
+Estimated Condition-1 numerator: 2177 + 19 = 2196 (Wave 1's 2177 + this wave's 19).
+Estimated raw score: 2196 / 2629 = 83.52985926207683% -- still < 87.001959503592%, FAIL.
+Remaining approximate gap to minimum threshold numerator 2288: narrows from 111 to 92.
+READY_FOR_FRESH_FORMAL_CONDITION_1_MEASUREMENT: NO (2196 < 2288).
+```
+
+**Methodology note (tooling-caching finding):** an initial batch targeted-verification run reported `is_pristine_for_authoritative_catchup__mutmut_3` as `survived` despite the new test's assertion logically discriminating the mutation (verified by direct manual boolean-truth-table analysis and, as a diagnostic-only step, a temporary local edit to `swing_distance.py` immediately reverted via `git checkout` — never committed, confirmed byte-identical to HEAD before proceeding). Root cause: mutmut's incremental coverage cache did not refresh the covering-test list for a function whose ONLY new coverage came from an assertion added to an EXISTING (not newly-named) test — other pre-existing tests already covered that function without discriminating this specific mutation, and mutmut's "new test found" stats-refresh trigger does not fire for modified-body-of-existing-test-ID cases. Deleting `mutants/` and rerunning with a fully fresh workspace (forcing complete coverage recollection) corrected this immediately: 19/19 killed. All 19 results in the reported table are from this fresh-workspace rerun, not the earlier stale-cache batch.
+
+**Not performed:** no `src/**`/tooling/dependency change (verified before and after — `swing_distance.py` confirmed byte-identical to HEAD, including after the diagnostic revert above); no full formal 2629-mutant remeasurement; no Condition-1 closure claim; no Condition-2 accounting change (unchanged `FAIL / PARTIALLY SATISFIED — 42/170 resolved`, even though this wave's cluster sits inside `swing_distance.py`); no Condition-3 reopening (unchanged `SATISFIED — REVIEW A VALIDATED`); no EVID-03 closure; no ADR; no Review B; no Product Owner decision; no Feature Engine approval; no LIVE authorization; no standalone remediation-evidence artifact created.
+
+**Fresh ADR Scope Rule:** `ADR_NOT_REQUIRED` — bounded test-only remediation within already-approved Testing Convention v0.17 mutation-testing mechanism, no contract/invariant change.
+
+**Next governed step:** ChatGPT live-repo verification + Review A of Condition-1 survivor-remediation Wave 2.
+
+**Files changed:** `python/feature-engine/tests/test_swing_distance.py`, `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no `src/**`/tooling/dependency file touched; scratch venv/mutants workspace (untracked) removed, not committed. `manifest_version` `"10.389"` → `"10.390"`.
 
 ## Decision Log
 

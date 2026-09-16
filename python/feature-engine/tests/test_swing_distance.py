@@ -13,6 +13,7 @@ from conftest import (
     CONTRACT_VERSION,
     FEATURE_OUTPUT_CONTRACT_VERSION,
     OUTPUT_EVENT_CONTRACT_AUTHORITY,
+    SWING_DISTANCE_EVIDENCE,
     SWING_DISTANCE_INPUT_CONTRACT,
     SWING_STREAM_ID,
     FixedDeltaTimeSource,
@@ -49,7 +50,12 @@ from feature_engine import (
     StreamPositionProof,
     SwingDistanceFeatureEngine,
 )
-from feature_engine.contracts import ResolvedInputContract, VerifiedInputContractAuthority, _seal_verified_authority
+from feature_engine.contracts import (
+    PreparedFeatureComputed,
+    ResolvedInputContract,
+    VerifiedInputContractAuthority,
+    _seal_verified_authority,
+)
 from feature_engine.errors import (
     CursorRelationalInvariantViolationError,
     DuplicateCandleConflictError,
@@ -352,10 +358,50 @@ def test_absolute_distance_computed_with_evidence_refs(
     )
 
 
+def test_original_computation_records_default_causation_flags_evidence_and_lineage(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """A brand-new (never-invalidated) window's own `FeatureComputed` must
+    record the correct DEFAULT values for its causation/timing-dependency
+    flags (there is no preceding invalidation at all) and carry genuine
+    `computation_dependency_content_evidence` -- and the resulting private
+    lineage entry must be recorded as not-invalidated.
+    """
+    engine = _engine(allocator, time_source)
+    swing = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100")
+    engine.on_swing_confirmed(swing, cursor=frontier_at(swing.recorded_time))
+    reference = candle_at(allocator, 10, high="110", low="90", close="105")
+    cursor = frontier_at(reference.recorded_time)
+    # `preceding_batch_invalidation_causation`/`depends_on_preceding_invalidation_
+    # timing` are `PreparedFeatureComputed`-only fields, consumed (and both
+    # collapse to falsy-equivalent behavior for False AND None) during
+    # `finalize` -- they do not survive onto the committed `FeatureComputed`
+    # at all, so they must be asserted on the PREPARED candidate directly, via
+    # the same `prepare_candle` + `_commit_live` seam `on_candle` itself uses
+    # internally (ADR-043 §G).
+    prepared_transition = engine.prepare_candle(reference, cursor=cursor)
+    assert prepared_transition is not None
+    (prepared_computed,) = prepared_transition.prepared_events
+    assert isinstance(prepared_computed, PreparedFeatureComputed)
+    assert prepared_computed.preceding_batch_invalidation_causation is False
+    assert prepared_computed.depends_on_preceding_invalidation_timing is False
+
+    computed = only_computed(engine._commit_live(prepared_transition)[0])  # noqa: SLF001
+    assert computed.computation_dependency_content_evidence == SWING_DISTANCE_EVIDENCE
+
+    key = (computed.window_start, computed.window_end)
+    assert engine._lineage[key].invalidated is False  # noqa: SLF001
+
+
 def test_no_eligible_swing_is_valid_absence(allocator: SequenceAllocator, time_source: FixedDeltaTimeSource) -> None:
     engine = _engine(allocator, time_source)
     reference = candle_at(allocator, 10, high="110", low="90", close="105")
     assert engine.on_candle(reference, cursor=frontier_at(reference.recorded_time)) == []
+    # A candle processed with no eligible Swing still touches `_candles`/
+    # `_candle_index`/`_candle_by_window`/`_last_candle_recorded_time` -- this
+    # engine instance is no longer pristine, even though zero Swing state and
+    # zero lineage were ever touched.
+    assert engine.is_pristine_for_authoritative_catchup() is False
 
 
 # --- P3-FEATURE-A-MAJ-04 remediation: revision N+1 requires explicit invalidation of N
@@ -410,17 +456,107 @@ def test_pending_window_resolved_by_newly_visible_replacement_revision(
     inv = swing_invalidated_at(allocator, swing_id="s1", swing_revision=1, recorded_time=BASE + timedelta(minutes=20))
     invalidation_events = engine.on_swing_invalidated(inv, cursor=frontier_at(inv.recorded_time))
     assert len(invalidation_events) == 1  # invalidation only — no other eligible Swing exists yet
+    pending_invalidation = only_invalidated(invalidation_events[0])
+    assert pending_invalidation.computation_dependency_content_evidence == SWING_DISTANCE_EVIDENCE
+    assert engine._swing_invalidations[("s1", 1)].revision == 1  # noqa: SLF001
 
     s2 = swing_confirmed_at(
         allocator, pivot_index=2, swing_id="s1", swing_revision=2, pivot_price="102", recorded_offset_minutes=25
     )
-    replacement_events = engine.on_swing_confirmed(s2, cursor=frontier_at(s2.recorded_time))
+    # Same `prepare_swing_confirmed` + `_commit_live` seam as above: this
+    # replacement resolves a PENDING_CORRECTION window using an ALREADY-
+    # committed prior invalidation (`pending_invalidation`, above) -- its own
+    # `PreparedFeatureComputed` causation/timing-dependency flags must reflect
+    # that known, non-batch-relative invalidation, not the "same atomic
+    # batch" default; these flags do not survive finalize onto the public
+    # `FeatureComputed`, so they are asserted on the prepared candidate.
+    prepared_list = engine.prepare_swing_confirmed(s2, cursor=frontier_at(s2.recorded_time))
+    assert len(prepared_list) == 1
+    (prepared_replacement,) = prepared_list[0].prepared_events
+    assert isinstance(prepared_replacement, PreparedFeatureComputed)
+    assert prepared_replacement.preceding_batch_invalidation_causation is False
+    assert prepared_replacement.depends_on_preceding_invalidation_timing is False
+
+    replacement_events = engine._commit_live(prepared_list[0])  # noqa: SLF001
     assert len(replacement_events) == 1
     replacement = only_computed(replacement_events[0])
     assert replacement.value == Decimal("3.00")  # 105 - 102
     assert replacement.supersedes_fact_ref == original.ref
     assert replacement.window_start == original.window_start
     assert replacement.window_end == original.window_end
+    assert replacement.computation_dependency_content_evidence == SWING_DISTANCE_EVIDENCE
+    key = (replacement.window_start, replacement.window_end)
+    assert engine._lineage[key].invalidated is False  # noqa: SLF001
+    assert engine._lineage[key].used_swing_id == "s1"  # noqa: SLF001
+
+
+def test_pending_correction_resolved_by_candle_correction_once_replacement_swing_becomes_cursor_visible(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """A window left PENDING_CORRECTION must ALSO be resolvable by a CANDLE
+    correction (not only by a fresh Swing confirmation, as in
+    `test_pending_window_resolved_by_newly_visible_replacement_revision`) —
+    `_prepare_recompute`'s own `existing.invalidated` branch. The replacement
+    Swing is confirmed (and stored) FIRST, but deliberately kept invisible via
+    a restrictive stream-position ceiling — proving this engine reacts to
+    genuine cursor-visibility, not merely to "a Swing exists somewhere in
+    memory" — and only becomes visible later, at the candle correction's own
+    (more permissive) cursor.
+    """
+    engine = _engine(allocator, time_source)
+    s1 = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", swing_revision=1, pivot_price="100")
+    engine.on_swing_confirmed(s1, cursor=frontier_at(s1.recorded_time))
+    reference = candle_at(allocator, 10, high="110", low="90", close="105")
+    original = only_computed(engine.on_candle(reference, cursor=frontier_at(reference.recorded_time))[0])
+
+    inv = swing_invalidated_at(allocator, swing_id="s1", swing_revision=1, recorded_time=BASE + timedelta(minutes=20))
+    invalidation_events = engine.on_swing_invalidated(inv, cursor=frontier_at(inv.recorded_time))
+    assert len(invalidation_events) == 1  # PENDING_CORRECTION — no other eligible Swing exists yet
+
+    s2 = swing_confirmed_at(
+        allocator, pivot_index=2, swing_id="s1", swing_revision=2, pivot_price="102", recorded_offset_minutes=25
+    )
+    restrictive_cursor = frontier_at(
+        s2.recorded_time,
+        stream_positions={
+            CANDLE_STREAM_ID: StreamPositionProof(sequence=10**9, event_recorded_time=reference.recorded_time),
+            # One position BELOW s2's own ref — s2 is stored (append-only history),
+            # but not yet cursor-visible at THIS confirmation's own frontier.
+            SWING_STREAM_ID: StreamPositionProof(sequence=s2.ref.sequence - 1, event_recorded_time=inv.recorded_time),
+        },
+    )
+    no_replacement_yet = engine.on_swing_confirmed(s2, cursor=restrictive_cursor)
+    assert no_replacement_yet == []  # still PENDING_CORRECTION — s2 not cursor-visible yet
+
+    correction = dataclasses.replace(
+        reference,
+        ref=allocator.next_ref(CANDLE_STREAM_ID),
+        recorded_time=reference.recorded_time + timedelta(minutes=30),
+        is_correction=True,
+        event_contract_ref=EventContractRef(CANDLE_CORRECTED_CONTRACT_ID, CONTRACT_VERSION),
+    )
+    permissive_cursor = frontier_at(
+        correction.recorded_time,
+        stream_positions={
+            CANDLE_STREAM_ID: StreamPositionProof(sequence=10**9, event_recorded_time=correction.recorded_time),
+            SWING_STREAM_ID: StreamPositionProof(sequence=s2.ref.sequence, event_recorded_time=s2.recorded_time),
+        },
+    )
+    events = engine.on_candle(correction, cursor=permissive_cursor)
+    # The window was already PENDING_CORRECTION (invalidated) BEFORE this
+    # correction arrived — no NEW invalidation event is produced here, only
+    # the replacement that finally resolves it (`_prepare_recompute`'s own
+    # `existing.invalidated` branch calls `_prepare_replacement_only` alone).
+    assert len(events) == 1
+    replacement = only_computed(events[0])
+    assert replacement.value == Decimal("3.00")  # 105 - 102, resolved via s2 (rev2)
+    assert replacement.supersedes_fact_ref == original.ref
+    # `_prepare_recompute`'s own `existing.invalidated` branch must thread the
+    # newly-selected winner's swing_id through to `_prepare_replacement_only`
+    # correctly — not corrupt it en route.
+    key = (replacement.window_start, replacement.window_end)
+    assert engine._lineage[key].used_swing_id == "s1"  # noqa: SLF001
+    assert engine._lineage[key].invalidated is False  # noqa: SLF001
 
 
 def test_settled_valid_window_preempted_by_higher_priority_corrected_revision(
@@ -492,11 +628,18 @@ def test_settled_valid_window_preempted_by_higher_priority_corrected_revision(
     # cursor, captured independently at ITS OWN evaluation) — never inherited/copied.
     assert invalidation.computation_cursor != temporary.computation_cursor
     assert invalidation.computation_cursor.recorded_time == swing_a2.recorded_time
+    assert invalidation.computation_dependency_content_evidence == SWING_DISTANCE_EVIDENCE
     final = only_computed(preempt_events[1])
     assert final.supersedes_fact_ref == temporary.ref
     assert final.value == Decimal("2.00")  # 105 - 103 (A revision 2's corrected price)
     assert final.window_start == original.window_start
     assert final.window_end == original.window_end
+    # The preempting winner is A (rev2), not B -- the private lineage entry's
+    # own `used_swing_id` must reflect the NEW winner threaded correctly
+    # through both `_prepare_reevaluate_all_windows` and
+    # `_prepare_preempt_settled_window`'s own downstream replacement call.
+    key = (final.window_start, final.window_end)
+    assert engine._lineage[key].used_swing_id == "A"  # noqa: SLF001
 
 
 # --- P3-FEATURE-A-MAJ-02 remediation: contract qualification -----------------
@@ -832,6 +975,22 @@ def test_swing_state_as_of_unknown_swing_id_returns_none(
     assert engine._swing_state_as_of("never-confirmed-swing-id", frontier_at(BASE)) is None
 
 
+def test_swing_state_as_of_known_swing_id_reconstructs_full_state(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """Mirrors the unknown-swing_id case above: for a genuinely confirmed
+    swing_id, `_swing_state_as_of` must reconstruct EVERY field of the
+    resulting `_SwingState`, including `source_fact` -- not silently drop
+    the original confirming fact.
+    """
+    engine = _engine(allocator, time_source)
+    swing = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100")
+    engine.on_swing_confirmed(swing, cursor=frontier_at(swing.recorded_time))
+    state = engine._swing_state_as_of("s1", frontier_at(swing.recorded_time))  # noqa: SLF001
+    assert state is not None
+    assert state.source_fact == swing
+
+
 def test_evidence_reference_conflict_when_candle_and_swing_refs_collide(
     allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
 ) -> None:
@@ -963,6 +1122,7 @@ def test_candle_distinct_correction_ref_enters_lineage_even_when_value_unchanged
     assert invalidation.event_contract_ref == EventContractRef(
         FEATURE_FACT_INVALIDATED_CONTRACT_ID, FEATURE_OUTPUT_CONTRACT_VERSION
     )
+    assert invalidation.computation_dependency_content_evidence == SWING_DISTANCE_EVIDENCE
 
     replacement = only_computed(events[1])
     assert replacement.value == original.value
@@ -976,6 +1136,13 @@ def test_candle_distinct_correction_ref_enters_lineage_even_when_value_unchanged
     assert replacement.event_contract_ref == EventContractRef(
         FEATURE_COMPUTED_CONTRACT_ID, FEATURE_OUTPUT_CONTRACT_VERSION
     )
+    # The same, unchanged Swing ("s1") is what this correction's own
+    # replacement was resolved against -- the private lineage entry's
+    # `used_swing_id` must be threaded correctly through both
+    # `_prepare_recompute` and `_prepare_invalidate_and_replace`'s own
+    # downstream replacement call.
+    key = (replacement.window_start, replacement.window_end)
+    assert engine._lineage[key].used_swing_id == "s1"  # noqa: SLF001
 
 
 def test_candle_same_ref_different_content_fails_closed(
