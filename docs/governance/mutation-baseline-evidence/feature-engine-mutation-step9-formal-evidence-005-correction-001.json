@@ -34,7 +34,7 @@
       "label": "NON-FORMAL \u2014 diagnostic/planning evidence only, NOT the governed Condition-1 verdict",
       "note": "Mathematically, even the most favorable possible resolution of all 9 unstable mutants (all treated as killed) does not reach the threshold \u2014 this is disclosed as useful planning context, not as a substitute for the formally STOPPED gate state."
     },
-    "status": "REMEDIATED \u2014 PENDING BOUNDED REVIEW A RE-REVIEW"
+    "status": "CLOSED \u2014 REVIEW A VALIDATED"
   },
   "maj_02_remediation": {
     "finding_id": "P3-FEATURE-EVID03-STEP9-005-A-MAJ-02",
@@ -68,7 +68,7 @@
     },
     "ledger_narrative_correction": "The targeted-remediation ledger's post_waves_formal_remeasurement.note previously attributed the entire delta between the ledger's own estimated numerator (2224) and the fresh measurement's conservative numerator (2214) only to the 9 UNSTABLE_TIMEOUT_TRIAGE mutants. The observed delta also includes this one killed->survived regression (which removes 1 mutant from the numerator that the estimate implicitly assumed would remain killed, since the estimate = formal_numerator(2155) + 69 credited kills, with no term accounting for a possible NEW regression outside the 474-baseline). Corrected in the ledger's pointer field by this transaction (see ledger_and_docs_updates below).",
     "reproducible_but_bounded_stop_check": "This investigation did NOT expose a deeper contradiction requiring scope expansion beyond evidence correction: the regression is a single, fully reproducible, fully explained (at working-hypothesis level) discrepancy confined to one non-credited, non-Condition-2, non-Waves-1-4-touched mutant. It does not affect the 69 credited-ledger IDs (cross-checked clean), the 28 Condition-2 RESOLVED_BY_EXISTING_KILL identities (all still qualify), or Condition 3 (untouched). No STOP triggered; remediated within this bounded correction.",
-    "status": "REMEDIATED \u2014 PENDING BOUNDED REVIEW A RE-REVIEW"
+    "status": "CLOSED \u2014 REVIEW A VALIDATED"
   },
   "preservations_reconfirmed_this_transaction": {
     "population": {
@@ -122,5 +122,6 @@
     "No Feature Engine approval.",
     "evidence-005.json itself NOT modified (byte-unchanged, verified)."
   ],
-  "lifecycle_correction_note": "This artifact's own maj_01_remediation.status / maj_02_remediation.status fields originally read 'CLOSED \u2014 REMEDIATED VIA THIS CORRECTION', an improper self-closure by the correction executor before Review A re-review occurred. Corrected in place (P3-FEATURE-EVID03-STEP9-005-CORR001-A-MAJ-01, per bounded Review A re-review REVISION_REQUIRED \u2014 0 Blocker/1 Major/0 Minor, R1) to 'REMEDIATED \u2014 PENDING BOUNDED REVIEW A RE-REVIEW'. The underlying technical remediation content of both findings (Condition-1 STOPPED/UNRESOLVED state; the identity.x_deterministic_id__mutmut_3 regression investigation) is NOT reopened or altered by this lifecycle-wording fix \u2014 only the closure-authority attribution is corrected. Closure itself remains for the subsequent Review A re-review to determine, not for this or any executor to self-declare."
+  "lifecycle_correction_note": "This artifact's own maj_01_remediation.status / maj_02_remediation.status fields originally read 'CLOSED \u2014 REMEDIATED VIA THIS CORRECTION', an improper self-closure by the correction executor before Review A re-review occurred. Corrected in place to 'REMEDIATED \u2014 PENDING BOUNDED REVIEW A RE-REVIEW' (P3-FEATURE-EVID03-STEP9-005-CORR001-A-MAJ-01). ChatGPT's subsequent bounded Review A re-review at live HEAD 967f63b07954323c12bf9385260924b9504a0f6b returned CLEAN \u2014 0 Blocker / 0 Major / 0 Minor, Risk R1, ADR_NOT_REQUIRED -- all three findings are now Review-A-validated: P3-FEATURE-EVID03-STEP9-005-A-MAJ-01 CLOSED \u2014 REVIEW A VALIDATED; P3-FEATURE-EVID03-STEP9-005-A-MAJ-02 CLOSED \u2014 REVIEW A VALIDATED; P3-FEATURE-EVID03-STEP9-005-CORR001-A-MAJ-01 itself CLOSED \u2014 REVIEW A VALIDATED. Recorded here as minimal deterministic current-state bookkeeping, folded into the Post-Evidence-005 Strategic Remediation Assessment work unit rather than a separate governance-only transaction; no new review reasoning fabricated, no substantive evidence reopened.",
+  "corr001_a_maj_01_status": "CLOSED \u2014 REVIEW A VALIDATED"
 }
