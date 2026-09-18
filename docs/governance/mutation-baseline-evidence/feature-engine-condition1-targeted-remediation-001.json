@@ -1,0 +1,398 @@
+{
+  "artifact_id": "feature-engine-condition1-targeted-remediation-001",
+  "schema_note": "Cumulative, durable, machine-readable targeted-remediation ledger for P3-FEATURE-QG-EVID-03 Condition 1. This is NOT a new full formal mutation measurement and NOT a new governance mechanism -- it is bookkeeping evidence created to durably identify already-executed, individually-credited targeted mutation kills (Waves 1-3 plus verified collateral kills) so that any future executor can reconstruct the credited working survivor set from repository evidence alone, without relying on Claude session history, terminal scrollback, or removed scratch mutation workspaces. Created by the P3-FEATURE-EVID03-COND1-WAVE3-A-MAJ-01 evidence-fidelity correction transaction (bounded Review A Major finding: Wave 3's 19/19 kill claim was not durably pinned at the mutant-ID/per-mutant-status level; this artifact closes that gap for Waves 1-3 collectively and adds fresh, cache-safe, per-mutant re-verification for Wave 3's own 19 mutants plus 2 previously-unclaimed collateral kills discovered during Wave 3's own analysis).",
+  "baseline_formal_evidence": {
+    "artifact": "feature-engine-mutation-step9-formal-evidence-004.json",
+    "correction_artifact": "feature-engine-mutation-step9-formal-evidence-004-correction-001.json",
+    "executable_boundary_repository_head": "b3d4086033f1c232c0cd8706c9096f50b049de14",
+    "population": 2629,
+    "formal_killed": 2154,
+    "formal_confirmed_timeout": 1,
+    "formal_numerator": 2155,
+    "formal_survivor_count": 474,
+    "note": "Formal Evidence-004 (+correction-001) is immutable and NOT altered by this ledger or by any targeted-remediation wave. This ledger only tracks INDIVIDUALLY VERIFIED targeted kills against that fixed formal survivor set -- it never substitutes for a fresh full formal remeasurement."
+  },
+  "repository_boundary_at_ledger_creation": "8e8765ff287ce3f6646da87cc1e890d6be329d70",
+  "waves": [
+    {
+      "wave": 1,
+      "role": "Feature Engine EVID-03 Condition-1 High-Yield Survivor Remediation Executor — Wave 1",
+      "commit_sha": "4bf617c465124fa7c91fc2a9c4bd1406f90a2406",
+      "parent_sha": "fbcb8f197db1061c950e27c8530b5af0beb6b00c",
+      "test_files_changed": [
+        "python/feature-engine/tests/test_ownership.py"
+      ],
+      "review_a_state": "REVIEW A VALIDATED",
+      "review_a_result": "CLEAN — 0 Blocker / 0 Major / 0 Minor",
+      "risk": "R1",
+      "credited_kill_count": 22,
+      "semantic_groups": {
+        "AuthoritativeSubjectOwner.revoke": 11,
+        "AuthoritativeSubjectOwner._mark_terminal": 9,
+        "AuthoritativeSubjectOwner.acquire_and_activate": 2
+      },
+      "targeted_verification_at_wave_time": "22/22 SURVIVED -> killed (fresh disposable venv, targeted python -m tooling run per mutant)",
+      "mutant_ids": [
+        "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁrevoke__mutmut_1",
+        "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁrevoke__mutmut_2",
+        "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁrevoke__mutmut_3",
+        "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁrevoke__mutmut_4",
+        "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁrevoke__mutmut_5",
+        "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁrevoke__mutmut_8",
+        "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁrevoke__mutmut_9",
+        "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁrevoke__mutmut_10",
+        "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁrevoke__mutmut_11",
+        "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁrevoke__mutmut_15",
+        "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁrevoke__mutmut_16",
+        "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_mark_terminal__mutmut_3",
+        "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_mark_terminal__mutmut_4",
+        "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_mark_terminal__mutmut_6",
+        "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_mark_terminal__mutmut_8",
+        "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_mark_terminal__mutmut_9",
+        "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_mark_terminal__mutmut_14",
+        "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_mark_terminal__mutmut_15",
+        "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_mark_terminal__mutmut_16",
+        "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_mark_terminal__mutmut_17",
+        "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁacquire_and_activate__mutmut_29",
+        "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁacquire_and_activate__mutmut_33"
+      ]
+    },
+    {
+      "wave": 2,
+      "role": "Feature Engine EVID-03 Condition-1 High-Yield Survivor Remediation Executor — Wave 2",
+      "commit_sha": "b4c3fa1e5f294a2bbdc61b3534f2ce6c0ae17384",
+      "parent_sha": "4bf617c465124fa7c91fc2a9c4bd1406f90a2406",
+      "test_files_changed": [
+        "python/feature-engine/tests/test_swing_distance.py"
+      ],
+      "review_a_state": "REVIEW A VALIDATED",
+      "review_a_result": "CLEAN — 0 Blocker / 0 Major / 0 Minor",
+      "risk": "R1",
+      "credited_kill_count": 19,
+      "semantic_groups": {
+        "SwingDistanceFeatureEngine window-preparation/eligibility/lineage cluster (_prepare_original, _prepare_replacement_only, _prepare_invalidate_and_replace, _prepare_invalidate_and_reattempt, _prepare_preempt_settled_window, _prepare_recompute, _prepare_reevaluate_all_windows, _swing_state_as_of, is_pristine_for_authoritative_catchup, prepare_swing_invalidated)": 19
+      },
+      "targeted_verification_at_wave_time": "19/19 SURVIVED -> killed, cache-safe fresh-workspace-per-mutant protocol first established this wave (superseding an initial stale-incremental-cache false-negative on 1 mutant, corrected and documented in-wave)",
+      "mutant_ids": [
+        "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_invalidate_and_reattempt__mutmut_18",
+        "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_invalidate_and_replace__mutmut_18",
+        "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_invalidate_and_replace__mutmut_35",
+        "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_original__mutmut_28",
+        "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_original__mutmut_30",
+        "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_original__mutmut_56",
+        "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_preempt_settled_window__mutmut_32",
+        "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_preempt_settled_window__mutmut_49",
+        "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_recompute__mutmut_28",
+        "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_recompute__mutmut_46",
+        "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_reevaluate_all_windows__mutmut_20",
+        "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_reevaluate_all_windows__mutmut_42",
+        "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_replacement_only__mutmut_22",
+        "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_replacement_only__mutmut_34",
+        "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_replacement_only__mutmut_53",
+        "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_replacement_only__mutmut_74",
+        "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_swing_state_as_of__mutmut_42",
+        "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁis_pristine_for_authoritative_catchup__mutmut_3",
+        "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁprepare_swing_invalidated__mutmut_19"
+      ]
+    },
+    {
+      "wave": 3,
+      "role": "Feature Engine EVID-03 Condition-1 High-Yield Survivor Remediation Executor — Wave 3",
+      "commit_sha": "8e8765ff287ce3f6646da87cc1e890d6be329d70",
+      "parent_sha": "b4c3fa1e5f294a2bbdc61b3534f2ce6c0ae17384",
+      "test_files_changed": [
+        "python/feature-engine/tests/test_ownership.py",
+        "python/feature-engine/tests/test_regime_passthrough.py"
+      ],
+      "review_a_state": "REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW",
+      "review_a_finding": "P3-FEATURE-EVID03-COND1-WAVE3-A-MAJ-01",
+      "review_a_finding_summary": "Wave 3's test implementation itself was not disputed. Defect was evidence durability/accounting: the exact 19 mutant IDs and per-mutant final targeted statuses were not durably pinned in the repository, and scratch mutation workspaces were removed, so future survivor-set reconciliation could not be independently reconstructed from repository evidence alone; additionally the remediation plan's '~373-survivor population' figure was arithmetically inconsistent with the transaction's own credited-kill accounting. This ledger, plus the corrected remediation-plan wording, remediates both defects.",
+      "risk": "R1",
+      "credited_kill_count": 19,
+      "semantic_groups": {
+        "AuthoritativeSubjectOwner remaining catch-up/frontier-processing/commit-fencing methods (ownership.py)": 9,
+        "contracts._prepared_matches_canonical FeatureFactInvalidated-branch and->or corruption": 5,
+        "RegimePassthroughFeatureEngine field-completeness + is_pristine_for_authoritative_catchup (regime_passthrough.py)": 5
+      },
+      "test_count_wording_correction": "7 new tests + 2 existing tests extended (not literally '9 tests added' as loosely worded in the Wave-3 transaction's own prose)",
+      "targeted_verification_protocol": "cache-safe: fresh mutants/ workspace deleted and regenerated before EACH individual mutant; no shared/incremental workspace trusted for any recorded verdict",
+      "targeted_verification_at_this_correction": "19/19 SURVIVED -> killed, re-verified fresh from this correction transaction's own independent workspace (see rows below) -- this is the durable evidence that was missing at Wave-3 commit time",
+      "mutant_ids": [
+        "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_catch_up__mutmut_3",
+        "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_catch_up__mutmut_14",
+        "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁacquire_and_activate__mutmut_31",
+        "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁprocess_certified_frontier__mutmut_9",
+        "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁprocess_certified_frontier__mutmut_11",
+        "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁprocess_certified_frontier__mutmut_30",
+        "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁprocess_certified_frontier__mutmut_4",
+        "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁprocess_certified_frontier__mutmut_5",
+        "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_commit__mutmut_15",
+        "feature_engine.contracts.x__prepared_matches_canonical__mutmut_15",
+        "feature_engine.contracts.x__prepared_matches_canonical__mutmut_16",
+        "feature_engine.contracts.x__prepared_matches_canonical__mutmut_17",
+        "feature_engine.contracts.x__prepared_matches_canonical__mutmut_18",
+        "feature_engine.contracts.x__prepared_matches_canonical__mutmut_19",
+        "feature_engine.regime_passthrough.xǁRegimePassthroughFeatureEngineǁ_prepare_original__mutmut_28",
+        "feature_engine.regime_passthrough.xǁRegimePassthroughFeatureEngineǁ_prepare_original__mutmut_30",
+        "feature_engine.regime_passthrough.xǁRegimePassthroughFeatureEngineǁ_prepare_replacement__mutmut_31",
+        "feature_engine.regime_passthrough.xǁRegimePassthroughFeatureEngineǁ_prepare_replacement__mutmut_33",
+        "feature_engine.regime_passthrough.xǁRegimePassthroughFeatureEngineǁis_pristine_for_authoritative_catchup__mutmut_1"
+      ],
+      "rows": [
+        {
+          "mutant_id": "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_catch_up__mutmut_3",
+          "source_module": "ownership.py",
+          "qualified_function": "xǁAuthoritativeSubjectOwnerǁ_catch_up",
+          "baseline_status": "SURVIVED",
+          "wave": 3,
+          "current_targeted_status": "killed",
+          "fresh_workspace_confirmed": true,
+          "verification_boundary": "8e8765ff287ce3f6646da87cc1e890d6be329d70"
+        },
+        {
+          "mutant_id": "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_catch_up__mutmut_14",
+          "source_module": "ownership.py",
+          "qualified_function": "xǁAuthoritativeSubjectOwnerǁ_catch_up",
+          "baseline_status": "SURVIVED",
+          "wave": 3,
+          "current_targeted_status": "killed",
+          "fresh_workspace_confirmed": true,
+          "verification_boundary": "8e8765ff287ce3f6646da87cc1e890d6be329d70"
+        },
+        {
+          "mutant_id": "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁacquire_and_activate__mutmut_31",
+          "source_module": "ownership.py",
+          "qualified_function": "xǁAuthoritativeSubjectOwnerǁacquire_and_activate",
+          "baseline_status": "SURVIVED",
+          "wave": 3,
+          "current_targeted_status": "killed",
+          "fresh_workspace_confirmed": true,
+          "verification_boundary": "8e8765ff287ce3f6646da87cc1e890d6be329d70"
+        },
+        {
+          "mutant_id": "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁprocess_certified_frontier__mutmut_9",
+          "source_module": "ownership.py",
+          "qualified_function": "xǁAuthoritativeSubjectOwnerǁprocess_certified_frontier",
+          "baseline_status": "SURVIVED",
+          "wave": 3,
+          "current_targeted_status": "killed",
+          "fresh_workspace_confirmed": true,
+          "verification_boundary": "8e8765ff287ce3f6646da87cc1e890d6be329d70"
+        },
+        {
+          "mutant_id": "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁprocess_certified_frontier__mutmut_11",
+          "source_module": "ownership.py",
+          "qualified_function": "xǁAuthoritativeSubjectOwnerǁprocess_certified_frontier",
+          "baseline_status": "SURVIVED",
+          "wave": 3,
+          "current_targeted_status": "killed",
+          "fresh_workspace_confirmed": true,
+          "verification_boundary": "8e8765ff287ce3f6646da87cc1e890d6be329d70"
+        },
+        {
+          "mutant_id": "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁprocess_certified_frontier__mutmut_30",
+          "source_module": "ownership.py",
+          "qualified_function": "xǁAuthoritativeSubjectOwnerǁprocess_certified_frontier",
+          "baseline_status": "SURVIVED",
+          "wave": 3,
+          "current_targeted_status": "killed",
+          "fresh_workspace_confirmed": true,
+          "verification_boundary": "8e8765ff287ce3f6646da87cc1e890d6be329d70"
+        },
+        {
+          "mutant_id": "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁprocess_certified_frontier__mutmut_4",
+          "source_module": "ownership.py",
+          "qualified_function": "xǁAuthoritativeSubjectOwnerǁprocess_certified_frontier",
+          "baseline_status": "SURVIVED",
+          "wave": 3,
+          "current_targeted_status": "killed",
+          "fresh_workspace_confirmed": true,
+          "verification_boundary": "8e8765ff287ce3f6646da87cc1e890d6be329d70"
+        },
+        {
+          "mutant_id": "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁprocess_certified_frontier__mutmut_5",
+          "source_module": "ownership.py",
+          "qualified_function": "xǁAuthoritativeSubjectOwnerǁprocess_certified_frontier",
+          "baseline_status": "SURVIVED",
+          "wave": 3,
+          "current_targeted_status": "killed",
+          "fresh_workspace_confirmed": true,
+          "verification_boundary": "8e8765ff287ce3f6646da87cc1e890d6be329d70"
+        },
+        {
+          "mutant_id": "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_commit__mutmut_15",
+          "source_module": "ownership.py",
+          "qualified_function": "xǁAuthoritativeSubjectOwnerǁ_commit",
+          "baseline_status": "SURVIVED",
+          "wave": 3,
+          "current_targeted_status": "killed",
+          "fresh_workspace_confirmed": true,
+          "verification_boundary": "8e8765ff287ce3f6646da87cc1e890d6be329d70"
+        },
+        {
+          "mutant_id": "feature_engine.contracts.x__prepared_matches_canonical__mutmut_15",
+          "source_module": "contracts.py",
+          "qualified_function": "x__prepared_matches_canonical",
+          "baseline_status": "SURVIVED",
+          "wave": 3,
+          "current_targeted_status": "killed",
+          "fresh_workspace_confirmed": true,
+          "verification_boundary": "8e8765ff287ce3f6646da87cc1e890d6be329d70"
+        },
+        {
+          "mutant_id": "feature_engine.contracts.x__prepared_matches_canonical__mutmut_16",
+          "source_module": "contracts.py",
+          "qualified_function": "x__prepared_matches_canonical",
+          "baseline_status": "SURVIVED",
+          "wave": 3,
+          "current_targeted_status": "killed",
+          "fresh_workspace_confirmed": true,
+          "verification_boundary": "8e8765ff287ce3f6646da87cc1e890d6be329d70"
+        },
+        {
+          "mutant_id": "feature_engine.contracts.x__prepared_matches_canonical__mutmut_17",
+          "source_module": "contracts.py",
+          "qualified_function": "x__prepared_matches_canonical",
+          "baseline_status": "SURVIVED",
+          "wave": 3,
+          "current_targeted_status": "killed",
+          "fresh_workspace_confirmed": true,
+          "verification_boundary": "8e8765ff287ce3f6646da87cc1e890d6be329d70"
+        },
+        {
+          "mutant_id": "feature_engine.contracts.x__prepared_matches_canonical__mutmut_18",
+          "source_module": "contracts.py",
+          "qualified_function": "x__prepared_matches_canonical",
+          "baseline_status": "SURVIVED",
+          "wave": 3,
+          "current_targeted_status": "killed",
+          "fresh_workspace_confirmed": true,
+          "verification_boundary": "8e8765ff287ce3f6646da87cc1e890d6be329d70"
+        },
+        {
+          "mutant_id": "feature_engine.contracts.x__prepared_matches_canonical__mutmut_19",
+          "source_module": "contracts.py",
+          "qualified_function": "x__prepared_matches_canonical",
+          "baseline_status": "SURVIVED",
+          "wave": 3,
+          "current_targeted_status": "killed",
+          "fresh_workspace_confirmed": true,
+          "verification_boundary": "8e8765ff287ce3f6646da87cc1e890d6be329d70"
+        },
+        {
+          "mutant_id": "feature_engine.regime_passthrough.xǁRegimePassthroughFeatureEngineǁ_prepare_original__mutmut_28",
+          "source_module": "regime_passthrough.py",
+          "qualified_function": "xǁRegimePassthroughFeatureEngineǁ_prepare_original",
+          "baseline_status": "SURVIVED",
+          "wave": 3,
+          "current_targeted_status": "killed",
+          "fresh_workspace_confirmed": true,
+          "verification_boundary": "8e8765ff287ce3f6646da87cc1e890d6be329d70"
+        },
+        {
+          "mutant_id": "feature_engine.regime_passthrough.xǁRegimePassthroughFeatureEngineǁ_prepare_original__mutmut_30",
+          "source_module": "regime_passthrough.py",
+          "qualified_function": "xǁRegimePassthroughFeatureEngineǁ_prepare_original",
+          "baseline_status": "SURVIVED",
+          "wave": 3,
+          "current_targeted_status": "killed",
+          "fresh_workspace_confirmed": true,
+          "verification_boundary": "8e8765ff287ce3f6646da87cc1e890d6be329d70"
+        },
+        {
+          "mutant_id": "feature_engine.regime_passthrough.xǁRegimePassthroughFeatureEngineǁ_prepare_replacement__mutmut_31",
+          "source_module": "regime_passthrough.py",
+          "qualified_function": "xǁRegimePassthroughFeatureEngineǁ_prepare_replacement",
+          "baseline_status": "SURVIVED",
+          "wave": 3,
+          "current_targeted_status": "killed",
+          "fresh_workspace_confirmed": true,
+          "verification_boundary": "8e8765ff287ce3f6646da87cc1e890d6be329d70"
+        },
+        {
+          "mutant_id": "feature_engine.regime_passthrough.xǁRegimePassthroughFeatureEngineǁ_prepare_replacement__mutmut_33",
+          "source_module": "regime_passthrough.py",
+          "qualified_function": "xǁRegimePassthroughFeatureEngineǁ_prepare_replacement",
+          "baseline_status": "SURVIVED",
+          "wave": 3,
+          "current_targeted_status": "killed",
+          "fresh_workspace_confirmed": true,
+          "verification_boundary": "8e8765ff287ce3f6646da87cc1e890d6be329d70"
+        },
+        {
+          "mutant_id": "feature_engine.regime_passthrough.xǁRegimePassthroughFeatureEngineǁis_pristine_for_authoritative_catchup__mutmut_1",
+          "source_module": "regime_passthrough.py",
+          "qualified_function": "xǁRegimePassthroughFeatureEngineǁis_pristine_for_authoritative_catchup",
+          "baseline_status": "SURVIVED",
+          "wave": 3,
+          "current_targeted_status": "killed",
+          "fresh_workspace_confirmed": true,
+          "verification_boundary": "8e8765ff287ce3f6646da87cc1e890d6be329d70"
+        }
+      ]
+    }
+  ],
+  "collateral_kills": [
+    {
+      "mutant_id": "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁacquire_and_activate__mutmut_20",
+      "source_module": "ownership.py",
+      "qualified_function": "xǁAuthoritativeSubjectOwnerǁacquire_and_activate",
+      "baseline_status": "SURVIVED",
+      "credit_type": "COLLATERAL_VERIFIED_KILL",
+      "originating_test_wave": 1,
+      "verification_wave": "3-correction",
+      "current_targeted_status": "killed",
+      "fresh_workspace_confirmed": true,
+      "verification_boundary": "8e8765ff287ce3f6646da87cc1e890d6be329d70",
+      "note": "Not part of Wave 1's own originally-selected/credited 22-mutant cluster (revoke()/_mark_terminal()/2x acquire_and_activate final-state mutants). Originally classified LIKELY_EQUIVALENT (dead/overwritten intermediate OwnerHandle assignment) during Wave 1's own pre-implementation analysis. Wave 3 discovered this classification was superseded by Wave 1's own new failed-catch-up test, which incidentally reads the intermediate handle's `feature_subject_id`/`ownership_generation` via `_mark_terminal`'s reconstruction path on a failed catch-up. Freshly re-verified in this correction transaction from an independent clean workspace."
+    },
+    {
+      "mutant_id": "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁacquire_and_activate__mutmut_22",
+      "source_module": "ownership.py",
+      "qualified_function": "xǁAuthoritativeSubjectOwnerǁacquire_and_activate",
+      "baseline_status": "SURVIVED",
+      "credit_type": "COLLATERAL_VERIFIED_KILL",
+      "originating_test_wave": 1,
+      "verification_wave": "3-correction",
+      "current_targeted_status": "killed",
+      "fresh_workspace_confirmed": true,
+      "verification_boundary": "8e8765ff287ce3f6646da87cc1e890d6be329d70",
+      "note": "Not part of Wave 1's own originally-selected/credited 22-mutant cluster (revoke()/_mark_terminal()/2x acquire_and_activate final-state mutants). Originally classified LIKELY_EQUIVALENT (dead/overwritten intermediate OwnerHandle assignment) during Wave 1's own pre-implementation analysis. Wave 3 discovered this classification was superseded by Wave 1's own new failed-catch-up test, which incidentally reads the intermediate handle's `feature_subject_id`/`ownership_generation` via `_mark_terminal`'s reconstruction path on a failed catch-up. Freshly re-verified in this correction transaction from an independent clean workspace."
+    }
+  ],
+  "accounting": {
+    "wave1_credited_kill_count": 22,
+    "wave2_credited_kill_count": 19,
+    "wave3_credited_kill_count": 19,
+    "selected_wave_union_cardinality": 60,
+    "selected_wave_union_no_duplicates_confirmed": true,
+    "collateral_verified_kill_count": 2,
+    "total_credited_kills": 62,
+    "estimated_numerator": 2217,
+    "estimated_numerator_computation": "formal_numerator (2155) + total_credited_kills (62)",
+    "estimated_score_percent": 84.32864206922784,
+    "minimum_threshold_numerator": 2288,
+    "remaining_numerator_gap": 71,
+    "credited_working_survivor_count": 412,
+    "credited_working_survivor_computation": "formal_survivor_count (474) - total_credited_kills (62)",
+    "caveat": "credited_working_survivor_count is NOT a claim that a fresh full formal mutation run found exactly this many survivors -- it is formal Evidence-004's own 474 survivor IDs minus the exact set of individually, freshly-verified credited kills (60 selected-wave + 2 collateral = 62). Other unmeasured collateral kills may exist among the remaining 412 IDs; this ledger makes no claim that they do not. Condition 1 remains FAIL — criteria until a fresh full formal 2629-mutant measurement (with timeout triage) is performed and independently shows the raw score at or above 87.001959503592%."
+  },
+  "reconciliation_formula": "credited_working_survivor_set = evidence-004.full_current_mutant_mapping.survivor_mutant_ids MINUS union(waves[0].mutant_ids, waves[1].mutant_ids, waves[2].mutant_ids, [c.mutant_id for c in collateral_kills])",
+  "not_performed_by_this_correction": [
+    "no src/**/tests/**/tooling/** change",
+    "no new behavioral remediation",
+    "no reopening of Wave 1 or Wave 2 (both remain REVIEW A VALIDATED, untouched)",
+    "no full formal 2629-mutant remeasurement",
+    "no Condition-1 closure claim",
+    "no Condition-2 accounting change (unchanged FAIL / PARTIALLY SATISFIED — 42/170 resolved)",
+    "no Condition-3 reopening (unchanged SATISFIED — REVIEW A VALIDATED)",
+    "no EVID-03 closure",
+    "no ADR",
+    "no Review B",
+    "no Product Owner decision",
+    "no Feature Engine approval",
+    "no LIVE authorization",
+    "no self-closure of P3-FEATURE-EVID03-COND1-WAVE3-A-MAJ-01"
+  ],
+  "next_governed_step": "ChatGPT bounded Review A re-review of P3-FEATURE-EVID03-COND1-WAVE3-A-MAJ-01."
+}

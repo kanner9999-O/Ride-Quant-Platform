@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.391"
+manifest_version: "10.392"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -27713,6 +27713,40 @@ READY_FOR_FRESH_FORMAL_CONDITION_1_MEASUREMENT: NO (2215 < 2288).
 **Next governed step:** ChatGPT live-repo verification + Review A of Condition-1 survivor-remediation Wave 3.
 
 **Files changed:** `python/feature-engine/tests/test_ownership.py`, `python/feature-engine/tests/test_regime_passthrough.py`, `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no `src/**`/tooling/dependency file touched; scratch venv/mutants workspace (untracked) removed, not committed. `manifest_version` `"10.390"` → `"10.391"`.
+
+## `feature-engine` — `P3-FEATURE-QG-EVID-03` Condition-1 Wave-3 evidence-fidelity correction (`P3-FEATURE-EVID03-COND1-WAVE3-A-MAJ-01`)
+
+**Consolidated transaction — vai trò: `Feature Engine EVID-03 Condition-1 Targeted-Remediation Evidence Fidelity Correction Executor`.** Starting HEAD `8e8765ff287ce3f6646da87cc1e890d6be329d70`, verified `main == origin/main`, no drift. Wave 3 Review A returned `REVISION_REQUIRED — 0 Blocker / 1 Major / 0 Minor`, Risk `R1`: `P3-FEATURE-EVID03-COND1-WAVE3-A-MAJ-01` — the Wave-3 test implementation itself was not disputed; the defect was evidence durability/accounting (exact 19 mutant IDs and per-mutant statuses not durably pinned; scratch workspaces removed; remediation-plan's own "~373-survivor population" arithmetically inconsistent with the transaction's own credited-kill accounting).
+
+**No new behavioral remediation; no test/source/tooling/dependency change.** Docs/evidence correction only.
+
+**Created:** `docs/governance/mutation-baseline-evidence/feature-engine-condition1-targeted-remediation-001.json` — the new, durable, machine-readable, cumulative targeted-remediation ledger (SSOT for Condition-1 remediation waves between full formal mutation runs). Pins: baseline formal Evidence-004 identity (population 2629, formal numerator 2155, formal survivor count 474, executable boundary `b3d4086033f1c232c0cd8706c9096f50b049de14`); the exact Wave-1 22-ID set (semantic groups: `revoke()` 11, `_mark_terminal()` 9, `acquire_and_activate()` 2); the exact Wave-2 19-ID set (`SwingDistanceFeatureEngine` window-preparation/eligibility/lineage cluster); the exact Wave-3 19-ID set with full per-mutant rows (`mutant_id`, `source_module`, `qualified_function`, `baseline_status`, `wave`, `current_targeted_status`, `fresh_workspace_confirmed`, `verification_boundary`); the 2 newly-identified collateral kills (`ownership.acquire_and_activate__mutmut_20`/`__mutmut_22`) as `COLLATERAL_VERIFIED_KILL` rows (`originating_test_wave: 1`, `verification_wave: "3-correction"`); a `reconciliation_formula` field defining `credited_working_survivor_set` mechanically; and a corrected `accounting` block.
+
+**Recovery method:** the exact Wave-1/Wave-2/Wave-3 mutant-ID sets were recovered from this session's own continuous, unbroken execution record (the same IDs used verbatim across all three waves' own targeted-verification commands) — not guessed or reconstructed from counts alone. Independently verified: all 60 selected-wave IDs (22+19+19, union cardinality confirmed = 60, zero duplicates, zero cross-wave overlap) are members of evidence-004's own 474-survivor set; the 2 collateral IDs are likewise members and do not overlap the 60.
+
+**Fresh cache-safe targeted re-verification (this transaction, fresh disposable venv, fresh `mutants/` workspace deleted and regenerated before EACH individual mutant):** all 19 Wave-3 IDs — **19/19 SURVIVED → killed**; both collateral IDs — **2/2 SURVIVED → killed**. Zero residual across all 21 freshly-verified mutants. One transient script-side output-parsing hiccup on 1 Wave-3 mutant was independently re-verified via its own completely fresh workspace before being recorded as killed; no production-source diagnostic edit was performed or needed.
+
+```text
+Corrected accounting:
+  selected_wave_union = 22 + 19 + 19 = 60 (no duplicates)
+  collateral_verified_kills = 2
+  total_credited_kills = 62
+  estimated_numerator = 2155 + 62 = 2217
+  estimated_score = 2217 / 2629 = 84.32864206922784%
+  minimum_threshold_numerator = 2288
+  remaining_numerator_gap = 71
+  credited_working_survivor_count = 474 - 62 = 412
+```
+
+**Fixed current-state bookkeeping** in `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`: corrected the erroneous "~373-survivor population" to the exact "412-survivor credited working population" (with the reconciliation-ledger pointer); corrected Wave-3's own "9 tests added/extended" wording to the fresh-diff-verified fact — **7 new test functions, 0 existing tests modified** (`test_ownership.py`: 180 insertions/0 deletions; `test_regime_passthrough.py`: 77 insertions/1 deletion, that sole deletion being an import-statement reformat, not a test change); recorded `P3-FEATURE-EVID03-COND1-WAVE3-A-MAJ-01: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW` (not self-closed).
+
+**Not performed:** no `src/**`/`tests/**`/`tooling/**`/dependency/config change; no new behavioral remediation; no reopening of Wave 1 or Wave 2 (both remain `REVIEW A VALIDATED`, untouched); no full formal 2629-mutant remeasurement; no Condition-1 closure claim; no Condition-2 accounting change (unchanged `FAIL / PARTIALLY SATISFIED — 42/170 resolved`); no Condition-3 reopening (unchanged `SATISFIED — REVIEW A VALIDATED`); no EVID-03 closure; no ADR; no Review B; no Product Owner decision; no Feature Engine approval; no LIVE authorization; no self-closure of `P3-FEATURE-EVID03-COND1-WAVE3-A-MAJ-01`.
+
+**Fresh ADR Scope Rule:** `ADR_NOT_REQUIRED` — docs/evidence bookkeeping correction, no contract/invariant change, no new governance mechanism.
+
+**Next governed step:** ChatGPT bounded Review A re-review of `P3-FEATURE-EVID03-COND1-WAVE3-A-MAJ-01`.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-condition1-targeted-remediation-001.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no `src/**`/`tests/**`/tooling/dependency file touched; scratch venv/mutants workspace (untracked) removed, not committed. `manifest_version` `"10.391"` → `"10.392"`.
 
 ## Decision Log
 
