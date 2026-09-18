@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.390"
+manifest_version: "10.391"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -27674,6 +27674,45 @@ READY_FOR_FRESH_FORMAL_CONDITION_1_MEASUREMENT: NO (2196 < 2288).
 **Next governed step:** ChatGPT live-repo verification + Review A of Condition-1 survivor-remediation Wave 2.
 
 **Files changed:** `python/feature-engine/tests/test_swing_distance.py`, `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no `src/**`/tooling/dependency file touched; scratch venv/mutants workspace (untracked) removed, not committed. `manifest_version` `"10.389"` → `"10.390"`.
+
+## `feature-engine` — `P3-FEATURE-QG-EVID-03` Condition-1 survivor-remediation Wave 3 (folds Wave 2 Review A closure)
+
+**Consolidated transaction — vai trò: `Feature Engine EVID-03 Condition-1 High-Yield Survivor Remediation Executor — Wave 3`.** Starting HEAD `b4c3fa1e5f294a2bbdc61b3534f2ce6c0ae17384`, verified `main == origin/main`, no drift. **Folded review closure:** Wave 2 Review A returned `CLEAN — 0 Blocker / 0 Major / 0 Minor`, Risk `R1` — `REVIEW A VALIDATED`; recorded here, no standalone bookkeeping-only commit.
+
+**Working survivor-set reconciliation:** evidence-004's 474 minus Wave-1's 22 minus Wave-2's 19 = **433**, verified exactly (all 41 prior IDs confirmed present in the 474, no duplicate subtraction).
+
+**Test-only wave (`python/feature-engine/tests/test_ownership.py` + `python/feature-engine/tests/test_regime_passthrough.py` only):** investigated and rejected as message-text-dominated or provably-equivalent (anti-gaming precedent): `contracts._seal_verified_authority` (24), `output_contract_resolver._resolve_one`/`_resolve_authoritative_stream` (25 combined), `regime_passthrough.__init__` (19, mirrors `swing_distance.__init__`'s Wave-2 finding), `regime_passthrough`'s dispatch/validation functions (15 combined), `swing_distance`'s remaining dispatch/validation functions (12 combined), `ownership.p_run_sort` (10), `identity.x_deterministic_id` (1, equivalent codec-case variant), `contracts._materialize_recorded_time`/`normalize_input_facts` (3 combined). Reclassified from Wave-1's own "equivalent" finding: `ownership.acquire_and_activate`'s intermediate-handle mutants 20/22 are now confirmed already-killed by Wave 1's own failed-catch-up test (an effect not present at original classification time); mutants 21/23 remain genuinely dead (`_mark_terminal` reconstructs from the owner's own `_feature_subject_id`, never from the intermediate handle). Excluded `current_view.FeatureCurrentView.on_feature_computed`'s apparent 5-mutant cluster after tracing actual field usage: `_ViewWindowState.window_start`/`window_end` are write-only dead fields (never read — `current()` reads `state.head_fact.window_start`/`.window_end` instead), `invalidated=None` vs `=False` are indistinguishable under the only consuming truthiness check and no established precedent uses `_windows` as a private verification seam in this file — not remediated. Excluded `ownership._tie_break_key`'s `sequence`/`event_id` corruption as structurally unreachable: `p_run_sort`'s own `P_stream` edges guarantee `stream_id` alone always discriminates any genuine tie before `sequence`/`event_id` are ever consulted. Excluded `ownership.__init__`'s `_usable` corruption as provably equivalent: `acquire_and_activate` unconditionally re-sets `_usable = True` before any successful activation, and nothing reads it in the dead window before that.
+
+**Selected cluster — "authoritative catch-up & ownership lifecycle integrity" (19 mutants, all `TEST_GAP`):** `AuthoritativeSubjectOwner`'s remaining catch-up/frontier-processing/commit-fencing methods in `ownership.py` (9: `_catch_up` up_to-argument corruption ×2, `acquire_and_activate`'s catch_up_frontier-argument corruption ×1, `process_certified_frontier`'s apply-set boolean-logic ×2 + committed_frontier corruption ×1 + frontier/applied_frontier-argument corruption ×2, `_commit`'s stream_id-argument corruption ×1); `contracts._prepared_matches_canonical`'s `FeatureFactInvalidated`-branch `and`→`or` corruption (5 — invoked exclusively from `PreparedTransition.reconcile`, itself called only from `ownership.py`'s own `_catch_up`); `regime_passthrough.py`'s `_prepare_original`/`_prepare_replacement` field-completeness gaps and `is_pristine_for_authoritative_catchup` and→or bug (5 — the sibling engine's exact analog of `swing_distance`'s own Wave-2-remediated pattern).
+
+**9 tests added** across both files, plus an additive call-argument-recording spy enhancement to the shared `InMemoryLineageHistoryProvider` test double (`last_upstream_up_to`/`last_canonical_up_to`/`last_apply_set_frontier`/`last_apply_set_applied_frontier` — purely additive, zero behavior change to existing return values, verified zero regressions) mirroring the already-established `InMemorySubjectOwnershipAuthority.is_current()` verification-seam precedent. All assertions are on genuine contract-visible behavior — never message text, never mutant-ID-named.
+
+```text
+Ordinary verification: pytest -q: 407 passed. pytest -q tests/test_ownership.py: 52 passed.
+  pytest -q tests/test_regime_passthrough.py: 36 passed. pytest -q tooling/fault_injection/tests: 33 passed.
+  ruff check src tests tooling: same 2 pre-existing unrelated E501 findings in authority_resolver.py
+  (lines 465, 528) unchanged -- zero new findings from this wave's test-only changes.
+  mypy src tests: Success, 35 source files.
+Targeted mutation verification, CACHE-SAFE PROTOCOL (fresh mutants/ workspace deleted and
+  regenerated before EACH individual mutant -- no shared/incremental workspace trusted for the
+  final verdict, per the Wave-2-discovered incremental-coverage-cache staleness finding): 19/19
+  selected survivors SURVIVED -> killed. Zero residual. (One transient script-side output-parsing
+  hiccup on 1 mutant was independently re-verified via its own completely fresh workspace before
+  being recorded -- no production-source diagnostic edit was necessary this wave.)
+Cumulative targeted kills across Waves 1-3: 22 + 19 + 19 = 60.
+Estimated Condition-1 numerator: 2196 + 19 = 2215 (Wave 2's 2196 + this wave's 19).
+Estimated raw score: 2215 / 2629 = 84.25256751616584% -- still < 87.001959503592%, FAIL.
+Remaining approximate gap to minimum threshold numerator 2288: narrows from 92 to 73.
+READY_FOR_FRESH_FORMAL_CONDITION_1_MEASUREMENT: NO (2215 < 2288).
+```
+
+**Not performed:** no `src/**`/tooling/dependency change; no full formal 2629-mutant remeasurement; no Condition-1 closure claim; no Condition-2 accounting change (unchanged `FAIL / PARTIALLY SATISFIED — 42/170 resolved`, even though this wave's cluster overlaps `ownership.py`, a module with unresolved Condition-2 identities); no Condition-3 reopening (unchanged `SATISFIED — REVIEW A VALIDATED`); no EVID-03 closure; no ADR; no Review B; no Product Owner decision; no Feature Engine approval; no LIVE authorization; no standalone remediation-evidence artifact created.
+
+**Fresh ADR Scope Rule:** `ADR_NOT_REQUIRED` — bounded test-only remediation within already-approved Testing Convention v0.17 mutation-testing mechanism, no contract/invariant change.
+
+**Next governed step:** ChatGPT live-repo verification + Review A of Condition-1 survivor-remediation Wave 3.
+
+**Files changed:** `python/feature-engine/tests/test_ownership.py`, `python/feature-engine/tests/test_regime_passthrough.py`, `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no `src/**`/tooling/dependency file touched; scratch venv/mutants workspace (untracked) removed, not committed. `manifest_version` `"10.390"` → `"10.391"`.
 
 ## Decision Log
 

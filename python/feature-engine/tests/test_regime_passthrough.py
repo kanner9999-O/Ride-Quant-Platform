@@ -37,7 +37,12 @@ from feature_engine import (
     StaticInputContractAuthorityProvider,
     StaticOutputEventContractAuthorityProvider,
 )
-from feature_engine.contracts import ResolvedInputContract, VerifiedInputContractAuthority, _seal_verified_authority
+from feature_engine.contracts import (
+    PreparedFeatureComputed,
+    ResolvedInputContract,
+    VerifiedInputContractAuthority,
+    _seal_verified_authority,
+)
 from feature_engine.errors import (
     DefinitionVersionMismatchError,
     EvidenceReferenceConflictError,
@@ -337,6 +342,77 @@ def test_correction_invalidate_and_replace_even_when_value_unchanged(
         FEATURE_COMPUTED_CONTRACT_ID, FEATURE_OUTPUT_CONTRACT_VERSION
     )
     assert replacement.computation_cursor.recorded_time == replacement_input.recorded_time
+
+
+def test_regime_original_and_replacement_record_default_causation_flags_and_evidence(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """`preceding_batch_invalidation_causation`/`depends_on_preceding_
+    invalidation_timing` are `PreparedFeatureComputed`-only fields, consumed
+    (both False and None collapse to the same falsy-equivalent finalize
+    behavior) during `finalize` -- they do not survive onto the committed
+    `FeatureComputed` at all, so they must be asserted on the PREPARED
+    candidate directly, via the same `prepare_regime_classified` +
+    `_commit_live` seam `on_regime_classified` itself uses internally
+    (mirrors swing_distance's own established Wave-2 pattern). Exercises
+    both `_prepare_original` and `_prepare_replacement`.
+    """
+    engine = _engine(allocator, time_source)
+    original_input = regime_classified_at(
+        allocator, 0, computed_metric="1.5", regime_dimension="volatility", regime_definition_version="rgd-1"
+    )
+    original_cursor = _frontier_at(original_input.recorded_time)
+    prepared_original_transition = engine.prepare_regime_classified(original_input, cursor=original_cursor)
+    assert prepared_original_transition is not None
+    (prepared_original,) = prepared_original_transition.prepared_events
+    assert isinstance(prepared_original, PreparedFeatureComputed)
+    assert prepared_original.preceding_batch_invalidation_causation is False
+    assert prepared_original.depends_on_preceding_invalidation_timing is False
+
+    original = only_computed(engine._commit_live(prepared_original_transition)[0])  # noqa: SLF001
+    assert original.computation_dependency_content_evidence is not None
+
+    invalidation_input = regime_invalidated_at(
+        allocator, invalidated_fact_ref=original_input.ref, recorded_time=original.recorded_time + timedelta(minutes=5)
+    )
+    engine.on_regime_invalidated(invalidation_input, cursor=_frontier_at(invalidation_input.recorded_time))
+
+    replacement_input = regime_classified_at(
+        allocator,
+        0,
+        computed_metric="1.5",
+        regime_dimension="volatility",
+        regime_definition_version="rgd-1",
+        recorded_offset_seconds=600,
+    )
+    replacement_cursor = _frontier_at(replacement_input.recorded_time)
+    prepared_replacement_transition = engine.prepare_regime_classified(replacement_input, cursor=replacement_cursor)
+    assert prepared_replacement_transition is not None
+    (prepared_replacement,) = prepared_replacement_transition.prepared_events
+    assert isinstance(prepared_replacement, PreparedFeatureComputed)
+    assert prepared_replacement.preceding_batch_invalidation_causation is False
+    assert prepared_replacement.depends_on_preceding_invalidation_timing is False
+
+    replacement = only_computed(engine._commit_live(prepared_replacement_transition)[0])  # noqa: SLF001
+    assert replacement.supersedes_fact_ref == original.ref
+
+
+def test_prepared_but_uncommitted_regime_classified_is_not_pristine(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """`prepare_regime_classified` already mutates `_last_input_recorded_time`
+    (via `_check_recorded_time`) before ever mutating `_lineage` (deferred to
+    the returned `PreparedTransition`'s own `apply_lineage`) -- an engine
+    that has only been prepared into, never committed, must still report
+    itself as no longer pristine for authoritative catch-up.
+    """
+    engine = _engine(allocator, time_source)
+    fact = regime_classified_at(
+        allocator, 0, computed_metric="1.5", regime_dimension="volatility", regime_definition_version="rgd-1"
+    )
+    prepared = engine.prepare_regime_classified(fact, cursor=_frontier_at(fact.recorded_time))
+    assert prepared is not None
+    assert engine.is_pristine_for_authoritative_catchup() is False
 
 
 def test_causal_chain_original_lt_invalidation_lt_replacement(
