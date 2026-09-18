@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.393"
+manifest_version: "10.394"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -27789,6 +27789,34 @@ READY_FOR_FRESH_FORMAL_CONDITION_1_MEASUREMENT: NO (2224 < 2288).
 **Next governed step:** ChatGPT live-repo verification + Review A of Condition-1 survivor-remediation Wave 4.
 
 **Files changed:** `python/feature-engine/tests/test_authority_resolver.py`, `python/feature-engine/tests/test_output_contract_resolver.py`, `docs/governance/mutation-baseline-evidence/feature-engine-condition1-targeted-remediation-001.json`, `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no `src/**`/tooling/dependency file touched; scratch venv/mutants workspace (untracked) removed, not committed. `manifest_version` `"10.392"` → `"10.393"`.
+
+## `feature-engine` — `P3-FEATURE-QG-EVID-03` fresh formal Condition-1 remeasurement post-Waves-1–4 (Evidence-005)
+
+**Consolidated transaction — vai trò: `Feature Engine EVID-03 Fresh Formal Condition-1 Measurement Executor — Post Remediation Waves 1–4`.** Starting HEAD `662ed13e68838c17b290754047adb3c0cbf98f62`, verified `main == origin/main`, no drift. **Folded Wave-4 Review A Minor:** `P3-FEATURE-EVID03-COND1-WAVE4-A-MIN-01: CLOSED — FOLDED INTO EVIDENCE-005` — corrected the ledger's/remediation-plan's prior `STRUCTURALLY_UNREACHABLE` classification of `ownership._catch_up__mutmut_7`/`__mutmut_18` (events/proven_empty inversion mutants) to `UNVERIFIED / TEST_GAP_CANDIDATE`, since a shared test fake's inability to construct a state is not the same as the production `AuthoritativeLineageHistoryProvider` protocol forbidding that state. No test added; remediation deferred. No standalone correction commit.
+
+**Source-boundary check:** current `src_tree`/`tooling_tree`/`pyproject.toml` blob/`requirements-dev.lock.txt` blob confirmed byte-identical to `feature-engine-mutation-step9-formal-evidence-004.json`'s own `executable_boundary`; only `tests_tree` differs (Waves 1–4 were test-only). This confirms Condition-2's historical 170-identity semantic-continuity mapping may be legitimately preserved by reference, not rerun.
+
+**Fresh full formal mutation run** (fresh disposable venv, NOT reused from any prior wave; versions match lock exactly — mutmut 3.7.0, pytest 9.1.1, coverage 7.16.0, platformdirs 4.11.5, ruff 0.16.4, mypy 2.3.1, Python 3.13.6): ordinary verification clean (`pytest -q` 414 passed, `pytest -q tooling/fault_injection/tests` 33 passed, ruff — same 2 pre-existing unrelated E501 findings, `mypy` clean). Real, complete `python -m tooling run` (no args) across the entire current 2629-mutant population reached genuine natural completion (confirmed via three independent cross-checks — live progress, `export-cicd-stats`, `results --all true` — after the CLI's own post-processing summary-listing step crashed silently post-completion, a cosmetic display-step failure, not an incomplete run). Raw ten-status counts: killed=2135, survived=406, timeout=88 (anomalous vs. evidence-004's 1 raw timeout — attributed to parallel-worker resource contention).
+
+**Timeout triage (all 88 raw candidates):** strict protocol — `mutants/` workspace deleted and regenerated fresh before EACH of 2 independent isolated `--max-children 1` reruns per candidate; no majority vote, no third tie-break run. Result: **5 `CONFIRMED_TIMEOUT`**, **74 `NOT_REPRODUCED` → killed**, **9 `UNSTABLE_TIMEOUT_TRIAGE`** (the two fresh isolated reruns disagreed; left formally unresolved per explicit instruction — none of the 9 are among the 69 credited-ledger IDs or evidence-004's 474 baseline survivors, so this affects only the exact numerator, bounded to ≤9 either way).
+
+**Condition-1 result:** post-triage formal counts killed=2209, survived=406, confirmed_timeout=5, unstable=9 (sum=2629 exactly). Raw score (conservative, unstable excluded from numerator): numerator **2214**, score **84.21453023963484%**; best-case bound (unstable hypothetically all favorable): numerator **2223**, score **84.55686572841384%** — both below required **87.001959503592%** (required numerator 2288; gap 74 conservative / 65 best-case). **Condition 1: `FAIL — criteria`, robust to the 9 unresolved timeout-triage mutants' eventual resolution.**
+
+**Credited-ledger cross-check:** all 69 exact credited IDs from `feature-engine-condition1-targeted-remediation-001.json` independently confirmed `killed` or `confirmed_timeout` in this fresh run — **100% consistent, zero contradiction**.
+
+**Collateral-effect comparison** (evidence-004's exact 474 baseline survivors vs. this fresh run): **0 additional collateral kills beyond the ledger's 69**; **405 still survive**, exactly matching the ledger's own credited-working-survivor figure. Waves 1–4 produced no collateral improvement beyond the individually targeted/credited mutants.
+
+**Condition 2:** unchanged `FAIL / PARTIALLY SATISFIED — 42/170 resolved` — preserved by reference (source boundary immutable), not rerun/reinvented. **Condition 3:** unchanged `SATISFIED — REVIEW A VALIDATED` — preserved, no fault-injection rerun.
+
+**`P3-FEATURE-QG-EVID-03` remains `OPEN/FAIL`** (Condition 1 now formally, not merely estimated, `FAIL`; Condition 2 independently also `FAIL`). Feature Engine remains **NOT APPROVED**; LIVE remains **NOT_AUTHORIZED**.
+
+**Created:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-005.json` — new, additive formal artifact; `feature-engine-mutation-step9-formal-evidence-004.json` byte-unchanged, not modified. Durably persists the complete current 2629-mutant status mapping (SHA-256 `888b646663314babed8ae7d202b65a7d99ecb4ca808c81cadaec2c6e077f36d7`), all 88 timeout-triage records (both strict isolated results per candidate plus the earlier reused-workspace diagnostic-only result), the 69-ID credited-ledger cross-check, and the 474-baseline collateral-effect partition.
+
+**Updated ledger:** `docs/governance/mutation-baseline-evidence/feature-engine-condition1-targeted-remediation-001.json` — added an additive `post_waves_formal_remeasurement` pointer field (artifact reference, measurement boundary, Condition-1 result) and updated `next_governed_step`; Waves 1–4 entries NOT rebased/rewritten, immutable in substance (only the already-noted Wave-4 Minor wording correction applied).
+
+**Next governed step:** ChatGPT live-repo verification + Review A of Evidence-005 fresh formal Condition-1 measurement, and then a higher-level decision about what to do next.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-005.json` (new), `docs/governance/mutation-baseline-evidence/feature-engine-condition1-targeted-remediation-001.json`, `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no `src/**`/`tests/**`/tooling/dependency file touched; scratch venv/mutants workspace (untracked) removed, not committed. `manifest_version` `"10.393"` → `"10.394"`.
 
 ## Decision Log
 
