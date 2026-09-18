@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.396"
+manifest_version: "10.397"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -27850,9 +27850,29 @@ READY_FOR_FRESH_FORMAL_CONDITION_1_MEASUREMENT: NO (2224 < 2288).
 
 **Created:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-identity-resolution-002.json` — new, additive, containing exact per-identity evidence for all 128 attempted rows.
 
-**Next governed step:** ChatGPT bounded Review A / architecture review of `feature-engine-mutation-material-gap-identity-resolution-002.json`.
+**Next governed step (superseded — see below):** ~~ChatGPT bounded Review A / architecture review of `feature-engine-mutation-material-gap-identity-resolution-002.json`~~ — COMPLETE, returned `REVISION_REQUIRED — 0 Blocker / 1 Major / 0 Minor`, Risk `R1`, finding `P3-FEATURE-EVID03-COND2-RES002-A-MAJ-01`, remediated below.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-identity-resolution-002.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no `src/**`/`tests/**`/tooling/dependency/contract/ADR/governance-rule file touched; no mutation test execution performed (diff-view only via `tooling show`); scratch venv/mutants workspace (untracked) removed, not committed. `manifest_version` `"10.395"` → `"10.396"`.
+
+## `feature-engine` — `P3-FEATURE-QG-EVID-03` Condition-2 resolution-002 evidence-fidelity correction
+
+**Consolidated transaction — vai trò: `Feature Engine EVID-03 Condition-2 Resolution-002 Evidence-Fidelity Correction Executor`.** Starting HEAD `bcea8e4624dcc25788a2e99dc49755e4d5b80681`, verified `main == origin/main`, no drift. Remediates `P3-FEATURE-EVID03-COND2-RES002-A-MAJ-01`: resolution-002.json's 72 `SUCCESSOR_MATCH — CURRENT KILLED` rows cited only function-level construction-site labels, not exact current mutant IDs/diffs/Evidence-005 statuses — insufficient since several successor functions mix killed AND survived mutants (e.g. `prepare_swing_confirmed`: 46 killed/7 survived; `_seal_verified_authority`: 25 killed/24 survived).
+
+**Method:** extracted exact current mutant diffs directly from the disposable mutation workspace's own mutmut-trampoline source (`mutants/src/feature_engine/<module>.py` stores every `__mutmut_N` variant as a separate function definition plus a true `__mutmut_orig` baseline; diffed via Python `difflib`, content-identical to `tooling show`, zero mutation test execution) for all 72 originally-claimed rows, matched each against its exact historical field/argument/operator/literal description (never function-level aggregates, naming, or operator category alone), and looked up each resolved current ID's exact status in Evidence-005's `full_current_mutant_mapping` (not rerun, not altered).
+
+**Result — evidence fidelity prioritized over preserving the prior count:** **70/72** rows now durably pin an exact current mutant ID + exact diff + exact status, ALL confirmed `killed` — the underlying technical claim holds. **2/72** rows, on close inspection, could not be uniquely resolved (a sibling historical row shared an identical generic description, e.g. two "1 -> 2" numeric-literal rows both plausibly matching either of two distinct current sites) — honestly reclassified `AMBIGUOUS — MULTIPLE POSSIBLE SUCCESSORS` rather than forced onto an arbitrary candidate. The 53 `BEHAVIOR_REMOVED` rows and the original 3 `AMBIGUOUS` rows are untouched, not re-reviewed.
+
+**Corrected 128-row aggregate: 70 `SUCCESSOR_MATCH — CURRENT KILLED` + 53 `BEHAVIOR_REMOVED — EVIDENCE REQUIRED FOR GOVERNED RECLASSIFICATION` + 5 `AMBIGUOUS — MULTIPLE POSSIBLE SUCCESSORS` = 128.**
+
+**Governed Condition-2 count: 0 rows permitted to alter it this transaction — remains exactly `42/170`.** §4.1(a) remains exact-ID-only (structurally unsatisfiable by any rename/refactor successor, even one now durably confirmed killed); §4.1(b) remains a separate governed reclassification mechanism this evidence-fidelity correction does not self-grant. `feature-engine-mutation-material-gap-identity-resolution-002.json` byte-unchanged, preserved as historical evidence, not modified.
+
+`P3-FEATURE-QG-EVID-03` remains `OPEN` (Condition 1 `STOPPED/UNRESOLVED`, not reopened; Condition 2 `FAIL/PARTIALLY SATISFIED — 42/170`, unchanged; Condition 3 `SATISFIED`, unchanged). Feature Engine remains **NOT APPROVED**; LIVE remains **NOT_AUTHORIZED**.
+
+**Created:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-identity-resolution-002-correction-001.json` — new, additive; finding status `REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`, not self-closed.
+
+**Next governed step:** ChatGPT bounded Review A re-review of `feature-engine-mutation-material-gap-identity-resolution-002-correction-001.json`.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-identity-resolution-002-correction-001.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no `src/**`/`tests/**`/tooling/dependency/contract/ADR/governance-rule file touched; no mutation test execution performed (diff extraction from disposable workspace source only, via `difflib`); scratch venv/mutants workspace (untracked) removed, not committed; no background watcher/mutmut/pytest/tooling process remained. `manifest_version` `"10.396"` → `"10.397"`.
 
 ## Decision Log
 

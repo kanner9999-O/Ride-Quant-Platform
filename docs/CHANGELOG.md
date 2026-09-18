@@ -2,6 +2,26 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-18 — feature-engine: `P3-FEATURE-QG-EVID-03` Condition-2 resolution-002 evidence-fidelity correction
+
+Starting HEAD `bcea8e4624dcc25788a2e99dc49755e4d5b80681`, verified `main == origin/main`, no drift. Remediates `P3-FEATURE-EVID03-COND2-RES002-A-MAJ-01` (ChatGPT bounded Review A of resolution-002.json: `REVISION_REQUIRED -- 0 Blocker / 1 Major / 0 Minor`, Risk `R1`): resolution-002.json's 72 `SUCCESSOR_MATCH -- CURRENT KILLED` rows cited only function-level construction-site labels, not exact current mutant IDs/diffs/Evidence-005 statuses -- insufficient since several successor functions mix killed AND survived mutants (e.g. `prepare_swing_confirmed`: 46 killed/7 survived; `_seal_verified_authority`: 25 killed/24 survived).
+
+Method: extracted exact current mutant diffs directly from the disposable mutation workspace's own mutmut-trampoline source (`mutants/src/feature_engine/<module>.py` stores every `__mutmut_N` variant as a separate function definition plus a true `__mutmut_orig` baseline; diffed via Python `difflib`, content-identical to `tooling show`, zero mutation test execution) for all 72 originally-claimed rows, matched each against its exact historical field/argument/operator/literal description, and looked up each resolved current ID's exact status in Evidence-005's full_current_mutant_mapping (not rerun, not altered).
+
+Result -- evidence fidelity prioritized over preserving the prior count: 70/72 rows now durably pin an exact current mutant ID + exact diff + exact status, all confirmed killed. 2/72 rows, on close inspection, could not be uniquely resolved (a sibling historical row shared an identical generic description) -- honestly reclassified AMBIGUOUS -- MULTIPLE POSSIBLE SUCCESSORS rather than forced onto an arbitrary candidate. The 53 BEHAVIOR_REMOVED rows and the original 3 AMBIGUOUS rows are untouched, not re-reviewed.
+
+Corrected 128-row aggregate: 70 SUCCESSOR_MATCH -- CURRENT KILLED + 53 BEHAVIOR_REMOVED -- EVIDENCE REQUIRED FOR GOVERNED RECLASSIFICATION + 5 AMBIGUOUS -- MULTIPLE POSSIBLE SUCCESSORS = 128.
+
+Governed Condition-2 count: 0 rows permitted to alter it this transaction -- remains exactly FAIL / PARTIALLY SATISFIED -- 42/170. §4.1(a) remains exact-ID-only; §4.1(b) remains a separate governed reclassification mechanism this correction does not self-grant. resolution-002.json byte-unchanged, preserved as historical evidence. Condition 1 unchanged STOPPED/UNRESOLVED (not reopened); Condition 3 unchanged SATISFIED. P3-FEATURE-QG-EVID-03 remains OPEN. Feature Engine remains NOT APPROVED; LIVE remains NOT_AUTHORIZED.
+
+Created `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-identity-resolution-002-correction-001.json` (new, additive); finding status REMEDIATED -- PENDING BOUNDED REVIEW A RE-REVIEW, not self-closed.
+
+**Next governed step:** ChatGPT bounded Review A re-review of `feature-engine-mutation-material-gap-identity-resolution-002-correction-001.json`.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-identity-resolution-002-correction-001.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only -- verified via `git status --porcelain=v1`; no source/test/tooling/dependency/contract/ADR/governance-rule file touched; no mutation test execution performed; scratch venv/mutants workspace removed, not committed; no background watcher/mutmut/pytest/tooling process remained. `manifest_version` `"10.396"` -> `"10.397"`.
+
+---
+
 ## [Unreleased] — 2026-09-18 — feature-engine: `P3-FEATURE-QG-EVID-03` Condition-2 semantic-successor mapping (bounded, evidence-only)
 
 Starting HEAD `d70bc8fd9690a0472dd5ce8a2a53d20add9352ea`, verified `main == origin/main`, no drift. Folds the `feature-engine-mutation-step9-formal-evidence-005-correction-001.json` Review A closure bookkeeping into this same commit (ChatGPT bounded Review A re-review returned `CLEAN -- 0 Blocker / 0 Major / 0 Minor`, Risk `R1`; `P3-FEATURE-EVID03-STEP9-005-A-MAJ-01`/`-MAJ-02`/`P3-FEATURE-EVID03-STEP9-005-CORR001-A-MAJ-01` all `CLOSED -- REVIEW A VALIDATED`).
