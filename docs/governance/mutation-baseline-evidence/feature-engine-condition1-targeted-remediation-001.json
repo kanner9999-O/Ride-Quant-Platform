@@ -495,7 +495,7 @@
     "no LIVE authorization",
     "no self-closure of P3-FEATURE-EVID03-COND1-WAVE3-A-MAJ-01"
   ],
-  "next_governed_step": "ChatGPT live-repo verification + Review A of Evidence-005 fresh formal Condition-1 measurement, and then a higher-level decision about what to do next.",
+  "next_governed_step": "ChatGPT bounded Review A re-review of feature-engine-mutation-step9-formal-evidence-005-correction-001.json.",
   "review_a_findings": {
     "P3-FEATURE-EVID03-COND1-WAVE3-A-MAJ-01": "CLOSED \u2014 BOUNDED REVIEW A RE-REVIEW",
     "P3-FEATURE-EVID03-COND1-LEDGER-A-MIN-01": "CLOSED \u2014 FOLDED INTO WAVE 4",
@@ -505,9 +505,16 @@
     "artifact": "docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-005.json",
     "measurement_boundary": "repository HEAD 662ed13e68838c17b290754047adb3c0cbf98f62 (same as this ledger's Wave-4 boundary; src/tooling/config byte-identical to evidence-004.json)",
     "measurement_type": "Fresh, complete, real full mutation run across all 2629 mutants (not a projection from this ledger's targeted kills)",
-    "condition_1_result": "FAIL \u2014 criteria (conservative 84.21%, best-case bound 84.56%, both below required 87.001959503592%; required numerator 2288, actual numerator 2214-2223, gap 65-74)",
+    "condition_1_result": "STOPPED / UNRESOLVED under the locked timeout-triage protocol (corrected per evidence-005-correction-001.json, remediating Review A P3-FEATURE-EVID03-STEP9-005-A-MAJ-01) -- 9 mutants are UNSTABLE_TIMEOUT_TRIAGE (the two independent fresh isolated reruns disagreed); the locked protocol requires Condition-1 gate interpretation to STOP on any such disagreement, no majority vote, no forced tie-break. Diagnostic-only, NON-FORMAL bounds remain: conservative 84.21453023963484%, best-case 84.55686572841384%, both below required 87.001959503592% -- useful planning context (no resolution of the 9 reaches threshold), but NOT the governed formal verdict.",
     "credited_ledger_cross_check": "All 69 credited IDs in this ledger independently confirmed killed/confirmed_timeout in the fresh formal run. No contradiction.",
-    "collateral_effect_measured": "0 additional collateral kills beyond this ledger's 69 credited kills; 405 baseline survivors still survive (matches this ledger's credited_working_survivor_count exactly).",
-    "note": "This fresh formal measurement SUPERSEDES this ledger's own estimated_numerator/estimated_score_percent (2224 / 84.59%) as the authoritative current Condition-1 result -- the estimate was a lower bound; the fresh measurement found the true current numerator (2214-2223) is actually slightly LOWER than the naive estimate, because the estimate assumed zero net effect from unmeasured collateral changes, which fresh measurement confirms (0 additional collateral kills) but the raw full-run introduced 88 timeout candidates requiring triage, 9 of which remain formally UNSTABLE_TIMEOUT_TRIAGE (see evidence-005.json) and are conservatively excluded from the numerator. If a future Wave 5 is needed, it MUST be recorded against a NEW ledger (e.g. feature-engine-condition1-targeted-remediation-002.json) targeting evidence-005.json's fresh survivor set, not appended here."
+    "collateral_effect_measured": "0 additional collateral kills beyond this ledger's 69 credited kills; 405 baseline survivors still survive (matches this ledger's credited_working_survivor_count exactly). ADDITIONALLY (corrected per evidence-005-correction-001.json, remediating Review A P3-FEATURE-EVID03-STEP9-005-A-MAJ-02): evidence-005.json's fresh run found 1 mutant (feature_engine.identity.x_deterministic_id__mutmut_3) regressed killed (evidence-004.json) -> survived (evidence-005.json), reproducible under 2 independent fresh isolated reruns, entirely outside evidence-004.json's 474-survivor baseline (it was never a baseline survivor). evidence-005.json's actual total survivor_count (406) = 405 still-surviving baseline members + 1 new regression, NOT 405 alone.",
+    "note": "This fresh formal measurement's RAW DATA supersedes this ledger's own estimated_numerator/estimated_score_percent (2224 / 84.59%) as the authoritative current raw evidence -- but its GOVERNED Condition-1 verdict is STOPPED/UNRESOLVED (corrected above), not FAIL as this field originally (incorrectly) stated. The estimate (2224) assumed zero net effect from unmeasured collateral changes; fresh measurement confirms 0 additional collateral KILLS but found 1 additional killed->survived REGRESSION (identity.x_deterministic_id__mutmut_3) plus 88 raw timeout candidates requiring triage, of which 9 remain formally UNSTABLE_TIMEOUT_TRIAGE (see evidence-005.json and evidence-005-correction-001.json). If a future Wave 5 is needed, it MUST be recorded against a NEW ledger (e.g. feature-engine-condition1-targeted-remediation-002.json) targeting evidence-005.json's fresh survivor set, not appended here.",
+    "correction_applied": {
+      "artifact": "docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-005-correction-001.json",
+      "remediates": [
+        "P3-FEATURE-EVID03-STEP9-005-A-MAJ-01",
+        "P3-FEATURE-EVID03-STEP9-005-A-MAJ-02"
+      ]
+    }
   }
 }

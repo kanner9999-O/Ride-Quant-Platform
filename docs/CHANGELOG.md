@@ -2,6 +2,26 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-18 — feature-engine: `P3-FEATURE-QG-EVID-03` Evidence-005 bounded evidence-fidelity correction
+
+Starting HEAD `000bcf7926870f2f60fc6608501ae71a26154d82`, verified `main == origin/main`, no drift. Remediates ChatGPT Review A of `feature-engine-mutation-step9-formal-evidence-005.json`: `REVISION_REQUIRED -- 0 Blocker / 2 Major / 0 Minor`, Risk `R1`.
+
+`P3-FEATURE-EVID03-STEP9-005-A-MAJ-01` (CLOSED): evidence-005.json's own locked timeout-triage protocol requires Condition-1 gate interpretation to STOP unconditionally on any of the 9 `UNSTABLE_TIMEOUT_TRIAGE` disagreements (no majority vote, no forced tie-break) -- evidence-005.json nevertheless recorded a formal `FAIL -- criteria` verdict computed from conservative/best-case numerator bounds, violating the protocol's own STOP clause. Corrected Condition-1 formal state: `STOPPED / UNRESOLVED` -- neither PASS nor FAIL formally declared; the conservative (84.21453023963484%) / best-case (84.55686572841384%) figures are relabeled explicit NON-FORMAL diagnostic/planning evidence.
+
+`P3-FEATURE-EVID03-STEP9-005-A-MAJ-02` (CLOSED): fresh Review A reconciliation found `feature_engine.identity.x_deterministic_id__mutmut_3` regressed killed (evidence-004.json) -> survived (evidence-005.json), with `identity.py` and its only call sites (`candle.py`, `contracts.py`) byte-identical across both boundaries (Waves 1-4 never touched `identity.py`; no `tests/test_identity.py` exists). Bounded single-mutant isolated investigation (fresh disposable venv, NOT reused; `mutants/` deleted/regenerated fresh before each of 2 independent isolated `--max-children 1` reruns, same locked protocol as timeout triage): 2/2 fresh isolated runs reproduced `survived` -- genuinely reproducible, not a full-run artifact. `tests-for-mutant` attributes this line's coverage exclusively to `test_swing_distance.py`, none from `test_candle.py`/`test_contracts.py` despite `deterministic_id` being called only from those two files -- working hypothesis: mutmut's coverage-based per-mutant test-selection is sensitive to run-to-run variance for this shared, indirectly-tested utility function across separately-generated fresh full-population runs. Corrected survivor accounting: evidence-005.json's actual total survivor_count (406) = 405 still-surviving evidence-004.json baseline members (includes the pre-existing, unremediated `identity.x_deterministic_id__mutmut_8`) + 1 new regression (`identity.x_deterministic_id__mutmut_3`), NOT 405 alone.
+
+Reconfirmed preservations (not assumed): population 2629; all 69 credited-ledger IDs still killed/confirmed_timeout; all 28 Condition-2 `RESOLVED_BY_EXISTING_KILL` identities still qualify (Condition 2 remains `FAIL / PARTIALLY SATISFIED -- 42/170 resolved`, unchanged); Condition 3 unchanged `SATISFIED -- REVIEW A VALIDATED`; production source boundary unchanged. Fresh Chapter 0 §4b ADR Scope Rule check: `ADR_NOT_REQUIRED`.
+
+Corrected current-boundary EVID-03 result: Condition 1 `STOPPED/UNRESOLVED`; Condition 2 `FAIL/PARTIALLY SATISFIED -- 42/170`; Condition 3 `SATISFIED`. `P3-FEATURE-QG-EVID-03` remains `OPEN`. Feature Engine remains NOT APPROVED; LIVE remains NOT_AUTHORIZED.
+
+Created `docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-005-correction-001.json` (new, additive; evidence-005.json byte-unchanged, blob `f7a6ab715155ad166808e0e9d9a7474196d9b69d`). Updated `feature-engine-condition1-targeted-remediation-001.json`'s `post_waves_formal_remeasurement` pointer in place; Waves 1-4 entries not rebased/rewritten.
+
+**Next governed step:** ChatGPT bounded Review A re-review of `feature-engine-mutation-step9-formal-evidence-005-correction-001.json`.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-005-correction-001.json` (new), `docs/governance/mutation-baseline-evidence/feature-engine-condition1-targeted-remediation-001.json`, `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only -- verified via `git status --porcelain=v1`; no source/test/tooling/dependency/contract/ADR/governance-rule file touched; scratch venv/mutants workspace (untracked) removed, not committed. `manifest_version` `"10.394"` -> `"10.395"`.
+
+---
+
 ## [Unreleased] — 2026-09-18 — feature-engine: `P3-FEATURE-QG-EVID-03` fresh formal Condition-1 remeasurement post-Waves-1–4 (Evidence-005)
 
 Starting HEAD `662ed13e68838c17b290754047adb3c0cbf98f62`, verified `main == origin/main`, no drift. Folds `P3-FEATURE-EVID03-COND1-WAVE4-A-MIN-01: CLOSED — FOLDED INTO EVIDENCE-005` (corrected `ownership._catch_up__mutmut_7`/`__mutmut_18` from `STRUCTURALLY_UNREACHABLE` to `UNVERIFIED / TEST_GAP_CANDIDATE` -- a test fake's inability to construct a state is not production-protocol unreachability; no test added, no standalone commit). Source-boundary check confirmed `src_tree`/`tooling_tree`/`pyproject.toml`/`requirements-dev.lock.txt` byte-identical to evidence-004's own boundary (only `tests_tree` differs, test-only Waves 1-4) -- Condition-2's 170-identity mapping preserved by reference, not rerun.

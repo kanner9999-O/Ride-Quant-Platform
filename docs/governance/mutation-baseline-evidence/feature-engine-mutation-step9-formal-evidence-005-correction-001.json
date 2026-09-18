@@ -1,0 +1,125 @@
+{
+  "artifact_id": "feature-engine-mutation-step9-formal-evidence-005-correction-001",
+  "schema_note": "Additive, bounded evidence-fidelity correction to feature-engine-mutation-step9-formal-evidence-005.json, remediating ChatGPT Review A's REVISION_REQUIRED verdict (0 Blocker / 2 Major / 0 Minor, Risk R1). evidence-005.json is NOT modified -- it remains immutable, byte-unchanged (blob f7a6ab715155ad166808e0e9d9a7474196d9b69d, verified before and after this transaction). This correction does not rerun the fresh formal mutation measurement, does not redesign the timeout-triage protocol, and does not open a new remediation wave -- it corrects two evidence-fidelity defects in how evidence-005.json's own raw data was interpreted/narrated.",
+  "corrects": {
+    "artifact": "docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-005.json",
+    "artifact_blob_before": "f7a6ab715155ad166808e0e9d9a7474196d9b69d",
+    "artifact_blob_after": "f7a6ab715155ad166808e0e9d9a7474196d9b69d",
+    "unchanged": true
+  },
+  "review_a_result_remediated": {
+    "verdict": "REVISION_REQUIRED",
+    "blocker": 0,
+    "major": 2,
+    "minor": 0,
+    "risk": "R1",
+    "findings": [
+      "P3-FEATURE-EVID03-STEP9-005-A-MAJ-01",
+      "P3-FEATURE-EVID03-STEP9-005-A-MAJ-02"
+    ]
+  },
+  "maj_01_remediation": {
+    "finding_id": "P3-FEATURE-EVID03-STEP9-005-A-MAJ-01",
+    "defect": "evidence-005.json's locked timeout-triage protocol explicitly defines: timeout+timeout -> CONFIRMED_TIMEOUT; killed+killed -> resolved killed; survived+survived -> resolved survived; any disagreement between the two independent fresh isolated reruns -> UNSTABLE_TIMEOUT_TRIAGE, and any such disagreement STOPS Condition-1 gate interpretation (no majority vote, no forced tie-break). evidence-005.json correctly found and preserved 9 UNSTABLE_TIMEOUT_TRIAGE mutants under this protocol, but its own condition_1_evaluation.result nevertheless recorded a formal 'FAIL -- criteria' verdict computed from conservative/best-case numerator bounds. That is a violation of the protocol's own STOP clause -- the protocol does not carve out an exception for 'the outcome doesn't change either way'; it requires the gate interpretation itself to halt, unconditionally, on any unresolved disagreement.",
+    "correction": "Condition-1's FORMAL state is corrected to 'STOPPED / UNRESOLVED under the locked timeout-triage protocol' -- neither PASS nor FAIL is formally declared, because 9 of the 2629 mutants (identified in evidence-005.json's timeout_triage.records as UNSTABLE_TIMEOUT_TRIAGE) remain formally unresolved and the protocol prohibits resolving them by majority vote or an unauthorized third tie-break run within this transaction. The conservative (84.21453023963484%) and best-case bound (84.55686572841384%) figures already present in evidence-005.json's raw_mutation_effectiveness_metric are NOT deleted or recomputed -- they are explicitly relabeled here as NON-FORMAL diagnostic/planning evidence, kept because they establish the mathematical fact that no resolution of the 9 unstable mutants (even the most favorable one) reaches the required 87.001959503592% threshold (best-case numerator 2223 vs. required 2288, gap 65) -- this fact is useful for future remediation planning but MUST NOT be cited as the governed Condition-1 verdict.",
+    "corrected_condition_1_formal_state": "STOPPED / UNRESOLVED \u2014 locked timeout-triage protocol's disagreement clause triggered; Condition-1 gate interpretation cannot be formally declared PASS or FAIL until the 9 UNSTABLE_TIMEOUT_TRIAGE mutants are resolved through a governed mechanism (not defined by this correction).",
+    "diagnostic_only_bounds_relabeled": {
+      "numerator_conservative": 2214,
+      "score_conservative_percent": 84.21453023963484,
+      "numerator_bestcase": 2223,
+      "score_bestcase_percent": 84.55686572841384,
+      "required_numerator": 2288,
+      "gap_conservative": 74,
+      "gap_bestcase": 65,
+      "label": "NON-FORMAL \u2014 diagnostic/planning evidence only, NOT the governed Condition-1 verdict",
+      "note": "Mathematically, even the most favorable possible resolution of all 9 unstable mutants (all treated as killed) does not reach the threshold \u2014 this is disclosed as useful planning context, not as a substitute for the formally STOPPED gate state."
+    },
+    "status": "CLOSED \u2014 REMEDIATED VIA THIS CORRECTION"
+  },
+  "maj_02_remediation": {
+    "finding_id": "P3-FEATURE-EVID03-STEP9-005-A-MAJ-02",
+    "defect": "Fresh Review A reconciliation found feature_engine.identity.x_deterministic_id__mutmut_3 status regressed: evidence-004.json = 'killed', evidence-005.json = 'survived'. Production identity.py source and its only call sites (candle.py, contracts.py) are byte-identical between evidence-004.json's boundary (repository commit b3d4086033f1c232c0cd8706c9096f50b049de14) and evidence-005.json's boundary (662ed13e68838c17b290754047adb3c0cbf98f62) -- verified via `git diff` (empty) on both src/feature_engine/identity.py and the tests tree relevant to it; Waves 1-4 never touched identity.py or any identity-specific test (no tests/test_identity.py file exists in this repository). evidence-005.json's collateral_effect_vs_evidence_004 section stated still_survived_count=405 and additional_collateral_kills=0, which sums exactly to evidence-004.json's own 474-survivor baseline (405+69=474) but never explains why evidence-005.json's ACTUAL total survivor_count is 406, not 405 -- the narrative silently omitted this one killed->survived regression, which lies entirely OUTSIDE evidence-004.json's 474-survivor baseline set (it was killed there, so it was never a baseline survivor).",
+    "bounded_isolated_investigation": {
+      "scope": "single mutant only, feature_engine.identity.x_deterministic_id__mutmut_3 -- not a general mutation campaign",
+      "environment": "fresh disposable venv (python3.13, mutmut 3.7.0, all versions match requirements-dev.lock.txt, pip check clean), NOT reused from any prior wave or from the evidence-005.json full-run environment",
+      "ordinary_verification": "pytest -q: 414 passed (matches evidence-005.json exactly, tests unchanged)",
+      "source_boundary_diff": "git diff <evidence-004 boundary> <evidence-005/current boundary> -- src/feature_engine/identity.py tests/: EMPTY (byte-identical)",
+      "mutant_diff": "joined = \"|\".join(str(part) for part in parts)  ->  joined = \"XX|XX\".join(str(part) for part in parts)  (src/feature_engine/identity.py, deterministic_id)",
+      "protocol": "mutants/ workspace deleted and regenerated fresh before EACH of 2 independent isolated `python -m tooling run --max-children 1 <id>` reruns, per the same locked strict protocol used for timeout triage",
+      "isolated_run_1_result": "survived",
+      "isolated_run_2_result": "survived",
+      "reproducible": true,
+      "covering_tests_for_this_mutant": "`python -m tooling tests-for-mutant` attributes coverage of this exact mutated line EXCLUSIVELY to tests/test_swing_distance.py (29 tests) -- zero tests from test_candle.py or test_contracts.py, even though identity.deterministic_id is called only from candle.py and contracts.py, never from swing_distance.py directly. No dedicated tests/test_identity.py exists; deterministic_id is exercised only transitively through whichever tests happen to construct candle/fact identities.",
+      "working_hypothesis": "The killed->survived transition is most plausibly attributable to mutmut's own coverage-based per-mutant test-selection being sensitive to run-to-run variance for a shared, multiply-called, indirectly-tested utility function (deterministic_id) -- i.e. which exact subset of the full test suite gets attributed as 'covering' this specific mutated line can differ between two separately-generated fresh full-population mutmut runs (evidence-004.json's own full run vs. evidence-005.json's own full run), even with byte-identical source and tests. This is NOT fully mechanistically proven within this bounded investigation's scope (that would require instrumenting mutmut's own coverage-collection internals, out of scope for a bounded single-mutant correction) -- it is disclosed as the most plausible working hypothesis, analogous in kind (though not in mechanism) to the already-documented mutant-ID IDENTITY_COLLISION_OR_SEMANTIC_DISCONTINUITY phenomenon in Condition-2's 170-identity mapping, where the same exact mutant ID string does not reliably denote the same semantic mutation/coverage-selection across separate mutmut population regenerations.",
+      "current_status_for_condition_1_purposes": "survived \u2014 genuinely reproducible under the current (evidence-005.json) boundary, NOT a spurious artifact of the parallel full run (unlike the 88 raw timeout candidates); evidence-005.json's raw recording of this status is accurate and is NOT altered by this correction."
+    },
+    "corrected_survivor_accounting": {
+      "evidence_004_baseline_survivor_count": 474,
+      "evidence_005_total_survivor_count": 406,
+      "breakdown": {
+        "still_surviving_evidence_004_baseline_members": 405,
+        "of_which_identity_x_deterministic_id_mutmut_8_provably_equivalent_unremediated": true,
+        "new_regression_not_in_evidence_004_baseline": 1,
+        "new_regression_id": "feature_engine.identity.x_deterministic_id__mutmut_3",
+        "new_regression_prior_status_evidence_004": "killed",
+        "new_regression_current_status_evidence_005": "survived"
+      },
+      "reconciliation": "405 (still-surviving baseline members, includes the pre-existing identity.x_deterministic_id__mutmut_8) + 1 (new regression, identity.x_deterministic_id__mutmut_3) = 406 (evidence-005.json's actual total survivor_count) \u2014 the 69 credited-ledger kills are a SEPARATE, already-reconciled subtraction from the 474 baseline (474 - 69 = 405 remaining baseline survivors); the +1 regression is additive on top of that 405, not a component of it."
+    },
+    "ledger_narrative_correction": "The targeted-remediation ledger's post_waves_formal_remeasurement.note previously attributed the entire delta between the ledger's own estimated numerator (2224) and the fresh measurement's conservative numerator (2214) only to the 9 UNSTABLE_TIMEOUT_TRIAGE mutants. The observed delta also includes this one killed->survived regression (which removes 1 mutant from the numerator that the estimate implicitly assumed would remain killed, since the estimate = formal_numerator(2155) + 69 credited kills, with no term accounting for a possible NEW regression outside the 474-baseline). Corrected in the ledger's pointer field by this transaction (see ledger_and_docs_updates below).",
+    "reproducible_but_bounded_stop_check": "This investigation did NOT expose a deeper contradiction requiring scope expansion beyond evidence correction: the regression is a single, fully reproducible, fully explained (at working-hypothesis level) discrepancy confined to one non-credited, non-Condition-2, non-Waves-1-4-touched mutant. It does not affect the 69 credited-ledger IDs (cross-checked clean), the 28 Condition-2 RESOLVED_BY_EXISTING_KILL identities (all still qualify), or Condition 3 (untouched). No STOP triggered; remediated within this bounded correction.",
+    "status": "CLOSED \u2014 REMEDIATED VIA THIS CORRECTION"
+  },
+  "preservations_reconfirmed_this_transaction": {
+    "population": {
+      "expected": 2629,
+      "confirmed": 2629,
+      "source": "evidence-005.json full_current_mutant_mapping.total_entries, reread fresh"
+    },
+    "credited_69_ledger_ids_cross_check": {
+      "count": 69,
+      "all_killed_or_confirmed_timeout": true,
+      "contradictions": []
+    },
+    "condition_2_28_resolved_by_existing_kill_ids": {
+      "count": 28,
+      "all_still_qualifying_killed_or_confirmed_timeout": true,
+      "contradictions": []
+    },
+    "condition_2_formal_result": "FAIL / PARTIALLY SATISFIED \u2014 42/170 resolved (14 governed reclassification + 28 existing-kill semantically continuous, both reconfirmed) \u2014 UNCHANGED",
+    "condition_3_preserved": "SATISFIED \u2014 REVIEW A VALIDATED \u2014 UNCHANGED, byte-identical to evidence-005.json's own condition_3_preserved block, not reopened, not re-executed",
+    "production_source_boundary": {
+      "src_tree": "1029a9fef083b0902d6d00a2e96cfde14213324c",
+      "unchanged_vs_evidence_004_and_evidence_005": true
+    }
+  },
+  "corrected_current_boundary_evid03_result": {
+    "condition_1": "STOPPED / UNRESOLVED \u2014 locked timeout-triage protocol's disagreement clause triggered (9 UNSTABLE_TIMEOUT_TRIAGE mutants); neither PASS nor FAIL formally declared. Diagnostic-only bounds (84.21%-84.56%, both below the 87.00% threshold) remain available as non-formal planning evidence.",
+    "condition_2": "FAIL / PARTIALLY SATISFIED \u2014 42/170 resolved (reconfirmed, unchanged)",
+    "condition_3": "SATISFIED \u2014 REVIEW A VALIDATED (preserved, unchanged)",
+    "overall": "OPEN \u2014 Condition 1 formally unresolved (STOPPED, not FAIL) and Condition 2 independently FAILS; EVID-03 cannot close under either condition regardless of how Condition 1 eventually resolves."
+  },
+  "adr_scope_check": {
+    "rule": "Chapter 0 \u00a74b ADR Scope Rule, re-run fresh this transaction",
+    "assessment": "This is a bounded evidence-fidelity correction: it does not add/change a Platform Invariant, does not change Event Schema, does not change Module Taxonomy/dependency graph, does not change Governance/Approval process, does not affect >1 module, and is not hard to reverse (additive docs/evidence only). Per Phase 3 Execution Rules v0.3 P3-REVIEW-001, this is a 'bounded semantic correction' -> R1, Review A sufficient, no ADR.",
+    "result": "ADR_NOT_REQUIRED"
+  },
+  "ledger_and_docs_updates": {
+    "targeted_remediation_ledger": "docs/governance/mutation-baseline-evidence/feature-engine-condition1-targeted-remediation-001.json -- post_waves_formal_remeasurement.condition_1_result and .note corrected in place to reflect STOPPED/UNRESOLVED formal state and the identity regression; Waves 1-4 entries NOT rebased/rewritten.",
+    "remediation_plan": "docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md -- EVID-03 row's evidence-005 paragraph corrected: Condition 1 relabeled STOPPED/UNRESOLVED (not FAIL); conservative/best-case bounds relabeled NON-FORMAL; identity.x_deterministic_id__mutmut_3 regression disclosed with corrected 405+1=406 survivor accounting."
+  },
+  "not_performed_by_this_transaction": [
+    "No rerun of the fresh full 2629-mutant formal measurement.",
+    "No redesign of the timeout-triage protocol.",
+    "No majority vote or unauthorized third tie-break to force-resolve the 9 UNSTABLE_TIMEOUT_TRIAGE mutants.",
+    "No general mutation campaign beyond the single bounded identity.x_deterministic_id__mutmut_3 investigation.",
+    "No Wave 5 / broad survivor remediation.",
+    "No Condition-2 redesign (170-ID mapping untouched, only 28-ID cross-check reconfirmed).",
+    "No Condition-3 rerun.",
+    "No production src/test/tooling/dependency/contract/ADR/governance-rule change.",
+    "No Product Owner decision fabricated.",
+    "No LIVE authorization.",
+    "No Feature Engine approval.",
+    "evidence-005.json itself NOT modified (byte-unchanged, verified)."
+  ]
+}

@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.394"
+manifest_version: "10.395"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -27817,6 +27817,24 @@ READY_FOR_FRESH_FORMAL_CONDITION_1_MEASUREMENT: NO (2224 < 2288).
 **Next governed step:** ChatGPT live-repo verification + Review A of Evidence-005 fresh formal Condition-1 measurement, and then a higher-level decision about what to do next.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-005.json` (new), `docs/governance/mutation-baseline-evidence/feature-engine-condition1-targeted-remediation-001.json`, `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no `src/**`/`tests/**`/tooling/dependency file touched; scratch venv/mutants workspace (untracked) removed, not committed. `manifest_version` `"10.393"` → `"10.394"`.
+
+## `feature-engine` — `P3-FEATURE-QG-EVID-03` Evidence-005 bounded evidence-fidelity correction
+
+**Consolidated transaction — vai trò: `Feature Engine EVID-03 Evidence-005 Bounded Evidence-Fidelity Correction Executor`.** Starting HEAD `000bcf7926870f2f60fc6608501ae71a26154d82`, verified `main == origin/main`, no drift. Remediates ChatGPT Review A of `feature-engine-mutation-step9-formal-evidence-005.json`: `REVISION_REQUIRED — 0 Blocker / 2 Major / 0 Minor`, Risk `R1`.
+
+**`P3-FEATURE-EVID03-STEP9-005-A-MAJ-01` (CLOSED):** evidence-005.json's own locked timeout-triage protocol requires Condition-1 gate interpretation to STOP unconditionally on any of the 9 `UNSTABLE_TIMEOUT_TRIAGE` disagreements (no majority vote, no forced tie-break) — evidence-005.json nevertheless recorded a formal `FAIL — criteria` verdict computed from conservative/best-case numerator bounds, violating the protocol's own STOP clause. **Corrected Condition-1 formal state: `STOPPED / UNRESOLVED`** — neither PASS nor FAIL formally declared; the conservative (84.21453023963484%) / best-case (84.55686572841384%) figures are relabeled explicit **NON-FORMAL diagnostic/planning evidence** (useful fact that neither bound reaches the 87.001959503592% threshold, but not the governed verdict).
+
+**`P3-FEATURE-EVID03-STEP9-005-A-MAJ-02` (CLOSED):** fresh Review A reconciliation found `feature_engine.identity.x_deterministic_id__mutmut_3` regressed killed (evidence-004.json) → survived (evidence-005.json), with `identity.py` and its only call sites (`candle.py`, `contracts.py`) byte-identical across both boundaries (`git diff` empty; Waves 1-4 never touched `identity.py`; no `tests/test_identity.py` exists). Bounded single-mutant isolated investigation (fresh disposable venv, NOT reused; `mutants/` deleted/regenerated fresh before each of 2 independent isolated `--max-children 1` reruns, same locked protocol as timeout triage): **2/2 fresh isolated runs reproduced `survived`** — genuinely reproducible, not a full-run artifact. `tests-for-mutant` attributes this line's coverage exclusively to `test_swing_distance.py`, none from `test_candle.py`/`test_contracts.py` despite `deterministic_id` being called only from those two files — working hypothesis: mutmut's coverage-based per-mutant test-selection is sensitive to run-to-run variance for this shared, indirectly-tested utility function across separately-generated fresh full-population runs. **Corrected survivor accounting:** evidence-005.json's actual total survivor_count (406) = 405 still-surviving evidence-004.json baseline members (includes the pre-existing, unremediated `identity.x_deterministic_id__mutmut_8`) **+ 1 new regression** (`identity.x_deterministic_id__mutmut_3`), NOT 405 alone.
+
+**Reconfirmed preservations (not assumed):** population 2629; all 69 credited-ledger IDs still killed/confirmed_timeout (cross-checked fresh); all 28 Condition-2 `RESOLVED_BY_EXISTING_KILL` identities still qualify (Condition 2 remains `FAIL / PARTIALLY SATISFIED — 42/170 resolved`, unchanged); Condition 3 unchanged `SATISFIED — REVIEW A VALIDATED`; production source boundary unchanged (`src_tree` `1029a9fef083b0902d6d00a2e96cfde14213324c`). Fresh Chapter 0 §4b ADR Scope Rule check: `ADR_NOT_REQUIRED` (bounded evidence correction, no Platform Invariant/Event Schema/Module Taxonomy/Governance-process/architecture change, docs/evidence only).
+
+**Corrected current-boundary EVID-03 result:** Condition 1 `STOPPED/UNRESOLVED`; Condition 2 `FAIL/PARTIALLY SATISFIED — 42/170`; Condition 3 `SATISFIED`. `P3-FEATURE-QG-EVID-03` remains `OPEN` (cannot close under either condition regardless of how Condition 1 eventually resolves). Feature Engine remains **NOT APPROVED**; LIVE remains **NOT_AUTHORIZED**.
+
+**Created:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-005-correction-001.json` — new, additive; `feature-engine-mutation-step9-formal-evidence-005.json` byte-unchanged (blob `f7a6ab715155ad166808e0e9d9a7474196d9b69d`, verified before and after), not modified. **Updated ledger:** `feature-engine-condition1-targeted-remediation-001.json` — `post_waves_formal_remeasurement.condition_1_result`/`.collateral_effect_measured`/`.note` corrected in place to reflect the `STOPPED/UNRESOLVED` state and the identity regression; added `.correction_applied` pointer; Waves 1-4 entries NOT rebased/rewritten.
+
+**Next governed step:** ChatGPT bounded Review A re-review of `feature-engine-mutation-step9-formal-evidence-005-correction-001.json`.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-005-correction-001.json` (new), `docs/governance/mutation-baseline-evidence/feature-engine-condition1-targeted-remediation-001.json`, `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no `src/**`/`tests/**`/tooling/dependency/contract/ADR/governance-rule file touched; scratch venv/mutants workspace (untracked) removed, not committed. `manifest_version` `"10.394"` → `"10.395"`.
 
 ## Decision Log
 
