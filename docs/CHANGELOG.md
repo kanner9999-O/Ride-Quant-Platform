@@ -2,6 +2,24 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-18 — feature-engine: `P3-FEATURE-QG-EVID-03` Condition-2 semantic-successor mapping (bounded, evidence-only)
+
+Starting HEAD `d70bc8fd9690a0472dd5ce8a2a53d20add9352ea`, verified `main == origin/main`, no drift. Folds the `feature-engine-mutation-step9-formal-evidence-005-correction-001.json` Review A closure bookkeeping into this same commit (ChatGPT bounded Review A re-review returned `CLEAN -- 0 Blocker / 0 Major / 0 Minor`, Risk `R1`; `P3-FEATURE-EVID03-STEP9-005-A-MAJ-01`/`-MAJ-02`/`P3-FEATURE-EVID03-STEP9-005-CORR001-A-MAJ-01` all `CLOSED -- REVIEW A VALIDATED`).
+
+Fresh-read Testing Convention proposal §4.1(a)/(b) before any mapping work. §4.1(a) ("Killed... exact mutant ID") structurally cannot be satisfied by a rename/refactor successor -- its mutant ID is, by construction, always a different string. §4.1(b) ("Individually reclassified... a SEPARATE, governed decision") is the only theoretically-applicable mechanism, but explicitly requires review this single evidence-gathering transaction cannot self-grant. **Branch B determination: no row may alter the governed Condition-2 count this transaction.**
+
+Mapped all 128 unresolved historical identities (10 identity-collision + 118 absent, exact population from `feature-engine-mutation-material-gap-identity-resolution-001.json`) against current source, construction-site-level (not name-only). Fresh-verified the prior strategic assessment's rename hypothesis via direct source reading: confirmed a genuine, docstring-documented ADR-043 "prepare seam" pattern (`_emit_*`/`on_*` -> `_prepare_*`/`prepare_*`) -- e.g. `prepare_swing_confirmed`'s own docstring: "identical validation/candidate-computation logic as `on_swing_confirmed` used to perform inline, but stops BEFORE allocating any Feature `ref`." Result: 72 `SUCCESSOR_MATCH -- CURRENT KILLED` (identical field/expression/comparison verbatim in the successor, current status killed; 10 individually diff-confirmed via `tooling show`), 53 `BEHAVIOR_REMOVED -- EVIDENCE REQUIRED FOR GOVERNED RECLASSIFICATION` (ref-allocation sites legitimately relocated to `_commit_live`/batch-finalization; the `__init__` unchecked-default-`stream_id` gap structurally eliminated -- `self._stream_id` is now authoritatively resolved from `output_authority.authoritative_stream_id`, no caller-suppliable default remains), 3 `AMBIGUOUS -- MULTIPLE POSSIBLE SUCCESSORS`, 0 `NO SEMANTIC SUCCESSOR FOUND`.
+
+**Governed Condition-2 accounting: 0 rows permitted to alter the controlling count.** Condition 2 remains exactly `FAIL / PARTIALLY SATISFIED -- 42/170` -- unchanged. All 128 rows recorded as candidates only (`SEMANTIC_SUCCESSOR_CANDIDATE -- GOVERNED CREDIT NOT YET AUTHORIZED` or `AMBIGUOUS`), never self-credited. `resolution-001.json` byte-unchanged, not modified. Condition 1 unchanged `STOPPED/UNRESOLVED` (not reopened); Condition 3 unchanged `SATISFIED`. `P3-FEATURE-QG-EVID-03` remains `OPEN`. Feature Engine remains NOT APPROVED; LIVE remains NOT_AUTHORIZED.
+
+Created `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-identity-resolution-002.json` (new, additive) -- exact per-identity evidence for all 128 attempted rows.
+
+**Next governed step:** ChatGPT bounded Review A / architecture review of `feature-engine-mutation-material-gap-identity-resolution-002.json`.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-identity-resolution-002.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only -- verified via `git status --porcelain=v1`; no source/test/tooling/dependency/contract/ADR/governance-rule file touched; no mutation test execution performed (diff-view only via `tooling show`); scratch venv/mutants workspace removed, not committed. `manifest_version` `"10.395"` -> `"10.396"`.
+
+---
+
 ## [Unreleased] — 2026-09-18 — feature-engine: `P3-FEATURE-QG-EVID-03` Evidence-005 bounded evidence-fidelity correction
 
 Starting HEAD `000bcf7926870f2f60fc6608501ae71a26154d82`, verified `main == origin/main`, no drift. Remediates ChatGPT Review A of `feature-engine-mutation-step9-formal-evidence-005.json`: `REVISION_REQUIRED -- 0 Blocker / 2 Major / 0 Minor`, Risk `R1`.
