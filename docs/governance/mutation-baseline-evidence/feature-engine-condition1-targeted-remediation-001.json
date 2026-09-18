@@ -104,7 +104,7 @@
         "python/feature-engine/tests/test_ownership.py",
         "python/feature-engine/tests/test_regime_passthrough.py"
       ],
-      "review_a_state": "REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW",
+      "review_a_state": "REVIEW A VALIDATED",
       "review_a_finding": "P3-FEATURE-EVID03-COND1-WAVE3-A-MAJ-01",
       "review_a_finding_summary": "Wave 3's test implementation itself was not disputed. Defect was evidence durability/accounting: the exact 19 mutant IDs and per-mutant final targeted statuses were not durably pinned in the repository, and scratch mutation workspaces were removed, so future survivor-set reconciliation could not be independently reconstructed from repository evidence alone; additionally the remediation plan's '~373-survivor population' figure was arithmetically inconsistent with the transaction's own credited-kill accounting. This ledger, plus the corrected remediation-plan wording, remediates both defects.",
       "risk": "R1",
@@ -114,7 +114,7 @@
         "contracts._prepared_matches_canonical FeatureFactInvalidated-branch and->or corruption": 5,
         "RegimePassthroughFeatureEngine field-completeness + is_pristine_for_authoritative_catchup (regime_passthrough.py)": 5
       },
-      "test_count_wording_correction": "7 new tests + 2 existing tests extended (not literally '9 tests added' as loosely worded in the Wave-3 transaction's own prose)",
+      "test_count_wording_correction": "7 new test functions, 0 existing test functions modified/extended",
       "targeted_verification_protocol": "cache-safe: fresh mutants/ workspace deleted and regenerated before EACH individual mutant; no shared/incremental workspace trusted for any recorded verdict",
       "targeted_verification_at_this_correction": "19/19 SURVIVED -> killed, re-verified fresh from this correction transaction's own independent workspace (see rows below) -- this is the durable evidence that was missing at Wave-3 commit time",
       "mutant_ids": [
@@ -329,6 +329,105 @@
           "fresh_workspace_confirmed": true,
           "verification_boundary": "8e8765ff287ce3f6646da87cc1e890d6be329d70"
         }
+      ],
+      "review_a_finding_state": "P3-FEATURE-EVID03-COND1-WAVE3-A-MAJ-01: CLOSED — BOUNDED REVIEW A RE-REVIEW"
+    },
+    {
+      "wave": 4,
+      "role": "Feature Engine EVID-03 Condition-1 High-Yield Survivor Remediation Executor — Wave 4",
+      "commit_sha": "This commit's own resulting SHA is inherently self-referential (embedding it here would change the commit's own content/hash) -- the authoritative value is the actual HEAD SHA immediately after this transaction's commit, reported in the transaction's own Final Report and git log, not hardcoded in this artifact to avoid false precision from a stale self-reference.",
+      "parent_sha": "64533f6680a2ea83e4cf850c4e41db7f62abdeef",
+      "test_files_changed": [
+        "python/feature-engine/tests/test_authority_resolver.py",
+        "python/feature-engine/tests/test_output_contract_resolver.py"
+      ],
+      "review_a_state": "PENDING REVIEW A",
+      "risk": "R1",
+      "credited_kill_count": 7,
+      "semantic_groups": {
+        "Input/Output Contract artifact scalar & merge-policy YAML-fragment parsing + construction-time validation robustness (authority_resolver.py's _extract_merge_policy/_extract_scalar, output_contract_resolver.py's own _extract_scalar, contracts.py's _seal_verified_output_authority)": 7
+      },
+      "exclusions_summary": "Exhaustively investigated essentially the ENTIRE remaining 412-survivor population (every function in the fresh module/function distribution was either diffed or definitively classified). Confirmed/reconfirmed as MESSAGE_TEXT_ONLY, PROVABLY_EQUIVALENT, or STRUCTURALLY_UNREACHABLE (not remediated): authority_resolver.resolve_historical_input_contract_authority_from_repository (64), contracts.resolve_computation_cursor (35), swing_distance.__init__ (26), contracts._seal_verified_authority (24), replay_preparation.prepare_replay_evidence (20), regime_passthrough.__init__ (19), authority_resolver.resolve_input_contract_authority_from_repository (18), contracts._validate_canonical_recorded_time (16, all 16 message-text/provably-equivalent/structurally-unreachable -- the depends_on_preceding_invalidation_timing guard is dead code since both engines always pair a same-batch invalidation before any dependent replacement), ownership.acquire_and_activate remaining 14 (message-text + 2 confirmed-dead intermediate-handle mutants 21/23), ownership._catch_up remaining 13 (message-text + 2 structurally-unreachable given the shared InMemoryLineageHistoryProvider fake's proven_empty semantics), output_contract_resolver._resolve_one/_resolve_authoritative_stream (25, all message-text), contracts._finalize_prepared_batch (12, all message-text/provably-equivalent/structurally-unreachable -- same dead-guard reasoning as _validate_canonical_recorded_time), ownership.p_run_sort (10, message-text + provably-equivalent zip(strict=...) variants), regime_passthrough's prepare_regime_classified/prepare_upstream_event/prepare_regime_invalidated (15, all message-text), swing_distance's prepare_swing_confirmed/prepare_upstream_event/prepare_swing_invalidated/_check_candle_recorded_time/_check_swing_recorded_time (17, all message-text), swing_distance._prepare_preempt_settled_window remaining 4 (message-text + 1 provably-equivalent floor redundancy), authority_resolver._validate_supported_merge_policy (4, all message-text), ownership.__init__/_require_active/_tie_break_key (7, provably-equivalent/message-text/structurally-unreachable per prior waves), current_view (6, dead fields + falsy-equivalent invalidated value per Wave 3), identity.x_deterministic_id (1, equivalent codec case), swing_distance's own already-classified leftover _prepare_original/_prepare_recompute/_prepare_reevaluate_all_windows/_prepare_replacement_only mutants (4, unchanged from Wave 2's classification), output_contract_resolver's resolve_output_event_contract_authority_from_repository None-argument mutants and _extract_allowed_streams' in-block boolean (3, message-text/message-adjacent -- the mutated argument only feeds downstream error message content, never control flow, or is falsy-equivalent). Deferred as UNCLEAR (genuine TEST_GAP in principle, no fragile/contrived construction attempted): swing_distance._select_eligible_swing's 2 tie-break swing_id-argument mutants (unchanged from Wave 2's deferral) and swing_distance.x__total_order_key's revision-sign mutant (a real total-order criterion, but naturally constructing a genuine multi-swing tie down to the revision criterion requires forcing two independent SequenceAllocator-issued refs to share the same sequence number, judged too contrived/implementation-focused for this wave); authority_resolver._extract_included_streams and output_contract_resolver._extract_allowed_streams' own in_block=None-vs-False mutants confirmed PROVABLY_EQUIVALENT (truthiness-only consumption).",
+      "mutant_ids": [
+        "feature_engine.contracts.x__seal_verified_output_authority__mutmut_5",
+        "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_1",
+        "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_17",
+        "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_24",
+        "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_32",
+        "feature_engine.authority_resolver.x__extract_scalar__mutmut_4",
+        "feature_engine.output_contract_resolver.x__extract_scalar__mutmut_4"
+      ],
+      "rows": [
+        {
+          "mutant_id": "feature_engine.contracts.x__seal_verified_output_authority__mutmut_5",
+          "source_module": "contracts.py",
+          "qualified_function": "x__seal_verified_output_authority",
+          "baseline_status": "SURVIVED",
+          "wave": 4,
+          "current_targeted_status": "killed",
+          "fresh_workspace_confirmed": true,
+          "verification_boundary": "parent_sha (64533f6680a2ea83e4cf850c4e41db7f62abdeef) + this wave's own resulting commit -- see note on commit_sha"
+        },
+        {
+          "mutant_id": "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_1",
+          "source_module": "authority_resolver.py",
+          "qualified_function": "x__extract_merge_policy",
+          "baseline_status": "SURVIVED",
+          "wave": 4,
+          "current_targeted_status": "killed",
+          "fresh_workspace_confirmed": true,
+          "verification_boundary": "parent_sha (64533f6680a2ea83e4cf850c4e41db7f62abdeef) + this wave's own resulting commit -- see note on commit_sha"
+        },
+        {
+          "mutant_id": "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_17",
+          "source_module": "authority_resolver.py",
+          "qualified_function": "x__extract_merge_policy",
+          "baseline_status": "SURVIVED",
+          "wave": 4,
+          "current_targeted_status": "killed",
+          "fresh_workspace_confirmed": true,
+          "verification_boundary": "parent_sha (64533f6680a2ea83e4cf850c4e41db7f62abdeef) + this wave's own resulting commit -- see note on commit_sha"
+        },
+        {
+          "mutant_id": "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_24",
+          "source_module": "authority_resolver.py",
+          "qualified_function": "x__extract_merge_policy",
+          "baseline_status": "SURVIVED",
+          "wave": 4,
+          "current_targeted_status": "killed",
+          "fresh_workspace_confirmed": true,
+          "verification_boundary": "parent_sha (64533f6680a2ea83e4cf850c4e41db7f62abdeef) + this wave's own resulting commit -- see note on commit_sha"
+        },
+        {
+          "mutant_id": "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_32",
+          "source_module": "authority_resolver.py",
+          "qualified_function": "x__extract_merge_policy",
+          "baseline_status": "SURVIVED",
+          "wave": 4,
+          "current_targeted_status": "killed",
+          "fresh_workspace_confirmed": true,
+          "verification_boundary": "parent_sha (64533f6680a2ea83e4cf850c4e41db7f62abdeef) + this wave's own resulting commit -- see note on commit_sha"
+        },
+        {
+          "mutant_id": "feature_engine.authority_resolver.x__extract_scalar__mutmut_4",
+          "source_module": "authority_resolver.py",
+          "qualified_function": "x__extract_scalar",
+          "baseline_status": "SURVIVED",
+          "wave": 4,
+          "current_targeted_status": "killed",
+          "fresh_workspace_confirmed": true,
+          "verification_boundary": "parent_sha (64533f6680a2ea83e4cf850c4e41db7f62abdeef) + this wave's own resulting commit -- see note on commit_sha"
+        },
+        {
+          "mutant_id": "feature_engine.output_contract_resolver.x__extract_scalar__mutmut_4",
+          "source_module": "output_contract_resolver.py",
+          "qualified_function": "x__extract_scalar",
+          "baseline_status": "SURVIVED",
+          "wave": 4,
+          "current_targeted_status": "killed",
+          "fresh_workspace_confirmed": true,
+          "verification_boundary": "parent_sha (64533f6680a2ea83e4cf850c4e41db7f62abdeef) + this wave's own resulting commit -- see note on commit_sha"
+        }
       ]
     }
   ],
@@ -364,18 +463,19 @@
     "wave1_credited_kill_count": 22,
     "wave2_credited_kill_count": 19,
     "wave3_credited_kill_count": 19,
-    "selected_wave_union_cardinality": 60,
+    "wave4_credited_kill_count": 7,
+    "selected_wave_union_cardinality": 67,
     "selected_wave_union_no_duplicates_confirmed": true,
     "collateral_verified_kill_count": 2,
-    "total_credited_kills": 62,
-    "estimated_numerator": 2217,
-    "estimated_numerator_computation": "formal_numerator (2155) + total_credited_kills (62)",
-    "estimated_score_percent": 84.32864206922784,
+    "total_credited_kills": 69,
+    "estimated_numerator": 2224,
+    "estimated_numerator_computation": "formal_numerator (2155) + total_credited_kills (69)",
+    "estimated_score_percent": 84.59490300494484,
     "minimum_threshold_numerator": 2288,
-    "remaining_numerator_gap": 71,
-    "credited_working_survivor_count": 412,
-    "credited_working_survivor_computation": "formal_survivor_count (474) - total_credited_kills (62)",
-    "caveat": "credited_working_survivor_count is NOT a claim that a fresh full formal mutation run found exactly this many survivors -- it is formal Evidence-004's own 474 survivor IDs minus the exact set of individually, freshly-verified credited kills (60 selected-wave + 2 collateral = 62). Other unmeasured collateral kills may exist among the remaining 412 IDs; this ledger makes no claim that they do not. Condition 1 remains FAIL — criteria until a fresh full formal 2629-mutant measurement (with timeout triage) is performed and independently shows the raw score at or above 87.001959503592%."
+    "remaining_numerator_gap": 64,
+    "credited_working_survivor_count": 405,
+    "credited_working_survivor_computation": "formal_survivor_count (474) - total_credited_kills (69)",
+    "caveat": "credited_working_survivor_count is NOT a claim that a fresh full formal mutation run found exactly this many survivors -- it is formal Evidence-004's own 474 survivor IDs minus the exact set of individually, freshly-verified credited kills (67 selected-wave + 2 collateral = 69). Other unmeasured collateral kills may exist among the remaining 405 IDs; this ledger makes no claim that they do not. Condition 1 remains FAIL — criteria until a fresh full formal 2629-mutant measurement (with timeout triage) is performed and independently shows the raw score at or above 87.001959503592%."
   },
   "reconciliation_formula": "credited_working_survivor_set = evidence-004.full_current_mutant_mapping.survivor_mutant_ids MINUS union(waves[0].mutant_ids, waves[1].mutant_ids, waves[2].mutant_ids, [c.mutant_id for c in collateral_kills])",
   "not_performed_by_this_correction": [
@@ -394,5 +494,10 @@
     "no LIVE authorization",
     "no self-closure of P3-FEATURE-EVID03-COND1-WAVE3-A-MAJ-01"
   ],
-  "next_governed_step": "ChatGPT bounded Review A re-review of P3-FEATURE-EVID03-COND1-WAVE3-A-MAJ-01."
+  "next_governed_step": "ChatGPT live-repo verification + Review A of Condition-1 survivor-remediation Wave 4.",
+  "review_a_findings": {
+    "P3-FEATURE-EVID03-COND1-WAVE3-A-MAJ-01": "CLOSED — BOUNDED REVIEW A RE-REVIEW",
+    "P3-FEATURE-EVID03-COND1-LEDGER-A-MIN-01": "CLOSED — FOLDED INTO WAVE 4",
+    "P3-FEATURE-EVID03-COND1-WAVE4": "PENDING REVIEW A"
+  }
 }

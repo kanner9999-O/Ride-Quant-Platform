@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.392"
+manifest_version: "10.393"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -27747,6 +27747,48 @@ Corrected accounting:
 **Next governed step:** ChatGPT bounded Review A re-review of `P3-FEATURE-EVID03-COND1-WAVE3-A-MAJ-01`.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-condition1-targeted-remediation-001.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no `src/**`/`tests/**`/tooling/dependency file touched; scratch venv/mutants workspace (untracked) removed, not committed. `manifest_version` `"10.391"` → `"10.392"`.
+
+## `feature-engine` — `P3-FEATURE-QG-EVID-03` Condition-1 survivor-remediation Wave 4 (folds Wave-3 Major closure + ledger Minor closure)
+
+**Consolidated transaction — vai trò: `Feature Engine EVID-03 Condition-1 High-Yield Survivor Remediation Executor — Wave 4`.** Starting HEAD `64533f6680a2ea83e4cf850c4e41db7f62abdeef`, verified `main == origin/main`, no drift. **Folded review closures:** `P3-FEATURE-EVID03-COND1-WAVE3-A-MAJ-01: CLOSED — BOUNDED REVIEW A RE-REVIEW` (Review A: technical/evidence fidelity VALIDATED); `P3-FEATURE-EVID03-COND1-LEDGER-A-MIN-01: CLOSED — FOLDED INTO WAVE 4` (mechanically corrected the ledger's `waves[2].test_count_wording_correction` field to "7 new test functions, 0 existing test functions modified/extended"). No standalone correction commit.
+
+**Credited working survivor set (mechanical, from ledger):** evidence-004's 474 minus the exact Wave-1/2/3 selected-wave union (67) minus the 2 collateral IDs = **412**, exact, reconciled from repository evidence alone. Fresh module/function distribution recomputed and matches the expected distribution exactly (authority_resolver 97, contracts 99, swing_distance 69, ownership 54, regime_passthrough 36, output_contract_resolver 30, replay_preparation 20, current_view 6, identity 1 = 412).
+
+**Test-only wave (`python/feature-engine/tests/test_authority_resolver.py` + `python/feature-engine/tests/test_output_contract_resolver.py` only):** exhaustively investigated essentially the entire remaining 412-survivor population — every function in the distribution was either freshly diffed this wave or already definitively classified by a prior wave. Confirmed zero new genuine mutants across a wide additional sweep: `contracts._validate_canonical_recorded_time` (16) and `contracts._finalize_prepared_batch` (12) — both fully message-text/provably-equivalent/structurally-unreachable (the `depends_on_preceding_invalidation_timing`-guard branches are dead code since both engines always pair a same-batch invalidation before any dependent replacement); `ownership.acquire_and_activate`'s remaining 14 and `ownership._catch_up`'s remaining 13 (message-text + already-known-dead/unreachable, unchanged from Wave-1/Wave-3 classification — `_catch_up`'s events/proven_empty inversion mutants remain unreachable given the shared `InMemoryLineageHistoryProvider` fake's single `_known_subjects` set; a deeper fake redesign was judged too high-risk/high-blast-radius for this wave and is explicitly deferred, not attempted); `authority_resolver._validate_supported_merge_policy` (4, all message-text); `swing_distance._prepare_preempt_settled_window`'s remaining 4 (message-text + 1 already-known floor-equivalent).
+
+**Selected cluster (7 mutants, all `TEST_GAP`) — "Input/Output Contract artifact scalar & merge-policy YAML-fragment parsing + construction-time validation robustness":** `authority_resolver._extract_merge_policy`'s algorithm-init-value/quote-stripping/bracket-delimiter gaps (4); `authority_resolver._extract_scalar` and `output_contract_resolver._extract_scalar`'s own quote-stripping gaps (1 each); `contracts._seal_verified_output_authority`'s `or`→`and` contract_version completeness-guard bug (1).
+
+**7 new tests added** (`test_merge_policy_missing_algorithm_with_tie_break_present_fails_closed`, `test_merge_policy_concurrent_tie_break_missing_opening_bracket_fails_closed`, `test_merge_policy_algorithm_tolerates_quoted_value`, `test_merge_policy_concurrent_tie_break_items_tolerate_quoted_values`, `test_input_contract_id_tolerates_quoted_value` in `test_authority_resolver.py`; `test_computed_contract_id_tolerates_quoted_value`, `test_seal_verified_output_authority_rejects_when_only_one_contract_version_is_empty` in `test_output_contract_resolver.py`) — asserting genuine contract-visible behavior: resolved-field correctness for quote-tolerance, pure exception-type-only `pytest.raises(...)` assertions where a clean success/no-raise divergence exists, and established repo-precedent `match=` substring checks (never full-message snapshots) for the two gaps only distinguishable by diagnosis category — mirroring this file's own pre-existing `test_merge_policy_missing_tie_break_fails_closed` convention. Never mutant-ID-named.
+
+**Deferred as UNCLEAR** (genuine `TEST_GAP` in principle, no contrived construction attempted): `swing_distance._select_eligible_swing`'s 2 tie-break swing_id mutants (unchanged Wave-2 deferral); `swing_distance.x__total_order_key`'s revision-sign mutant (naturally constructing a multi-swing tie down to the revision criterion requires forcing two independent `SequenceAllocator`-issued refs to share one sequence number, judged too contrived for this wave).
+
+```text
+Ordinary verification: pytest -q: 414 passed. pytest -q tests/test_authority_resolver.py: 29 passed.
+  pytest -q tests/test_output_contract_resolver.py: 30 passed. pytest -q tooling/fault_injection/tests: 33 passed.
+  ruff check src tests tooling: same 2 pre-existing unrelated E501 findings in authority_resolver.py
+  unchanged -- zero new findings surviving (one self-introduced E501 in the new
+  test_output_contract_resolver.py test was found and fixed within scope). mypy src tests: Success, 35 files.
+Targeted mutation verification, CACHE-SAFE PROTOCOL (fresh mutants/ workspace deleted/regenerated
+  before EACH individual mutant): 7/7 selected survivors SURVIVED -> killed. Zero residual.
+Cumulative accounting (per the ledger): selected-wave union = 22+19+19+7 = 67 (no duplicates) +
+  2 collateral = 69 total credited kills.
+Estimated Condition-1 numerator: 2155 + 69 = 2224 (84.59490300494484%) -- still < 87.001959503592%, FAIL.
+Remaining gap to minimum threshold numerator 2288: narrows from 64 to 64 (71 -> 64).
+Credited working survivor count: 474 - 69 = 405.
+READY_FOR_FRESH_FORMAL_CONDITION_1_MEASUREMENT: NO (2224 < 2288).
+```
+
+**Given this wave's exhaustive-investigation finding, this yield (7, below the 20-30 preferred target) reflects the genuine ceiling of the remaining population, not an under-search** — the vast majority of the 412 working survivors are message-text-only (excluded per established anti-gaming precedent), provably equivalent (given engine-guaranteed invariants already independently reconfirmed across multiple functions this wave), or structurally unreachable dead code/fields.
+
+**Updated ledger:** `docs/governance/mutation-baseline-evidence/feature-engine-condition1-targeted-remediation-001.json` — appended Wave 4 (exact 7 mutant IDs, per-mutant rows, semantic-group summary, exclusions summary), folded Wave-3 Major/ledger-Minor closures, recomputed `accounting` block mechanically.
+
+**Not performed:** no `src/**`/tooling/dependency change; no full formal 2629-mutant remeasurement; no Condition-1 closure claim; no Condition-2 accounting change (unchanged `FAIL / PARTIALLY SATISFIED — 42/170 resolved`); no Condition-3 reopening (unchanged `SATISFIED — REVIEW A VALIDATED`); no EVID-03 closure; no ADR; no Review B; no Product Owner decision; no Feature Engine approval; no LIVE authorization; no separate Wave-4 evidence artifact (the cumulative ledger is the sole SSOT).
+
+**Fresh ADR Scope Rule:** `ADR_NOT_REQUIRED` — bounded test-only remediation within already-approved Testing Convention v0.17 mutation-testing mechanism, no contract/invariant change.
+
+**Next governed step:** ChatGPT live-repo verification + Review A of Condition-1 survivor-remediation Wave 4.
+
+**Files changed:** `python/feature-engine/tests/test_authority_resolver.py`, `python/feature-engine/tests/test_output_contract_resolver.py`, `docs/governance/mutation-baseline-evidence/feature-engine-condition1-targeted-remediation-001.json`, `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no `src/**`/tooling/dependency file touched; scratch venv/mutants workspace (untracked) removed, not committed. `manifest_version` `"10.392"` → `"10.393"`.
 
 ## Decision Log
 

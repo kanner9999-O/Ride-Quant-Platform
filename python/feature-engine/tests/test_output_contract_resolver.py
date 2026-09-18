@@ -1,17 +1,19 @@
 from __future__ import annotations
 
+import dataclasses
 from pathlib import Path
 
 import pytest
 from conftest import FEATURE_OUTPUT_CONTRACT_VERSION, OUTPUT_EVENT_CONTRACT_AUTHORITY
 
 from feature_engine import EventContractRef
-from feature_engine.contracts import VerifiedOutputEventContractAuthority
+from feature_engine.contracts import VerifiedOutputEventContractAuthority, _seal_verified_output_authority
 from feature_engine.errors import (
     OutputEventContractIdentityMismatchError,
     OutputEventContractNotPublishedError,
     OutputEventContractUnresolvableError,
     OutputStreamEligibilityError,
+    UnresolvedComputationCursorAuthorityError,
 )
 from feature_engine.output_contract_resolver import (
     FilesystemOutputEventContractAuthorityResolver,
@@ -114,6 +116,49 @@ def test_conftest_authority_matches_direct_resolution() -> None:
         FEATURE_OUTPUT_CONTRACT_VERSION, FEATURE_OUTPUT_CONTRACT_VERSION
     )
     assert OUTPUT_EVENT_CONTRACT_AUTHORITY == direct
+
+
+def test_computed_contract_id_tolerates_quoted_value(tmp_path: Path) -> None:
+    """`_extract_scalar` (shared by every Event Contract version-artifact
+    scalar field) strips a surrounding pair of `"` quote characters --
+    proven for `contract_id` by declaring it quoted in the artifact and
+    confirming the resolved `computed_contract_ref.contract_id` is still
+    the exact, unquoted value the canonical path identity requires.
+    """
+    repo = _write_fake_repo(tmp_path)
+    computed_path = repo / _COMPUTED_RELPATH
+    computed_path.write_text(
+        computed_path.read_text().replace("contract_id: feature-computed\n", 'contract_id: "feature-computed"\n')
+    )
+    resolved = resolve_output_event_contract_authority_from_repository("v1.0", "v1.0", repo_root=repo)
+    assert resolved.computed_contract_ref.contract_id == "feature-computed"
+
+
+def test_seal_verified_output_authority_rejects_when_only_one_contract_version_is_empty() -> None:
+    """`_seal_verified_output_authority`'s own guard requires BOTH
+    `computed_contract_ref`/`invalidated_contract_ref` to carry a genuine,
+    non-empty `contract_version` -- proven independently for each side: a
+    single empty `contract_version` (the other side still genuinely valid)
+    must fail closed on its own, never only when BOTH happen to be empty
+    together (mirrors the established direct-construction test convention
+    already used for `_seal_verified_authority`'s own field-validation
+    guards in test_swing_distance.py/test_regime_passthrough.py).
+    """
+    valid_computed = OUTPUT_EVENT_CONTRACT_AUTHORITY.computed_contract_ref
+    valid_invalidated = OUTPUT_EVENT_CONTRACT_AUTHORITY.invalidated_contract_ref
+    stream_id = OUTPUT_EVENT_CONTRACT_AUTHORITY.authoritative_stream_id
+    with pytest.raises(UnresolvedComputationCursorAuthorityError):
+        _seal_verified_output_authority(
+            computed_contract_ref=valid_computed,
+            invalidated_contract_ref=dataclasses.replace(valid_invalidated, contract_version=""),
+            authoritative_stream_id=stream_id,
+        )
+    with pytest.raises(UnresolvedComputationCursorAuthorityError):
+        _seal_verified_output_authority(
+            computed_contract_ref=dataclasses.replace(valid_computed, contract_version=""),
+            invalidated_contract_ref=valid_invalidated,
+            authoritative_stream_id=stream_id,
+        )
 
 
 # --- P3-FEATURE-EVID05B-IMPL-A-MAJ-01 remediation: independent lineages ----

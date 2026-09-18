@@ -432,6 +432,94 @@ streams:
         resolve_input_contract_authority_from_repository("distance_to_last_confirmed_swing", repo_root=repo)
 
 
+def test_merge_policy_missing_algorithm_with_tie_break_present_fails_closed(tmp_path: Path) -> None:
+    """Mirrors `test_merge_policy_missing_tie_break_fails_closed` above for
+    the OTHER half of `_extract_merge_policy`'s own completeness check: here
+    `concurrent_tie_break:` is present and well-formed but `algorithm:` is
+    entirely absent -- a genuinely incomplete block from the other
+    direction, independent of the tie-break-missing case.
+    """
+    repo = _write_fake_repo(tmp_path)
+    contract_path = repo / "docs/architecture/input-contracts/feature-swing-distance-input.yaml"
+    contract_path.write_text(
+        contract_path.read_text().replace("  algorithm: deterministic-causal-topological-order\n", "")
+    )
+    with pytest.raises(UnsupportedMergePolicyError, match="does not declare a complete"):
+        resolve_input_contract_authority_from_repository("distance_to_last_confirmed_swing", repo_root=repo)
+
+
+def test_merge_policy_concurrent_tie_break_missing_opening_bracket_fails_closed(tmp_path: Path) -> None:
+    """`_extract_merge_policy`'s own bracket-delimiter check requires BOTH a
+    leading `[` and a trailing `]` -- proven independently: a value missing
+    only the OPENING bracket (still ending in `]`) must be treated as
+    entirely malformed (the same "incomplete block" diagnosis as a wholly
+    absent `concurrent_tie_break:` line), never partially parsed.
+    """
+    repo = _write_fake_repo(tmp_path)
+    contract_path = repo / "docs/architecture/input-contracts/feature-swing-distance-input.yaml"
+    contract_path.write_text(
+        contract_path.read_text().replace(
+            "  concurrent_tie_break: [stream_id, sequence]",
+            "  concurrent_tie_break: stream_id, sequence]",
+        )
+    )
+    with pytest.raises(UnsupportedMergePolicyError, match="does not declare a complete"):
+        resolve_input_contract_authority_from_repository("distance_to_last_confirmed_swing", repo_root=repo)
+
+
+def test_merge_policy_algorithm_tolerates_quoted_value(tmp_path: Path) -> None:
+    """`_extract_merge_policy`'s scalar extraction strips a surrounding pair
+    of `"` quote characters from the `algorithm:` value (the same tolerance
+    `_extract_scalar` gives every other Input Contract scalar) -- proven by
+    declaring it quoted in the artifact and confirming the resolved
+    `merge_policy.algorithm` is still the exact, unquoted, supported value.
+    """
+    repo = _write_fake_repo(tmp_path)
+    contract_path = repo / "docs/architecture/input-contracts/feature-swing-distance-input.yaml"
+    contract_path.write_text(
+        contract_path.read_text().replace(
+            "  algorithm: deterministic-causal-topological-order",
+            '  algorithm: "deterministic-causal-topological-order"',
+        )
+    )
+    resolved = resolve_input_contract_authority_from_repository("distance_to_last_confirmed_swing", repo_root=repo)
+    assert resolved.merge_policy.algorithm == "deterministic-causal-topological-order"
+
+
+def test_merge_policy_concurrent_tie_break_items_tolerate_quoted_values(tmp_path: Path) -> None:
+    """Mirrors the quoted-`algorithm` tolerance above for each individual
+    `concurrent_tie_break` list item.
+    """
+    repo = _write_fake_repo(tmp_path)
+    contract_path = repo / "docs/architecture/input-contracts/feature-swing-distance-input.yaml"
+    contract_path.write_text(
+        contract_path.read_text().replace(
+            "  concurrent_tie_break: [stream_id, sequence]",
+            '  concurrent_tie_break: ["stream_id", "sequence"]',
+        )
+    )
+    resolved = resolve_input_contract_authority_from_repository("distance_to_last_confirmed_swing", repo_root=repo)
+    assert resolved.merge_policy.concurrent_tie_break == ("stream_id", "sequence")
+
+
+def test_input_contract_id_tolerates_quoted_value(tmp_path: Path) -> None:
+    """`_extract_scalar` (shared by every Input Contract scalar field) strips
+    a surrounding pair of `"` quote characters -- proven for `contract_id`
+    by declaring it quoted and confirming the resolved
+    `input_contract_ref.contract_id` is still the exact, unquoted value.
+    """
+    repo = _write_fake_repo(tmp_path)
+    contract_path = repo / "docs/architecture/input-contracts/feature-swing-distance-input.yaml"
+    contract_path.write_text(
+        contract_path.read_text().replace(
+            "  contract_id: feature-swing-distance-input\n",
+            '  contract_id: "feature-swing-distance-input"\n',
+        )
+    )
+    resolved = resolve_input_contract_authority_from_repository("distance_to_last_confirmed_swing", repo_root=repo)
+    assert resolved.input_contract_ref.contract_id == "feature-swing-distance-input"
+
+
 def test_unsupported_merge_algorithm_fails_closed(tmp_path: Path) -> None:
     repo = _write_fake_repo(tmp_path)
     contract_path = repo / "docs/architecture/input-contracts/feature-swing-distance-input.yaml"
