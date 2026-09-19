@@ -2,6 +2,26 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-19 — feature-engine: `P3-FEATURE-QG-EVID-03` Condition-2 §4.1(b) reclassification candidate authoring
+
+Starting HEAD `00b7dc90a82b98bca253f9ec97eb68f17bfa7bc6`, verified `main == origin/main`, no drift. Folds the `feature-engine-mutation-material-gap-identity-resolution-002-correction-001.json` Review A closure bookkeeping into this same commit (ChatGPT bounded Review A re-review returned `CLEAN -- 0 Blocker / 0 Major / 0 Minor`, Risk `R1`, `ADR_NOT_REQUIRED`; `P3-FEATURE-EVID03-COND2-RES002-A-MAJ-01: CLOSED -- REVIEW A VALIDATED`).
+
+Scope: exactly the 70 `SUCCESSOR_MATCH -- CURRENT KILLED` rows from correction-001.json. §4.1(a) does not apply (requires the exact historical mutant ID itself killed; every row has a different current successor ID). Evaluated exclusively under §4.1(b) ("Individually reclassified"). Candidate-authoring only -- does not self-grant the governed decision.
+
+Fresh verification (not mechanically stamped): read `docs/adr/ADR-043.md` (Approved v0.2) directly -- it does NOT itself mention "prepare seam"/`PreparedTransition`; that implementation detail lives separately in `python/feature-engine/README.md`'s "ADR-043 -- Per-subject authoritative ownership implementation" section, whose own Review A findings (`ADR043-IMPLDESIGN-A-MAJ-01..04`, `ADR043-IMPL-A-MAJ-01..07`) are ALL `CLOSED -- REVIEW A VALIDATED`, explicitly documenting the required refactor as "analytical rules unchanged" / "a bounded, behavior-preserving refactor" predating this gate-remediation campaign entirely (Approved 2026-09-14, for I-13 concurrency/ownership reasons unrelated to mutation scoring). Checked, per row, whether its exact current successor function genuinely falls within that documented seam.
+
+Result: 69/70 rows genuinely covered (`prepare_*`/`_prepare_*` successor functions) -- recorded `CANDIDATE_RECLASSIFY_4_1_B -- LEGITIMATE REFACTOR / SEMANTIC SUCCESSOR VERIFIED`, `review_a_state: PENDING`. 1/70 row excluded (`contracts.x__seal_verified_authority__mutmut_33` -> current `mutmut_36`): its successor function's name/structure is unchanged from the historical boundary; the ID drift has no identified governed refactor authority, consistent with incidental mutmut mutant-renumbering rather than reviewed engineering -- classified `NOT_READY_FOR_4_1_B_RECLASSIFICATION`, not forced onto the positive set merely to preserve the prior 70-count.
+
+Governed Condition-2 count: 0 rows permitted to change it this transaction -- remains exactly 42/170. Non-controlling projected state if all 69 positive candidates later Review-A-validate: 42 + 69 = 111/170; 59/170 would remain (53 behavior-removed + 5 ambiguous + this transaction's 1 not-ready row) -- explicitly labeled NON-CONTROLLING / FUTURE-IF-VALIDATED, not current state. Condition 1 unchanged STOPPED/UNRESOLVED (not reopened); Condition 3 unchanged SATISFIED. P3-FEATURE-QG-EVID-03 remains OPEN. Feature Engine remains NOT APPROVED; LIVE remains NOT_AUTHORIZED.
+
+Created `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-reclassification-candidate-002.json` (new, additive candidate artifact).
+
+**Next governed step:** ChatGPT bounded Review A of `feature-engine-mutation-material-gap-reclassification-candidate-002.json`.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-reclassification-candidate-002.json` (new), `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-identity-resolution-002-correction-001.json` (Review A closure bookkeeping only, in place), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only -- verified via `git status --porcelain=v1`; no source/test/tooling/dependency/contract/ADR/governance-rule file touched; no mutation test execution; resolution-001/-002 and evidence-005 byte-unchanged; scratch venv/mutants workspace removed, not committed; no background watcher/mutmut/pytest/tooling process remained. `manifest_version` `"10.397"` -> `"10.398"`.
+
+---
+
 ## [Unreleased] — 2026-09-18 — feature-engine: `P3-FEATURE-QG-EVID-03` Condition-2 resolution-002 evidence-fidelity correction
 
 Starting HEAD `bcea8e4624dcc25788a2e99dc49755e4d5b80681`, verified `main == origin/main`, no drift. Remediates `P3-FEATURE-EVID03-COND2-RES002-A-MAJ-01` (ChatGPT bounded Review A of resolution-002.json: `REVISION_REQUIRED -- 0 Blocker / 1 Major / 0 Minor`, Risk `R1`): resolution-002.json's 72 `SUCCESSOR_MATCH -- CURRENT KILLED` rows cited only function-level construction-site labels, not exact current mutant IDs/diffs/Evidence-005 statuses -- insufficient since several successor functions mix killed AND survived mutants (e.g. `prepare_swing_confirmed`: 46 killed/7 survived; `_seal_verified_authority`: 25 killed/24 survived).
