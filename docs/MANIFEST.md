@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.398"
+manifest_version: "10.399"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -27890,9 +27890,25 @@ READY_FOR_FRESH_FORMAL_CONDITION_1_MEASUREMENT: NO (2224 < 2288).
 
 **Created:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-reclassification-candidate-002.json` — new, additive candidate artifact.
 
-**Next governed step:** ChatGPT bounded Review A of `feature-engine-mutation-material-gap-reclassification-candidate-002.json`.
+**Next governed step (superseded — see below):** ~~ChatGPT bounded Review A of `feature-engine-mutation-material-gap-reclassification-candidate-002.json`~~ — COMPLETE, returned `CLEAN — 0 Blocker / 0 Major / 0 Minor`, Risk `R1`, `ADR_NOT_REQUIRED`; recorded below.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-reclassification-candidate-002.json` (new), `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-identity-resolution-002-correction-001.json` (Review A closure bookkeeping only, in place), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no `src/**`/`tests/**`/tooling/dependency/contract/ADR/governance-rule file touched; no mutation test execution; resolution-001/-002 and evidence-005 byte-unchanged; scratch venv/mutants workspace removed, not committed; no background watcher/mutmut/pytest/tooling process remained. `manifest_version` `"10.397"` → `"10.398"`.
+
+## `feature-engine` — `P3-FEATURE-QG-EVID-03` Condition-2: 69-reclassification recording (Part A) + 53-row Part B STOPPED (evidence-fidelity contradiction)
+
+**Consolidated transaction — vai trò: `Feature Engine EVID-03 Condition-2 69-Reclassification Recorder + 53 Behavior-Removed Candidate Executor`.** Starting HEAD `90c12e61bdf189422a57c89bcb3d420b6765402c`, verified `main == origin/main`, no drift.
+
+**Part A (deterministic recording, completed Review A decision):** ChatGPT bounded Review A of `feature-engine-mutation-material-gap-reclassification-candidate-002.json` returned `CLEAN — 0 Blocker/0 Major/0 Minor`, Risk `R1`, `ADR_NOT_REQUIRED`. The 69 positive §4.1(b) candidates transitioned in place from `review_a_state: PENDING` to `RESOLVED_BY_GOVERNED_RECLASSIFICATION — REVIEW A VALIDATED`; the 1 `contracts.x__seal_verified_authority__mutmut_33` row remains untouched at `NOT_READY_FOR_4_1_B_RECLASSIFICATION`. **Governed Condition-2 count: `42/170` → `111/170`** (42 previously resolved + 69 newly governedly reclassified = 111 resolved; 59 unresolved: 53 behavior-removed candidates + 5 ambiguous + 1 not-ready).
+
+**Part B (bounded semantic candidate authoring, attempted then STOPPED):** scope was exactly the 53 `BEHAVIOR_REMOVED — EVIDENCE REQUIRED FOR GOVERNED RECLASSIFICATION` rows from resolution-002.json (5 ambiguous + 1 not-ready explicitly excluded, untouched). Per this task's own explicit instruction to fresh-verify each claim rather than assume the prior classification, directly re-read `src/feature_engine/swing_distance.py`/`regime_passthrough.py` against each of the 53 rows' cited construction site. **Found resolution-002.json's original automated classifier used a loose single-word substring check** (splitting e.g. `ref=self._allocator.next_ref(self._stream_id)` down to the bare token `"ref"`) **that spuriously matched inside genuinely-PRESENT, unrelated field names** (`causation_refs`, `correction_ref`, `invalidated_fact_ref`, `event_contract_ref`, `input_fact_refs`, `last_evidence_ref`, `used_swing_ref`, `head_fact`). **27 of the 53 rows' cited fields are demonstrably PRESENT in current source** (directly verified, not inferred) — contradicting their `BEHAVIOR_REMOVED` label; only **26/53** are genuinely behavior-removed (literal ref-allocation removal, bare `self._stream_id`, the `recorded_time=`→`recorded_time_floor=` rename, or a variable-now-hardcoded-to-`None` pattern).
+
+**Per the explicit STOP condition** ("a 53-row analysis discovers that a prior `BEHAVIOR_REMOVED` assertion is materially false") **and P3-REVIEW-001's evidence-remediation routing rule** (do not silently fix evidence inside a recording/verification transaction — route to a separate governed correction), **Part B's candidate-003 artifact is NOT authored this transaction.** `resolution-002.json` is NOT rewritten (byte-unchanged, immutable historical record, preserved). No new §4.1(b) candidates recorded for the 53; governed Condition-2 count remains exactly `111/170` from Part A only — Part B contributes 0.
+
+`P3-FEATURE-QG-EVID-03` remains `OPEN` (Condition 1 `STOPPED/UNRESOLVED`, not reopened; Condition 2 `FAIL/PARTIALLY SATISFIED — 111/170`; Condition 3 `SATISFIED`, unchanged). Feature Engine remains **NOT APPROVED**; LIVE remains **NOT_AUTHORIZED**.
+
+**Next governed step:** a bounded evidence-fidelity correction for `resolution-002.json`'s 53-row `BEHAVIOR_REMOVED` population (27 identified rows require reclassification investigation — exact IDs pinned in this transaction's scratch analysis, to be re-derived fresh by the correction executor per repository-evidence discipline), THEN ChatGPT review of that correction, THEN Part B (§4.1(b) candidate authoring) may validly proceed for the confirmed-genuine behavior-removed subset.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-reclassification-candidate-002.json` (Part A bookkeeping only, in place), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no `src/**`/`tests/**`/tooling/dependency/contract/ADR/governance-rule file touched; no mutation test execution; `resolution-001.json`/`resolution-002.json`/`resolution-002-correction-001.json` (beyond Part A's own already-closed finding, untouched further)/evidence-005.json byte-unchanged; no candidate-003 artifact created this transaction; scratch cleaned; no background watcher/mutmut/pytest/tooling process remained. `manifest_version` `"10.398"` → `"10.399"`.
 
 ## Decision Log
 

@@ -2,6 +2,24 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-19 — feature-engine: `P3-FEATURE-QG-EVID-03` Condition-2 69-reclassification recording (Part A) + 53-row Part B STOPPED (evidence-fidelity contradiction)
+
+Starting HEAD `90c12e61bdf189422a57c89bcb3d420b6765402c`, verified `main == origin/main`, no drift.
+
+**Part A (deterministic recording, completed Review A decision):** ChatGPT bounded Review A of `feature-engine-mutation-material-gap-reclassification-candidate-002.json` returned `CLEAN -- 0 Blocker/0 Major/0 Minor`, Risk `R1`, `ADR_NOT_REQUIRED`. The 69 positive §4.1(b) candidates transitioned in place to `RESOLVED_BY_GOVERNED_RECLASSIFICATION -- REVIEW A VALIDATED`; the 1 `contracts.x__seal_verified_authority__mutmut_33` row remains untouched at `NOT_READY_FOR_4_1_B_RECLASSIFICATION`. Governed Condition-2 count: 42/170 -> 111/170 (42 previously resolved + 69 newly governedly reclassified; 59 unresolved: 53 behavior-removed candidates + 5 ambiguous + 1 not-ready).
+
+**Part B (bounded semantic candidate authoring, attempted then STOPPED):** scope was exactly the 53 `BEHAVIOR_REMOVED -- EVIDENCE REQUIRED FOR GOVERNED RECLASSIFICATION` rows from resolution-002.json. Per this task's own instruction to fresh-verify each claim, directly re-read `swing_distance.py`/`regime_passthrough.py` against each of the 53 rows' cited construction site. Found resolution-002.json's original automated classifier used a loose single-word substring check (splitting e.g. `ref=self._allocator.next_ref(self._stream_id)` down to the bare token "ref") that spuriously matched inside genuinely-PRESENT, unrelated field names (`causation_refs`, `correction_ref`, `invalidated_fact_ref`, `event_contract_ref`, `input_fact_refs`, `last_evidence_ref`, `used_swing_ref`, `head_fact`). 27 of the 53 rows' cited fields are demonstrably PRESENT in current source (directly verified) -- contradicting their `BEHAVIOR_REMOVED` label; only 26/53 are genuinely behavior-removed.
+
+Per the explicit STOP condition ("a 53-row analysis discovers that a prior BEHAVIOR_REMOVED assertion is materially false") and P3-REVIEW-001's evidence-remediation routing rule (do not silently fix evidence inside a recording/verification transaction), Part B's candidate-003 artifact is NOT authored this transaction. resolution-002.json is NOT rewritten (byte-unchanged, preserved). Governed Condition-2 count remains exactly 111/170 from Part A only.
+
+Condition 1 unchanged STOPPED/UNRESOLVED (not reopened); Condition 3 unchanged SATISFIED. P3-FEATURE-QG-EVID-03 remains OPEN. Feature Engine remains NOT APPROVED; LIVE remains NOT_AUTHORIZED.
+
+**Next governed step:** a bounded evidence-fidelity correction for resolution-002.json's 53-row BEHAVIOR_REMOVED population (27 identified rows require reclassification investigation), THEN ChatGPT review of that correction, THEN Part B (§4.1(b) candidate authoring) may validly proceed for the confirmed-genuine behavior-removed subset.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-reclassification-candidate-002.json` (Part A bookkeeping only, in place), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only -- verified via `git status --porcelain=v1`; no source/test/tooling/dependency/contract/ADR/governance-rule file touched; no mutation test execution; resolution-001.json/resolution-002.json/resolution-002-correction-001.json/evidence-005.json byte-unchanged; no candidate-003 artifact created; scratch cleaned; no background watcher/mutmut/pytest/tooling process remained. `manifest_version` `"10.398"` -> `"10.399"`.
+
+---
+
 ## [Unreleased] — 2026-09-19 — feature-engine: `P3-FEATURE-QG-EVID-03` Condition-2 §4.1(b) reclassification candidate authoring
 
 Starting HEAD `00b7dc90a82b98bca253f9ec97eb68f17bfa7bc6`, verified `main == origin/main`, no drift. Folds the `feature-engine-mutation-material-gap-identity-resolution-002-correction-001.json` Review A closure bookkeeping into this same commit (ChatGPT bounded Review A re-review returned `CLEAN -- 0 Blocker / 0 Major / 0 Minor`, Risk `R1`, `ADR_NOT_REQUIRED`; `P3-FEATURE-EVID03-COND2-RES002-A-MAJ-01: CLOSED -- REVIEW A VALIDATED`).
