@@ -958,7 +958,7 @@
   "governed_condition_2_state": {
     "controlling_state_this_transaction": "42/170 \u2014 UNCHANGED",
     "reason": "This is a candidate-authoring transaction only. \u00a74.1(b) explicitly requires a SEPARATE, governed, reviewed decision before any identity may be credited \u2014 this executor does not self-grant that decision for any of the 69 positive candidates.",
-    "controlling_state_after_review_a_closure": "111/170 (42 previously resolved + 69 newly governedly reclassified)"
+    "controlling_state_after_review_a_closure": "111/170 (42 previously resolved + 69 Product-Owner-approved \u00a74.1(b) reclassifications, effective as of the completed Review A -> Risk Classification -> Product Owner Decision chain, 2026-09-19T10:17:00+07:00 \u2014 NOT effective from Review A alone)"
   },
   "non_controlling_projected_state_if_validated": {
     "label": "NON-CONTROLLING / FUTURE-IF-VALIDATED \u2014 not current state, planning arithmetic only",
@@ -1001,7 +1001,27 @@
     "verdict": "CLEAN \u2014 0 Blocker / 0 Major / 0 Minor",
     "risk": "R1",
     "adr": "ADR_NOT_REQUIRED",
-    "decision": "69 positive \u00a74.1(b) candidates: REVIEW A VALIDATED, transitioned to RESOLVED_BY_GOVERNED_RECLASSIFICATION \u2014 REVIEW A VALIDATED. 1 row (contracts.x__seal_verified_authority__mutmut_33) remains NOT_READY_FOR_4_1_B_RECLASSIFICATION, untouched, not reclassified.",
-    "note": "Recorded as minimal deterministic bookkeeping of the completed Review A decision, folded into the Part-B (53 BEHAVIOR_REMOVED candidate) work unit rather than a separate governance-only transaction. No new Review A reasoning fabricated here."
-  }
+    "reviewed_semantic_boundary": "90c12e61bdf189422a57c89bcb3d420b6765402c",
+    "reviewed_candidate_blob": "4b78919b16a78efcaba9991e3c58910ef55f7f7e",
+    "reviewed_blob_verification_note": "git rev-parse 90c12e61bdf189422a57c89bcb3d420b6765402c:docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-reclassification-candidate-002.json == 4b78919b16a78efcaba9991e3c58910ef55f7f7e \u2014 verified fresh this transaction, matches exactly.",
+    "decision": "69 positive \u00a74.1(b) candidates: Review A CLEAN. 1 row (contracts.x__seal_verified_authority__mutmut_33) remains NOT_READY_FOR_4_1_B_RECLASSIFICATION, untouched, not reclassified, not submitted for PO decision.",
+    "note": "Review A CLEAN + Risk R1 is NOT, by itself, sufficient authority to make the 69 candidates effective for Condition 2 \u2014 governance chain requires Review A -> Risk Classification -> Product Owner Decision. This field records the Review A step only; see product_owner_decision below for the separate, subsequent, actually-completed authority that makes the 69 rows effective."
+  },
+  "product_owner_decision": {
+    "decision_verbatim": "APPROVE Feature Engine Condition-2 \u00a74.1(b) Reclassification Candidate 002 for the 69 Review-A-validated historical mutant identities, at reviewed semantic boundary 90c12e61bdf189422a57c89bcb3d420b6765402c, reviewed subject blob 4b78919b16a78efcaba9991e3c58910ef55f7f7e. This approval applies ONLY to Condition-2 resolution of those 69 individually-pinned identities under \u00a74.1(b). It does NOT approve Feature Engine, does NOT satisfy Condition 1, does NOT close EVID-03, and does NOT authorize LIVE.",
+    "decision_timestamp": "2026-09-19T10:17:00+07:00",
+    "reviewed_semantic_boundary": "90c12e61bdf189422a57c89bcb3d420b6765402c",
+    "reviewed_candidate_blob": "4b78919b16a78efcaba9991e3c58910ef55f7f7e",
+    "scope": "69 individually-pinned \u00a74.1(b) candidate rows only \u2014 Condition-2 resolution, nothing broader.",
+    "excludes": [
+      "The 1 NOT_READY_FOR_4_1_B_RECLASSIFICATION row (contracts.x__seal_verified_authority__mutmut_33) \u2014 not submitted, not approved.",
+      "The 53 BEHAVIOR_REMOVED rows and 5 AMBIGUOUS rows from resolution-002.json \u2014 separate, unapproved, future work.",
+      "Condition 1 (raw mutation score) \u2014 unaffected, remains STOPPED/UNRESOLVED.",
+      "Condition 3 \u2014 unaffected, remains SATISFIED, not reopened.",
+      "Feature Engine approval \u2014 not granted.",
+      "LIVE authorization \u2014 not granted."
+    ]
+  },
+  "effectiveness_basis": "The 69 rows are EFFECTIVE for Condition-2 accounting because of the COMPLETE governance chain: Review A (CLEAN, R1, boundary 90c12e61bdf189422a57c89bcb3d420b6765402c, blob 4b78919b16a78efcaba9991e3c58910ef55f7f7e) -> Risk Classification (R1, no mandatory independent cross-check required, but Product Owner Decision step still required) -> Product Owner Decision (APPROVE, 2026-09-19T10:17:00+07:00, exact same reviewed boundary/blob). Commit 17dcdf3bd1b798dacd9ad39db16055bce8fae348 (the prior recorder transaction) is preserved as history \u2014 it correctly captured Review A's CLEAN verdict and correctly transitioned the 69 rows' disposition text in place \u2014 but it is NOT, by itself, the approval/effectiveness authority for Condition-2 accounting purposes; it recorded the transitions before the Product Owner Decision existed. This field is the corrected, authoritative statement of what actually makes the 69 rows effective.",
+  "P3-FEATURE-EVID03-COND2-69REC-A-MAJ-01": "REMEDIATED \u2014 PENDING BOUNDED REVIEW A RE-REVIEW"
 }

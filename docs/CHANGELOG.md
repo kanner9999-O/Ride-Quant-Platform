@@ -2,6 +2,26 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-19 — feature-engine: `P3-FEATURE-QG-EVID-03` Condition-2 PO-approval provenance recording (Part A) + resolution-002 53-row evidence-fidelity correction (Part B)
+
+Starting HEAD `17dcdf3bd1b798dacd9ad39db16055bce8fae348`, verified `main == origin/main`, no drift.
+
+**Part A:** verified fresh -- the candidate-002.json blob at reviewed boundary `90c12e61bdf189422a57c89bcb3d420b6765402c` is exactly `4b78919b16a78efcaba9991e3c58910ef55f7f7e`, matching the Product Owner's cited reviewed subject blob. Prior recorder commit `17dcdf3` (Review A `P3-FEATURE-EVID03-COND2-69REC-A-MAJ-01: REVISION_REQUIRED`) had transitioned the 69 rows and moved Condition 2 to 111/170 BEFORE a Product Owner decision existed. Product Owner has now decided (verbatim, 2026-09-19T10:17:00+07:00): "APPROVE Feature Engine Condition-2 §4.1(b) Reclassification Candidate 002 for the 69 Review-A-validated historical mutant identities... does NOT approve Feature Engine, does NOT satisfy Condition 1, does NOT close EVID-03, and does NOT authorize LIVE." candidate-002.json corrected IN PLACE (rows not reverted-then-reapplied) -- review_a_closure now scopes Review A's own verdict only; new product_owner_decision and effectiveness_basis fields correctly attribute the 69 rows' effectiveness to the complete Review A -> Risk R1 -> PO Decision chain, not commit 17dcdf3 alone. `P3-FEATURE-EVID03-COND2-69REC-A-MAJ-01: REMEDIATED -- PENDING BOUNDED REVIEW A RE-REVIEW`. Controlling Condition 2 confirmed 111/170.
+
+**Part B:** created a disposable mutation workspace via mutmut's own `create_mutants()` Python API directly (bypassing the `run` CLI entirely) -- zero test execution. Extracted every `__mutmut_N` variant from the generated trampoline source and diffed each against `__mutmut_orig` via `difflib`. Independently re-derived all 53 `BEHAVIOR_REMOVED` rows from scratch (exact old/new text matching + direct source grep verification of every negative result, not the prior pass's estimate carried forward).
+
+Result: 27/53 proven misclassified (field genuinely present -- reclassified `SUCCESSOR_MATCH -- CURRENT KILLED`, exact current mutant ID + exact diff + exact Evidence-005 status pinned, all confirmed killed) + 26/53 confirmed genuinely `BEHAVIOR_REMOVED` (ref-allocation removal / `self._stream_id` removal / `recorded_time=` rename / hardcoded-None pattern -- exact removal evidence pinned). resolution-002.json byte-unchanged, preserved.
+
+No new Condition-2 credit granted for any of the 53 -- controlling state remains exactly 111/170. A different current successor mutant ID never satisfies §4.1(a); §4.1(b) requires its own separate future governed lifecycle for both the 27 and the 26. No §4.1(a) contradiction found. Condition 1 unchanged STOPPED/UNRESOLVED; Condition 3 unchanged SATISFIED. P3-FEATURE-QG-EVID-03 remains OPEN. Feature Engine remains NOT APPROVED; LIVE remains NOT_AUTHORIZED.
+
+Created `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-identity-resolution-002-correction-002.json` (new, additive).
+
+**Next governed step:** ChatGPT bounded Review A of both (1) the Product Owner approval/provenance recording for candidate-002, and (2) `feature-engine-mutation-material-gap-identity-resolution-002-correction-002.json`.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-reclassification-candidate-002.json` (Part A provenance correction, in place), `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-identity-resolution-002-correction-002.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only -- verified via `git status --porcelain=v1`; no source/test/tooling/dependency/contract/ADR/governance-rule file touched; no mutation test execution; resolution-001.json/resolution-002.json/resolution-002-correction-001.json/evidence-005.json byte-unchanged; no candidate-003 artifact created; scratch cleaned; no background watcher/mutmut/pytest/tooling process remained. `manifest_version` `"10.399"` -> `"10.400"`.
+
+---
+
 ## [Unreleased] — 2026-09-19 — feature-engine: `P3-FEATURE-QG-EVID-03` Condition-2 69-reclassification recording (Part A) + 53-row Part B STOPPED (evidence-fidelity contradiction)
 
 Starting HEAD `90c12e61bdf189422a57c89bcb3d420b6765402c`, verified `main == origin/main`, no drift.
