@@ -2,6 +2,24 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-22 — feature-engine: FE-EVID03-COND1-STOP-001 — 9 UNSTABLE_TIMEOUT_TRIAGE investigation
+
+Starting HEAD `cf992d836579f7ec04a8859394e248121a32dac3`, verified `main == origin/main`, no drift, no intervening commits.
+
+Bounded, evidence-only investigation of the exact 9 UNSTABLE_TIMEOUT_TRIAGE mutants (evidence-005.json's timeout_triage.records, 9/9 re-verified). Isolated worktree at evidence-005's own executable boundary, fresh venv matching its exact pinned tool identity. No re-execution of any of the 9 disputed IDs -- only mutation execution performed targeted one unrelated control mutant to populate the coverage DB for read-only tests-for-mutant queries.
+
+Key finding: 100% of the 9 unstable cases confined to exactly 3 authority_resolver.py functions performing/reached exclusively through real filesystem I/O, covered by 27-42 tests across up to 4 I/O-centric test files -- while contracts.py's 24 raw-timeout candidates and the slowest tests in the whole suite (CPU-bound property tests) showed zero instability. Fresh uncontended timing shows the covering-test set completes well inside the computed timeout budget, supporting a disclosed hypothesis (not proven) that I/O operations are disproportionately sensitive to the already-documented ~7-parallel-worker contention.
+
+All 9 mutants classified REQUIRES_GOVERNED_PROTOCOL_DECISION -- the locked protocol's disagreement clause is a designed terminal state with no built-in resolution step; no majority vote/tie-break/reinterpretation introduced. Open interpretive question flagged, not resolved: whether Chapter 13 §13.10's flaky-test quarantine policy already covers this phenomenon or a new governed decision is needed.
+
+Condition 1 STOPPED/UNRESOLVED unchanged; Condition 2 (167/170) and Condition 3 (SATISFIED) untouched. Milestone tracking (milestone.md/milestone-dashboard.html) updated in the same transaction, including the already-identified label clarification (last_verified_head -> state_verified_against_head, wording only, folded per instruction, no standalone correction).
+
+Created `docs/governance/mutation-baseline-evidence/feature-engine-condition1-unstable-timeout-investigation-001.json` (new, additive, evidence-only). evidence-005.json/-correction-001.json/targeted-remediation-001.json all byte-unchanged.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-condition1-unstable-timeout-investigation-001.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.408"` -> `"10.409"`.
+
+---
+
 ## [Unreleased] — 2026-09-22 — project: RIDE-PROJECT-MILESTONE-DASHBOARD-001 — PO milestone-tracking layer established
 
 Starting HEAD `063bc0771f25b59858df2e3906e00c7a238e0d31`, verified `main == origin/main`, no drift, no intervening commits.

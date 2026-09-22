@@ -1,0 +1,250 @@
+{
+  "artifact_id": "feature-engine-condition1-unstable-timeout-investigation-001",
+  "wp_id": "FE-EVID03-COND1-STOP-001",
+  "schema_note": "Bounded investigation artifact for the 9 UNSTABLE_TIMEOUT_TRIAGE mutants preserved by feature-engine-mutation-step9-formal-evidence-005.json's locked timeout-triage protocol (disagreement clause). Evidence-only: grants no Condition-1/2/3 credit, introduces no new resolution mechanism, executes no additional run of any of the 9 disputed mutants. Additive artifact -- evidence-005.json, evidence-005-correction-001.json, and feature-engine-condition1-targeted-remediation-001.json are all left byte-unchanged.",
+  "starting_repository_boundary": {
+    "verified_head": "cf992d836579f7ec04a8859394e248121a32dac3",
+    "main_equals_origin_main": true,
+    "intervening_commits_since_prior_wp": 0
+  },
+  "authoritative_evidence_inspected": [
+    "docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-005.json (fresh-read in full; timeout_triage.records is the authoritative source of the two canonical protocol reruns per mutant)",
+    "docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-005-correction-001.json (fresh-read in full; establishes Condition-1's formal STOPPED/UNRESOLVED state and the diagnostic-only bounds relabeling)",
+    "docs/governance/mutation-baseline-evidence/feature-engine-condition1-targeted-remediation-001.json (fresh-read post_waves_formal_remeasurement section; confirms no divergent narrative)",
+    "docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md (EVID-03 row, current state cross-checked)",
+    "docs/engineering/testing.md item 8's timeout-specific rule (deterministic-reproduction-before-credit) and §12 Flaky-test tooling mechanics (references, does not redefine, Chapter 13 §13.10)",
+    "docs/constitution/13-quality-gates.md §13.10 Flaky test policy (Locked, binding text read directly -- forbids retry-until-green; requires quarantine + explicit follow-up for timing/ordering/clock-dependent tests; unstable result must not count as passing evidence)",
+    "python/feature-engine/src/feature_engine/authority_resolver.py (source of all 3 functions implicated in the 9 unstable mutants, read directly)",
+    "python/feature-engine/tests/test_authority_resolver.py, test_historical_authority_resolver.py, test_replay_preparation.py, test_replay_isolation.py (covering-test source, read directly)"
+  ],
+  "per_mutant_disposition": [
+    {
+      "mutant_id": "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_37",
+      "function": "_extract_merge_policy",
+      "final_protocol_fresh_run_1": "timeout",
+      "final_protocol_fresh_run_2": "killed",
+      "diagnostic_only_reused_workspace": {
+        "run1": "killed",
+        "run2": "killed",
+        "classification": "NOT_REPRODUCED (informational only, not a qualifying reproduction)"
+      },
+      "covering_tests_count": 42,
+      "covering_test_files": [
+        "test_authority_resolver.py",
+        "test_historical_authority_resolver.py",
+        "test_replay_preparation.py"
+      ],
+      "original_disagreement_source": "evidence-005.json timeout_triage.records (byte-unchanged; independently re-verified this transaction against the original artifact)",
+      "resolution_classification": "REQUIRES_GOVERNED_PROTOCOL_DECISION",
+      "resolution_rationale": "The locked timeout-triage protocol (evidence-005.json timeout_triage.protocol) defines exactly four outcomes for the two-run sequence -- timeout+timeout, killed+killed, survived+survived, or 'any disagreement -> UNSTABLE_TIMEOUT_TRIAGE (no majority vote, no guess)' -- and provides NO further resolution step for the disagreement case; it is a designed terminal state, not an intermediate one awaiting more data. evidence-005-correction-001.json's MAJ-01 remediation independently confirms this reading ('the protocol prohibits resolving them by majority vote or an unauthorized third tie-break run'). No other existing repository authority (Testing Convention item 8's timeout rule, Chapter 13 §13.10 flaky-test policy) defines an alternative resolution path specific to a mutation-testing timeout-triage disagreement (see governance_interpretation_question below) -- therefore, under EXISTING authority as currently written, this case cannot be resolved without a new governed decision. This is not a 'we lack facts' state (REMAINS_UNRESOLVED) -- the facts are complete and consistent; the existing protocol simply does not define what happens next.",
+      "not_performed": "No third run, no re-execution of this exact mutant ID, this transaction."
+    },
+    {
+      "mutant_id": "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_38",
+      "function": "_extract_merge_policy",
+      "final_protocol_fresh_run_1": "killed",
+      "final_protocol_fresh_run_2": "timeout",
+      "diagnostic_only_reused_workspace": {
+        "run1": "killed",
+        "run2": "killed",
+        "classification": "NOT_REPRODUCED (informational only, not a qualifying reproduction)"
+      },
+      "covering_tests_count": 42,
+      "covering_test_files": [
+        "test_authority_resolver.py",
+        "test_historical_authority_resolver.py",
+        "test_replay_preparation.py"
+      ],
+      "original_disagreement_source": "evidence-005.json timeout_triage.records (byte-unchanged; independently re-verified this transaction against the original artifact)",
+      "resolution_classification": "REQUIRES_GOVERNED_PROTOCOL_DECISION",
+      "resolution_rationale": "The locked timeout-triage protocol (evidence-005.json timeout_triage.protocol) defines exactly four outcomes for the two-run sequence -- timeout+timeout, killed+killed, survived+survived, or 'any disagreement -> UNSTABLE_TIMEOUT_TRIAGE (no majority vote, no guess)' -- and provides NO further resolution step for the disagreement case; it is a designed terminal state, not an intermediate one awaiting more data. evidence-005-correction-001.json's MAJ-01 remediation independently confirms this reading ('the protocol prohibits resolving them by majority vote or an unauthorized third tie-break run'). No other existing repository authority (Testing Convention item 8's timeout rule, Chapter 13 §13.10 flaky-test policy) defines an alternative resolution path specific to a mutation-testing timeout-triage disagreement (see governance_interpretation_question below) -- therefore, under EXISTING authority as currently written, this case cannot be resolved without a new governed decision. This is not a 'we lack facts' state (REMAINS_UNRESOLVED) -- the facts are complete and consistent; the existing protocol simply does not define what happens next.",
+      "not_performed": "No third run, no re-execution of this exact mutant ID, this transaction."
+    },
+    {
+      "mutant_id": "feature_engine.authority_resolver.x__extract_registry_stream_ids__mutmut_3",
+      "function": "_extract_registry_stream_ids",
+      "final_protocol_fresh_run_1": "timeout",
+      "final_protocol_fresh_run_2": "killed",
+      "diagnostic_only_reused_workspace": {
+        "run1": "killed",
+        "run2": "killed",
+        "classification": "NOT_REPRODUCED (informational only, not a qualifying reproduction)"
+      },
+      "covering_tests_count": 32,
+      "covering_test_files": [
+        "test_authority_resolver.py",
+        "test_historical_authority_resolver.py",
+        "test_replay_preparation.py"
+      ],
+      "original_disagreement_source": "evidence-005.json timeout_triage.records (byte-unchanged; independently re-verified this transaction against the original artifact)",
+      "resolution_classification": "REQUIRES_GOVERNED_PROTOCOL_DECISION",
+      "resolution_rationale": "The locked timeout-triage protocol (evidence-005.json timeout_triage.protocol) defines exactly four outcomes for the two-run sequence -- timeout+timeout, killed+killed, survived+survived, or 'any disagreement -> UNSTABLE_TIMEOUT_TRIAGE (no majority vote, no guess)' -- and provides NO further resolution step for the disagreement case; it is a designed terminal state, not an intermediate one awaiting more data. evidence-005-correction-001.json's MAJ-01 remediation independently confirms this reading ('the protocol prohibits resolving them by majority vote or an unauthorized third tie-break run'). No other existing repository authority (Testing Convention item 8's timeout rule, Chapter 13 §13.10 flaky-test policy) defines an alternative resolution path specific to a mutation-testing timeout-triage disagreement (see governance_interpretation_question below) -- therefore, under EXISTING authority as currently written, this case cannot be resolved without a new governed decision. This is not a 'we lack facts' state (REMAINS_UNRESOLVED) -- the facts are complete and consistent; the existing protocol simply does not define what happens next.",
+      "not_performed": "No third run, no re-execution of this exact mutant ID, this transaction."
+    },
+    {
+      "mutant_id": "feature_engine.authority_resolver.x__extract_registry_stream_ids__mutmut_4",
+      "function": "_extract_registry_stream_ids",
+      "final_protocol_fresh_run_1": "killed",
+      "final_protocol_fresh_run_2": "timeout",
+      "diagnostic_only_reused_workspace": {
+        "run1": "killed",
+        "run2": "killed",
+        "classification": "NOT_REPRODUCED (informational only, not a qualifying reproduction)"
+      },
+      "covering_tests_count": 32,
+      "covering_test_files": [
+        "test_authority_resolver.py",
+        "test_historical_authority_resolver.py",
+        "test_replay_preparation.py"
+      ],
+      "original_disagreement_source": "evidence-005.json timeout_triage.records (byte-unchanged; independently re-verified this transaction against the original artifact)",
+      "resolution_classification": "REQUIRES_GOVERNED_PROTOCOL_DECISION",
+      "resolution_rationale": "The locked timeout-triage protocol (evidence-005.json timeout_triage.protocol) defines exactly four outcomes for the two-run sequence -- timeout+timeout, killed+killed, survived+survived, or 'any disagreement -> UNSTABLE_TIMEOUT_TRIAGE (no majority vote, no guess)' -- and provides NO further resolution step for the disagreement case; it is a designed terminal state, not an intermediate one awaiting more data. evidence-005-correction-001.json's MAJ-01 remediation independently confirms this reading ('the protocol prohibits resolving them by majority vote or an unauthorized third tie-break run'). No other existing repository authority (Testing Convention item 8's timeout rule, Chapter 13 §13.10 flaky-test policy) defines an alternative resolution path specific to a mutation-testing timeout-triage disagreement (see governance_interpretation_question below) -- therefore, under EXISTING authority as currently written, this case cannot be resolved without a new governed decision. This is not a 'we lack facts' state (REMAINS_UNRESOLVED) -- the facts are complete and consistent; the existing protocol simply does not define what happens next.",
+      "not_performed": "No third run, no re-execution of this exact mutant ID, this transaction."
+    },
+    {
+      "mutant_id": "feature_engine.authority_resolver.x__extract_registry_stream_ids__mutmut_5",
+      "function": "_extract_registry_stream_ids",
+      "final_protocol_fresh_run_1": "timeout",
+      "final_protocol_fresh_run_2": "killed",
+      "diagnostic_only_reused_workspace": {
+        "run1": "killed",
+        "run2": "killed",
+        "classification": "NOT_REPRODUCED (informational only, not a qualifying reproduction)"
+      },
+      "covering_tests_count": 32,
+      "covering_test_files": [
+        "test_authority_resolver.py",
+        "test_historical_authority_resolver.py",
+        "test_replay_preparation.py"
+      ],
+      "original_disagreement_source": "evidence-005.json timeout_triage.records (byte-unchanged; independently re-verified this transaction against the original artifact)",
+      "resolution_classification": "REQUIRES_GOVERNED_PROTOCOL_DECISION",
+      "resolution_rationale": "The locked timeout-triage protocol (evidence-005.json timeout_triage.protocol) defines exactly four outcomes for the two-run sequence -- timeout+timeout, killed+killed, survived+survived, or 'any disagreement -> UNSTABLE_TIMEOUT_TRIAGE (no majority vote, no guess)' -- and provides NO further resolution step for the disagreement case; it is a designed terminal state, not an intermediate one awaiting more data. evidence-005-correction-001.json's MAJ-01 remediation independently confirms this reading ('the protocol prohibits resolving them by majority vote or an unauthorized third tie-break run'). No other existing repository authority (Testing Convention item 8's timeout rule, Chapter 13 §13.10 flaky-test policy) defines an alternative resolution path specific to a mutation-testing timeout-triage disagreement (see governance_interpretation_question below) -- therefore, under EXISTING authority as currently written, this case cannot be resolved without a new governed decision. This is not a 'we lack facts' state (REMAINS_UNRESOLVED) -- the facts are complete and consistent; the existing protocol simply does not define what happens next.",
+      "not_performed": "No third run, no re-execution of this exact mutant ID, this transaction."
+    },
+    {
+      "mutant_id": "feature_engine.authority_resolver.x__extract_registry_stream_ids__mutmut_7",
+      "function": "_extract_registry_stream_ids",
+      "final_protocol_fresh_run_1": "timeout",
+      "final_protocol_fresh_run_2": "killed",
+      "diagnostic_only_reused_workspace": {
+        "run1": "killed",
+        "run2": "killed",
+        "classification": "NOT_REPRODUCED (informational only, not a qualifying reproduction)"
+      },
+      "covering_tests_count": 32,
+      "covering_test_files": [
+        "test_authority_resolver.py",
+        "test_historical_authority_resolver.py",
+        "test_replay_preparation.py"
+      ],
+      "original_disagreement_source": "evidence-005.json timeout_triage.records (byte-unchanged; independently re-verified this transaction against the original artifact)",
+      "resolution_classification": "REQUIRES_GOVERNED_PROTOCOL_DECISION",
+      "resolution_rationale": "The locked timeout-triage protocol (evidence-005.json timeout_triage.protocol) defines exactly four outcomes for the two-run sequence -- timeout+timeout, killed+killed, survived+survived, or 'any disagreement -> UNSTABLE_TIMEOUT_TRIAGE (no majority vote, no guess)' -- and provides NO further resolution step for the disagreement case; it is a designed terminal state, not an intermediate one awaiting more data. evidence-005-correction-001.json's MAJ-01 remediation independently confirms this reading ('the protocol prohibits resolving them by majority vote or an unauthorized third tie-break run'). No other existing repository authority (Testing Convention item 8's timeout rule, Chapter 13 §13.10 flaky-test policy) defines an alternative resolution path specific to a mutation-testing timeout-triage disagreement (see governance_interpretation_question below) -- therefore, under EXISTING authority as currently written, this case cannot be resolved without a new governed decision. This is not a 'we lack facts' state (REMAINS_UNRESOLVED) -- the facts are complete and consistent; the existing protocol simply does not define what happens next.",
+      "not_performed": "No third run, no re-execution of this exact mutant ID, this transaction."
+    },
+    {
+      "mutant_id": "feature_engine.authority_resolver.x_resolve_input_contract_authority_from_repository__mutmut_101",
+      "function": "resolve_input_contract_authority_from_repository",
+      "final_protocol_fresh_run_1": "timeout",
+      "final_protocol_fresh_run_2": "killed",
+      "diagnostic_only_reused_workspace": {
+        "run1": "killed",
+        "run2": "killed",
+        "classification": "NOT_REPRODUCED (informational only, not a qualifying reproduction)"
+      },
+      "covering_tests_count": 27,
+      "covering_test_files": [
+        "test_authority_resolver.py",
+        "test_replay_isolation.py"
+      ],
+      "original_disagreement_source": "evidence-005.json timeout_triage.records (byte-unchanged; independently re-verified this transaction against the original artifact)",
+      "resolution_classification": "REQUIRES_GOVERNED_PROTOCOL_DECISION",
+      "resolution_rationale": "The locked timeout-triage protocol (evidence-005.json timeout_triage.protocol) defines exactly four outcomes for the two-run sequence -- timeout+timeout, killed+killed, survived+survived, or 'any disagreement -> UNSTABLE_TIMEOUT_TRIAGE (no majority vote, no guess)' -- and provides NO further resolution step for the disagreement case; it is a designed terminal state, not an intermediate one awaiting more data. evidence-005-correction-001.json's MAJ-01 remediation independently confirms this reading ('the protocol prohibits resolving them by majority vote or an unauthorized third tie-break run'). No other existing repository authority (Testing Convention item 8's timeout rule, Chapter 13 §13.10 flaky-test policy) defines an alternative resolution path specific to a mutation-testing timeout-triage disagreement (see governance_interpretation_question below) -- therefore, under EXISTING authority as currently written, this case cannot be resolved without a new governed decision. This is not a 'we lack facts' state (REMAINS_UNRESOLVED) -- the facts are complete and consistent; the existing protocol simply does not define what happens next.",
+      "not_performed": "No third run, no re-execution of this exact mutant ID, this transaction."
+    },
+    {
+      "mutant_id": "feature_engine.authority_resolver.x_resolve_input_contract_authority_from_repository__mutmut_102",
+      "function": "resolve_input_contract_authority_from_repository",
+      "final_protocol_fresh_run_1": "timeout",
+      "final_protocol_fresh_run_2": "killed",
+      "diagnostic_only_reused_workspace": {
+        "run1": "killed",
+        "run2": "killed",
+        "classification": "NOT_REPRODUCED (informational only, not a qualifying reproduction)"
+      },
+      "covering_tests_count": 27,
+      "covering_test_files": [
+        "test_authority_resolver.py",
+        "test_replay_isolation.py"
+      ],
+      "original_disagreement_source": "evidence-005.json timeout_triage.records (byte-unchanged; independently re-verified this transaction against the original artifact)",
+      "resolution_classification": "REQUIRES_GOVERNED_PROTOCOL_DECISION",
+      "resolution_rationale": "The locked timeout-triage protocol (evidence-005.json timeout_triage.protocol) defines exactly four outcomes for the two-run sequence -- timeout+timeout, killed+killed, survived+survived, or 'any disagreement -> UNSTABLE_TIMEOUT_TRIAGE (no majority vote, no guess)' -- and provides NO further resolution step for the disagreement case; it is a designed terminal state, not an intermediate one awaiting more data. evidence-005-correction-001.json's MAJ-01 remediation independently confirms this reading ('the protocol prohibits resolving them by majority vote or an unauthorized third tie-break run'). No other existing repository authority (Testing Convention item 8's timeout rule, Chapter 13 §13.10 flaky-test policy) defines an alternative resolution path specific to a mutation-testing timeout-triage disagreement (see governance_interpretation_question below) -- therefore, under EXISTING authority as currently written, this case cannot be resolved without a new governed decision. This is not a 'we lack facts' state (REMAINS_UNRESOLVED) -- the facts are complete and consistent; the existing protocol simply does not define what happens next.",
+      "not_performed": "No third run, no re-execution of this exact mutant ID, this transaction."
+    },
+    {
+      "mutant_id": "feature_engine.authority_resolver.x_resolve_input_contract_authority_from_repository__mutmut_103",
+      "function": "resolve_input_contract_authority_from_repository",
+      "final_protocol_fresh_run_1": "timeout",
+      "final_protocol_fresh_run_2": "killed",
+      "diagnostic_only_reused_workspace": {
+        "run1": "killed",
+        "run2": "killed",
+        "classification": "NOT_REPRODUCED (informational only, not a qualifying reproduction)"
+      },
+      "covering_tests_count": 27,
+      "covering_test_files": [
+        "test_authority_resolver.py",
+        "test_replay_isolation.py"
+      ],
+      "original_disagreement_source": "evidence-005.json timeout_triage.records (byte-unchanged; independently re-verified this transaction against the original artifact)",
+      "resolution_classification": "REQUIRES_GOVERNED_PROTOCOL_DECISION",
+      "resolution_rationale": "The locked timeout-triage protocol (evidence-005.json timeout_triage.protocol) defines exactly four outcomes for the two-run sequence -- timeout+timeout, killed+killed, survived+survived, or 'any disagreement -> UNSTABLE_TIMEOUT_TRIAGE (no majority vote, no guess)' -- and provides NO further resolution step for the disagreement case; it is a designed terminal state, not an intermediate one awaiting more data. evidence-005-correction-001.json's MAJ-01 remediation independently confirms this reading ('the protocol prohibits resolving them by majority vote or an unauthorized third tie-break run'). No other existing repository authority (Testing Convention item 8's timeout rule, Chapter 13 §13.10 flaky-test policy) defines an alternative resolution path specific to a mutation-testing timeout-triage disagreement (see governance_interpretation_question below) -- therefore, under EXISTING authority as currently written, this case cannot be resolved without a new governed decision. This is not a 'we lack facts' state (REMAINS_UNRESOLVED) -- the facts are complete and consistent; the existing protocol simply does not define what happens next.",
+      "not_performed": "No third run, no re-execution of this exact mutant ID, this transaction."
+    }
+  ],
+  "source_test_tool_environment_findings": {
+    "verified_structural_correlation": "100% of the 9 UNSTABLE_TIMEOUT_TRIAGE mutants are confined to exactly 3 functions in authority_resolver.py: _extract_merge_policy (2/9), _extract_registry_stream_ids (4/9), resolve_input_contract_authority_from_repository (3/9). Zero instability occurred among the 24 raw-timeout candidates in contracts.py (_construct_verified_authority, _seal_verified_authority, _is_well_formed_content_id -- all resolved NOT_REPRODUCED/killed) or the 1 in ownership.py (x_p_run_sort, resolved CONFIRMED_TIMEOUT). Source-verified: resolve_input_contract_authority_from_repository (authority_resolver.py) performs real filesystem I/O directly (Path.is_file(), Path.read_bytes() against the actual Input Contract and Stream Registry artifacts); _extract_merge_policy and _extract_registry_stream_ids are pure in-memory line scanners but are reached exclusively through that same I/O call path in every one of their covering tests. _validate_supported_merge_policy (2 raw-timeout candidates, 0 unstable) operates purely on an already-parsed InputMergePolicy object -- no I/O of its own -- consistent with this pattern.",
+    "verified_covering_test_scope": "Fresh tests-for-mutant query (mutmut 3.7.0, coverage collected via one ordinary full-suite clean-test pass at the exact evidence-005.json executable boundary -- no mutation test executed against any of the 9 disputed mutant IDs) shows each of the 9 mutants is covered by 27-42 tests spanning up to 4 files: test_authority_resolver.py, test_historical_authority_resolver.py, test_replay_preparation.py, and (for the 3 resolve_input_contract_authority_from_repository mutants specifically) test_replay_isolation.py::test_external_access_cut_guards_the_real_reachable_boundary -- a test that monkeypatches Path.read_bytes/read_text/open/socket to prove a real filesystem/network access cut is active against the actual production call path. This entire covering-test cluster is distinctively I/O- and access-boundary-centric relative to the rest of the Feature Engine suite, which is predominantly in-memory dataclass/event-object testing.",
+    "verified_timing_uncontended": "Fresh, isolated (single-process, no parallel workers) pytest run of the exact 43-test covering set for _extract_merge_policy__mutmut_37 at the evidence-005.json executable boundary: 43 passed in 0.26s, every individual test under 5ms. The full ordinary 414-test suite (same boundary) completes in 14.84s; the slowest 15 individual test durations in the ENTIRE suite are all from test_i13_properties.py (Hypothesis-based property tests, up to 1.03s each) -- none from test_authority_resolver.py or its sibling I/O-touching files, which do not appear in the top-15 slowest at all. test_authority_resolver.py's own 29 tests alone complete in 0.74s uncontended.",
+    "verified_environment_reconfirmation": "Fresh isolated worktree at repository boundary 662ed13e68838c17b290754047adb3c0cbf98f62 (evidence-005.json's own executable_boundary); src/tests/tooling trees independently re-verified byte-identical to evidence-005.json's pinned values. Fresh disposable venv: Python 3.13.6, mutmut 3.7.0, pytest 9.1.1 -- all match evidence-005.json's fresh_environment_provenance exactly. mutmut's timeout formula (evidence-005.json anomaly_flag, restated here for reference only): timeout_constant=1.0s, timeout_multiplier=15.0 (a RELATIVE threshold computed from each mutant's own covering-test baseline duration, not an absolute fixed value).",
+    "evidence_gap_disclosed": "No raw per-run wall-clock timing/log data for the 9 mutants' own original two protocol runs (evidence-005.json's timeout_triage.records stores only final pass/fail/timeout classification, not duration) is preserved anywhere in this repository -- those runs were ephemeral operations at evidence-005.json's own authoring time and cannot be recovered retroactively. This investigation's own fresh timing measurements (above) are necessarily FROM A DIFFERENT, UNCONTENDED execution context (single worker, this transaction, later in time) and are disclosed as such -- they establish what the covering-test baseline duration looks like absent contention, not what it measured during evidence-005.json's own ~7-parallel-worker full run.",
+    "governance_interpretation_question_not_resolved_here": "Constitution Chapter 13 §13.10 (Locked, binding) defines a flaky-test policy: forbids retry-until-green, requires quarantine + explicit follow-up for tests 'phụ thuộc timing/ordering/clock', and states an unstable result must not count as passing evidence. This describes ORDINARY test-suite flakiness (a test producing different pass/fail results on unchanged code). Whether §13.10's quarantine mechanism is the intended/applicable EXISTING mechanism for a DIFFERENT phenomenon -- mutmut's own per-mutant TIMEOUT CLASSIFICATION disagreeing across two isolated reruns of MUTATED code under a relative, load-sensitive threshold -- is a genuine interpretive question this investigation does not resolve. Testing Convention v0.17 item 8's own timeout rule ('an unresolved/unreproduced timeout is FAIL -- evidence for that mutant, not a silent pass') is consistent with evidence-005-correction-001.json's STOPPED/UNRESOLVED reading and does not itself supply a resolution path either. This question is flagged for ChatGPT's architecture/governance review, not answered by this executor."
+  },
+  "hypotheses_labeled": [
+    "HYPOTHESIS (plausible, mechanistically reasonable, NOT directly measured under contention -- reproducing 7-way parallel contention would itself require a mutation run and is out of scope): filesystem I/O operations (tmp_path synthetic-repo construction, Path.is_file()/read_bytes() against real artifacts) are disproportionately sensitive to timing variance under heavy concurrent-process resource contention, compared to pure in-memory/CPU-bound work -- explaining why instability concentrated exclusively in the 3 I/O-touching functions despite their comfortably short (0.26s for the full covering set) uncontended baseline duration, while the objectively SLOWEST tests in the whole suite (test_i13_properties.py, CPU-bound Hypothesis tests, up to 1.03s each) showed zero timeout instability at all under the same full run.",
+    "HYPOTHESIS (not mechanistically proven, analogous in kind to evidence-005-correction-001.json's own identity.x_deterministic_id__mutmut_3 working hypothesis): mutmut's coverage-based per-mutant test-selection and/or per-mutant baseline-duration measurement may itself carry some run-to-run variance for tests using pytest's tmp_path fixture specifically, independent of pure OS-level resource contention -- not established or refuted by this bounded investigation."
+  ],
+  "consolidated_wp_result": {
+    "classification": "REQUIRES_GOVERNED_PROTOCOL_DECISION",
+    "summary": "All 9 of 9 UNSTABLE_TIMEOUT_TRIAGE mutants are classified REQUIRES_GOVERNED_PROTOCOL_DECISION -- not because evidence is insufficient (it is complete and internally consistent for all 9), but because the existing locked timeout-triage protocol, as literally written, defines disagreement as a terminal state with no further resolution step, and no other existing repository authority (Testing Convention item 8, Chapter 13 §13.10) unambiguously supplies an alternative resolution mechanism for this specific phenomenon (mutation-testing timeout-classification instability, as distinct from ordinary test-suite flakiness). This investigation ADDS verified, additive evidence (the I/O-touching structural correlation, the covering-test scope, the uncontended timing baseline) to inform that future governed decision -- it does not itself constitute or authorize one.",
+    "existing_protocol_sufficiency": "NOT sufficient on its own to resolve any of the 9 cases -- confirmed by direct re-reading of its own text, corroborated by evidence-005-correction-001.json's MAJ-01 remediation."
+  },
+  "no_unauthorized_mechanism_confirmation": "No third run, majority vote, 2-of-3 voting scheme, or unauthorized tie-break was performed against any of the 9 disputed mutant IDs in this transaction. The only mutation-testing execution performed this transaction targeted a single, deliberately unrelated CONTROL mutant (feature_engine.identity.x_deterministic_id__mutmut_1, not among the 9, not the known identity.x_deterministic_id__mutmut_3 regression) solely to populate mutmut's coverage database (an ordinary full-suite clean-test pass against UNMUTATED code, not a mutation execution of any disputed mutant) so that tests-for-mutant queries -- pure, read-only coverage-attribution lookups -- could be run against the 9 IDs. No timeout-triage protocol text was reinterpreted, amended, or silently extended. No new resolution rule was invented or applied.",
+  "condition_1_formal_state_after_investigation": "STOPPED / UNRESOLVED -- UNCHANGED. This investigation does not alter, and the existing locked protocol does not authorize altering, Condition 1's formal verdict. The 9 mutants remain UNSTABLE_TIMEOUT_TRIAGE; the diagnostic-only bounds (84.21%-84.56%, both below the required 87.001959503592% threshold) remain explicitly NON-FORMAL planning evidence, not a substitute verdict.",
+  "condition_2_state": "167/170 -- UNCHANGED, not touched by this transaction (this WP has no authority to modify Condition-2 governance).",
+  "condition_3_state": "SATISFIED — REVIEW A VALIDATED -- UNCHANGED, not reopened by this transaction.",
+  "recommended_next_bounded_action": "ChatGPT architecture/governance review of this investigation's findings, specifically to determine: (a) whether Chapter 13 §13.10's flaky-test quarantine mechanism is the intended existing authority for mutation-testing timeout-classification instability (as distinct from ordinary test-suite flakiness), or (b) whether a separate, new governed protocol decision is required to define a resolution path for this category of disagreement. Do NOT author or implement any protocol change in the next bounded action without that governance determination first.",
+  "adr_scope_note": "This investigation itself introduces no architecture, contract, or governance-process change -- ADR_NOT_REQUIRED for the investigation. IF the recommended next action concludes a protocol amendment is the only credible resolution path, that PROSPECTIVE future work would need its own fresh Chapter 0 §4b check at its own boundary -- not assumed or pre-authorized here.",
+  "not_performed_by_this_transaction": [
+    "No production src/** change.",
+    "No test change.",
+    "No tooling change.",
+    "No dependency change.",
+    "No re-execution of any of the 9 disputed mutant IDs.",
+    "No majority vote, 2-of-3 voting, or unauthorized third tie-break.",
+    "No amendment to the locked timeout-triage protocol.",
+    "No reinterpretation of disagreement semantics.",
+    "No Condition-2 identity governance change (167/170 unchanged).",
+    "No Candidate-005 authored.",
+    "No resolution of contracts.x__seal_verified_authority__mutmut_33 (untouched, out of scope).",
+    "No reopening of Condition 3.",
+    "No closure of EVID-03.",
+    "No Feature Engine approval.",
+    "No LIVE authorization.",
+    "No modification to evidence-005.json, evidence-005-correction-001.json, or feature-engine-condition1-targeted-remediation-001.json (all verified byte-unchanged).",
+    "No Constitution/ADR/Global-Execution-Rule/Phase-rule change."
+  ]
+}

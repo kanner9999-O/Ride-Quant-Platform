@@ -6,8 +6,8 @@ status: Active
 owner: Product Owner
 maintainer: "WP executors under Lean Ride Operating Model v1.1"
 visual_companion: docs/project/milestone-dashboard.html
-last_verified_head: 063bc0771f25b59858df2e3906e00c7a238e0d31
-last_verified_at: "2026-09-22"
+state_verified_against_head: cf992d836579f7ec04a8859394e248121a32dac3
+state_verified_against_at: "2026-09-22"
 ---
 
 # Ride Quant Platform — Milestone Register
@@ -124,10 +124,26 @@ FAIL. Diagnostic-only bounds of approximately **84.21%–84.56%** exist
 bounds are **planning evidence only** and do **not** replace or substitute
 for the formal `STOPPED / UNRESOLVED` verdict.
 
-**Primary Work Package:** `FE-EVID03-COND1-STOP-001` — investigate the 9
-unstable timeout-triage cases and determine whether resolution exists under
-the existing locked protocol, or requires a separately governed protocol
-decision.
+**Primary Work Package — `FE-EVID03-COND1-STOP-001`: COMPLETE.** Bounded
+investigation of the 9 unstable timeout-triage mutants. Result: all 9
+classified `REQUIRES_GOVERNED_PROTOCOL_DECISION` — the locked protocol's
+disagreement clause is a designed terminal state with no built-in
+resolution step; no third run/majority vote/tie-break/reinterpretation was
+introduced. Verified finding: 100% of the 9 are confined to 3
+`authority_resolver.py` functions performing or reached exclusively through
+real filesystem I/O; zero instability elsewhere despite objectively slower
+tests being unaffected. Open interpretive question flagged for ChatGPT
+architecture/governance review (not resolved by this WP): whether
+Constitution Chapter 13 §13.10's flaky-test quarantine policy already
+covers this phenomenon, or a new governed decision is required. Condition 1
+remains `STOPPED / UNRESOLVED` — unchanged. Full record:
+`docs/governance/mutation-baseline-evidence/feature-engine-condition1-
+unstable-timeout-investigation-001.json`.
+
+**Primary — pending next routing:** the next primary Work Package for M1
+awaits ChatGPT's architecture/governance review of
+`FE-EVID03-COND1-STOP-001` and next-task routing — not selected by this
+tracking update.
 
 **Secondary queue:** `Candidate-005` — govern the 2 historically
 reconstructed Condition-2 identities, when doing so does not disrupt the
@@ -142,10 +158,11 @@ primary critical path.
 
 | Lane | Item | Status |
 |---|---|---|
-| Primary | `FE-EVID03-COND1-STOP-001` | Planned, not yet executed |
+| Primary | *(pending ChatGPT next-task routing)* | Awaiting architecture/governance review of `FE-EVID03-COND1-STOP-001` |
 | Secondary | `Candidate-005` (2 Condition-2 identities) | Queued, non-blocking |
 | Deferred | `contracts.x__seal_verified_authority__mutmut_33` (TOOL_IDENTITY_DRIFT) | Deferred — no existing governed mechanism |
-| Completed | `RIDE-PROJECT-MILESTONE-DASHBOARD-001` (this WP) | Tracking infrastructure only |
+| Completed | `RIDE-PROJECT-MILESTONE-DASHBOARD-001` | Tracking infrastructure only |
+| Completed | `FE-EVID03-COND1-STOP-001` | 9/9 mutants `REQUIRES_GOVERNED_PROTOCOL_DECISION`; §13.10 applicability question flagged for ChatGPT review |
 
 ## 6. PO dashboard snapshot
 
@@ -153,7 +170,9 @@ primary critical path.
 Current milestone:        M1 — Feature Engine EVID-03 Closure (ACTIVE)
 Primary blocker:          Condition 1 — STOPPED / UNRESOLVED
                            (9 UNSTABLE_TIMEOUT_TRIAGE mutants)
-Current primary WP:       FE-EVID03-COND1-STOP-001 (not yet executed)
+Current primary WP:       FE-EVID03-COND1-STOP-001 — COMPLETE
+                           (9/9 REQUIRES_GOVERNED_PROTOCOL_DECISION;
+                           next WP pending ChatGPT routing)
 PO decision required now: NO
 ```
 
@@ -162,9 +181,13 @@ PO decision required now: NO
 - This register is updated whenever a milestone's state changes, a Work
   Package completes/changes lane, or a Condition/Quality-Gate state changes
   for the ACTIVE milestone.
-- `last_verified_head` / `last_verified_at` in the frontmatter must be
-  refreshed at each update, verified fresh against the live repository
-  (`git rev-parse HEAD`), not carried forward from memory.
+- `state_verified_against_head` / `state_verified_against_at` in the
+  frontmatter record the repository/evidence boundary the milestone state
+  below was verified against **before** this update was authored — not this
+  artifact's own resulting commit SHA (which does not exist at verification
+  time). Refreshed at each update, verified fresh against the live
+  repository (`git rev-parse HEAD` at the start of the update transaction),
+  not carried forward from memory.
 - Updates to this register are project-visibility bookkeeping — they do not
   themselves constitute a Governance/Approval decision, Quality Gate
   re-evaluation, or ADR-scope event. If an update would require restating a

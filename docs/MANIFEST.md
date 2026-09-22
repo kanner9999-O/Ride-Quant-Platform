@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.408"
+manifest_version: "10.409"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -28091,6 +28091,24 @@ The 2 ambiguous rows and the 1 tool-identity-drift row remain entirely untouched
 **Not performed by this transaction (per explicit WP scope):** `FE-EVID03-COND1-STOP-001` not executed; Candidate-005 not authored; Condition-1 protocol not changed; Condition-2 governance not changed; Condition 3 not reopened; Feature Engine not approved; LIVE not authorized; no Constitution/ADR/Quality-Gate-meaning change; no governance classification self-finalized (expected `R0`/`R1`, `ADR_NOT_REQUIRED`, pending ChatGPT's own independent verification and Review A).
 
 **Files changed:** `docs/project/milestone.md` (new), `docs/project/milestone-dashboard.html` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no Constitution/ADR/Global-Execution-Rule/Phase-rule/Feature-Engine-evidence/source/tests/tooling file touched. `manifest_version` `"10.407"` → `"10.408"`.
+
+## `feature-engine` — `FE-EVID03-COND1-STOP-001` — 9 UNSTABLE_TIMEOUT_TRIAGE investigation
+
+**Implementation transaction — vai trò: `Feature Engine EVID-03 Condition-1 Unstable-Timeout Investigation Executor`, under ChatGPT-owned WP `FE-EVID03-COND1-STOP-001`** (architecture interpretation, milestone state, Review A, Risk Classification, ADR-scope review owned by ChatGPT — not self-finalized here). Starting HEAD `cf992d836579f7ec04a8859394e248121a32dac3`, verified `main == origin/main`, no drift, no intervening commits.
+
+**Bounded, evidence-only investigation of the exact 9 `UNSTABLE_TIMEOUT_TRIAGE` mutants** (`feature-engine-mutation-step9-formal-evidence-005.json`'s `timeout_triage.records`, independently re-verified fresh — exact 9/9 match). Method: isolated git worktree at evidence-005's own executable boundary (`662ed13e68838c17b290754047adb3c0cbf98f62`, src/tests/tooling trees re-verified byte-identical), fresh disposable venv matching evidence-005's exact pinned tool identity (Python 3.13.6, mutmut 3.7.0, pytest 9.1.1). No re-execution of any of the 9 disputed mutant IDs — the only mutation execution performed targeted one deliberately unrelated control mutant (`identity.x_deterministic_id__mutmut_1`) solely to populate mutmut's coverage database for read-only `tests-for-mutant` queries.
+
+**Key finding:** 100% of the 9 unstable cases are confined to exactly 3 `authority_resolver.py` functions performing or reached exclusively through real filesystem I/O, covered by 27–42 tests across up to 4 I/O-centric test files — while contracts.py's 24 raw-timeout candidates and the objectively slowest tests in the entire suite (CPU-bound property tests) showed zero instability. Fresh uncontended timing shows the exact covering-test set completes comfortably inside the computed timeout budget (0.26s), supporting a disclosed HYPOTHESIS (not mechanistically proven) that I/O operations are disproportionately sensitive to the already-documented ~7-parallel-worker resource contention, distinct from raw test duration.
+
+**All 9 mutants classified `REQUIRES_GOVERNED_PROTOCOL_DECISION`** — the locked timeout-triage protocol's disagreement clause is confirmed (by direct re-reading) to be a designed terminal state with no built-in further-resolution step; no majority vote, tie-break, or protocol reinterpretation introduced. An open interpretive question is flagged, not resolved: whether Constitution Chapter 13 §13.10's Locked flaky-test quarantine policy already covers mutation-timeout-classification instability (a different phenomenon from ordinary test-suite flakiness), or whether a separate new governed decision is required.
+
+**Condition 1 formal state: `STOPPED / UNRESOLVED` — UNCHANGED.** Condition 2 (`167/170`) and Condition 3 (`SATISFIED — REVIEW A VALIDATED`) untouched, not reopened. `P3-FEATURE-QG-EVID-03` remains `OPEN`. Feature Engine remains **NOT APPROVED**; LIVE remains **NOT_AUTHORIZED**.
+
+**Milestone tracking updated in the same transaction:** `docs/project/milestone.md`/`docs/project/milestone-dashboard.html` updated to reflect this WP's completion (M1 state, WP lanes, PO snapshot). Also folds the already-identified deterministic bookkeeping-label clarification from the prior dashboard WP: `last_verified_head`/"Current verified HEAD" renamed to `state_verified_against_head`/"Milestone state verified against" in both files — wording clarity only, no milestone-semantics change, no standalone correction transaction created.
+
+**Created:** `docs/governance/mutation-baseline-evidence/feature-engine-condition1-unstable-timeout-investigation-001.json` — new, additive, evidence-only artifact. `evidence-005.json`, `evidence-005-correction-001.json`, and `feature-engine-condition1-targeted-remediation-001.json` all verified byte-unchanged.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-condition1-unstable-timeout-investigation-001.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — no `src/**`/`tests/**`/tooling/dependency/Constitution/ADR/Global-Execution-Rule/Phase-rule file touched; no historical evidence artifact modified; isolated worktree and disposable venv removed after use; no lingering mutmut/pytest/tooling process. `manifest_version` `"10.408"` → `"10.409"`.
 
 ## Decision Log
 
