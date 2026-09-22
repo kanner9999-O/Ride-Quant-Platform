@@ -6,7 +6,7 @@ status: Active
 owner: Product Owner
 maintainer: "WP executors under Lean Ride Operating Model v1.1"
 visual_companion: docs/project/milestone-dashboard.html
-state_verified_against_head: 09bf6c7dd760deff7307fe8fbccb6f57217c4fc5
+state_verified_against_head: 926feab8b4c1b6b7168f153713c37fe18a04d28c
 state_verified_against_at: "2026-09-22"
 ---
 
@@ -160,26 +160,43 @@ ChatGPT's fresh Review A on this v0.2 bundle reconfirmed all 3 findings
 `REVISION_REQUIRED — 0 Blocker / 1 Major / 1 Minor`, Risk `R2`.
 
 **Primary Work Package — `FE-EVID03-COND1-PROTOCOL-DECISION-001-CORR-002`:
-IN PROGRESS (second bounded ADR correction).** Remediates the 2 new
-round-2 findings: new `MAJOR-01` — §13.8.1's Case C read as a fourth
-final Quality-Gate result; corrected in both ADR-044 and §13.8.1 so
-Case A/B remain the only final results (`FAIL — criteria`/`PASS`,
-unchanged vocabulary) and **Case C is reclassified as an evaluation
-state, not a final result** — no PASS/FAIL emitted, eligibility remains
-incomplete/fail-closed per §13.1/§13.8's "Missing gate ≠ passed gate,"
-a downstream Approval Gate PASS prerequisite is not satisfied, and Case
-C's evidence is not relabeled `FAIL — evidence` either. New `MINOR-01` —
-Chapter 13 banner's stale `ADR-044.md v0.1` reference corrected to the
-resulting v0.3. `ADR-044.md` v0.2 → v0.3; Chapter 13 stays v1.8 (same
-Draft candidate corrected in place, no v1.9). `status: Draft` unchanged
-on both, NOT marked Review-A CLEAN. Current EVID-03 worked example under
-the candidate rule (illustrative, **`NON-CONTROLLING / FUTURE-IF-
-ACTIVATED`**): projected `FAIL — criteria` if later activated (upper
-bound 84.56% < required 87.001959503592%). **Condition 1 remains
-`STOPPED / UNRESOLVED` now — this correction changes nothing until
-reviewed and the full activation model completes.** Awaiting ChatGPT
-fresh Review A + Risk Classification of the corrected ADR-044 v0.3 +
-Chapter 13 v1.8 bundle before any Product Owner decision point.
+COMPLETE.** Remediated the 2 round-2 findings: `MAJOR-01` — §13.8.1's
+Case C reclassified as an evaluation state, not a fourth final result
+(Case A/B remain the only final results, `FAIL — criteria`/`PASS`,
+unchanged vocabulary); `MINOR-01` — Chapter 13 banner's stale
+`ADR-044.md v0.1` reference corrected. `ADR-044.md` v0.2 → v0.3.
+ChatGPT's fresh Review A on this v0.3 bundle (boundary
+`926feab8b4c1b6b7168f153713c37fe18a04d28c`) reconfirmed both round-2
+findings `CLOSED — REVIEW A VALIDATED` and returned `CLEAN — 0 Blocker
+/ 0 Major / 0 Minor`, Risk `R2`. The Product Owner then selected the
+**optional** R2 independent cross-check (not an approval prerequisite —
+Review A itself was already CLEAN). The cross-check returned `DEFECT
+FOUND — 0 Blocker / 1 Major / 4 Minor`; ChatGPT independently
+re-verified and accepted all 5, upgrading one to Major — effective
+accepted correction input **`0 Blocker / 2 Major / 3 Minor`**.
+
+**Primary Work Package — `FE-EVID03-COND1-PROTOCOL-DECISION-001-CORR-003`:
+IN PROGRESS (third bounded ADR correction — correction-chain round 3,
+`P3-CORRECTION-CHAIN-001` applied).** Consolidates all 5 accepted
+cross-check findings into one internally complete correction: closed
+applicability predicate + mixed-population rule + no-self-declared-
+protocol-equivalence for §13.8.1 (`X-MAJ-01`); explicit Testing
+Convention item 8 / gate-level precedence reconciliation, preventing the
+same evidence set from ever yielding both a gate-level PASS and a final
+`FAIL — evidence` (`X-MIN-01`, upgraded Major); self-sufficient
+percentage-unit arithmetic in §13.8.1 (`X-MIN-02`); all candidate/
+activation wording removed from §13.8.1's rule body (`X-MIN-03`);
+`addresses: []` metadata fix (`X-MIN-04`). `ADR-044.md` v0.3 → v0.4;
+Chapter 13 stays v1.8 (same Draft candidate corrected in place, no
+v1.9). Case A/B/C truth table and activation model unchanged, not
+redesigned. **Condition 1 remains `STOPPED / UNRESOLVED` now.** Approval
+remains deferred because **known, accepted, substantive defects
+existed and required remediation** — not because the optional
+cross-check itself needed to be "satisfied." Awaiting ChatGPT fresh
+Review A of the consolidated ADR-044 v0.4 + Chapter 13 v1.8 bundle; this
+is correction-chain round 3 — if that review finds another semantic
+Major/Blocker, the workflow invokes `P3-CORRECTION-CHAIN-001` root-cause
+consolidation rather than an automatic fourth correction round.
 
 **Secondary queue:** `Candidate-005` — govern the 2 historically
 reconstructed Condition-2 identities, when doing so does not disrupt the
@@ -194,13 +211,14 @@ primary critical path.
 
 | Lane | Item | Status |
 |---|---|---|
-| Primary | `FE-EVID03-COND1-PROTOCOL-DECISION-001-CORR-002` | ADR-044 v0.3 + Chapter 13 v1.8 candidate corrected (Case C reclassified as evaluation state); awaiting ChatGPT fresh Review A + Risk Classification |
+| Primary | `FE-EVID03-COND1-PROTOCOL-DECISION-001-CORR-003` | ADR-044 v0.4 + Chapter 13 v1.8 candidate corrected (correction-chain round 3, closed applicability predicate + Testing Convention item-8 reconciliation); awaiting ChatGPT fresh Review A |
 | Secondary | `Candidate-005` (2 Condition-2 identities) | Queued, non-blocking |
 | Deferred | `contracts.x__seal_verified_authority__mutmut_33` (TOOL_IDENTITY_DRIFT) | Deferred — no existing governed mechanism |
 | Completed | `RIDE-PROJECT-MILESTONE-DASHBOARD-001` | Tracking infrastructure only |
 | Completed | `FE-EVID03-COND1-STOP-001` | 9/9 mutants `REQUIRES_GOVERNED_PROTOCOL_DECISION`; §13.10 applicability question flagged for ChatGPT review |
 | Completed | `FE-EVID03-COND1-PROTOCOL-DECISION-001` | ADR-044 v0.1 Draft authored; Review A returned `REVISION_REQUIRED — 0 Blocker / 2 Major / 1 Minor`, R2 |
 | Completed | `FE-EVID03-COND1-PROTOCOL-DECISION-001-CORR-001` | ADR-044 v0.2 + Chapter 13 v1.8 corrected (round-1 findings CLOSED); Review A returned `REVISION_REQUIRED — 0 Blocker / 1 Major / 1 Minor`, R2 |
+| Completed | `FE-EVID03-COND1-PROTOCOL-DECISION-001-CORR-002` | ADR-044 v0.3 + Chapter 13 v1.8 corrected (round-2 findings CLOSED); Review A `CLEAN — 0/0/0`, R2; optional PO-selected cross-check returned `DEFECT FOUND — 0/1/4`, accepted as `0/2/3` |
 
 ## 6. PO dashboard snapshot
 
@@ -208,17 +226,26 @@ primary critical path.
 Current milestone:        M1 — Feature Engine EVID-03 Closure (ACTIVE)
 Primary blocker:          Condition 1 — STOPPED / UNRESOLVED
                            (9 UNSTABLE_TIMEOUT_TRIAGE mutants)
-Current primary WP:       FE-EVID03-COND1-PROTOCOL-DECISION-001-CORR-002
-                           (ADR-044 v0.3 + Chapter 13 v1.8 candidate
-                           corrected: Case C reclassified as evaluation
-                           state, not a fourth final result; NOT yet
-                           re-reviewed)
-Last Review A:             REVISION_REQUIRED — 0 Blocker / 1 Major /
-                           1 Minor, Risk R2 (on v0.2, remediated above;
-                           round-1 findings CLOSED — REVIEW A VALIDATED)
+Current primary WP:       FE-EVID03-COND1-PROTOCOL-DECISION-001-CORR-003
+                           (ADR-044 v0.4 + Chapter 13 v1.8 candidate
+                           corrected: closed applicability predicate,
+                           mixed-population rule, Testing Convention
+                           item-8 reconciliation, self-sufficient
+                           arithmetic, activation-wording cleanup,
+                           addresses metadata fix; NOT yet re-reviewed)
+Last Review A:              CLEAN — 0 Blocker / 0 Major / 0 Minor
+                           (on v0.3, Risk R2). Optional Product-Owner-
+                           selected R2 cross-check then returned
+                           DEFECT FOUND — 0 Blocker / 1 Major / 4 Minor,
+                           accepted as 0 Blocker / 2 Major / 3 Minor
+                           (remediated by CORR-003 above)
 PO decision required now: NO
-                           (deferred until the corrected semantic
-                           bundle — ADR-044 v0.3 + Chapter 13 v1.8 —
+                           (deferred because KNOWN, ACCEPTED,
+                           SUBSTANTIVE DEFECTS EXISTED and required
+                           remediation — not because the optional
+                           cross-check itself needed to be "satisfied";
+                           next boundary occurs after the corrected
+                           bundle — ADR-044 v0.4 + Chapter 13 v1.8 —
                            receives a CLEAN Review A)
 ```
 

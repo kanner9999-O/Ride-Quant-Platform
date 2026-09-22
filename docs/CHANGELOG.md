@@ -2,6 +2,30 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-22 — governance: ADR-044 v0.4 + Chapter 13 v1.8 candidate — third bounded correction (P3-CORRECTION-CHAIN-001, round 3)
+
+Starting HEAD `926feab8b4c1b6b7168f153713c37fe18a04d28c`, verified `main == origin/main`, no drift. ADR-044 confirmed v0.3/Draft, Chapter 13 confirmed v1.8/Draft, MANIFEST confirmed still pinning v1.7 as controlling, before this transaction.
+
+ChatGPT Review A on the v0.3 bundle returned CLEAN -- 0/0/0, R2. Product Owner selected the optional R2 independent cross-check, which returned DEFECT FOUND -- 0 Blocker / 1 Major / 4 Minor. ChatGPT independently re-verified and accepted all 5, upgrading X-MIN-01 to Major (strict authority reading could otherwise derive both a gate-level PASS and a FAIL — evidence from the same scoped inputs). Effective correction input: 0 Blocker / 2 Major / 3 Minor. Per P3-CORRECTION-CHAIN-001 (third semantic correction round), consolidated into one internally complete correction.
+
+X-MAJ-01: Chapter 13 §13.8.1 rewritten with a closed applicability predicate (6 explicit conditions, scoped strictly to UNSTABLE_TIMEOUT_TRIAGE, excluding AMBIGUOUS/TOOL_IDENTITY_DRIFT/not_checked/other unresolved categories) and a mixed-population rule (a scoped-U PASS never masks a separate non-scoped FAIL — evidence); protocol-equivalence tightened to forbid self-declared equivalence.
+
+X-MIN-01 (upgraded Major): explicit Testing Convention item 8 / gate-level precedence reconciliation added to both ADR-044 (new §6) and §13.8.1, preventing the same evidence set from ever yielding both a gate-level PASS and a final FAIL — evidence.
+
+X-MIN-02: §13.8.1's arithmetic made fully self-sufficient (explicit percentage units, U ∩ confirmed_favorable = ∅, no-silent-exclusion stated directly).
+
+X-MIN-03: all candidate/activation/per-gate-opt-in wording removed from §13.8.1's rule body (lifecycle state now lives only in the banner/frontmatter/MANIFEST).
+
+X-MIN-04: ADR-044 addresses field corrected from ["P3-FEATURE-QG-EVID-03"] to [] (Chapter 11 §11.4 reserves this field for OQ identities; none found).
+
+ADR-044 v0.3 -> v0.4. Chapter 13 stays v1.8 (same Draft candidate corrected in place, no v1.9). Neither file marked Review-A CLEAN by this transaction. Case A/B/C truth table, activation model, and split-authority architecture unchanged, not redesigned. v1.7 confirmed still controlling. No root contradiction found.
+
+Condition 1 (STOPPED/UNRESOLVED), Condition 2 (167/170), Condition 3 (SATISFIED) all unchanged. Threshold, historical evidence, source/tests/tooling all unchanged. Milestone tracking updated in the same transaction.
+
+**Files changed:** `docs/adr/ADR-044.md`, `docs/constitution/13-quality-gates.md`, `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.412"` -> `"10.413"`.
+
+---
+
 ## [Unreleased] — 2026-09-22 — governance: ADR-044 v0.3 + Chapter 13 v1.8 candidate — second bounded correction
 
 Starting HEAD `09bf6c7dd760deff7307fe8fbccb6f57217c4fc5`, verified `main == origin/main`, no drift. ADR-044 confirmed v0.2/Draft, Chapter 13 confirmed v1.8/Draft, MANIFEST confirmed still pinning v1.7 as controlling, before this transaction.
