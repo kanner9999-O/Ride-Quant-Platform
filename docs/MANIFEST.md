@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.409"
+manifest_version: "10.410"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -28109,6 +28109,156 @@ The 2 ambiguous rows and the 1 tool-identity-drift row remain entirely untouched
 **Created:** `docs/governance/mutation-baseline-evidence/feature-engine-condition1-unstable-timeout-investigation-001.json` — new, additive, evidence-only artifact. `evidence-005.json`, `evidence-005-correction-001.json`, and `feature-engine-condition1-targeted-remediation-001.json` all verified byte-unchanged.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-condition1-unstable-timeout-investigation-001.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — no `src/**`/`tests/**`/tooling/dependency/Constitution/ADR/Global-Execution-Rule/Phase-rule file touched; no historical evidence artifact modified; isolated worktree and disposable venv removed after use; no lingering mutmut/pytest/tooling process. `manifest_version` `"10.408"` → `"10.409"`.
+
+## ADR-044 v0.1 — Bounded-Uncertainty Interpretation for Mutation Timeout Triage (`Draft`, candidate authoring — `FE-EVID03-COND1-PROTOCOL-DECISION-001`)
+
+**Governed semantic architecture-authoring transaction — vai trò: `ADR Candidate Authoring Executor`, under ChatGPT-owned WP `FE-EVID03-COND1-PROTOCOL-DECISION-001`** (architecture interpretation, ADR Scope determination, Review A, Risk Classification owned by ChatGPT and already provided as this WP's own governing input — encoded, not independently re-derived, by this executor). Authors `docs/adr/ADR-044.md` v0.1 (`Draft`) per ChatGPT's own architecture determination that Chapter 13 §13.10 is relevant but `EXISTING_AUTHORITY_INSUFFICIENT` for gate-level interpretation of `UNSTABLE_TIMEOUT_TRIAGE`-class mutation-evaluation disagreements, and ChatGPT's own fresh Chapter 0 §4b assessment: `ADR_REQUIRED` (reusable Quality-Gate/test-effectiveness interpretation semantics, not a one-off evidence correction) — not downgraded by this executor.
+
+**Fresh boundary verification:** HEAD confirmed exactly `af2903a73fdb52a66142c19191376d9e3c977a4a`, identical to `origin/main` — no drift. `docs/adr/ADR-044.md` verified absent before this transaction (`ls docs/adr/` confirmed ADR-043 the highest existing ADR; no `docs/adr/ADR-044.md` file and no `ADR-044` reference anywhere in `docs/` pre-existing).
+
+### Decision encoded
+
+```text
+Bounded-Uncertainty Interpretation for Mutation Timeout Triage:
+1. Preserve UNSTABLE_TIMEOUT_TRIAGE classification exactly -- never
+   resolved/guessed. No majority vote, no 2-of-3 voting, no arbitrary
+   third-run tie-break, no retry-until-green.
+2. Formal bounds, reusing the gate's own already-authoritative metric/
+   denominator (no new metric introduced):
+     lower_numerator = killed + confirmed_timeout (unstable = zero credit)
+     upper_numerator = lower_numerator + U (unstable count)
+     lower_score / upper_score computed against the unchanged denominator
+3. Truth table given required threshold T:
+     upper_score < T         -> FAIL — criteria
+     lower_score >= T         -> PASS
+     lower_score < T <= upper -> STOPPED / UNRESOLVED
+4. Anti-gaming: never excludes/reclassifies an unresolved mutant to
+   raise a numerator; PASS only with zero unstable credit; no mechanism
+   to reduce U other than the existing, unchanged two-run protocol;
+   Case C (STOP) is the conservative default whenever both bounds
+   straddle T, no discretionary override.
+```
+
+### Relationship to Chapter 13 §13.10 (preserved, not redefined)
+
+```text
+retry-until-green remains prohibited; unstable evidence never credited
+  as passing evidence (satisfied directly by the lower-bound rule);
+  a TEST is quarantined only on evidence the test itself is flaky/
+  timing-dependent -- mutation-classification instability alone does
+  NOT automatically quarantine covering tests; test-level quarantine
+  and mutation-classification uncertainty are governed as distinct
+  concerns with distinct triggers, no automatic bridge either way.
+```
+
+### Relationship to the existing locked timeout-triage protocol
+
+```text
+The existing two-run protocol (evidence-005.json timeout_triage.protocol)
+  remains the sole, unchanged, authoritative mechanism producing each
+  mutant's own classification. This ADR adds ONLY the previously-missing
+  gate-level interpretation for a population containing one or more
+  UNSTABLE_TIMEOUT_TRIAGE entries -- no per-mutant classification is
+  altered, re-run, or reinterpreted. evidence-005.json and
+  evidence-005-correction-001.json remain byte-unchanged (verified).
+```
+
+### Current EVID-03 worked example (illustrative, NON-CONTROLLING / FUTURE-IF-APPROVED)
+
+```text
+Independently re-verified fresh this transaction against evidence-005.json/
+  evidence-005-correction-001.json: killed=2209, confirmed_timeout=5, U=9,
+  total=2629, T=87.001959503592%.
+lower_numerator = 2214 (84.21453023963484%)
+upper_numerator = 2223 (84.55686572841384%)
+upper_score < T -> Case A -> projected FAIL — criteria IF AND ONLY IF this
+  ADR is later reviewed and approved. Arithmetic independently recomputed
+  in Python this transaction, matches evidence-005-correction-001.json's
+  own recorded figures exactly, zero discrepancy.
+Condition 1 remains STOPPED / UNRESOLVED NOW — this ADR candidate, by
+  itself, changes nothing. EVID-03 is not closed by this document.
+```
+
+### Alternatives considered (6, per governing task — no alternative endorsed over the specified candidate)
+
+```text
+1. Permanent STOP on any disagreement, indefinitely -- rejected as sole
+   rule, blocks the gate even when the disagreement is provably
+   irrelevant to the outcome (as in the current EVID-03 case).
+2. Majority vote / third-run tie-break -- rejected, contradicts the
+   already-Review-A-validated locked protocol's own "no majority vote,
+   no guess" clause and §13.10's retry-until-green prohibition.
+3. Treat all unstable as survived -- rejected as strictly worse than the
+   chosen candidate's own conservative bound (same FAIL outcome when
+   upper_score < T, but would wrongly force FAIL even when
+   lower_score >= T already legitimately passes uncredited).
+4. Treat all unstable as killed -- rejected, ungoverned credit-without-
+   evidence, exactly what Testing Convention item 8 / §13.10 forbid.
+5. Test quarantine alone -- rejected as sole mechanism; the 9 current
+   unstable mutants' covering tests show no evidence of being
+   individually flaky (fast, reliable, uncontended per
+   FE-EVID03-COND1-STOP-001's own findings) -- would misapply §13.10's
+   own trigger.
+6. Bounded uncertainty / interval interpretation (CHOSEN) -- narrowest
+   rule resolving the authority gap without inventing new per-mutant
+   resolution machinery.
+```
+
+### Scope classification
+
+```text
+ADR_REQUIRED (ChatGPT's own fresh Chapter 0 §4b determination, NOT
+  downgraded by this executor per explicit instruction). Governance/
+  Approval-process change: changes how a Quality Gate verdict is
+  formally derived for unresolved-mutant populations -- Chapter 13's
+  own interpretation domain, not a one-off evidence correction.
+  Reusable across any module/gate exercising this or an equivalently-
+  governed timeout-triage protocol, not scoped to Feature Engine's
+  EVID-03 population alone.
+```
+
+### `depends_on`/`addresses`/`resolves`
+
+```text
+depends_on: [] -- this ADR adds an interpretation layer without
+  redefining Chapter 13 §13.10, the locked timeout-triage protocol, or
+  Testing Convention v0.17's metric formula; none of those are ADRs.
+addresses: ["P3-FEATURE-QG-EVID-03"] -- the finding this candidate is
+  motivated by and would (if approved and separately applied) supply
+  the missing gate-interpretation step for.
+resolves: [] -- no OQ-XXX Open Question exists for this decision.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/adr/ADR-044.md (new); docs/governance/quality-gate/
+  feature-engine-chapter13-remediation-plan-001.md; docs/project/
+  milestone.md; docs/project/milestone-dashboard.html; docs/MANIFEST.md;
+  docs/CHANGELOG.md only. evidence-005.json, evidence-005-correction-
+  001.json, feature-engine-condition1-unstable-timeout-investigation-
+  001.json, every other ADR, Constitution, Global Execution Rules,
+  Phase rules, python/feature-engine/{src,tests,tooling} all verified
+  byte-unchanged (git diff --stat empty). No mutation execution. No
+  Condition-1/2/3 state change. No EVID-03 closure.
+```
+
+### State summary (preserved)
+
+```text
+Condition 1:                   STOPPED / UNRESOLVED (unchanged).
+Condition 2:                   167/170 (unchanged, not touched).
+Condition 3:                   SATISFIED — REVIEW A VALIDATED
+                                (unchanged, not reopened).
+P3-FEATURE-QG-EVID-03:         OPEN (unchanged, not closed).
+Feature Engine approval:       NOT APPROVED.
+LIVE:                          NOT_AUTHORIZED.
+ADR-044:                       Draft, NOT reviewed, NOT approved.
+```
+
+**Next governed step:** ChatGPT Review A of `ADR-044` v0.1 Draft (independent read-only assessment against Chapter 13 §13.10, the locked timeout-triage protocol, and repository authority — not inheriting this executor's own conclusions), followed by fresh Risk Classification (expected `R2`, not self-finalized) and a Product Owner decision on this exact candidate.
+
+**Files changed:** `docs/adr/ADR-044.md` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all historical evidence, other ADRs, Constitution, Global Execution Rules, Phase rules, and `python/feature-engine/**` verified byte-unchanged. `manifest_version` `"10.409"` → `"10.410"`.
 
 ## Decision Log
 

@@ -6,7 +6,7 @@ status: Active
 owner: Product Owner
 maintainer: "WP executors under Lean Ride Operating Model v1.1"
 visual_companion: docs/project/milestone-dashboard.html
-state_verified_against_head: cf992d836579f7ec04a8859394e248121a32dac3
+state_verified_against_head: af2903a73fdb52a66142c19191376d9e3c977a4a
 state_verified_against_at: "2026-09-22"
 ---
 
@@ -140,10 +140,20 @@ remains `STOPPED / UNRESOLVED` — unchanged. Full record:
 `docs/governance/mutation-baseline-evidence/feature-engine-condition1-
 unstable-timeout-investigation-001.json`.
 
-**Primary — pending next routing:** the next primary Work Package for M1
-awaits ChatGPT's architecture/governance review of
-`FE-EVID03-COND1-STOP-001` and next-task routing — not selected by this
-tracking update.
+**Primary Work Package — `FE-EVID03-COND1-PROTOCOL-DECISION-001`: IN PROGRESS
+(ADR candidate authoring).** ChatGPT determined Chapter 13 §13.10 relevant
+but `EXISTING_AUTHORITY_INSUFFICIENT` for gate-level interpretation of
+`UNSTABLE_TIMEOUT_TRIAGE` disagreements, and fresh Chapter 0 §4b:
+`ADR_REQUIRED`. Draft candidate authored: `docs/adr/ADR-044.md` v0.1 —
+"Bounded-Uncertainty Interpretation for Mutation Timeout Triage" (lower/
+upper score bounds, PASS/FAIL/STOP truth table, preserves §13.10 and the
+existing locked timeout-triage protocol unchanged). Current EVID-03 worked
+example under the candidate rule (illustrative, `NON-CONTROLLING / FUTURE-
+IF-APPROVED`): projected `FAIL — criteria` if later approved (upper bound
+84.56% < required 87.001959503592%). **Condition 1 remains `STOPPED /
+UNRESOLVED` now — this candidate changes nothing until reviewed and
+approved.** Awaiting ChatGPT Review A + Risk Classification (expected
+`R2`) of the ADR candidate before any Product Owner decision point.
 
 **Secondary queue:** `Candidate-005` — govern the 2 historically
 reconstructed Condition-2 identities, when doing so does not disrupt the
@@ -158,7 +168,7 @@ primary critical path.
 
 | Lane | Item | Status |
 |---|---|---|
-| Primary | *(pending ChatGPT next-task routing)* | Awaiting architecture/governance review of `FE-EVID03-COND1-STOP-001` |
+| Primary | `FE-EVID03-COND1-PROTOCOL-DECISION-001` | ADR-044 v0.1 Draft authored; awaiting ChatGPT Review A + Risk Classification |
 | Secondary | `Candidate-005` (2 Condition-2 identities) | Queued, non-blocking |
 | Deferred | `contracts.x__seal_verified_authority__mutmut_33` (TOOL_IDENTITY_DRIFT) | Deferred — no existing governed mechanism |
 | Completed | `RIDE-PROJECT-MILESTONE-DASHBOARD-001` | Tracking infrastructure only |
@@ -170,10 +180,13 @@ primary critical path.
 Current milestone:        M1 — Feature Engine EVID-03 Closure (ACTIVE)
 Primary blocker:          Condition 1 — STOPPED / UNRESOLVED
                            (9 UNSTABLE_TIMEOUT_TRIAGE mutants)
-Current primary WP:       FE-EVID03-COND1-STOP-001 — COMPLETE
-                           (9/9 REQUIRES_GOVERNED_PROTOCOL_DECISION;
-                           next WP pending ChatGPT routing)
+Current primary WP:       FE-EVID03-COND1-PROTOCOL-DECISION-001
+                           (ADR-044 v0.1 Draft authored, awaiting
+                           ChatGPT Review A + Risk Classification)
 PO decision required now: NO
+                           (next PO decision point occurs only after
+                           ChatGPT Review A + Risk Classification of
+                           ADR-044)
 ```
 
 ## 7. Update rules

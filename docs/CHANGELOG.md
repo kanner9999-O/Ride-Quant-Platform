@@ -2,6 +2,22 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-22 — governance: ADR-044 v0.1 Draft — Bounded-Uncertainty Interpretation for Mutation Timeout Triage
+
+Starting HEAD `af2903a73fdb52a66142c19191376d9e3c977a4a`, verified `main == origin/main`, no drift, no intervening commits.
+
+Authors `docs/adr/ADR-044.md` v0.1 (Draft) per ChatGPT's own architecture determination (Chapter 13 §13.10 relevant but EXISTING_AUTHORITY_INSUFFICIENT for gate-level interpretation of UNSTABLE_TIMEOUT_TRIAGE disagreements) and fresh Chapter 0 §4b assessment (ADR_REQUIRED, not downgraded). ADR identity freshly verified non-colliding (ADR-043 confirmed highest existing, no ADR-044 file/reference pre-existing).
+
+Encodes exactly the specified Bounded-Uncertainty Interpretation: preserves UNSTABLE_TIMEOUT_TRIAGE classification (no majority vote/2-of-3/tie-break/retry-until-green); computes lower_numerator = killed + confirmed_timeout, upper_numerator = lower_numerator + U, reusing the gate's own already-authoritative denominator/formula; three-case truth table (upper_score < T -> FAIL; lower_score >= T -> PASS; else STOPPED/UNRESOLVED); explicitly preserves Chapter 13 §13.10 (test-level quarantine and mutation-classification uncertainty kept distinct); explicitly preserves the existing locked two-run protocol unchanged, no historical evidence rewritten.
+
+Current EVID-03 worked example (illustrative, NON-CONTROLLING/FUTURE-IF-APPROVED, independently re-verified): killed=2209, confirmed_timeout=5, U=9, total=2629 -> lower_numerator=2214 (84.21453023963484%), upper_numerator=2223 (84.55686572841384%), both below T=87.001959503592% -> Case A -> projected FAIL — criteria IF AND ONLY IF later approved. Six alternatives considered, no alternative endorsed over the specified candidate.
+
+Condition 1 remains STOPPED / UNRESOLVED NOW -- unchanged. Condition 2 (167/170) and Condition 3 (SATISFIED) untouched. EVID-03 not closed. Milestone tracking updated in the same transaction (M1 primary WP -> FE-EVID03-COND1-PROTOCOL-DECISION-001, ADR candidate awaiting Review A).
+
+**Files changed:** `docs/adr/ADR-044.md` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.409"` -> `"10.410"`.
+
+---
+
 ## [Unreleased] — 2026-09-22 — feature-engine: FE-EVID03-COND1-STOP-001 — 9 UNSTABLE_TIMEOUT_TRIAGE investigation
 
 Starting HEAD `cf992d836579f7ec04a8859394e248121a32dac3`, verified `main == origin/main`, no drift, no intervening commits.
