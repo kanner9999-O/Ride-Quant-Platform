@@ -1,7 +1,7 @@
 ---
 id: lean-ride-operating-model-v1
 title: "Lean Ride Operating Model v1 — Candidate"
-version: "1.0"
+version: "1.1"
 status: Draft
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -21,6 +21,13 @@ existing rules already treat as low-ceremony (R0/R1 default no-cross-check,
 `G-REV` Semantic Sufficiency, `P3-TXN-001` fold-by-default, `P3-MODULE-
 BATCH-001` batch containment). No Constitution chapter, ADR, Global Execution
 Rule, or Phase rule is edited by this document.
+
+**v1.1 bounded correction (2026-09-22):** remediates ChatGPT Review A
+`REVISION_REQUIRED — 0 Blocker / 2 Major / 1 Minor` at reviewed boundary
+`30fc1a303886777878407ce266a184fa52c82d4e` / blob
+`f2cb56fe7fbac589a4ec574c1096214ceb9e76b6` — see Change history for the
+per-finding remediation summary. Not yet re-reviewed; `status: Draft`
+unchanged.
 
 ## 0. What is preserved, verbatim
 
@@ -46,8 +53,8 @@ without changing what each stage means:
 | PLAN | Task/transaction spec | Batched into a **Work Package (WP)** inside a **Milestone** — the new atomic planning unit, sized to a critical-path deliverable, not a single row/finding/mutant |
 | EXECUTE | Executor performs bounded work | Internal commits/iterations inside ONE WP need no per-commit review cycle (`P3-MODULE-BATCH-001`, made explicit) |
 | VERIFY | Fresh ground-truth check (`G-VERIFY-001`) | Performed **once** at WP completion, covering the WP's full delta |
-| REVIEW | Review A + Risk Classification | **Batched**: one Review A per WP, sized to real aggregate risk — never per-row/per-mutant/per-artifact |
-| DECIDE | Product Owner decision | Routed by Risk Classification: R0/R1 → no PO step unless Milestone-boundary or escalation; R2 / ADR-triggered / Milestone-complete → PO decision, delivered via the Dashboard (§5) or a direct escalation (§3) |
+| REVIEW | Review A + Risk Classification | **Batched by default**: one Review A per WP, sized to real aggregate risk. This is a default, not an override — if an existing governing rule requires a narrower review boundary for a specific artifact/decision (e.g. a §4.1(b) reclassification candidate's own dedicated Review A, per existing precedent), that narrower boundary wins |
+| DECIDE | Product Owner decision | Governed strictly by **existing approval-gate authority**, not by Risk Classification alone. R0/R1 controls only whether an *optional cross-check* is skipped by default (ADR-042) — it does **not** by itself mean "no PO step." Any artifact/decision already subject to an existing approval-gate/PO-decision requirement (Chapter 12 §12.2, a §4.1(b) candidate decision, an ADR, a Milestone acceptance) **still requires** Product Owner Decision regardless of R0/R1/R2. Work stays internal only when **no existing approval authority requires PO** for that specific output (§3) |
 
 **New operating constraints:**
 
@@ -59,9 +66,11 @@ without changing what each stage means:
 - **Critical-path prioritization** — WPs ordered against the Roadmap
   dependency graph (Chapter 14 §14.2) and, within a module, against the
   module's own blocking Quality Gate condition first.
-- **Batched Review A** — sized to the WP's aggregate semantic delta, per
-  `G-REV-001`/Semantic Sufficiency, now a structural default rather than
-  case-by-case judgment.
+- **Batched Review A (default, not an override)** — sized to the WP's
+  aggregate semantic delta, per `G-REV-001`/Semantic Sufficiency. A
+  structural default rather than case-by-case judgment — but if an existing
+  governing rule requires a narrower review/decision boundary for a specific
+  artifact or decision, that narrower boundary controls, unchanged.
 - **Milestone-level PO reporting** — PO sees one Dashboard update per
   Milestone checkpoint, not one report per transaction, plus real
   escalations only (§3).
@@ -71,7 +80,7 @@ without changing what each stage means:
 | Old pattern | New pattern |
 |---|---|
 | Standalone bookkeeping recording transaction | Folded into the owning WP's own VERIFY/REVIEW (`P3-TXN-001`'s fold-by-default, now the norm) |
-| Per-artifact/per-candidate Review A round | One Review A per WP |
+| Per-artifact/per-candidate Review A round | One Review A per WP **by default** — narrower existing review/decision boundaries still win when a governing rule requires one |
 | Full narrative PO report per transaction | 1-page Milestone Dashboard + targeted escalations only |
 | Micro-task routing (one prompt per row/finding/mutant) | WP batches related items, subject to WIP=1 |
 | Correction chains handled ad hoc until 3 rounds | WIP limit + batched Review A prevent most chains from starting; `P3-CORRECTION-CHAIN-001` remains the unchanged fail-safe |
@@ -90,7 +99,13 @@ created. Two **operational labels**, living only in this document:
 **Stays internal (no PO involvement) when ALL hold:**
 1. WP stays within its pre-declared scope (no creep beyond the WP template's
    declared files/artifacts).
-2. Risk Classification resolves R0 or R1.
+2. **No existing approval-gate/PO-decision requirement applies to this WP's
+   output** — i.e. the WP does not itself constitute or feed a decision that
+   Chapter 12 §12.2, a §4.1(b) reclassification decision, an ADR, or a
+   Milestone-acceptance checkpoint already requires Product Owner Decision
+   for. (Risk Classification resolving R0/R1 only controls whether an
+   *optional* R2 cross-check is skipped by default, per ADR-042 — it never
+   by itself substitutes for a required PO Decision.)
 3. No contradiction with any already-approved/Locked artifact, evidence, or
    ADR.
 4. No Chapter 0 §4b ADR trigger fires.
@@ -98,15 +113,19 @@ created. Two **operational labels**, living only in this document:
    auditability, or safety impact.
 
 **Must escalate to Product Owner when ANY holds:**
-1. Risk Classification resolves R2.
-2. An ADR Scope Rule trigger fires (Chapter 0 §4b, unchanged).
-3. A Milestone reaches its completion/acceptance checkpoint (routine
+1. An existing approval-gate/PO-decision requirement applies to the WP's
+   output (§3 stays-internal criterion 2 fails) — regardless of Risk
+   Classification. This is the primary, most common escalation trigger, not
+   an edge case.
+2. Risk Classification resolves R2.
+3. An ADR Scope Rule trigger fires (Chapter 0 §4b, unchanged).
+4. A Milestone reaches its completion/acceptance checkpoint (routine
    decision point, not an "issue").
-4. Cited evidence contradicts the assertion being recorded — `P3-REVIEW-001`'s
+5. Cited evidence contradicts the assertion being recorded — `P3-REVIEW-001`'s
    existing stop clause, unchanged: never silently "fixed" inline.
-5. A WP cannot stay within its declared bounds (scope-creep signal).
-6. `P3-CORRECTION-CHAIN-001`'s 3-round-no-stabilize threshold is hit.
-7. PO has explicitly pre-flagged the area (LIVE-adjacent, custody/security,
+6. A WP cannot stay within its declared bounds (scope-creep signal).
+7. `P3-CORRECTION-CHAIN-001`'s 3-round-no-stabilize threshold is hit.
+8. PO has explicitly pre-flagged the area (LIVE-adjacent, custody/security,
    financial-risk boundary).
 
 ## 4. Work-package template
@@ -165,26 +184,36 @@ Next checkpoint: <date/condition>
 MILESTONE DASHBOARD — Feature Engine P3-FEATURE-QG-EVID-03 closure — 2026-09-22
 
 Overall state: AT RISK
-Primary blocker: Condition 1 (raw mutation score) — FAIL — criteria.
-  81.97033092430583% < required 87.001959503592%
-  (feature-engine-mutation-step9-formal-evidence-004.json, 2629 mutants)
+Primary blocker: Condition 1 — formally `STOPPED / UNRESOLVED`, NOT FAIL.
+  The locked timeout-triage protocol's disagreement clause triggered: 9
+  UNSTABLE_TIMEOUT_TRIAGE mutants (2 independent fresh isolated reruns
+  disagreed) — protocol requires the gate interpretation to STOP,
+  unconditionally, neither PASS nor FAIL formally declared.
+  Diagnostic-only bounds (84.21%–84.56%, both below the required
+  87.001959503592% threshold) are NON-FORMAL planning evidence only, not
+  the governed verdict.
+  (feature-engine-mutation-step9-formal-evidence-005.json +
+  -correction-001.json, 2629 mutants: killed=2209, survived=406,
+  confirmed_timeout=5, unstable=9)
 
 Progress:
-  Condition 1: FAIL — criteria (primary blocker, no WP yet opened)
+  Condition 1: STOPPED / UNRESOLVED (primary blocker, no WP yet opened)
   Condition 2: 167/170 resolved (98.2%) — 2 identities reconstructed and
     READY for Candidate-005 (pending Review A); 1 identity
     (contracts.x__seal_verified_authority__mutmut_33) TOOL_IDENTITY_DRIFT,
     no existing governed mechanism, deferred
-  Condition 3: SATISFIED per current record — flagged stale-risk since
-    production source has materially expanded since last direct check;
-    needs a freshness re-verify before final gate closure, not before
+  Condition 3: SATISFIED — re-checked only if existing P3-VERIFY-001
+    freshness/applicability conditions are actually triggered; no new
+    closure step invented by this dashboard
 
 Critical path:
-  Current blocking condition/gate: Condition 1 (raw score) — this alone
-    keeps P3-FEATURE-QG-EVID-03 FAIL even if Condition 2 reaches 170/170,
-    since the gate is a two-part AND (threshold-proposal-001.md §4)
-  Next unblock action: diagnostic WP to prioritize the current 474-survivor
-    population by kill-value concentration (see §7)
+  Current blocking condition/gate: Condition 1 — its formal STOP alone
+    keeps P3-FEATURE-QG-EVID-03 OPEN even if Condition 2 reaches 170/170,
+    since the gate is a two-part AND (threshold-proposal-001.md §4); the
+    non-formal diagnostic bounds additionally show the numeric gap would
+    remain below threshold even in the best case
+  Next unblock action: bounded WP to resolve or bound the 9 unstable
+    timeout-triage mutants under the locked protocol (see §7)
 
 Escalations this period: none open. Candidate-005 (2 rows) and the
   tool-identity-drift gap are routine/deferred items, not escalations.
@@ -196,51 +225,66 @@ Evidence/governance integrity:
   All historical evidence artifacts confirmed byte-unchanged this session.
   Candidate-004 (3 rows): Review A CLEAN, R1, PO APPROVED, 2026-09-22.
 
-Next checkpoint: Candidate-005 Review A completion, OR diagnostic WP
-  (§7) completion — whichever lands first.
+Next checkpoint: Candidate-005 Review A completion, OR WP
+  `FE-EVID03-COND1-STOP-001` (§7) completion — whichever lands first.
 ```
 
 ## 7. Immediate next critical-path work package
 
-Condition 2 progress does not move the gate — the two-part gate is an AND,
-and raw score is the binding constraint at ~82% vs. an 87.0% bar. The correct
-next WP is therefore **not** Candidate-005 (real, but non-critical-path — it
-can run in parallel on its own WIP track) — it is a **bounded diagnostic WP**
-for Condition 1, sized to stay inside one WP rather than attempting the full
-(likely large) test-remediation effort in one unbounded package:
+Condition 1's **formal** blocker is not a numeric score — it is the 9
+`UNSTABLE_TIMEOUT_TRIAGE` mutants that trigger the locked protocol's
+unconditional STOP (§6). Until that STOP is resolved or bounded under a
+governed decision, no formal PASS/FAIL is even possible, independent of
+survivor-count progress. Separately — and not a substitute for that — the
+non-formal diagnostic bounds already show the numeric gap persists even in
+the best case (84.56% best-case vs. 87.001959503592% required, using the
+current 406-survivor population), so the numeric path will need its own
+work regardless of how the 9 unstable cases resolve. Both are genuinely
+critical-path; they are sequenced as two WPs on separate tracks so neither
+blocks the other, per the WIP-limit-per-track rule (§1):
 
 ```text
-WP-ID: FE-EVID03-COND1-DIAG-001
+WP-ID: FE-EVID03-COND1-STOP-001
 Milestone: Feature Engine EVID-03 closure
-Module / artifact: feature-engine (Condition 1, raw score)
-Objective: Produce a prioritized, bounded test-remediation backlog for the
-  CURRENT 474 raw survivors (evidence-004/005 boundary) by root-cause
-  concentration, mirroring the original baseline analysis's finding that a
-  small function set concentrated the majority of survivors.
-Critical-path justification: Condition 1 is the sole remaining blocker on
-  the two-part EVID-03 gate; no other WP unblocks the gate without it.
-Scope IN: read-only analysis of feature-engine-mutation-step9-formal-
-  evidence-004/005.json survivor population; per-function/per-root-cause
-  clustering; output backlog artifact only.
-Scope OUT: no test authored, no src/** change, no mutation rerun, no
-  Candidate-005 work (separate WP/track).
-Governing rule: feature-engine-mutation-threshold-proposal-001.md §4/§4.1;
-  Chapter 13 Quality Gates.
-Acceptance criteria: exact survivor count reconciled against evidence-004/005;
-  survivors clustered by (module, function); top clusters ranked by
-  survivor-count-closed-per-test-scenario; backlog handed off as the next
-  WP series' PLAN input.
+Module / artifact: feature-engine (Condition 1, formal STOP)
+Objective: Bounded investigation of the 9 UNSTABLE_TIMEOUT_TRIAGE mutants'
+  root cause (e.g. resource contention, timeout-constant sensitivity) and a
+  recommendation on whether a governed resolution path exists WITHOUT
+  amending the locked timeout-triage protocol's disagreement rule. Does NOT
+  itself authorize a new tie-break/majority-vote mechanism — the protocol
+  explicitly forbids that within an ordinary transaction.
+Critical-path justification: this is the literal formal blocker — Condition 1
+  cannot reach PASS or FAIL without it resolving or being explicitly
+  accepted as a longer-term open item.
+Scope IN: read-only investigation of the 9 unstable mutants' rerun logs/
+  environment; a recommendation only.
+Scope OUT: no new rerun/tie-break executed under a changed rule; no src/**
+  change; no protocol amendment authored (escalates to PO/ADR-scope check
+  if the investigation concludes a protocol change is the only path).
+Governing rule: feature-engine-mutation-step9-formal-evidence-005-
+  correction-001.json's locked timeout-triage protocol; Chapter 0 §4b.
+Acceptance criteria: root-cause hypothesis stated with evidence; explicit
+  recommendation (resolvable under existing protocol / requires a governed
+  protocol change / remains open) — decision on next step escalates to PO
+  per §3 if a protocol change is indicated.
 Starting boundary: fresh HEAD verify at WP open.
-Expected Risk: R0/R1 (analysis only, no code/behavior change).
-Expected ADR scope: ADR_NOT_REQUIRED (no architecture/contract change).
-Dependencies: none — evidence-004/005 already exist.
+Expected Risk: R1 (investigation only, no code/protocol change).
+Expected ADR scope: ADR_NOT_REQUIRED for the investigation itself; escalates
+  if a protocol change is recommended.
+Dependencies: none — evidence-005/-correction-001 already exist.
 Owner / Executor: AI Technical Architect (Claude or ChatGPT).
 Status: PLANNED
 ```
 
-Parallel, independent, lower-priority WIP-track item (does not block or get
-blocked by the above): Candidate-005 Review A for the 2 already-reconstructed
-Condition-2 identities.
+Parallel, independent WIP-track item (does not block or get blocked by the
+above): a diagnostic clustering of the **current 406 survivors**
+(evidence-005 boundary, not the historical 474) by root-cause concentration,
+to prepare a bounded test-remediation backlog against the numeric gap —
+useful regardless of how `FE-EVID03-COND1-STOP-001` resolves, since the
+best-case bound alone does not clear the threshold.
+
+Also parallel, independent, lower-priority WIP-track item: Candidate-005
+Review A for the 2 already-reconstructed Condition-2 identities.
 
 ## 8. Minimal rollout / migration steps
 
@@ -268,9 +312,9 @@ Condition-2 identities.
    (resolution-001/002, corrections, candidate-002/003/004, etc.) remains
    valid exactly as executed under the prior model. The lean model applies
    **prospectively only**, from the adoption boundary forward.
-7. **First pilot**: apply this model live to WP `FE-EVID03-COND1-DIAG-001`
-   (§7) and the parallel Candidate-005 track, before any wider rollout
-   decision.
+7. **First pilot**: apply this model live to WP `FE-EVID03-COND1-STOP-001`
+   (§7), its parallel 406-survivor diagnostic-clustering track, and the
+   parallel Candidate-005 track, before any wider rollout decision.
 
 ## 9. ADR Scope Rule check (self-certification, this candidate)
 
@@ -299,4 +343,54 @@ v1.0  2026-09-22  Candidate authored — vai trò: `Lean Ride Operating Model
       (Condition 1 FAIL — 81.97033092430583%, Condition 2 167/170,
       Condition 3 SATISFIED-per-record). No governance/approval semantics
       changed. status: Draft, approved_by: null, approved_at: null.
+v1.1  2026-09-22  Bounded correction — vai trò: `Lean Ride Operating Model
+      v1 Bounded Correction Executor`, remediating ChatGPT Review A
+      `REVISION_REQUIRED — 0 Blocker / 2 Major / 1 Minor`, Risk `R1`, at
+      reviewed boundary `30fc1a303886777878407ce266a184fa52c82d4e` / blob
+      `f2cb56fe7fbac589a4ec574c1096214ceb9e76b6`.
+      **Major 1 — Feature Engine dashboard corrected to authoritative
+      state** (§6/§7): Condition 1 was wrongly stated `FAIL — criteria`
+      (stale evidence-004 framing) — corrected to formal `STOPPED /
+      UNRESOLVED`, since evidence-005-correction-001.json's locked
+      timeout-triage protocol requires the gate interpretation to STOP,
+      unconditionally, on the 9 `UNSTABLE_TIMEOUT_TRIAGE` mutants found;
+      the conservative/best-case percentage figures are relabeled
+      explicit NON-FORMAL diagnostic/planning evidence, not a formal
+      verdict. Survivor count corrected 474 (stale evidence-004) → 406
+      (current evidence-005). Required threshold unchanged
+      (87.001959503592%). Condition 2 confirmed 167/170 (already
+      correct). Condition 3 wording corrected — no new freshness-gate
+      invented (see Minor below).
+      **Major 2 — approval semantics corrected** (§1 DECIDE row, §2, §3):
+      previously conflated Risk Classification R0/R1 (which only controls
+      whether an *optional* R2 cross-check is skipped by default,
+      ADR-042) with "no PO step required." Corrected: any artifact/
+      decision already subject to an existing approval-gate/PO-decision
+      requirement (Chapter 12 §12.2, a §4.1(b) reclassification decision,
+      an ADR, a Milestone-acceptance checkpoint) still requires Product
+      Owner Decision regardless of R0/R1/R2; "stays internal" now
+      requires that NO existing approval authority requires PO for that
+      specific WP output, added as its own escalation-list item (now the
+      primary trigger, not R2 alone). Chapter 0 / ADR-042 semantics
+      themselves untouched.
+      **Minor 1 — invented Condition-3 freshness gate removed** (§6):
+      the prior dashboard fabricated a new mandatory "freshness re-verify
+      before final gate closure" step. Corrected: Condition 3 remains
+      `SATISFIED`; re-check applicability only if existing
+      `P3-VERIFY-001` freshness/applicability conditions are actually
+      triggered — no new closure step created by this document.
+      **Additional corrections in the same pass** (batching-language
+      relaxation, requested alongside the above, not a separate finding):
+      "one Review A per WP" (§1, §2, new operating-constraints bullet)
+      now explicit as a default that a narrower existing governing rule
+      can override, not an absolute. §7's work package recomputed:
+      formal blocker restated as the 9 unstable timeout-triage cases
+      (new WP `FE-EVID03-COND1-STOP-001`, bounded investigation only, no
+      protocol amendment authored), current 406-survivor diagnostic
+      clustering kept as a parallel, non-blocking WIP-track item (the
+      numeric gap persists even best-case, so this remains real
+      preparatory work); critical-path prioritization preserved.
+      No Constitution/ADR/Global Execution Rule/Phase rule touched.
+      `status: Draft` unchanged, `approved_by: null`, `approved_at: null`
+      — awaiting bounded Review A re-review.
 ```
