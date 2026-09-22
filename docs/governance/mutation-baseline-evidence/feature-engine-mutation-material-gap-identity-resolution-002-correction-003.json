@@ -1,0 +1,1147 @@
+{
+  "artifact_id": "feature-engine-mutation-material-gap-identity-resolution-002-correction-003",
+  "schema_note": "Additive, bounded evidence-fidelity correction remediating ChatGPT Review A finding P3-FEATURE-EVID03-COND2-RES002-CORR002-A-MAJ-01 against correction-002.json's 26-row BEHAVIOR_REMOVED \u2014 EVIDENCE REQUIRED FOR GOVERNED RECLASSIFICATION population. correction-002.json is NOT modified \u2014 byte-unchanged, preserved as historical evidence. This correction grants ZERO new Condition-2 credit \u2014 it is evidence repair only, tracing semantic responsibility across the prepare -> commit -> finalize -> lineage-apply seam rather than accepting old-construction-site text-absence as proof of removal.",
+  "defect_remediated": {
+    "finding_id": "P3-FEATURE-EVID03-COND2-RES002-CORR002-A-MAJ-01",
+    "defect": "correction-002.json classified 26 rows BEHAVIOR_REMOVED using evidence that proved only that the OLD construction site/text no longer exists in the OLD function \u2014 never asking whether the historical semantic obligation MOVED, TRANSFORMED, or CONSOLIDATED into another seam (prepare -> commit -> finalize -> lineage apply). Review A supplied concrete counterexamples: ref allocation moved (not removed) into `_commit_live`; same-batch invalidation causation moved into `_finalize_prepared_batch`/`PreparedFeatureComputed.finalize`; recorded_time became a prepare-time floor + commit-time materialization, also in `_finalize_prepared_batch`.",
+    "status": "REMEDIATED \u2014 PENDING BOUNDED REVIEW A RE-REVIEW"
+  },
+  "validated_portions_not_reopened": {
+    "note": "Preserved verbatim, not re-reviewed, per explicit instruction absent contradiction.",
+    "69_product_owner_approved_rows": "Unchanged \u2014 Condition 2 contribution remains 42+69=111/170, effective per the completed Review A -> Risk R1 -> Product Owner Decision chain recorded in feature-engine-mutation-material-gap-reclassification-candidate-002.json.",
+    "27_correction_002_successor_killed_rows": "Unchanged, not re-reviewed. Reproduced here verbatim for completeness of the final corrected 53-row distribution only (see final_corrected_distribution_of_original_53 below) \u2014 the executor did not re-derive, re-diff, or re-verify these 27; they are copied byte-for-byte from correction-002.json's own corrected_53_rows."
+  },
+  "re_derivation_method": "For each of the 26 rows, reconstructed the HISTORICAL SEMANTIC obligation (not just the historical source text) and traced it forward through the ADR-043 prepare/commit/finalize/lineage-apply seam by direct reading of contracts.py (`PreparedFeatureComputed`/`PreparedFeatureFactInvalidated`/`_finalize_prepared_batch`/`finalize`), swing_distance.py's and regime_passthrough.py's own `_commit_live` methods, and `FencedFeatureCommitter`'s Protocol contract (ownership.py) \u2014 not merely re-confirming old-text absence. A disposable mutation workspace was generated via mutmut's own `create_mutants()` Python API directly (zero test execution) to extract exact current mutant diffs for every candidate shared construction site, cross-checked against Evidence-005's exact per-ID status.",
+  "result_26_rows": {
+    "BEHAVIOR_GENUINELY_REMOVED \u2014 PENDING \u00a74.1(b) GOVERNANCE": 6,
+    "SEMANTIC_SUCCESSOR_CONSOLIDATED \u2014 CURRENT SITE VERIFIED": 20,
+    "SUCCESSOR_MATCH (unique)": 0,
+    "BEHAVIOR_TRANSFORMED \u2014 NO UNIQUE CURRENT MUTANT": 0,
+    "AMBIGUOUS": 0,
+    "note": "0 of the 26 required a unique one-to-one SUCCESSOR_MATCH mapping \u2014 every transformed/moved obligation was found to be a genuine many-to-one CONSOLIDATION (multiple historical per-function construction sites collapsed onto one shared current site), which the task's own Section 5C explicitly instructs recording as SEMANTIC_SUCCESSOR_CONSOLIDATED rather than forcing an artificial unique-ID mapping."
+  },
+  "corrected_26_rows": [
+    {
+      "historical_mutant_id": "regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1__init____mutmut_2",
+      "historical_source_file": "src/feature_engine/regime_passthrough.py",
+      "historical_function": "RegimePassthroughFeatureEngine.__init__",
+      "historical_category": "string_case_mutation",
+      "historical_mutation_diff_fingerprint": "Same gap as mutmut_1 (case mutation of the same unchecked default stream_id).",
+      "historical_materiality": "actionable_test_gap_candidate",
+      "semantic_family": "constructor_stream_id_default",
+      "semantic_reconstruction": "Historical obligation: an unchecked, caller-suppliable `stream_id` constructor default/parameter flowed uncontrolled into every emitted event's `ref.stream_id`. Current architecture: the constructor no longer accepts a `stream_id` parameter with any default AT ALL \u2014 `self._stream_id` is now authoritatively DERIVED from `output_authority.authoritative_stream_id` (a `VerifiedOutputEventContractAuthority` field, itself resolved through the existing authority-resolution chain, not caller input). Verified via direct reading of both __init__ bodies: no `stream_id:` parameter exists in either constructor's signature.",
+      "corrected_evidence_disposition": "BEHAVIOR_GENUINELY_REMOVED \u2014 PENDING \u00a74.1(b) GOVERNANCE",
+      "removal_rationale": "This is not a relocation \u2014 the exact vulnerability class (a caller can pass/default an unchecked stream_id) is structurally eliminated because there is no longer any caller-controllable input for this value at all. There is no successor construction site to point to because the corruptible parameter itself no longer exists anywhere in the class boundary.",
+      "governance_implication": "Remains a candidate for a FUTURE, separate \u00a74.1(b) governed reclassification lifecycle (candidate authoring + Review A + Product Owner decision) \u2014 NOT created or self-granted by this correction. No Condition-2 credit is granted by this transaction."
+    },
+    {
+      "historical_mutant_id": "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1__init____mutmut_2",
+      "historical_source_file": "src/feature_engine/swing_distance.py",
+      "historical_function": "SwingDistanceFeatureEngine.__init__",
+      "historical_category": "string_case_mutation",
+      "historical_mutation_diff_fingerprint": "Same gap as mutmut_1 (case mutation of the same unchecked default).",
+      "historical_materiality": "actionable_test_gap_candidate",
+      "semantic_family": "constructor_stream_id_default",
+      "semantic_reconstruction": "Historical obligation: an unchecked, caller-suppliable `stream_id` constructor default/parameter flowed uncontrolled into every emitted event's `ref.stream_id`. Current architecture: the constructor no longer accepts a `stream_id` parameter with any default AT ALL \u2014 `self._stream_id` is now authoritatively DERIVED from `output_authority.authoritative_stream_id` (a `VerifiedOutputEventContractAuthority` field, itself resolved through the existing authority-resolution chain, not caller input). Verified via direct reading of both __init__ bodies: no `stream_id:` parameter exists in either constructor's signature.",
+      "corrected_evidence_disposition": "BEHAVIOR_GENUINELY_REMOVED \u2014 PENDING \u00a74.1(b) GOVERNANCE",
+      "removal_rationale": "This is not a relocation \u2014 the exact vulnerability class (a caller can pass/default an unchecked stream_id) is structurally eliminated because there is no longer any caller-controllable input for this value at all. There is no successor construction site to point to because the corruptible parameter itself no longer exists anywhere in the class boundary.",
+      "governance_implication": "Remains a candidate for a FUTURE, separate \u00a74.1(b) governed reclassification lifecycle (candidate authoring + Review A + Product Owner decision) \u2014 NOT created or self-granted by this correction. No Condition-2 credit is granted by this transaction."
+    },
+    {
+      "historical_mutant_id": "regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1__init____mutmut_1",
+      "historical_source_file": "src/feature_engine/regime_passthrough.py",
+      "historical_function": "RegimePassthroughFeatureEngine.__init__",
+      "historical_category": "string_literal_marker_mutation",
+      "historical_mutation_diff_fingerprint": "stream_id default 'feature' flows into every emitted event's ref.stream_id via `self._allocator.next_ref(self._stream_id)`. No test in test_regime_passthrough.py passes stream_i...",
+      "historical_materiality": "actionable_test_gap_candidate",
+      "semantic_family": "constructor_stream_id_default",
+      "semantic_reconstruction": "Historical obligation: an unchecked, caller-suppliable `stream_id` constructor default/parameter flowed uncontrolled into every emitted event's `ref.stream_id`. Current architecture: the constructor no longer accepts a `stream_id` parameter with any default AT ALL \u2014 `self._stream_id` is now authoritatively DERIVED from `output_authority.authoritative_stream_id` (a `VerifiedOutputEventContractAuthority` field, itself resolved through the existing authority-resolution chain, not caller input). Verified via direct reading of both __init__ bodies: no `stream_id:` parameter exists in either constructor's signature.",
+      "corrected_evidence_disposition": "BEHAVIOR_GENUINELY_REMOVED \u2014 PENDING \u00a74.1(b) GOVERNANCE",
+      "removal_rationale": "This is not a relocation \u2014 the exact vulnerability class (a caller can pass/default an unchecked stream_id) is structurally eliminated because there is no longer any caller-controllable input for this value at all. There is no successor construction site to point to because the corruptible parameter itself no longer exists anywhere in the class boundary.",
+      "governance_implication": "Remains a candidate for a FUTURE, separate \u00a74.1(b) governed reclassification lifecycle (candidate authoring + Review A + Product Owner decision) \u2014 NOT created or self-granted by this correction. No Condition-2 credit is granted by this transaction."
+    },
+    {
+      "historical_mutant_id": "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1__init____mutmut_1",
+      "historical_source_file": "src/feature_engine/swing_distance.py",
+      "historical_function": "SwingDistanceFeatureEngine.__init__",
+      "historical_category": "string_literal_marker_mutation",
+      "historical_mutation_diff_fingerprint": "Identical unchecked-default-stream_id gap as regime_passthrough.__init__ -- confirmed via grep of test_swing_distance.py: no test passes stream_id= or asserts ref.stream_id.",
+      "historical_materiality": "actionable_test_gap_candidate",
+      "semantic_family": "constructor_stream_id_default",
+      "semantic_reconstruction": "Historical obligation: an unchecked, caller-suppliable `stream_id` constructor default/parameter flowed uncontrolled into every emitted event's `ref.stream_id`. Current architecture: the constructor no longer accepts a `stream_id` parameter with any default AT ALL \u2014 `self._stream_id` is now authoritatively DERIVED from `output_authority.authoritative_stream_id` (a `VerifiedOutputEventContractAuthority` field, itself resolved through the existing authority-resolution chain, not caller input). Verified via direct reading of both __init__ bodies: no `stream_id:` parameter exists in either constructor's signature.",
+      "corrected_evidence_disposition": "BEHAVIOR_GENUINELY_REMOVED \u2014 PENDING \u00a74.1(b) GOVERNANCE",
+      "removal_rationale": "This is not a relocation \u2014 the exact vulnerability class (a caller can pass/default an unchecked stream_id) is structurally eliminated because there is no longer any caller-controllable input for this value at all. There is no successor construction site to point to because the corruptible parameter itself no longer exists anywhere in the class boundary.",
+      "governance_implication": "Remains a candidate for a FUTURE, separate \u00a74.1(b) governed reclassification lifecycle (candidate authoring + Review A + Product Owner decision) \u2014 NOT created or self-granted by this correction. No Condition-2 credit is granted by this transaction."
+    },
+    {
+      "historical_mutant_id": "regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1__init____mutmut_39",
+      "historical_source_file": "src/feature_engine/regime_passthrough.py",
+      "historical_function": "RegimePassthroughFeatureEngine.__init__",
+      "historical_category": "value_replaced_with_none",
+      "historical_mutation_diff_fingerprint": "'self._stream_id = stream_id' -> 'self._stream_id = None'",
+      "historical_materiality": "constructed_object_field_not_independently_asserted",
+      "semantic_family": "constructor_stream_id_default",
+      "semantic_reconstruction": "Historical obligation: an unchecked, caller-suppliable `stream_id` constructor default/parameter flowed uncontrolled into every emitted event's `ref.stream_id`. Current architecture: the constructor no longer accepts a `stream_id` parameter with any default AT ALL \u2014 `self._stream_id` is now authoritatively DERIVED from `output_authority.authoritative_stream_id` (a `VerifiedOutputEventContractAuthority` field, itself resolved through the existing authority-resolution chain, not caller input). Verified via direct reading of both __init__ bodies: no `stream_id:` parameter exists in either constructor's signature.",
+      "corrected_evidence_disposition": "BEHAVIOR_GENUINELY_REMOVED \u2014 PENDING \u00a74.1(b) GOVERNANCE",
+      "removal_rationale": "This is not a relocation \u2014 the exact vulnerability class (a caller can pass/default an unchecked stream_id) is structurally eliminated because there is no longer any caller-controllable input for this value at all. There is no successor construction site to point to because the corruptible parameter itself no longer exists anywhere in the class boundary.",
+      "governance_implication": "Remains a candidate for a FUTURE, separate \u00a74.1(b) governed reclassification lifecycle (candidate authoring + Review A + Product Owner decision) \u2014 NOT created or self-granted by this correction. No Condition-2 credit is granted by this transaction."
+    },
+    {
+      "historical_mutant_id": "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1__init____mutmut_59",
+      "historical_source_file": "src/feature_engine/swing_distance.py",
+      "historical_function": "SwingDistanceFeatureEngine.__init__",
+      "historical_category": "value_replaced_with_none",
+      "historical_mutation_diff_fingerprint": "'self._stream_id = stream_id' -> 'self._stream_id = None'",
+      "historical_materiality": "constructed_object_field_not_independently_asserted",
+      "semantic_family": "constructor_stream_id_default",
+      "semantic_reconstruction": "Historical obligation: an unchecked, caller-suppliable `stream_id` constructor default/parameter flowed uncontrolled into every emitted event's `ref.stream_id`. Current architecture: the constructor no longer accepts a `stream_id` parameter with any default AT ALL \u2014 `self._stream_id` is now authoritatively DERIVED from `output_authority.authoritative_stream_id` (a `VerifiedOutputEventContractAuthority` field, itself resolved through the existing authority-resolution chain, not caller input). Verified via direct reading of both __init__ bodies: no `stream_id:` parameter exists in either constructor's signature.",
+      "corrected_evidence_disposition": "BEHAVIOR_GENUINELY_REMOVED \u2014 PENDING \u00a74.1(b) GOVERNANCE",
+      "removal_rationale": "This is not a relocation \u2014 the exact vulnerability class (a caller can pass/default an unchecked stream_id) is structurally eliminated because there is no longer any caller-controllable input for this value at all. There is no successor construction site to point to because the corruptible parameter itself no longer exists anywhere in the class boundary.",
+      "governance_implication": "Remains a candidate for a FUTURE, separate \u00a74.1(b) governed reclassification lifecycle (candidate authoring + Review A + Product Owner decision) \u2014 NOT created or self-granted by this correction. No Condition-2 credit is granted by this transaction."
+    },
+    {
+      "historical_mutant_id": "regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_emit_invalidation__mutmut_12",
+      "historical_source_file": "src/feature_engine/regime_passthrough.py",
+      "historical_function": "RegimePassthroughFeatureEngine._emit_invalidation",
+      "historical_category": "value_replaced_with_none",
+      "historical_mutation_diff_fingerprint": "self._stream_id passed to next_ref(...) -> ref.stream_id on the emitted invalidation event; same confirmed absence of any ref.stream_id assertion in test_regime_passthrough.py.",
+      "historical_materiality": "actionable_test_gap_candidate",
+      "semantic_family": "ref_allocation_consolidated_to_commit_live",
+      "semantic_reconstruction": "Historical obligation: this event's `ref` must derive from `self._allocator.next_ref(self._stream_id)` at THIS specific `_emit_invalidation` construction site. Current architecture (ADR-043 prepare/commit seam): `prepare_*`/`_prepare_*` functions build ref-less `PreparedFeatureComputed`/`PreparedFeatureFactInvalidated` candidates; the real ref allocation for ANY live-committed event (regardless of which prepare function produced it) happens in exactly one place per engine: `_commit_live`.",
+      "corrected_evidence_disposition": "SEMANTIC_SUCCESSOR_CONSOLIDATED \u2014 CURRENT SITE VERIFIED",
+      "shared_current_construction_sites": [
+        "SwingDistanceFeatureEngine._commit_live (src/feature_engine/swing_distance.py) \u2014 `refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)`",
+        "RegimePassthroughFeatureEngine._commit_live (src/feature_engine/regime_passthrough.py) \u2014 identical construction: `refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)`"
+      ],
+      "mapping_shape": "many-to-one (14 historical mutants, from 7 distinct original functions across both engines, consolidated onto 2 current construction sites \u2014 one per engine)",
+      "current_mutants": [
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_1",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = None\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_2",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(None)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_3",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(self._allocator.next_ref(None) for _ in prepared.prepared_events)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_1",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = None\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_2",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(None)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_3",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(self._allocator.next_ref(None) for _ in prepared.prepared_events)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        }
+      ],
+      "why_same_semantic_obligation": "Every one of the 14 historical mutants corrupted either (a) the literal ref-allocation call `self._allocator.next_ref(self._stream_id)`, or (b) the `self._stream_id` value feeding it, at some individual `_emit_*` construction site. ADR-043's prepare/commit refactor centralizes ALL ref allocation for a live-committed batch into exactly one call site per engine (`_commit_live`) \u2014 every `prepare_*`/`_prepare_*` seam function now builds a `PreparedFeatureComputed`/`PreparedFeatureFactInvalidated` with NO ref field at all (verified: neither class declares a `ref` attribute \u2014 see contracts.py dataclass fields). The exact semantic responsibility (this event's `ref` must derive from `self._allocator.next_ref(self._stream_id)`, never from an uncontrolled/corrupted stream_id) is fully preserved, just relocated to a single shared site per engine \u2014 a genuine architectural consolidation, not a removal.",
+      "governance_implication": "Remains a candidate for a FUTURE, separate \u00a74.1(b) governed reclassification lifecycle (candidate authoring + Review A + Product Owner decision) \u2014 NOT created or self-granted by this correction. No Condition-2 credit is granted by this transaction."
+    },
+    {
+      "historical_mutant_id": "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_invalidate_and_reattempt__mutmut_53",
+      "historical_source_file": "src/feature_engine/swing_distance.py",
+      "historical_function": "SwingDistanceFeatureEngine._invalidate_and_reattempt",
+      "historical_category": "value_replaced_with_none",
+      "historical_mutation_diff_fingerprint": "invalidation.ref -> None flows into _emit_replacement_only's invalidation_ref parameter, which IS used in `causation_refs=(*normalized_refs, invalidation_ref)` on the emitted re...",
+      "historical_materiality": "actionable_test_gap_candidate",
+      "semantic_family": "same_batch_invalidation_causation_consolidated_to_finalize",
+      "semantic_reconstruction": "Historical obligation: `invalidation.ref` (or an equivalent same-batch invalidation reference) must correctly flow into the dependent replacement's `causation_refs` at THIS `_invalidate_and_reattempt` construction site. Current architecture: the prepare-time call passes a literal, non-corruptible `invalidation_ref=None` (same-batch composition signal); the real, corruptible threading happens in `_finalize_prepared_batch`, which captures the invalidation's own just-allocated ref and injects it into the replacement's `causation_refs` via `PreparedFeatureComputed.finalize`.",
+      "corrected_evidence_disposition": "SEMANTIC_SUCCESSOR_CONSOLIDATED \u2014 CURRENT SITE VERIFIED",
+      "shared_current_construction_sites": [
+        "contracts._finalize_prepared_batch (src/feature_engine/contracts.py) \u2014 `invalidation_ref = ref` (captures the just-finalized invalidation's own real ref) and `event = prepared.finalize(ref, recorded_time, invalidation_ref=invalidation_ref)` (threads it into the dependent replacement's `causation_refs` via `PreparedFeatureComputed.finalize`)"
+      ],
+      "mapping_shape": "many-to-one (3 historical mutants, from 3 distinct original functions, consolidated onto 1 shared current site)",
+      "current_mutants": [
+        {
+          "id": "feature_engine.contracts.x__finalize_prepared_batch__mutmut_23",
+          "diff": "--- +++ @@ -25,7 +25,7 @@         if isinstance(prepared, PreparedFeatureFactInvalidated):\n             recorded_time = _materialize_recorded_time(time_source, prepared.recorded_time_floor)\n             event = prepared.finalize(ref, recorded_time)\n-            invalidation_ref = ref\n+            invalidation_ref = None\n             invalidation_recorded_time = recorded_time\n         else:\n             floor = prepared.recorded_time_floor\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.contracts.x__finalize_prepared_batch__mutmut_24",
+          "diff": "--- +++ @@ -26,7 +26,7 @@             recorded_time = _materialize_recorded_time(time_source, prepared.recorded_time_floor)\n             event = prepared.finalize(ref, recorded_time)\n             invalidation_ref = ref\n-            invalidation_recorded_time = recorded_time\n+            invalidation_recorded_time = None\n         else:\n             floor = prepared.recorded_time_floor\n             if prepared.depends_on_preceding_invalidation_timing:\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.contracts.x__finalize_prepared_batch__mutmut_44",
+          "diff": "--- +++ @@ -37,7 +37,7 @@                     )\n                 floor = max(floor, invalidation_recorded_time)\n             recorded_time = _materialize_recorded_time(time_source, floor)\n-            event = prepared.finalize(ref, recorded_time, invalidation_ref=invalidation_ref)\n+            event = prepared.finalize(None, recorded_time, invalidation_ref=invalidation_ref)\n         finalized.append(event)\n     return tuple(finalized)\n \n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.contracts.x__finalize_prepared_batch__mutmut_46",
+          "diff": "--- +++ @@ -37,7 +37,7 @@                     )\n                 floor = max(floor, invalidation_recorded_time)\n             recorded_time = _materialize_recorded_time(time_source, floor)\n-            event = prepared.finalize(ref, recorded_time, invalidation_ref=invalidation_ref)\n+            event = prepared.finalize(ref, recorded_time, invalidation_ref=None)\n         finalized.append(event)\n     return tuple(finalized)\n \n",
+          "status": "killed"
+        }
+      ],
+      "why_same_semantic_obligation": "All 3 historical mutants corrupted `invalidation.ref` (or the value derived from it) flowing into a downstream same-batch replacement's `causation_refs`. In the current architecture, the 3 originating prepare functions (`_prepare_invalidate_and_reattempt`, `_prepare_invalidate_and_replace`, `_prepare_preempt_settled_window`) intentionally call `_prepare_replacement_only(..., invalidation_ref=None, ...)` with a LITERAL, non-corruptible `None` \u2014 per `_prepare_replacement_only`'s own docstring, this is the correct value for a same-batch composition, deferred to finalization. The real, corruptible construction site for 'this replacement's causation_refs must cite the preceding same-batch invalidation's own real ref' has moved to `_finalize_prepared_batch`'s `invalidation_ref = ref` capture plus `prepared.finalize(..., invalidation_ref=invalidation_ref)` call, which `PreparedFeatureComputed.finalize` (contracts.py) then folds into `causation_refs` when `preceding_batch_invalidation_causation=True`. Same semantic obligation, transformed timing, consolidated site.",
+      "governance_implication": "Remains a candidate for a FUTURE, separate \u00a74.1(b) governed reclassification lifecycle (candidate authoring + Review A + Product Owner decision) \u2014 NOT created or self-granted by this correction. No Condition-2 credit is granted by this transaction."
+    },
+    {
+      "historical_mutant_id": "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_invalidate_and_replace__mutmut_41",
+      "historical_source_file": "src/feature_engine/swing_distance.py",
+      "historical_function": "SwingDistanceFeatureEngine._invalidate_and_replace",
+      "historical_category": "value_replaced_with_none",
+      "historical_mutation_diff_fingerprint": "invalidation.ref -> None at this call site also flows into _emit_replacement_only's causation_refs-producing parameter -- same confirmed absence of assertion coverage for this s...",
+      "historical_materiality": "actionable_test_gap_candidate",
+      "semantic_family": "same_batch_invalidation_causation_consolidated_to_finalize",
+      "semantic_reconstruction": "Historical obligation: `invalidation.ref` (or an equivalent same-batch invalidation reference) must correctly flow into the dependent replacement's `causation_refs` at THIS `_invalidate_and_replace` construction site. Current architecture: the prepare-time call passes a literal, non-corruptible `invalidation_ref=None` (same-batch composition signal); the real, corruptible threading happens in `_finalize_prepared_batch`, which captures the invalidation's own just-allocated ref and injects it into the replacement's `causation_refs` via `PreparedFeatureComputed.finalize`.",
+      "corrected_evidence_disposition": "SEMANTIC_SUCCESSOR_CONSOLIDATED \u2014 CURRENT SITE VERIFIED",
+      "shared_current_construction_sites": [
+        "contracts._finalize_prepared_batch (src/feature_engine/contracts.py) \u2014 `invalidation_ref = ref` (captures the just-finalized invalidation's own real ref) and `event = prepared.finalize(ref, recorded_time, invalidation_ref=invalidation_ref)` (threads it into the dependent replacement's `causation_refs` via `PreparedFeatureComputed.finalize`)"
+      ],
+      "mapping_shape": "many-to-one (3 historical mutants, from 3 distinct original functions, consolidated onto 1 shared current site)",
+      "current_mutants": [
+        {
+          "id": "feature_engine.contracts.x__finalize_prepared_batch__mutmut_23",
+          "diff": "--- +++ @@ -25,7 +25,7 @@         if isinstance(prepared, PreparedFeatureFactInvalidated):\n             recorded_time = _materialize_recorded_time(time_source, prepared.recorded_time_floor)\n             event = prepared.finalize(ref, recorded_time)\n-            invalidation_ref = ref\n+            invalidation_ref = None\n             invalidation_recorded_time = recorded_time\n         else:\n             floor = prepared.recorded_time_floor\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.contracts.x__finalize_prepared_batch__mutmut_24",
+          "diff": "--- +++ @@ -26,7 +26,7 @@             recorded_time = _materialize_recorded_time(time_source, prepared.recorded_time_floor)\n             event = prepared.finalize(ref, recorded_time)\n             invalidation_ref = ref\n-            invalidation_recorded_time = recorded_time\n+            invalidation_recorded_time = None\n         else:\n             floor = prepared.recorded_time_floor\n             if prepared.depends_on_preceding_invalidation_timing:\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.contracts.x__finalize_prepared_batch__mutmut_44",
+          "diff": "--- +++ @@ -37,7 +37,7 @@                     )\n                 floor = max(floor, invalidation_recorded_time)\n             recorded_time = _materialize_recorded_time(time_source, floor)\n-            event = prepared.finalize(ref, recorded_time, invalidation_ref=invalidation_ref)\n+            event = prepared.finalize(None, recorded_time, invalidation_ref=invalidation_ref)\n         finalized.append(event)\n     return tuple(finalized)\n \n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.contracts.x__finalize_prepared_batch__mutmut_46",
+          "diff": "--- +++ @@ -37,7 +37,7 @@                     )\n                 floor = max(floor, invalidation_recorded_time)\n             recorded_time = _materialize_recorded_time(time_source, floor)\n-            event = prepared.finalize(ref, recorded_time, invalidation_ref=invalidation_ref)\n+            event = prepared.finalize(ref, recorded_time, invalidation_ref=None)\n         finalized.append(event)\n     return tuple(finalized)\n \n",
+          "status": "killed"
+        }
+      ],
+      "why_same_semantic_obligation": "All 3 historical mutants corrupted `invalidation.ref` (or the value derived from it) flowing into a downstream same-batch replacement's `causation_refs`. In the current architecture, the 3 originating prepare functions (`_prepare_invalidate_and_reattempt`, `_prepare_invalidate_and_replace`, `_prepare_preempt_settled_window`) intentionally call `_prepare_replacement_only(..., invalidation_ref=None, ...)` with a LITERAL, non-corruptible `None` \u2014 per `_prepare_replacement_only`'s own docstring, this is the correct value for a same-batch composition, deferred to finalization. The real, corruptible construction site for 'this replacement's causation_refs must cite the preceding same-batch invalidation's own real ref' has moved to `_finalize_prepared_batch`'s `invalidation_ref = ref` capture plus `prepared.finalize(..., invalidation_ref=invalidation_ref)` call, which `PreparedFeatureComputed.finalize` (contracts.py) then folds into `causation_refs` when `preceding_batch_invalidation_causation=True`. Same semantic obligation, transformed timing, consolidated site.",
+      "governance_implication": "Remains a candidate for a FUTURE, separate \u00a74.1(b) governed reclassification lifecycle (candidate authoring + Review A + Product Owner decision) \u2014 NOT created or self-granted by this correction. No Condition-2 credit is granted by this transaction."
+    },
+    {
+      "historical_mutant_id": "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_preempt_settled_window__mutmut_55",
+      "historical_source_file": "src/feature_engine/swing_distance.py",
+      "historical_function": "SwingDistanceFeatureEngine._preempt_settled_window",
+      "historical_category": "value_replaced_with_none",
+      "historical_mutation_diff_fingerprint": "invalidation.ref -> None at this call site also flows into _emit_replacement_only's causation_refs-producing parameter for the eligible-swing-preemption path -- confirmed the 2 ...",
+      "historical_materiality": "actionable_test_gap_candidate",
+      "semantic_family": "same_batch_invalidation_causation_consolidated_to_finalize",
+      "semantic_reconstruction": "Historical obligation: `invalidation.ref` (or an equivalent same-batch invalidation reference) must correctly flow into the dependent replacement's `causation_refs` at THIS `_preempt_settled_window` construction site. Current architecture: the prepare-time call passes a literal, non-corruptible `invalidation_ref=None` (same-batch composition signal); the real, corruptible threading happens in `_finalize_prepared_batch`, which captures the invalidation's own just-allocated ref and injects it into the replacement's `causation_refs` via `PreparedFeatureComputed.finalize`.",
+      "corrected_evidence_disposition": "SEMANTIC_SUCCESSOR_CONSOLIDATED \u2014 CURRENT SITE VERIFIED",
+      "shared_current_construction_sites": [
+        "contracts._finalize_prepared_batch (src/feature_engine/contracts.py) \u2014 `invalidation_ref = ref` (captures the just-finalized invalidation's own real ref) and `event = prepared.finalize(ref, recorded_time, invalidation_ref=invalidation_ref)` (threads it into the dependent replacement's `causation_refs` via `PreparedFeatureComputed.finalize`)"
+      ],
+      "mapping_shape": "many-to-one (3 historical mutants, from 3 distinct original functions, consolidated onto 1 shared current site)",
+      "current_mutants": [
+        {
+          "id": "feature_engine.contracts.x__finalize_prepared_batch__mutmut_23",
+          "diff": "--- +++ @@ -25,7 +25,7 @@         if isinstance(prepared, PreparedFeatureFactInvalidated):\n             recorded_time = _materialize_recorded_time(time_source, prepared.recorded_time_floor)\n             event = prepared.finalize(ref, recorded_time)\n-            invalidation_ref = ref\n+            invalidation_ref = None\n             invalidation_recorded_time = recorded_time\n         else:\n             floor = prepared.recorded_time_floor\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.contracts.x__finalize_prepared_batch__mutmut_24",
+          "diff": "--- +++ @@ -26,7 +26,7 @@             recorded_time = _materialize_recorded_time(time_source, prepared.recorded_time_floor)\n             event = prepared.finalize(ref, recorded_time)\n             invalidation_ref = ref\n-            invalidation_recorded_time = recorded_time\n+            invalidation_recorded_time = None\n         else:\n             floor = prepared.recorded_time_floor\n             if prepared.depends_on_preceding_invalidation_timing:\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.contracts.x__finalize_prepared_batch__mutmut_44",
+          "diff": "--- +++ @@ -37,7 +37,7 @@                     )\n                 floor = max(floor, invalidation_recorded_time)\n             recorded_time = _materialize_recorded_time(time_source, floor)\n-            event = prepared.finalize(ref, recorded_time, invalidation_ref=invalidation_ref)\n+            event = prepared.finalize(None, recorded_time, invalidation_ref=invalidation_ref)\n         finalized.append(event)\n     return tuple(finalized)\n \n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.contracts.x__finalize_prepared_batch__mutmut_46",
+          "diff": "--- +++ @@ -37,7 +37,7 @@                     )\n                 floor = max(floor, invalidation_recorded_time)\n             recorded_time = _materialize_recorded_time(time_source, floor)\n-            event = prepared.finalize(ref, recorded_time, invalidation_ref=invalidation_ref)\n+            event = prepared.finalize(ref, recorded_time, invalidation_ref=None)\n         finalized.append(event)\n     return tuple(finalized)\n \n",
+          "status": "killed"
+        }
+      ],
+      "why_same_semantic_obligation": "All 3 historical mutants corrupted `invalidation.ref` (or the value derived from it) flowing into a downstream same-batch replacement's `causation_refs`. In the current architecture, the 3 originating prepare functions (`_prepare_invalidate_and_reattempt`, `_prepare_invalidate_and_replace`, `_prepare_preempt_settled_window`) intentionally call `_prepare_replacement_only(..., invalidation_ref=None, ...)` with a LITERAL, non-corruptible `None` \u2014 per `_prepare_replacement_only`'s own docstring, this is the correct value for a same-batch composition, deferred to finalization. The real, corruptible construction site for 'this replacement's causation_refs must cite the preceding same-batch invalidation's own real ref' has moved to `_finalize_prepared_batch`'s `invalidation_ref = ref` capture plus `prepared.finalize(..., invalidation_ref=invalidation_ref)` call, which `PreparedFeatureComputed.finalize` (contracts.py) then folds into `causation_refs` when `preceding_batch_invalidation_causation=True`. Same semantic obligation, transformed timing, consolidated site.",
+      "governance_implication": "Remains a candidate for a FUTURE, separate \u00a74.1(b) governed reclassification lifecycle (candidate authoring + Review A + Product Owner decision) \u2014 NOT created or self-granted by this correction. No Condition-2 credit is granted by this transaction."
+    },
+    {
+      "historical_mutant_id": "regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_emit_invalidation__mutmut_21",
+      "historical_source_file": "src/feature_engine/regime_passthrough.py",
+      "historical_function": "RegimePassthroughFeatureEngine._emit_invalidation",
+      "historical_category": "value_replaced_with_none",
+      "historical_mutation_diff_fingerprint": "'ref=ref,' -> 'ref=None,'",
+      "historical_materiality": "constructed_object_field_not_independently_asserted",
+      "semantic_family": "ref_allocation_consolidated_to_commit_live",
+      "semantic_reconstruction": "Historical obligation: this event's `ref` must derive from `self._allocator.next_ref(self._stream_id)` at THIS specific `_emit_invalidation` construction site. Current architecture (ADR-043 prepare/commit seam): `prepare_*`/`_prepare_*` functions build ref-less `PreparedFeatureComputed`/`PreparedFeatureFactInvalidated` candidates; the real ref allocation for ANY live-committed event (regardless of which prepare function produced it) happens in exactly one place per engine: `_commit_live`.",
+      "corrected_evidence_disposition": "SEMANTIC_SUCCESSOR_CONSOLIDATED \u2014 CURRENT SITE VERIFIED",
+      "shared_current_construction_sites": [
+        "SwingDistanceFeatureEngine._commit_live (src/feature_engine/swing_distance.py) \u2014 `refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)`",
+        "RegimePassthroughFeatureEngine._commit_live (src/feature_engine/regime_passthrough.py) \u2014 identical construction: `refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)`"
+      ],
+      "mapping_shape": "many-to-one (14 historical mutants, from 7 distinct original functions across both engines, consolidated onto 2 current construction sites \u2014 one per engine)",
+      "current_mutants": [
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_1",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = None\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_2",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(None)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_3",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(self._allocator.next_ref(None) for _ in prepared.prepared_events)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_1",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = None\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_2",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(None)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_3",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(self._allocator.next_ref(None) for _ in prepared.prepared_events)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        }
+      ],
+      "why_same_semantic_obligation": "Every one of the 14 historical mutants corrupted either (a) the literal ref-allocation call `self._allocator.next_ref(self._stream_id)`, or (b) the `self._stream_id` value feeding it, at some individual `_emit_*` construction site. ADR-043's prepare/commit refactor centralizes ALL ref allocation for a live-committed batch into exactly one call site per engine (`_commit_live`) \u2014 every `prepare_*`/`_prepare_*` seam function now builds a `PreparedFeatureComputed`/`PreparedFeatureFactInvalidated` with NO ref field at all (verified: neither class declares a `ref` attribute \u2014 see contracts.py dataclass fields). The exact semantic responsibility (this event's `ref` must derive from `self._allocator.next_ref(self._stream_id)`, never from an uncontrolled/corrupted stream_id) is fully preserved, just relocated to a single shared site per engine \u2014 a genuine architectural consolidation, not a removal.",
+      "governance_implication": "Remains a candidate for a FUTURE, separate \u00a74.1(b) governed reclassification lifecycle (candidate authoring + Review A + Product Owner decision) \u2014 NOT created or self-granted by this correction. No Condition-2 credit is granted by this transaction."
+    },
+    {
+      "historical_mutant_id": "regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_emit_original__mutmut_48",
+      "historical_source_file": "src/feature_engine/regime_passthrough.py",
+      "historical_function": "RegimePassthroughFeatureEngine._emit_original",
+      "historical_category": "value_replaced_with_none",
+      "historical_mutation_diff_fingerprint": "'self._stream_id' -> 'None'",
+      "historical_materiality": "constructed_object_field_not_independently_asserted",
+      "semantic_family": "ref_allocation_consolidated_to_commit_live",
+      "semantic_reconstruction": "Historical obligation: this event's `ref` must derive from `self._allocator.next_ref(self._stream_id)` at THIS specific `_emit_original` construction site. Current architecture (ADR-043 prepare/commit seam): `prepare_*`/`_prepare_*` functions build ref-less `PreparedFeatureComputed`/`PreparedFeatureFactInvalidated` candidates; the real ref allocation for ANY live-committed event (regardless of which prepare function produced it) happens in exactly one place per engine: `_commit_live`.",
+      "corrected_evidence_disposition": "SEMANTIC_SUCCESSOR_CONSOLIDATED \u2014 CURRENT SITE VERIFIED",
+      "shared_current_construction_sites": [
+        "SwingDistanceFeatureEngine._commit_live (src/feature_engine/swing_distance.py) \u2014 `refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)`",
+        "RegimePassthroughFeatureEngine._commit_live (src/feature_engine/regime_passthrough.py) \u2014 identical construction: `refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)`"
+      ],
+      "mapping_shape": "many-to-one (14 historical mutants, from 7 distinct original functions across both engines, consolidated onto 2 current construction sites \u2014 one per engine)",
+      "current_mutants": [
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_1",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = None\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_2",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(None)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_3",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(self._allocator.next_ref(None) for _ in prepared.prepared_events)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_1",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = None\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_2",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(None)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_3",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(self._allocator.next_ref(None) for _ in prepared.prepared_events)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        }
+      ],
+      "why_same_semantic_obligation": "Every one of the 14 historical mutants corrupted either (a) the literal ref-allocation call `self._allocator.next_ref(self._stream_id)`, or (b) the `self._stream_id` value feeding it, at some individual `_emit_*` construction site. ADR-043's prepare/commit refactor centralizes ALL ref allocation for a live-committed batch into exactly one call site per engine (`_commit_live`) \u2014 every `prepare_*`/`_prepare_*` seam function now builds a `PreparedFeatureComputed`/`PreparedFeatureFactInvalidated` with NO ref field at all (verified: neither class declares a `ref` attribute \u2014 see contracts.py dataclass fields). The exact semantic responsibility (this event's `ref` must derive from `self._allocator.next_ref(self._stream_id)`, never from an uncontrolled/corrupted stream_id) is fully preserved, just relocated to a single shared site per engine \u2014 a genuine architectural consolidation, not a removal.",
+      "governance_implication": "Remains a candidate for a FUTURE, separate \u00a74.1(b) governed reclassification lifecycle (candidate authoring + Review A + Product Owner decision) \u2014 NOT created or self-granted by this correction. No Condition-2 credit is granted by this transaction."
+    },
+    {
+      "historical_mutant_id": "regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_emit_replacement__mutmut_34",
+      "historical_source_file": "src/feature_engine/regime_passthrough.py",
+      "historical_function": "RegimePassthroughFeatureEngine._emit_replacement",
+      "historical_category": "value_replaced_with_none",
+      "historical_mutation_diff_fingerprint": "'ref=self._allocator.next_ref(self._stream_id),' -> 'ref=None,'",
+      "historical_materiality": "constructed_object_field_not_independently_asserted",
+      "semantic_family": "ref_allocation_consolidated_to_commit_live",
+      "semantic_reconstruction": "Historical obligation: this event's `ref` must derive from `self._allocator.next_ref(self._stream_id)` at THIS specific `_emit_replacement` construction site. Current architecture (ADR-043 prepare/commit seam): `prepare_*`/`_prepare_*` functions build ref-less `PreparedFeatureComputed`/`PreparedFeatureFactInvalidated` candidates; the real ref allocation for ANY live-committed event (regardless of which prepare function produced it) happens in exactly one place per engine: `_commit_live`.",
+      "corrected_evidence_disposition": "SEMANTIC_SUCCESSOR_CONSOLIDATED \u2014 CURRENT SITE VERIFIED",
+      "shared_current_construction_sites": [
+        "SwingDistanceFeatureEngine._commit_live (src/feature_engine/swing_distance.py) \u2014 `refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)`",
+        "RegimePassthroughFeatureEngine._commit_live (src/feature_engine/regime_passthrough.py) \u2014 identical construction: `refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)`"
+      ],
+      "mapping_shape": "many-to-one (14 historical mutants, from 7 distinct original functions across both engines, consolidated onto 2 current construction sites \u2014 one per engine)",
+      "current_mutants": [
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_1",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = None\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_2",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(None)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_3",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(self._allocator.next_ref(None) for _ in prepared.prepared_events)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_1",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = None\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_2",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(None)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_3",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(self._allocator.next_ref(None) for _ in prepared.prepared_events)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        }
+      ],
+      "why_same_semantic_obligation": "Every one of the 14 historical mutants corrupted either (a) the literal ref-allocation call `self._allocator.next_ref(self._stream_id)`, or (b) the `self._stream_id` value feeding it, at some individual `_emit_*` construction site. ADR-043's prepare/commit refactor centralizes ALL ref allocation for a live-committed batch into exactly one call site per engine (`_commit_live`) \u2014 every `prepare_*`/`_prepare_*` seam function now builds a `PreparedFeatureComputed`/`PreparedFeatureFactInvalidated` with NO ref field at all (verified: neither class declares a `ref` attribute \u2014 see contracts.py dataclass fields). The exact semantic responsibility (this event's `ref` must derive from `self._allocator.next_ref(self._stream_id)`, never from an uncontrolled/corrupted stream_id) is fully preserved, just relocated to a single shared site per engine \u2014 a genuine architectural consolidation, not a removal.",
+      "governance_implication": "Remains a candidate for a FUTURE, separate \u00a74.1(b) governed reclassification lifecycle (candidate authoring + Review A + Product Owner decision) \u2014 NOT created or self-granted by this correction. No Condition-2 credit is granted by this transaction."
+    },
+    {
+      "historical_mutant_id": "regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_emit_replacement__mutmut_51",
+      "historical_source_file": "src/feature_engine/regime_passthrough.py",
+      "historical_function": "RegimePassthroughFeatureEngine._emit_replacement",
+      "historical_category": "value_replaced_with_none",
+      "historical_mutation_diff_fingerprint": "'self._stream_id' -> 'None'",
+      "historical_materiality": "constructed_object_field_not_independently_asserted",
+      "semantic_family": "ref_allocation_consolidated_to_commit_live",
+      "semantic_reconstruction": "Historical obligation: this event's `ref` must derive from `self._allocator.next_ref(self._stream_id)` at THIS specific `_emit_replacement` construction site. Current architecture (ADR-043 prepare/commit seam): `prepare_*`/`_prepare_*` functions build ref-less `PreparedFeatureComputed`/`PreparedFeatureFactInvalidated` candidates; the real ref allocation for ANY live-committed event (regardless of which prepare function produced it) happens in exactly one place per engine: `_commit_live`.",
+      "corrected_evidence_disposition": "SEMANTIC_SUCCESSOR_CONSOLIDATED \u2014 CURRENT SITE VERIFIED",
+      "shared_current_construction_sites": [
+        "SwingDistanceFeatureEngine._commit_live (src/feature_engine/swing_distance.py) \u2014 `refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)`",
+        "RegimePassthroughFeatureEngine._commit_live (src/feature_engine/regime_passthrough.py) \u2014 identical construction: `refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)`"
+      ],
+      "mapping_shape": "many-to-one (14 historical mutants, from 7 distinct original functions across both engines, consolidated onto 2 current construction sites \u2014 one per engine)",
+      "current_mutants": [
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_1",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = None\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_2",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(None)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_3",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(self._allocator.next_ref(None) for _ in prepared.prepared_events)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_1",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = None\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_2",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(None)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_3",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(self._allocator.next_ref(None) for _ in prepared.prepared_events)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        }
+      ],
+      "why_same_semantic_obligation": "Every one of the 14 historical mutants corrupted either (a) the literal ref-allocation call `self._allocator.next_ref(self._stream_id)`, or (b) the `self._stream_id` value feeding it, at some individual `_emit_*` construction site. ADR-043's prepare/commit refactor centralizes ALL ref allocation for a live-committed batch into exactly one call site per engine (`_commit_live`) \u2014 every `prepare_*`/`_prepare_*` seam function now builds a `PreparedFeatureComputed`/`PreparedFeatureFactInvalidated` with NO ref field at all (verified: neither class declares a `ref` attribute \u2014 see contracts.py dataclass fields). The exact semantic responsibility (this event's `ref` must derive from `self._allocator.next_ref(self._stream_id)`, never from an uncontrolled/corrupted stream_id) is fully preserved, just relocated to a single shared site per engine \u2014 a genuine architectural consolidation, not a removal.",
+      "governance_implication": "Remains a candidate for a FUTURE, separate \u00a74.1(b) governed reclassification lifecycle (candidate authoring + Review A + Product Owner decision) \u2014 NOT created or self-granted by this correction. No Condition-2 credit is granted by this transaction."
+    },
+    {
+      "historical_mutant_id": "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_emit_original__mutmut_31",
+      "historical_source_file": "src/feature_engine/swing_distance.py",
+      "historical_function": "SwingDistanceFeatureEngine._emit_original",
+      "historical_category": "value_replaced_with_none",
+      "historical_mutation_diff_fingerprint": "'ref=self._allocator.next_ref(self._stream_id),' -> 'ref=None,'",
+      "historical_materiality": "constructed_object_field_not_independently_asserted",
+      "semantic_family": "ref_allocation_consolidated_to_commit_live",
+      "semantic_reconstruction": "Historical obligation: this event's `ref` must derive from `self._allocator.next_ref(self._stream_id)` at THIS specific `_emit_original` construction site. Current architecture (ADR-043 prepare/commit seam): `prepare_*`/`_prepare_*` functions build ref-less `PreparedFeatureComputed`/`PreparedFeatureFactInvalidated` candidates; the real ref allocation for ANY live-committed event (regardless of which prepare function produced it) happens in exactly one place per engine: `_commit_live`.",
+      "corrected_evidence_disposition": "SEMANTIC_SUCCESSOR_CONSOLIDATED \u2014 CURRENT SITE VERIFIED",
+      "shared_current_construction_sites": [
+        "SwingDistanceFeatureEngine._commit_live (src/feature_engine/swing_distance.py) \u2014 `refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)`",
+        "RegimePassthroughFeatureEngine._commit_live (src/feature_engine/regime_passthrough.py) \u2014 identical construction: `refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)`"
+      ],
+      "mapping_shape": "many-to-one (14 historical mutants, from 7 distinct original functions across both engines, consolidated onto 2 current construction sites \u2014 one per engine)",
+      "current_mutants": [
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_1",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = None\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_2",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(None)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_3",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(self._allocator.next_ref(None) for _ in prepared.prepared_events)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_1",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = None\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_2",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(None)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_3",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(self._allocator.next_ref(None) for _ in prepared.prepared_events)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        }
+      ],
+      "why_same_semantic_obligation": "Every one of the 14 historical mutants corrupted either (a) the literal ref-allocation call `self._allocator.next_ref(self._stream_id)`, or (b) the `self._stream_id` value feeding it, at some individual `_emit_*` construction site. ADR-043's prepare/commit refactor centralizes ALL ref allocation for a live-committed batch into exactly one call site per engine (`_commit_live`) \u2014 every `prepare_*`/`_prepare_*` seam function now builds a `PreparedFeatureComputed`/`PreparedFeatureFactInvalidated` with NO ref field at all (verified: neither class declares a `ref` attribute \u2014 see contracts.py dataclass fields). The exact semantic responsibility (this event's `ref` must derive from `self._allocator.next_ref(self._stream_id)`, never from an uncontrolled/corrupted stream_id) is fully preserved, just relocated to a single shared site per engine \u2014 a genuine architectural consolidation, not a removal.",
+      "governance_implication": "Remains a candidate for a FUTURE, separate \u00a74.1(b) governed reclassification lifecycle (candidate authoring + Review A + Product Owner decision) \u2014 NOT created or self-granted by this correction. No Condition-2 credit is granted by this transaction."
+    },
+    {
+      "historical_mutant_id": "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_emit_original__mutmut_48",
+      "historical_source_file": "src/feature_engine/swing_distance.py",
+      "historical_function": "SwingDistanceFeatureEngine._emit_original",
+      "historical_category": "value_replaced_with_none",
+      "historical_mutation_diff_fingerprint": "'self._stream_id' -> 'None'",
+      "historical_materiality": "constructed_object_field_not_independently_asserted",
+      "semantic_family": "ref_allocation_consolidated_to_commit_live",
+      "semantic_reconstruction": "Historical obligation: this event's `ref` must derive from `self._allocator.next_ref(self._stream_id)` at THIS specific `_emit_original` construction site. Current architecture (ADR-043 prepare/commit seam): `prepare_*`/`_prepare_*` functions build ref-less `PreparedFeatureComputed`/`PreparedFeatureFactInvalidated` candidates; the real ref allocation for ANY live-committed event (regardless of which prepare function produced it) happens in exactly one place per engine: `_commit_live`.",
+      "corrected_evidence_disposition": "SEMANTIC_SUCCESSOR_CONSOLIDATED \u2014 CURRENT SITE VERIFIED",
+      "shared_current_construction_sites": [
+        "SwingDistanceFeatureEngine._commit_live (src/feature_engine/swing_distance.py) \u2014 `refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)`",
+        "RegimePassthroughFeatureEngine._commit_live (src/feature_engine/regime_passthrough.py) \u2014 identical construction: `refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)`"
+      ],
+      "mapping_shape": "many-to-one (14 historical mutants, from 7 distinct original functions across both engines, consolidated onto 2 current construction sites \u2014 one per engine)",
+      "current_mutants": [
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_1",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = None\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_2",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(None)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_3",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(self._allocator.next_ref(None) for _ in prepared.prepared_events)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_1",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = None\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_2",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(None)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_3",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(self._allocator.next_ref(None) for _ in prepared.prepared_events)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        }
+      ],
+      "why_same_semantic_obligation": "Every one of the 14 historical mutants corrupted either (a) the literal ref-allocation call `self._allocator.next_ref(self._stream_id)`, or (b) the `self._stream_id` value feeding it, at some individual `_emit_*` construction site. ADR-043's prepare/commit refactor centralizes ALL ref allocation for a live-committed batch into exactly one call site per engine (`_commit_live`) \u2014 every `prepare_*`/`_prepare_*` seam function now builds a `PreparedFeatureComputed`/`PreparedFeatureFactInvalidated` with NO ref field at all (verified: neither class declares a `ref` attribute \u2014 see contracts.py dataclass fields). The exact semantic responsibility (this event's `ref` must derive from `self._allocator.next_ref(self._stream_id)`, never from an uncontrolled/corrupted stream_id) is fully preserved, just relocated to a single shared site per engine \u2014 a genuine architectural consolidation, not a removal.",
+      "governance_implication": "Remains a candidate for a FUTURE, separate \u00a74.1(b) governed reclassification lifecycle (candidate authoring + Review A + Product Owner decision) \u2014 NOT created or self-granted by this correction. No Condition-2 credit is granted by this transaction."
+    },
+    {
+      "historical_mutant_id": "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_emit_replacement_only__mutmut_35",
+      "historical_source_file": "src/feature_engine/swing_distance.py",
+      "historical_function": "SwingDistanceFeatureEngine._emit_replacement_only",
+      "historical_category": "value_replaced_with_none",
+      "historical_mutation_diff_fingerprint": "'ref=self._allocator.next_ref(self._stream_id),' -> 'ref=None,'",
+      "historical_materiality": "constructed_object_field_not_independently_asserted",
+      "semantic_family": "ref_allocation_consolidated_to_commit_live",
+      "semantic_reconstruction": "Historical obligation: this event's `ref` must derive from `self._allocator.next_ref(self._stream_id)` at THIS specific `_emit_replacement_only` construction site. Current architecture (ADR-043 prepare/commit seam): `prepare_*`/`_prepare_*` functions build ref-less `PreparedFeatureComputed`/`PreparedFeatureFactInvalidated` candidates; the real ref allocation for ANY live-committed event (regardless of which prepare function produced it) happens in exactly one place per engine: `_commit_live`.",
+      "corrected_evidence_disposition": "SEMANTIC_SUCCESSOR_CONSOLIDATED \u2014 CURRENT SITE VERIFIED",
+      "shared_current_construction_sites": [
+        "SwingDistanceFeatureEngine._commit_live (src/feature_engine/swing_distance.py) \u2014 `refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)`",
+        "RegimePassthroughFeatureEngine._commit_live (src/feature_engine/regime_passthrough.py) \u2014 identical construction: `refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)`"
+      ],
+      "mapping_shape": "many-to-one (14 historical mutants, from 7 distinct original functions across both engines, consolidated onto 2 current construction sites \u2014 one per engine)",
+      "current_mutants": [
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_1",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = None\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_2",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(None)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_3",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(self._allocator.next_ref(None) for _ in prepared.prepared_events)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_1",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = None\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_2",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(None)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_3",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(self._allocator.next_ref(None) for _ in prepared.prepared_events)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        }
+      ],
+      "why_same_semantic_obligation": "Every one of the 14 historical mutants corrupted either (a) the literal ref-allocation call `self._allocator.next_ref(self._stream_id)`, or (b) the `self._stream_id` value feeding it, at some individual `_emit_*` construction site. ADR-043's prepare/commit refactor centralizes ALL ref allocation for a live-committed batch into exactly one call site per engine (`_commit_live`) \u2014 every `prepare_*`/`_prepare_*` seam function now builds a `PreparedFeatureComputed`/`PreparedFeatureFactInvalidated` with NO ref field at all (verified: neither class declares a `ref` attribute \u2014 see contracts.py dataclass fields). The exact semantic responsibility (this event's `ref` must derive from `self._allocator.next_ref(self._stream_id)`, never from an uncontrolled/corrupted stream_id) is fully preserved, just relocated to a single shared site per engine \u2014 a genuine architectural consolidation, not a removal.",
+      "governance_implication": "Remains a candidate for a FUTURE, separate \u00a74.1(b) governed reclassification lifecycle (candidate authoring + Review A + Product Owner decision) \u2014 NOT created or self-granted by this correction. No Condition-2 credit is granted by this transaction."
+    },
+    {
+      "historical_mutant_id": "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_emit_replacement_only__mutmut_52",
+      "historical_source_file": "src/feature_engine/swing_distance.py",
+      "historical_function": "SwingDistanceFeatureEngine._emit_replacement_only",
+      "historical_category": "value_replaced_with_none",
+      "historical_mutation_diff_fingerprint": "'self._stream_id' -> 'None'",
+      "historical_materiality": "constructed_object_field_not_independently_asserted",
+      "semantic_family": "ref_allocation_consolidated_to_commit_live",
+      "semantic_reconstruction": "Historical obligation: this event's `ref` must derive from `self._allocator.next_ref(self._stream_id)` at THIS specific `_emit_replacement_only` construction site. Current architecture (ADR-043 prepare/commit seam): `prepare_*`/`_prepare_*` functions build ref-less `PreparedFeatureComputed`/`PreparedFeatureFactInvalidated` candidates; the real ref allocation for ANY live-committed event (regardless of which prepare function produced it) happens in exactly one place per engine: `_commit_live`.",
+      "corrected_evidence_disposition": "SEMANTIC_SUCCESSOR_CONSOLIDATED \u2014 CURRENT SITE VERIFIED",
+      "shared_current_construction_sites": [
+        "SwingDistanceFeatureEngine._commit_live (src/feature_engine/swing_distance.py) \u2014 `refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)`",
+        "RegimePassthroughFeatureEngine._commit_live (src/feature_engine/regime_passthrough.py) \u2014 identical construction: `refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)`"
+      ],
+      "mapping_shape": "many-to-one (14 historical mutants, from 7 distinct original functions across both engines, consolidated onto 2 current construction sites \u2014 one per engine)",
+      "current_mutants": [
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_1",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = None\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_2",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(None)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_3",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(self._allocator.next_ref(None) for _ in prepared.prepared_events)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_1",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = None\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_2",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(None)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_3",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(self._allocator.next_ref(None) for _ in prepared.prepared_events)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        }
+      ],
+      "why_same_semantic_obligation": "Every one of the 14 historical mutants corrupted either (a) the literal ref-allocation call `self._allocator.next_ref(self._stream_id)`, or (b) the `self._stream_id` value feeding it, at some individual `_emit_*` construction site. ADR-043's prepare/commit refactor centralizes ALL ref allocation for a live-committed batch into exactly one call site per engine (`_commit_live`) \u2014 every `prepare_*`/`_prepare_*` seam function now builds a `PreparedFeatureComputed`/`PreparedFeatureFactInvalidated` with NO ref field at all (verified: neither class declares a `ref` attribute \u2014 see contracts.py dataclass fields). The exact semantic responsibility (this event's `ref` must derive from `self._allocator.next_ref(self._stream_id)`, never from an uncontrolled/corrupted stream_id) is fully preserved, just relocated to a single shared site per engine \u2014 a genuine architectural consolidation, not a removal.",
+      "governance_implication": "Remains a candidate for a FUTURE, separate \u00a74.1(b) governed reclassification lifecycle (candidate authoring + Review A + Product Owner decision) \u2014 NOT created or self-granted by this correction. No Condition-2 credit is granted by this transaction."
+    },
+    {
+      "historical_mutant_id": "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_invalidate_and_reattempt__mutmut_17",
+      "historical_source_file": "src/feature_engine/swing_distance.py",
+      "historical_function": "SwingDistanceFeatureEngine._invalidate_and_reattempt",
+      "historical_category": "value_replaced_with_none",
+      "historical_mutation_diff_fingerprint": "'recorded_time=invalidation_recorded_time,' -> 'recorded_time=None,'",
+      "historical_materiality": "constructed_object_field_not_independently_asserted",
+      "semantic_family": "recorded_time_consolidated_to_finalize",
+      "semantic_reconstruction": "Historical obligation: the invalidation's own `recorded_time` must correctly flow through this `_invalidate_and_reattempt` construction site. Current architecture: replaced by `recorded_time_floor` (prepare-time strict lower bound) + `_finalize_prepared_batch`'s own `_materialize_recorded_time` call (the sole caller of `RecordedTimeSource.next_after`) + `floor = max(floor, invalidation_recorded_time)` threading for same-batch-dependent replacements.",
+      "corrected_evidence_disposition": "SEMANTIC_SUCCESSOR_CONSOLIDATED \u2014 CURRENT SITE VERIFIED",
+      "shared_current_construction_sites": [
+        "contracts._finalize_prepared_batch (src/feature_engine/contracts.py) \u2014 `recorded_time = _materialize_recorded_time(time_source, prepared.recorded_time_floor)` (invalidation branch) and `invalidation_recorded_time = recorded_time` (threading into the dependent replacement's own floor via `floor = max(floor, invalidation_recorded_time)`)"
+      ],
+      "mapping_shape": "many-to-one (3 historical mutants, from 3 distinct original functions, consolidated onto 1 shared current site)",
+      "current_mutants": [
+        {
+          "id": "feature_engine.contracts.x__finalize_prepared_batch__mutmut_13",
+          "diff": "--- +++ @@ -23,7 +23,7 @@     for prepared, ref in zip(prepared_events, refs, strict=True):\n         event: FeatureEvent\n         if isinstance(prepared, PreparedFeatureFactInvalidated):\n-            recorded_time = _materialize_recorded_time(time_source, prepared.recorded_time_floor)\n+            recorded_time = None\n             event = prepared.finalize(ref, recorded_time)\n             invalidation_ref = ref\n             invalidation_recorded_time = recorded_time\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.contracts.x__finalize_prepared_batch__mutmut_15",
+          "diff": "--- +++ @@ -23,7 +23,7 @@     for prepared, ref in zip(prepared_events, refs, strict=True):\n         event: FeatureEvent\n         if isinstance(prepared, PreparedFeatureFactInvalidated):\n-            recorded_time = _materialize_recorded_time(time_source, prepared.recorded_time_floor)\n+            recorded_time = _materialize_recorded_time(time_source, None)\n             event = prepared.finalize(ref, recorded_time)\n             invalidation_ref = ref\n             invalidation_recorded_time = recorded_time\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.contracts.x__finalize_prepared_batch__mutmut_33",
+          "diff": "--- +++ @@ -35,7 +35,7 @@                         \"PreparedFeatureComputed: depends_on_preceding_invalidation_timing=True but no preceding \"\n                         \"invalidation was finalized earlier in this same batch\"\n                     )\n-                floor = max(floor, invalidation_recorded_time)\n+                floor = None\n             recorded_time = _materialize_recorded_time(time_source, floor)\n             event = prepared.finalize(ref, recorded_time, invalidation_ref=invalidation_ref)\n         finalized.append(event)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.contracts.x__finalize_prepared_batch__mutmut_34",
+          "diff": "--- +++ @@ -35,7 +35,7 @@                         \"PreparedFeatureComputed: depends_on_preceding_invalidation_timing=True but no preceding \"\n                         \"invalidation was finalized earlier in this same batch\"\n                     )\n-                floor = max(floor, invalidation_recorded_time)\n+                floor = max(None, invalidation_recorded_time)\n             recorded_time = _materialize_recorded_time(time_source, floor)\n             event = prepared.finalize(ref, recorded_time, invalidation_ref=invalidation_ref)\n         finalized.append(event)\n",
+          "status": "killed"
+        }
+      ],
+      "why_same_semantic_obligation": "All 3 historical mutants corrupted the invalidation's own `recorded_time` value flowing through to downstream consumers. ADR-043's implementation replaced direct `recorded_time=<value>` pass-through with a two-phase design: `recorded_time_floor` (a strict, prepare-time-computable lower bound, never itself a materialized timestamp) plus `_finalize_prepared_batch`'s own `_materialize_recorded_time` call (the ONLY caller of `RecordedTimeSource.next_after`, per ADR043-IMPL-A-MAJ-06) and, for same-batch-dependent replacements, `floor = max(floor, invalidation_recorded_time)` threading the just-materialized invalidation time into the replacement's own floor. Same semantic obligation (correct recorded_time causally follows the invalidation), transformed mechanism (floor+materialize instead of direct pass-through), consolidated site.",
+      "governance_implication": "Remains a candidate for a FUTURE, separate \u00a74.1(b) governed reclassification lifecycle (candidate authoring + Review A + Product Owner decision) \u2014 NOT created or self-granted by this correction. No Condition-2 credit is granted by this transaction."
+    },
+    {
+      "historical_mutant_id": "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_invalidate_and_reattempt__mutmut_33",
+      "historical_source_file": "src/feature_engine/swing_distance.py",
+      "historical_function": "SwingDistanceFeatureEngine._invalidate_and_reattempt",
+      "historical_category": "value_replaced_with_none",
+      "historical_mutation_diff_fingerprint": "'self._stream_id' -> 'None'",
+      "historical_materiality": "constructed_object_field_not_independently_asserted",
+      "semantic_family": "ref_allocation_consolidated_to_commit_live",
+      "semantic_reconstruction": "Historical obligation: this event's `ref` must derive from `self._allocator.next_ref(self._stream_id)` at THIS specific `_invalidate_and_reattempt` construction site. Current architecture (ADR-043 prepare/commit seam): `prepare_*`/`_prepare_*` functions build ref-less `PreparedFeatureComputed`/`PreparedFeatureFactInvalidated` candidates; the real ref allocation for ANY live-committed event (regardless of which prepare function produced it) happens in exactly one place per engine: `_commit_live`.",
+      "corrected_evidence_disposition": "SEMANTIC_SUCCESSOR_CONSOLIDATED \u2014 CURRENT SITE VERIFIED",
+      "shared_current_construction_sites": [
+        "SwingDistanceFeatureEngine._commit_live (src/feature_engine/swing_distance.py) \u2014 `refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)`",
+        "RegimePassthroughFeatureEngine._commit_live (src/feature_engine/regime_passthrough.py) \u2014 identical construction: `refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)`"
+      ],
+      "mapping_shape": "many-to-one (14 historical mutants, from 7 distinct original functions across both engines, consolidated onto 2 current construction sites \u2014 one per engine)",
+      "current_mutants": [
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_1",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = None\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_2",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(None)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_3",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(self._allocator.next_ref(None) for _ in prepared.prepared_events)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_1",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = None\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_2",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(None)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_3",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(self._allocator.next_ref(None) for _ in prepared.prepared_events)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        }
+      ],
+      "why_same_semantic_obligation": "Every one of the 14 historical mutants corrupted either (a) the literal ref-allocation call `self._allocator.next_ref(self._stream_id)`, or (b) the `self._stream_id` value feeding it, at some individual `_emit_*` construction site. ADR-043's prepare/commit refactor centralizes ALL ref allocation for a live-committed batch into exactly one call site per engine (`_commit_live`) \u2014 every `prepare_*`/`_prepare_*` seam function now builds a `PreparedFeatureComputed`/`PreparedFeatureFactInvalidated` with NO ref field at all (verified: neither class declares a `ref` attribute \u2014 see contracts.py dataclass fields). The exact semantic responsibility (this event's `ref` must derive from `self._allocator.next_ref(self._stream_id)`, never from an uncontrolled/corrupted stream_id) is fully preserved, just relocated to a single shared site per engine \u2014 a genuine architectural consolidation, not a removal.",
+      "governance_implication": "Remains a candidate for a FUTURE, separate \u00a74.1(b) governed reclassification lifecycle (candidate authoring + Review A + Product Owner decision) \u2014 NOT created or self-granted by this correction. No Condition-2 credit is granted by this transaction."
+    },
+    {
+      "historical_mutant_id": "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_invalidate_and_replace__mutmut_17",
+      "historical_source_file": "src/feature_engine/swing_distance.py",
+      "historical_function": "SwingDistanceFeatureEngine._invalidate_and_replace",
+      "historical_category": "value_replaced_with_none",
+      "historical_mutation_diff_fingerprint": "'recorded_time=invalidation_recorded_time,' -> 'recorded_time=None,'",
+      "historical_materiality": "constructed_object_field_not_independently_asserted",
+      "semantic_family": "recorded_time_consolidated_to_finalize",
+      "semantic_reconstruction": "Historical obligation: the invalidation's own `recorded_time` must correctly flow through this `_invalidate_and_replace` construction site. Current architecture: replaced by `recorded_time_floor` (prepare-time strict lower bound) + `_finalize_prepared_batch`'s own `_materialize_recorded_time` call (the sole caller of `RecordedTimeSource.next_after`) + `floor = max(floor, invalidation_recorded_time)` threading for same-batch-dependent replacements.",
+      "corrected_evidence_disposition": "SEMANTIC_SUCCESSOR_CONSOLIDATED \u2014 CURRENT SITE VERIFIED",
+      "shared_current_construction_sites": [
+        "contracts._finalize_prepared_batch (src/feature_engine/contracts.py) \u2014 `recorded_time = _materialize_recorded_time(time_source, prepared.recorded_time_floor)` (invalidation branch) and `invalidation_recorded_time = recorded_time` (threading into the dependent replacement's own floor via `floor = max(floor, invalidation_recorded_time)`)"
+      ],
+      "mapping_shape": "many-to-one (3 historical mutants, from 3 distinct original functions, consolidated onto 1 shared current site)",
+      "current_mutants": [
+        {
+          "id": "feature_engine.contracts.x__finalize_prepared_batch__mutmut_13",
+          "diff": "--- +++ @@ -23,7 +23,7 @@     for prepared, ref in zip(prepared_events, refs, strict=True):\n         event: FeatureEvent\n         if isinstance(prepared, PreparedFeatureFactInvalidated):\n-            recorded_time = _materialize_recorded_time(time_source, prepared.recorded_time_floor)\n+            recorded_time = None\n             event = prepared.finalize(ref, recorded_time)\n             invalidation_ref = ref\n             invalidation_recorded_time = recorded_time\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.contracts.x__finalize_prepared_batch__mutmut_15",
+          "diff": "--- +++ @@ -23,7 +23,7 @@     for prepared, ref in zip(prepared_events, refs, strict=True):\n         event: FeatureEvent\n         if isinstance(prepared, PreparedFeatureFactInvalidated):\n-            recorded_time = _materialize_recorded_time(time_source, prepared.recorded_time_floor)\n+            recorded_time = _materialize_recorded_time(time_source, None)\n             event = prepared.finalize(ref, recorded_time)\n             invalidation_ref = ref\n             invalidation_recorded_time = recorded_time\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.contracts.x__finalize_prepared_batch__mutmut_33",
+          "diff": "--- +++ @@ -35,7 +35,7 @@                         \"PreparedFeatureComputed: depends_on_preceding_invalidation_timing=True but no preceding \"\n                         \"invalidation was finalized earlier in this same batch\"\n                     )\n-                floor = max(floor, invalidation_recorded_time)\n+                floor = None\n             recorded_time = _materialize_recorded_time(time_source, floor)\n             event = prepared.finalize(ref, recorded_time, invalidation_ref=invalidation_ref)\n         finalized.append(event)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.contracts.x__finalize_prepared_batch__mutmut_34",
+          "diff": "--- +++ @@ -35,7 +35,7 @@                         \"PreparedFeatureComputed: depends_on_preceding_invalidation_timing=True but no preceding \"\n                         \"invalidation was finalized earlier in this same batch\"\n                     )\n-                floor = max(floor, invalidation_recorded_time)\n+                floor = max(None, invalidation_recorded_time)\n             recorded_time = _materialize_recorded_time(time_source, floor)\n             event = prepared.finalize(ref, recorded_time, invalidation_ref=invalidation_ref)\n         finalized.append(event)\n",
+          "status": "killed"
+        }
+      ],
+      "why_same_semantic_obligation": "All 3 historical mutants corrupted the invalidation's own `recorded_time` value flowing through to downstream consumers. ADR-043's implementation replaced direct `recorded_time=<value>` pass-through with a two-phase design: `recorded_time_floor` (a strict, prepare-time-computable lower bound, never itself a materialized timestamp) plus `_finalize_prepared_batch`'s own `_materialize_recorded_time` call (the ONLY caller of `RecordedTimeSource.next_after`, per ADR043-IMPL-A-MAJ-06) and, for same-batch-dependent replacements, `floor = max(floor, invalidation_recorded_time)` threading the just-materialized invalidation time into the replacement's own floor. Same semantic obligation (correct recorded_time causally follows the invalidation), transformed mechanism (floor+materialize instead of direct pass-through), consolidated site.",
+      "governance_implication": "Remains a candidate for a FUTURE, separate \u00a74.1(b) governed reclassification lifecycle (candidate authoring + Review A + Product Owner decision) \u2014 NOT created or self-granted by this correction. No Condition-2 credit is granted by this transaction."
+    },
+    {
+      "historical_mutant_id": "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_invalidate_and_replace__mutmut_18",
+      "historical_source_file": "src/feature_engine/swing_distance.py",
+      "historical_function": "SwingDistanceFeatureEngine._invalidate_and_replace",
+      "historical_category": "value_replaced_with_none",
+      "historical_mutation_diff_fingerprint": "'ref=self._allocator.next_ref(self._stream_id),' -> 'ref=None,'",
+      "historical_materiality": "constructed_object_field_not_independently_asserted",
+      "semantic_family": "ref_allocation_consolidated_to_commit_live",
+      "semantic_reconstruction": "Historical obligation: this event's `ref` must derive from `self._allocator.next_ref(self._stream_id)` at THIS specific `_invalidate_and_replace` construction site. Current architecture (ADR-043 prepare/commit seam): `prepare_*`/`_prepare_*` functions build ref-less `PreparedFeatureComputed`/`PreparedFeatureFactInvalidated` candidates; the real ref allocation for ANY live-committed event (regardless of which prepare function produced it) happens in exactly one place per engine: `_commit_live`.",
+      "corrected_evidence_disposition": "SEMANTIC_SUCCESSOR_CONSOLIDATED \u2014 CURRENT SITE VERIFIED",
+      "shared_current_construction_sites": [
+        "SwingDistanceFeatureEngine._commit_live (src/feature_engine/swing_distance.py) \u2014 `refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)`",
+        "RegimePassthroughFeatureEngine._commit_live (src/feature_engine/regime_passthrough.py) \u2014 identical construction: `refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)`"
+      ],
+      "mapping_shape": "many-to-one (14 historical mutants, from 7 distinct original functions across both engines, consolidated onto 2 current construction sites \u2014 one per engine)",
+      "current_mutants": [
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_1",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = None\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_2",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(None)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_3",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(self._allocator.next_ref(None) for _ in prepared.prepared_events)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_1",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = None\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_2",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(None)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_3",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(self._allocator.next_ref(None) for _ in prepared.prepared_events)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        }
+      ],
+      "why_same_semantic_obligation": "Every one of the 14 historical mutants corrupted either (a) the literal ref-allocation call `self._allocator.next_ref(self._stream_id)`, or (b) the `self._stream_id` value feeding it, at some individual `_emit_*` construction site. ADR-043's prepare/commit refactor centralizes ALL ref allocation for a live-committed batch into exactly one call site per engine (`_commit_live`) \u2014 every `prepare_*`/`_prepare_*` seam function now builds a `PreparedFeatureComputed`/`PreparedFeatureFactInvalidated` with NO ref field at all (verified: neither class declares a `ref` attribute \u2014 see contracts.py dataclass fields). The exact semantic responsibility (this event's `ref` must derive from `self._allocator.next_ref(self._stream_id)`, never from an uncontrolled/corrupted stream_id) is fully preserved, just relocated to a single shared site per engine \u2014 a genuine architectural consolidation, not a removal.",
+      "governance_implication": "Remains a candidate for a FUTURE, separate \u00a74.1(b) governed reclassification lifecycle (candidate authoring + Review A + Product Owner decision) \u2014 NOT created or self-granted by this correction. No Condition-2 credit is granted by this transaction."
+    },
+    {
+      "historical_mutant_id": "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_invalidate_and_replace__mutmut_33",
+      "historical_source_file": "src/feature_engine/swing_distance.py",
+      "historical_function": "SwingDistanceFeatureEngine._invalidate_and_replace",
+      "historical_category": "value_replaced_with_none",
+      "historical_mutation_diff_fingerprint": "'self._stream_id' -> 'None'",
+      "historical_materiality": "constructed_object_field_not_independently_asserted",
+      "semantic_family": "ref_allocation_consolidated_to_commit_live",
+      "semantic_reconstruction": "Historical obligation: this event's `ref` must derive from `self._allocator.next_ref(self._stream_id)` at THIS specific `_invalidate_and_replace` construction site. Current architecture (ADR-043 prepare/commit seam): `prepare_*`/`_prepare_*` functions build ref-less `PreparedFeatureComputed`/`PreparedFeatureFactInvalidated` candidates; the real ref allocation for ANY live-committed event (regardless of which prepare function produced it) happens in exactly one place per engine: `_commit_live`.",
+      "corrected_evidence_disposition": "SEMANTIC_SUCCESSOR_CONSOLIDATED \u2014 CURRENT SITE VERIFIED",
+      "shared_current_construction_sites": [
+        "SwingDistanceFeatureEngine._commit_live (src/feature_engine/swing_distance.py) \u2014 `refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)`",
+        "RegimePassthroughFeatureEngine._commit_live (src/feature_engine/regime_passthrough.py) \u2014 identical construction: `refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)`"
+      ],
+      "mapping_shape": "many-to-one (14 historical mutants, from 7 distinct original functions across both engines, consolidated onto 2 current construction sites \u2014 one per engine)",
+      "current_mutants": [
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_1",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = None\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_2",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(None)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_3",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(self._allocator.next_ref(None) for _ in prepared.prepared_events)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_1",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = None\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_2",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(None)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_3",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(self._allocator.next_ref(None) for _ in prepared.prepared_events)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        }
+      ],
+      "why_same_semantic_obligation": "Every one of the 14 historical mutants corrupted either (a) the literal ref-allocation call `self._allocator.next_ref(self._stream_id)`, or (b) the `self._stream_id` value feeding it, at some individual `_emit_*` construction site. ADR-043's prepare/commit refactor centralizes ALL ref allocation for a live-committed batch into exactly one call site per engine (`_commit_live`) \u2014 every `prepare_*`/`_prepare_*` seam function now builds a `PreparedFeatureComputed`/`PreparedFeatureFactInvalidated` with NO ref field at all (verified: neither class declares a `ref` attribute \u2014 see contracts.py dataclass fields). The exact semantic responsibility (this event's `ref` must derive from `self._allocator.next_ref(self._stream_id)`, never from an uncontrolled/corrupted stream_id) is fully preserved, just relocated to a single shared site per engine \u2014 a genuine architectural consolidation, not a removal.",
+      "governance_implication": "Remains a candidate for a FUTURE, separate \u00a74.1(b) governed reclassification lifecycle (candidate authoring + Review A + Product Owner decision) \u2014 NOT created or self-granted by this correction. No Condition-2 credit is granted by this transaction."
+    },
+    {
+      "historical_mutant_id": "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_preempt_settled_window__mutmut_31",
+      "historical_source_file": "src/feature_engine/swing_distance.py",
+      "historical_function": "SwingDistanceFeatureEngine._preempt_settled_window",
+      "historical_category": "value_replaced_with_none",
+      "historical_mutation_diff_fingerprint": "'recorded_time=invalidation_recorded_time,' -> 'recorded_time=None,'",
+      "historical_materiality": "constructed_object_field_not_independently_asserted",
+      "semantic_family": "recorded_time_consolidated_to_finalize",
+      "semantic_reconstruction": "Historical obligation: the invalidation's own `recorded_time` must correctly flow through this `_preempt_settled_window` construction site. Current architecture: replaced by `recorded_time_floor` (prepare-time strict lower bound) + `_finalize_prepared_batch`'s own `_materialize_recorded_time` call (the sole caller of `RecordedTimeSource.next_after`) + `floor = max(floor, invalidation_recorded_time)` threading for same-batch-dependent replacements.",
+      "corrected_evidence_disposition": "SEMANTIC_SUCCESSOR_CONSOLIDATED \u2014 CURRENT SITE VERIFIED",
+      "shared_current_construction_sites": [
+        "contracts._finalize_prepared_batch (src/feature_engine/contracts.py) \u2014 `recorded_time = _materialize_recorded_time(time_source, prepared.recorded_time_floor)` (invalidation branch) and `invalidation_recorded_time = recorded_time` (threading into the dependent replacement's own floor via `floor = max(floor, invalidation_recorded_time)`)"
+      ],
+      "mapping_shape": "many-to-one (3 historical mutants, from 3 distinct original functions, consolidated onto 1 shared current site)",
+      "current_mutants": [
+        {
+          "id": "feature_engine.contracts.x__finalize_prepared_batch__mutmut_13",
+          "diff": "--- +++ @@ -23,7 +23,7 @@     for prepared, ref in zip(prepared_events, refs, strict=True):\n         event: FeatureEvent\n         if isinstance(prepared, PreparedFeatureFactInvalidated):\n-            recorded_time = _materialize_recorded_time(time_source, prepared.recorded_time_floor)\n+            recorded_time = None\n             event = prepared.finalize(ref, recorded_time)\n             invalidation_ref = ref\n             invalidation_recorded_time = recorded_time\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.contracts.x__finalize_prepared_batch__mutmut_15",
+          "diff": "--- +++ @@ -23,7 +23,7 @@     for prepared, ref in zip(prepared_events, refs, strict=True):\n         event: FeatureEvent\n         if isinstance(prepared, PreparedFeatureFactInvalidated):\n-            recorded_time = _materialize_recorded_time(time_source, prepared.recorded_time_floor)\n+            recorded_time = _materialize_recorded_time(time_source, None)\n             event = prepared.finalize(ref, recorded_time)\n             invalidation_ref = ref\n             invalidation_recorded_time = recorded_time\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.contracts.x__finalize_prepared_batch__mutmut_33",
+          "diff": "--- +++ @@ -35,7 +35,7 @@                         \"PreparedFeatureComputed: depends_on_preceding_invalidation_timing=True but no preceding \"\n                         \"invalidation was finalized earlier in this same batch\"\n                     )\n-                floor = max(floor, invalidation_recorded_time)\n+                floor = None\n             recorded_time = _materialize_recorded_time(time_source, floor)\n             event = prepared.finalize(ref, recorded_time, invalidation_ref=invalidation_ref)\n         finalized.append(event)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.contracts.x__finalize_prepared_batch__mutmut_34",
+          "diff": "--- +++ @@ -35,7 +35,7 @@                         \"PreparedFeatureComputed: depends_on_preceding_invalidation_timing=True but no preceding \"\n                         \"invalidation was finalized earlier in this same batch\"\n                     )\n-                floor = max(floor, invalidation_recorded_time)\n+                floor = max(None, invalidation_recorded_time)\n             recorded_time = _materialize_recorded_time(time_source, floor)\n             event = prepared.finalize(ref, recorded_time, invalidation_ref=invalidation_ref)\n         finalized.append(event)\n",
+          "status": "killed"
+        }
+      ],
+      "why_same_semantic_obligation": "All 3 historical mutants corrupted the invalidation's own `recorded_time` value flowing through to downstream consumers. ADR-043's implementation replaced direct `recorded_time=<value>` pass-through with a two-phase design: `recorded_time_floor` (a strict, prepare-time-computable lower bound, never itself a materialized timestamp) plus `_finalize_prepared_batch`'s own `_materialize_recorded_time` call (the ONLY caller of `RecordedTimeSource.next_after`, per ADR043-IMPL-A-MAJ-06) and, for same-batch-dependent replacements, `floor = max(floor, invalidation_recorded_time)` threading the just-materialized invalidation time into the replacement's own floor. Same semantic obligation (correct recorded_time causally follows the invalidation), transformed mechanism (floor+materialize instead of direct pass-through), consolidated site.",
+      "governance_implication": "Remains a candidate for a FUTURE, separate \u00a74.1(b) governed reclassification lifecycle (candidate authoring + Review A + Product Owner decision) \u2014 NOT created or self-granted by this correction. No Condition-2 credit is granted by this transaction."
+    },
+    {
+      "historical_mutant_id": "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_preempt_settled_window__mutmut_32",
+      "historical_source_file": "src/feature_engine/swing_distance.py",
+      "historical_function": "SwingDistanceFeatureEngine._preempt_settled_window",
+      "historical_category": "value_replaced_with_none",
+      "historical_mutation_diff_fingerprint": "'ref=self._allocator.next_ref(self._stream_id),' -> 'ref=None,'",
+      "historical_materiality": "constructed_object_field_not_independently_asserted",
+      "semantic_family": "ref_allocation_consolidated_to_commit_live",
+      "semantic_reconstruction": "Historical obligation: this event's `ref` must derive from `self._allocator.next_ref(self._stream_id)` at THIS specific `_preempt_settled_window` construction site. Current architecture (ADR-043 prepare/commit seam): `prepare_*`/`_prepare_*` functions build ref-less `PreparedFeatureComputed`/`PreparedFeatureFactInvalidated` candidates; the real ref allocation for ANY live-committed event (regardless of which prepare function produced it) happens in exactly one place per engine: `_commit_live`.",
+      "corrected_evidence_disposition": "SEMANTIC_SUCCESSOR_CONSOLIDATED \u2014 CURRENT SITE VERIFIED",
+      "shared_current_construction_sites": [
+        "SwingDistanceFeatureEngine._commit_live (src/feature_engine/swing_distance.py) \u2014 `refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)`",
+        "RegimePassthroughFeatureEngine._commit_live (src/feature_engine/regime_passthrough.py) \u2014 identical construction: `refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)`"
+      ],
+      "mapping_shape": "many-to-one (14 historical mutants, from 7 distinct original functions across both engines, consolidated onto 2 current construction sites \u2014 one per engine)",
+      "current_mutants": [
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_1",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = None\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_2",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(None)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_3",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(self._allocator.next_ref(None) for _ in prepared.prepared_events)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_1",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = None\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_2",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(None)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_3",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(self._allocator.next_ref(None) for _ in prepared.prepared_events)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        }
+      ],
+      "why_same_semantic_obligation": "Every one of the 14 historical mutants corrupted either (a) the literal ref-allocation call `self._allocator.next_ref(self._stream_id)`, or (b) the `self._stream_id` value feeding it, at some individual `_emit_*` construction site. ADR-043's prepare/commit refactor centralizes ALL ref allocation for a live-committed batch into exactly one call site per engine (`_commit_live`) \u2014 every `prepare_*`/`_prepare_*` seam function now builds a `PreparedFeatureComputed`/`PreparedFeatureFactInvalidated` with NO ref field at all (verified: neither class declares a `ref` attribute \u2014 see contracts.py dataclass fields). The exact semantic responsibility (this event's `ref` must derive from `self._allocator.next_ref(self._stream_id)`, never from an uncontrolled/corrupted stream_id) is fully preserved, just relocated to a single shared site per engine \u2014 a genuine architectural consolidation, not a removal.",
+      "governance_implication": "Remains a candidate for a FUTURE, separate \u00a74.1(b) governed reclassification lifecycle (candidate authoring + Review A + Product Owner decision) \u2014 NOT created or self-granted by this correction. No Condition-2 credit is granted by this transaction."
+    },
+    {
+      "historical_mutant_id": "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_preempt_settled_window__mutmut_47",
+      "historical_source_file": "src/feature_engine/swing_distance.py",
+      "historical_function": "SwingDistanceFeatureEngine._preempt_settled_window",
+      "historical_category": "value_replaced_with_none",
+      "historical_mutation_diff_fingerprint": "'self._stream_id' -> 'None'",
+      "historical_materiality": "constructed_object_field_not_independently_asserted",
+      "semantic_family": "ref_allocation_consolidated_to_commit_live",
+      "semantic_reconstruction": "Historical obligation: this event's `ref` must derive from `self._allocator.next_ref(self._stream_id)` at THIS specific `_preempt_settled_window` construction site. Current architecture (ADR-043 prepare/commit seam): `prepare_*`/`_prepare_*` functions build ref-less `PreparedFeatureComputed`/`PreparedFeatureFactInvalidated` candidates; the real ref allocation for ANY live-committed event (regardless of which prepare function produced it) happens in exactly one place per engine: `_commit_live`.",
+      "corrected_evidence_disposition": "SEMANTIC_SUCCESSOR_CONSOLIDATED \u2014 CURRENT SITE VERIFIED",
+      "shared_current_construction_sites": [
+        "SwingDistanceFeatureEngine._commit_live (src/feature_engine/swing_distance.py) \u2014 `refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)`",
+        "RegimePassthroughFeatureEngine._commit_live (src/feature_engine/regime_passthrough.py) \u2014 identical construction: `refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)`"
+      ],
+      "mapping_shape": "many-to-one (14 historical mutants, from 7 distinct original functions across both engines, consolidated onto 2 current construction sites \u2014 one per engine)",
+      "current_mutants": [
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_1",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = None\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_2",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(None)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_3",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(self._allocator.next_ref(None) for _ in prepared.prepared_events)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_1",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = None\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_2",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(None)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        },
+        {
+          "id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_3",
+          "diff": "--- +++ @@ -6,7 +6,7 @@         `FencedFeatureCommitter` instead (ADR-043 \u00a7B/\"Atomicity and\n         emission\").\n         \"\"\"\n-        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)\n+        refs = tuple(self._allocator.next_ref(None) for _ in prepared.prepared_events)\n         finalized = prepared.finalize_live(refs, time_source=self._time_source)\n         prepared.apply_to_lineage(finalized)\n         return list(finalized)\n",
+          "status": "killed"
+        }
+      ],
+      "why_same_semantic_obligation": "Every one of the 14 historical mutants corrupted either (a) the literal ref-allocation call `self._allocator.next_ref(self._stream_id)`, or (b) the `self._stream_id` value feeding it, at some individual `_emit_*` construction site. ADR-043's prepare/commit refactor centralizes ALL ref allocation for a live-committed batch into exactly one call site per engine (`_commit_live`) \u2014 every `prepare_*`/`_prepare_*` seam function now builds a `PreparedFeatureComputed`/`PreparedFeatureFactInvalidated` with NO ref field at all (verified: neither class declares a `ref` attribute \u2014 see contracts.py dataclass fields). The exact semantic responsibility (this event's `ref` must derive from `self._allocator.next_ref(self._stream_id)`, never from an uncontrolled/corrupted stream_id) is fully preserved, just relocated to a single shared site per engine \u2014 a genuine architectural consolidation, not a removal.",
+      "governance_implication": "Remains a candidate for a FUTURE, separate \u00a74.1(b) governed reclassification lifecycle (candidate authoring + Review A + Product Owner decision) \u2014 NOT created or self-granted by this correction. No Condition-2 credit is granted by this transaction."
+    }
+  ],
+  "cross_seam_mappings_by_family": {
+    "constructor_stream_id_default (6 rows, GENUINELY REMOVED)": {
+      "historical_ids": [
+        "regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1__init____mutmut_2",
+        "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1__init____mutmut_2",
+        "regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1__init____mutmut_1",
+        "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1__init____mutmut_1",
+        "regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1__init____mutmut_39",
+        "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1__init____mutmut_59"
+      ],
+      "rationale": "The exact vulnerability class (a caller can pass/default an unchecked stream_id) is structurally eliminated \u2014 self._stream_id is now derived exclusively from output_authority.authoritative_stream_id, never from a caller-suppliable constructor parameter. Verified: neither __init__ signature contains a stream_id parameter."
+    },
+    "ref_allocation -> _commit_live (14 rows, CONSOLIDATED)": {
+      "historical_ids": [
+        "regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_emit_invalidation__mutmut_12",
+        "regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_emit_invalidation__mutmut_21",
+        "regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_emit_original__mutmut_48",
+        "regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_emit_replacement__mutmut_34",
+        "regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_emit_replacement__mutmut_51",
+        "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_emit_original__mutmut_31",
+        "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_emit_original__mutmut_48",
+        "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_emit_replacement_only__mutmut_35",
+        "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_emit_replacement_only__mutmut_52",
+        "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_invalidate_and_reattempt__mutmut_33",
+        "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_invalidate_and_replace__mutmut_18",
+        "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_invalidate_and_replace__mutmut_33",
+        "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_preempt_settled_window__mutmut_32",
+        "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_preempt_settled_window__mutmut_47"
+      ],
+      "shared_current_sites": [
+        "SwingDistanceFeatureEngine._commit_live",
+        "RegimePassthroughFeatureEngine._commit_live"
+      ],
+      "current_mutant_ids_all_killed": [
+        "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_1",
+        "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_2",
+        "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_commit_live__mutmut_3",
+        "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_1",
+        "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_2",
+        "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_commit_live__mutmut_3"
+      ]
+    },
+    "same_batch_invalidation_causation -> _finalize_prepared_batch (3 rows, CONSOLIDATED)": {
+      "historical_ids": [
+        "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_invalidate_and_reattempt__mutmut_53",
+        "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_invalidate_and_replace__mutmut_41",
+        "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_preempt_settled_window__mutmut_55"
+      ],
+      "shared_current_site": "contracts._finalize_prepared_batch (invalidation_ref threading + PreparedFeatureComputed.finalize)",
+      "current_mutant_ids_all_killed": [
+        "feature_engine.contracts.x__finalize_prepared_batch__mutmut_23",
+        "feature_engine.contracts.x__finalize_prepared_batch__mutmut_24",
+        "feature_engine.contracts.x__finalize_prepared_batch__mutmut_44",
+        "feature_engine.contracts.x__finalize_prepared_batch__mutmut_46"
+      ]
+    },
+    "recorded_time -> _finalize_prepared_batch (3 rows, CONSOLIDATED)": {
+      "historical_ids": [
+        "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_invalidate_and_reattempt__mutmut_17",
+        "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_invalidate_and_replace__mutmut_17",
+        "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_preempt_settled_window__mutmut_31"
+      ],
+      "shared_current_site": "contracts._finalize_prepared_batch (_materialize_recorded_time + floor threading)",
+      "current_mutant_ids_all_killed": [
+        "feature_engine.contracts.x__finalize_prepared_batch__mutmut_13",
+        "feature_engine.contracts.x__finalize_prepared_batch__mutmut_15",
+        "feature_engine.contracts.x__finalize_prepared_batch__mutmut_33",
+        "feature_engine.contracts.x__finalize_prepared_batch__mutmut_34"
+      ]
+    }
+  },
+  "evidence_005_status_reconciliation": {
+    "all_current_mutants_cited_in_this_correction": 20,
+    "all_confirmed_status": "killed",
+    "contradictions_found": 0,
+    "note": "No exact historical ID among the 26 was found to itself independently resolve killed/confirmed_timeout under \u00a74.1(a) \u2014 every consolidated mapping involves a genuinely different current mutant ID at a different (shared) construction site, consistent with the ADR-043 refactor pattern, never a \u00a74.1(a)-eligible exact-ID match. No STOP-triggering contradiction found."
+  },
+  "final_corrected_distribution_of_original_53": {
+    "SUCCESSOR_MATCH \u2014 CURRENT KILLED (unique, from correction-002, unchanged)": 27,
+    "SEMANTIC_SUCCESSOR_CONSOLIDATED \u2014 CURRENT SITE VERIFIED (this transaction)": 20,
+    "BEHAVIOR_GENUINELY_REMOVED \u2014 PENDING \u00a74.1(b) GOVERNANCE (this transaction)": 6,
+    "total": 53
+  },
+  "condition_2_accounting": {
+    "controlling_state_before_this_transaction": "111/170",
+    "controlling_state_after_this_transaction": "111/170 \u2014 UNCHANGED",
+    "reason_no_new_credit_granted": "This is evidence repair only. \u00a74.1(a) requires the EXACT historical mutant ID itself to resolve killed/confirmed_timeout \u2014 never satisfied here, since every SEMANTIC_SUCCESSOR_CONSOLIDATED row involves a genuinely different, shared current mutant ID. \u00a74.1(b) requires its own separate, future governed candidate-authoring + Review A + Product Owner decision lifecycle for the (corrected) 20 consolidated rows and the 6 genuinely-removed rows alike \u2014 not self-granted by this correction. No exact historical ID unexpectedly proved semantically continuous and currently killed/confirmed_timeout under its OWN historical ID \u2014 no \u00a74.1(a) contradiction, no STOP."
+  },
+  "contradictions_or_stop_triggers": [],
+  "adr_scope_rule_fresh": {
+    "assessment": "Pure evidence-fidelity correction tracing semantic responsibility across an already-Approved, already-implemented architectural refactor (ADR-043) \u2014 no Platform Invariant, Event Schema, Module Taxonomy, or Governance/Approval-process change; no Condition-2 credit granted; no new governance mechanism introduced; \u00a74.1 itself is applied, not altered.",
+    "result": "ADR_NOT_REQUIRED"
+  },
+  "review_risk_classification": "R1",
+  "not_performed_by_this_transaction": [
+    "No production src/** change.",
+    "No test change.",
+    "No tooling change.",
+    "No dependency change.",
+    "No mutation test execution (workspace generated via mutmut's create_mutants() API directly, zero tests run).",
+    "No full mutation rerun, no isolated mutant execution, no timeout reruns, no majority voting.",
+    "No Condition-1 work.",
+    "No Condition-3 work.",
+    "No new Condition-2 credit for any of the 26 rows \u2014 remains exactly 111/170.",
+    "No candidate-004 artifact authored \u2014 future, separate transaction after this correction passes Review A.",
+    "No re-review of the 69 PO-approved rows or the 27 correction-002 successor-killed rows.",
+    "No work on the 5 ambiguous rows or the 1 NOT_READY row.",
+    "resolution-001.json, resolution-002.json, resolution-002-correction-001.json, resolution-002-correction-002.json, evidence-005.json all byte-unchanged.",
+    "No Feature Engine approval. No LIVE authorization. No Product Owner decision fabricated or altered."
+  ]
+}

@@ -2,6 +2,28 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-22 — feature-engine: `P3-FEATURE-QG-EVID-03` Condition-2 69REC closure + correction-002 26-row cross-seam semantic remapping (correction-003)
+
+Starting HEAD `4fa56bf8350b497e21f34094a43519bf410e1bb4`, verified `main == origin/main`, no drift.
+
+ChatGPT bounded Review A at this HEAD returned `REVISION_REQUIRED -- 0 Blocker/1 Major/0 Minor`, Risk `R1`, `ADR_NOT_REQUIRED`. The Part-A Product Owner/provenance recording is validated -- `P3-FEATURE-EVID03-COND2-69REC-A-MAJ-01: CLOSED -- REVIEW A VALIDATED`; the 69 PO-approved rows remain effective, Condition 2 remains 111/170. The 27 `SUCCESSOR_MATCH -- CURRENT KILLED` rows from correction-002.json are likewise Review-A-validated as evidence, untouched, not re-reviewed.
+
+New finding remediated: `P3-FEATURE-EVID03-COND2-RES002-CORR002-A-MAJ-01` -- correction-002.json's 26-row `BEHAVIOR_REMOVED` evidence proved only that OLD construction-site text no longer existed in the OLD function, never asking whether the historical semantic obligation MOVED/TRANSFORMED/CONSOLIDATED across the prepare -> commit -> finalize -> lineage-apply seam. Traced each of the 26 rows via direct reading of contracts.py (`PreparedFeatureComputed`/`_finalize_prepared_batch`/`finalize`) and both engines' own `_commit_live` methods.
+
+Result: 6/26 `BEHAVIOR_GENUINELY_REMOVED -- PENDING §4.1(b) GOVERNANCE` (constructor stream_id-default rows -- the caller-suppliable-default vulnerability class is structurally eliminated, self._stream_id now derived exclusively from output_authority.authoritative_stream_id; no successor site exists because the corruptible constructor parameter itself no longer exists). 20/26 reclassified `SEMANTIC_SUCCESSOR_CONSOLIDATED -- CURRENT SITE VERIFIED` (not forced into an artificial one-to-one mapping): 14 ref-allocation rows (from 7 distinct historical functions) consolidated onto 2 shared current sites (`SwingDistanceFeatureEngine._commit_live` / `RegimePassthroughFeatureEngine._commit_live`); 3 same-batch-invalidation-causation rows consolidated onto `contracts._finalize_prepared_batch`'s invalidation_ref threading + `PreparedFeatureComputed.finalize`; 3 recorded-time rows consolidated onto `_finalize_prepared_batch`'s materialize+floor-threading logic. All 14 distinct current mutant IDs cited across these shared-site families cross-checked against Evidence-005: 100% killed, zero contradictions. No exact historical ID itself proved §4.1(a)-eligible -- no STOP triggered.
+
+Final corrected distribution of the original 53: 27 SUCCESSOR_MATCH -- CURRENT KILLED (unchanged) + 20 SEMANTIC_SUCCESSOR_CONSOLIDATED + 6 BEHAVIOR_GENUINELY_REMOVED = 53. resolution-002.json and resolution-002-correction-002.json byte-unchanged, preserved.
+
+Governed Condition-2 count: 0 rows permitted to alter it this transaction -- remains exactly 111/170. Condition 1 unchanged STOPPED/UNRESOLVED; Condition 3 unchanged SATISFIED. P3-FEATURE-QG-EVID-03 remains OPEN. Feature Engine remains NOT APPROVED; LIVE remains NOT_AUTHORIZED.
+
+Created `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-identity-resolution-002-correction-003.json` (new, additive).
+
+**Next governed step:** ChatGPT bounded Review A re-review of `feature-engine-mutation-material-gap-identity-resolution-002-correction-003.json`.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-reclassification-candidate-002.json` (bookkeeping closure only, in place), `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-identity-resolution-002-correction-003.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only -- verified via `git status --porcelain=v1`; no source/test/tooling/dependency/contract/ADR/governance-rule file touched; no mutation test execution; resolution-001.json/resolution-002.json/resolution-002-correction-001.json/resolution-002-correction-002.json/evidence-005.json byte-unchanged; no candidate-004 artifact created; scratch cleaned; no background watcher/mutmut/pytest/tooling process remained. `manifest_version` `"10.400"` -> `"10.401"`.
+
+---
+
 ## [Unreleased] — 2026-09-19 — feature-engine: `P3-FEATURE-QG-EVID-03` Condition-2 PO-approval provenance recording (Part A) + resolution-002 53-row evidence-fidelity correction (Part B)
 
 Starting HEAD `17dcdf3bd1b798dacd9ad39db16055bce8fae348`, verified `main == origin/main`, no drift.
