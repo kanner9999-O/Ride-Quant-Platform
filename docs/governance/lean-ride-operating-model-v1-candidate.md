@@ -2,32 +2,32 @@
 id: lean-ride-operating-model-v1
 title: "Lean Ride Operating Model v1 — Candidate"
 version: "1.1"
-status: Draft
+status: Active
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
-approved_by: null
-approved_at: null
+approved_by: Product Owner
+approved_at: "2026-09-22T15:12:00+07:00"
 created_at: "2026-09-22"
 depends_on: ["00-governance", "11-adr-process", "12-approval-gates", "13-quality-gates", "14-roadmap"]
 ---
 
-# Lean Ride Operating Model v1 — CANDIDATE (NOT ACTIVE)
+# Lean Ride Operating Model v1 — ACTIVE
 
-**Status: Draft/Candidate.** This document is non-binding until Review A + Risk
-Classification + an explicit Product Owner adoption decision complete (see
-§8). It changes **zero** Governance/Approval semantics on its own — it is an
-**operational efficiency layer sitting strictly inside** the space the
-existing rules already treat as low-ceremony (R0/R1 default no-cross-check,
-`G-REV` Semantic Sufficiency, `P3-TXN-001` fold-by-default, `P3-MODULE-
-BATCH-001` batch containment). No Constitution chapter, ADR, Global Execution
-Rule, or Phase rule is edited by this document.
+**Status: Active — ADOPTED.** This document is now the binding operational
+efficiency layer described in §0/§1, applying **prospectively only** from the
+adoption boundary below (§10) — it changed **zero** Governance/Approval
+semantics at any point in its lifecycle: it is an **operational efficiency
+layer sitting strictly inside** the space the existing rules already treat as
+low-ceremony (R0/R1 default no-cross-check, `G-REV` Semantic Sufficiency,
+`P3-TXN-001` fold-by-default, `P3-MODULE-BATCH-001` batch containment). No
+Constitution chapter, ADR, Global Execution Rule, or Phase rule was edited by
+this document at authoring, correction, or adoption.
 
-**v1.1 bounded correction (2026-09-22):** remediates ChatGPT Review A
+**v1.1 bounded correction (2026-09-22):** remediated ChatGPT Review A
 `REVISION_REQUIRED — 0 Blocker / 2 Major / 1 Minor` at reviewed boundary
 `30fc1a303886777878407ce266a184fa52c82d4e` / blob
 `f2cb56fe7fbac589a4ec574c1096214ceb9e76b6` — see Change history for the
-per-finding remediation summary. Not yet re-reviewed; `status: Draft`
-unchanged.
+per-finding remediation summary. **Adoption recorded in §10 below.**
 
 ## 0. What is preserved, verbatim
 
@@ -333,6 +333,45 @@ Note: IF adopted content is later found to change eligibility, review
   fresh Chapter 0 §4b check — not assumed here.
 ```
 
+## 10. Adoption record
+
+**Review A result (authoritative):** `CLEAN — 0 Blocker / 0 Major / 0 Minor`,
+Risk `R1`, ADR `ADR_NOT_REQUIRED`.
+
+**Reviewed semantic boundary:** `4ee761cd7b5776a93cf695ae3bdb8b64aafcf58b`.
+**Reviewed subject blob:** `a924aea62214bbbf60a9361f6d83511b9aedd09e`
+(`docs/governance/lean-ride-operating-model-v1-candidate.md` at that
+boundary — verified fresh this transaction via `git hash-object`, matches
+exactly).
+
+**Product Owner decision (verbatim):** "ADOPT Lean Ride Operating Model
+v1.1." Decision timestamp: `2026-09-22T15:12:00+07:00`.
+
+**Lifecycle transition:** `status: Draft → Active`, `approved_by: null →
+Product Owner`, `approved_at: null → "2026-09-22T15:12:00+07:00"`. All
+reviewed operating-model semantics (§0–§9) are unchanged by this recording —
+this is mechanical lifecycle recording only, not a second semantic decision.
+
+**Scope of adoption — prospective only:** this adoption applies
+**prospectively only**, from this adoption boundary forward. It does **not**
+retroactively reclassify, reopen, or invalidate any already-completed Ride
+transaction, review, approval, or evidence artifact — every prior EVID-03
+transaction (resolution-001/002, corrections, candidate-002/003/004, the
+final-six assessment, the historical-baseline reconstruction, etc.) remains
+valid exactly as executed under the model in force at the time it ran (§8
+item 6, unchanged).
+
+**Governance/Approval semantics:** unchanged by this adoption — Product
+Owner sole decision authority, Review A mandatory, Risk Classification
+mandatory (R0/R1/R2, ADR-042), ADR Scope Rule (Chapter 0 §4b), and all
+Global Execution Rules remain exactly as they were before this document
+existed. No Constitution chapter, ADR, Global Execution Rule, or Phase rule
+is touched by this recording.
+
+**Initial pilot:** Feature Engine `P3-FEATURE-QG-EVID-03` — specifically WP
+`FE-EVID03-COND1-STOP-001` (§7), the first Work Package run live under this
+model.
+
 ## Change history
 
 ```text
@@ -393,4 +432,20 @@ v1.1  2026-09-22  Bounded correction — vai trò: `Lean Ride Operating Model
       No Constitution/ADR/Global Execution Rule/Phase rule touched.
       `status: Draft` unchanged, `approved_by: null`, `approved_at: null`
       — awaiting bounded Review A re-review.
+v1.1  2026-09-22  Product Owner adoption — mechanical lifecycle recording,
+      vai trò: `Lean Ride Operating Model v1.1 Adoption Recorder`. Decision
+      nguyên văn: "ADOPT Lean Ride Operating Model v1.1"
+      (`2026-09-22T15:12:00+07:00`). Reviewed semantic candidate v1.1
+      (Review A `CLEAN — 0 Blocker / 0 Major / 0 Minor`, Risk `R1`, ADR
+      `ADR_NOT_REQUIRED`), boundary `4ee761cd7b5776a93cf695ae3bdb8b64aafcf58b`,
+      blob `a924aea62214bbbf60a9361f6d83511b9aedd09e` (verified fresh,
+      matches exactly). `status: Draft → Active`, `approved_by: null →
+      Product Owner`, `approved_at: null → "2026-09-22T15:12:00+07:00"`.
+      `version: "1.1"` unchanged (pure mechanical adoption, no semantic
+      content change — §0–§9 byte-equivalent). Adoption applies
+      prospectively only; no prior Ride transaction/review/approval/
+      evidence is retroactively reclassified or invalidated. Initial
+      pilot: Feature Engine EVID-03, WP `FE-EVID03-COND1-STOP-001`. No
+      Constitution/ADR/Global Execution Rule/Phase rule/Feature Engine
+      evidence/source/tests/tooling touched.
 ```

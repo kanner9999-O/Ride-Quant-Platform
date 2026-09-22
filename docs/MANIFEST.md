@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.406"
+manifest_version: "10.407"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -28059,6 +28059,26 @@ The 2 ambiguous rows and the 1 tool-identity-drift row remain entirely untouched
 **Recommended next governed transaction:** bounded Candidate-005 authoring for exactly these 2 rows (Case A — both map uniquely to killed), under the same already-Product-Owner-approved ADR-043 prepare-seam §4.1(b) authority as the prior 167 rows. Projected non-controlling state if later approved: `167 + 2 = 169/170` (1/170 would remain — the tool-identity-drift row). Risk `R1`, ADR Scope Rule fresh-checked: `ADR_NOT_REQUIRED`.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-condition2-remaining-ambiguity-historical-reconstruction-001.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — no `src/**`/`tests/**`/tooling/dependency/contract/ADR/governance-rule file touched; no mutation test execution (historical AND current mutants both generated via `create_mutants()` directly, zero tests run); no historical evidence artifact modified; both isolated git worktrees removed after use; no lingering mutmut/pytest/tooling/watcher process. `manifest_version` `"10.405"` → `"10.406"`.
+
+## `governance` — Lean Ride Operating Model v1.1 — Product Owner adoption
+
+**Mechanical lifecycle recording — vai trò: `Lean Ride Operating Model v1.1 Adoption Recorder`.** Starting HEAD `4ee761cd7b5776a93cf695ae3bdb8b64aafcf58b`, verified `main == origin/main`, no drift. Reviewed subject blob (`docs/governance/lean-ride-operating-model-v1-candidate.md`) independently re-verified `a924aea62214bbbf60a9361f6d83511b9aedd09e`, matches exactly.
+
+**Review A result recorded:** `CLEAN — 0 Blocker / 0 Major / 0 Minor`, Risk `R1`, ADR `ADR_NOT_REQUIRED`, at the same reviewed boundary/blob.
+
+**Product Owner decision (verbatim):** "ADOPT Lean Ride Operating Model v1.1." Decision timestamp `2026-09-22T15:12:00+07:00`.
+
+**Lifecycle transition applied:** `status: Draft → Active`, `approved_by: null → Product Owner`, `approved_at: null → "2026-09-22T15:12:00+07:00"`. `version: "1.1"` unchanged — pure mechanical adoption, zero semantic content change (§0–§9 of the document byte-equivalent; only frontmatter, the top banner, and two appended sections — an Adoption Record §10 and a Change-history entry — changed).
+
+**Adoption applies prospectively only.** No prior Ride transaction, review, approval, or evidence artifact is retroactively reclassified or invalidated — every already-completed EVID-03 transaction (resolution-001/002, corrections, candidate-002/003/004, the final-six assessment, the historical-baseline reconstruction) remains valid exactly as executed under the model in force at the time it ran.
+
+**Governance/Approval semantics unchanged:** Product Owner sole decision authority, Review A mandatory, Risk Classification mandatory (R0/R1/R2, ADR-042), ADR Scope Rule (Chapter 0 §4b), and all Global Execution Rules remain exactly as before this document existed. No Constitution chapter, ADR, Global Execution Rule, or Phase rule touched by this recording.
+
+**Initial pilot:** Feature Engine `P3-FEATURE-QG-EVID-03`, WP `FE-EVID03-COND1-STOP-001` — the first Work Package to run live under the now-Active Lean Ride Operating Model v1.1.
+
+**Lean Ride Operating Model v1.1 state: `Active — ADOPTED`.**
+
+**Files changed:** `docs/governance/lean-ride-operating-model-v1-candidate.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — no Constitution/ADR/Global Execution Rule/Phase rule/Feature Engine evidence/source/tests/tooling touched (verified via `git status --porcelain=v1` and `git diff --stat` on all excluded paths, both empty/expected). `manifest_version` `"10.406"` → `"10.407"`.
 
 ## Decision Log
 

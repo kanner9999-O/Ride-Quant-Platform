@@ -2,6 +2,24 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-22 — governance: Lean Ride Operating Model v1.1 — Product Owner adoption
+
+Starting HEAD `4ee761cd7b5776a93cf695ae3bdb8b64aafcf58b`, verified `main == origin/main`, no drift. Reviewed subject blob independently re-verified `a924aea62214bbbf60a9361f6d83511b9aedd09e`, matches exactly.
+
+Review A result recorded: CLEAN -- 0 Blocker/0 Major/0 Minor, Risk R1, ADR_NOT_REQUIRED, at the same reviewed boundary/blob.
+
+Product Owner decision (verbatim): "ADOPT Lean Ride Operating Model v1.1." Decision timestamp 2026-09-22T15:12:00+07:00.
+
+Lifecycle transition: status Draft -> Active, approved_by null -> Product Owner, approved_at null -> "2026-09-22T15:12:00+07:00". version "1.1" unchanged -- pure mechanical adoption, zero semantic content change to the reviewed operating-model sections (§0-§9 byte-equivalent).
+
+Adoption applies prospectively only -- no prior Ride transaction, review, approval, or evidence artifact is retroactively reclassified or invalidated. Governance/Approval semantics unchanged: Product Owner sole decision authority, Review A mandatory, Risk Classification mandatory, ADR Scope Rule, and all Global Execution Rules remain exactly as before. No Constitution/ADR/Global Execution Rule/Phase rule/Feature Engine evidence/source/tests/tooling touched.
+
+Initial pilot: Feature Engine P3-FEATURE-QG-EVID-03, WP FE-EVID03-COND1-STOP-001.
+
+**Files changed:** `docs/governance/lean-ride-operating-model-v1-candidate.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.406"` -> `"10.407"`.
+
+---
+
 ## [Unreleased] — 2026-09-22 — feature-engine: `P3-FEATURE-QG-EVID-03` Condition-2 remaining-ambiguity historical-baseline reconstruction (Part B)
 
 Starting HEAD `e15f6aebf4ee10c039967085ccc35c956b195d1d`, verified `main == origin/main`, no drift. Part A (Candidate-004 PO approval, 167/170) NOT rerun, reverted, or duplicated.
