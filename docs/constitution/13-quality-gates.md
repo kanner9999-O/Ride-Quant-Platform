@@ -17,7 +17,7 @@ depends_on: ["02-platform-invariants", "07-module-taxonomy"]
 
 > **Trạng thái:** `Locked`. Product Owner đã **Approve and Lock** Chapter 13 v1.7. Theo [Chapter 12 §12.3](./12-approval-gates.md), chương này từ nay là **binding authoritative Quality Gates contract** — đúng contract mà [Chapter 12 §12.2(5)](./12-approval-gates.md) yêu cầu cho applicable quality gates. Quality Gate vẫn khác Product Owner Approval Gate (§13.1) — trạng thái Locked không đổi phân biệt đó.
 >
-> **v1.8 CANDIDATE (2026-09-22) — `Draft`, NOT reviewed, NOT approved, NOT controlling.** Authored per Chapter 0 §5.1 (a Locked living document cannot be edited in place at the same version — a new candidate version must be authored and pass its own fresh approval gate). Adds new §13.8.1 ("Bounded-measurement reproducibility for `UNSTABLE_TIMEOUT_TRIAGE` populations"), the authoritative Quality-Gate measurement-rule counterpart to `docs/adr/ADR-044.md` v0.4 (`Draft`, itself under bounded correction — `CORR-003`, remediating an independent-cross-check-derived defect set of 0 Blocker / 2 Major / 3 Minor; prior correction rounds' findings all CLOSED — REVIEW A VALIDATED, not reopened). `CORR-003` gave §13.8.1 a closed applicability predicate (scoped strictly to `UNSTABLE_TIMEOUT_TRIAGE`, excluding `AMBIGUOUS`/`TOOL_IDENTITY_DRIFT`/`not_checked`/other unresolved categories), a mixed-population rule, a no-self-declared-protocol-equivalence rule, an explicit Testing Convention item 8 gate-level reconciliation, fully self-sufficient percentage-unit arithmetic, and removed candidate/activation wording from the rule body itself (lifecycle state lives here in the banner, in frontmatter, and in MANIFEST only). **`v1.7`, `Locked`, remains the sole controlling authoritative version of this chapter until this `v1.8` candidate is itself reviewed, accepted, and activated** — see MANIFEST for current authoritative pointer (I-12). No other section of this chapter is touched by this candidate; §13.8's own existing fail-closed text (above the new §13.8.1) is byte-unchanged.
+> **v1.8 CANDIDATE (2026-09-22) — `Draft`, NOT reviewed, NOT approved, NOT controlling.** Authored per Chapter 0 §5.1 (a Locked living document cannot be edited in place at the same version — a new candidate version must be authored and pass its own fresh approval gate). Adds new §13.8.1 ("Bounded-measurement reproducibility for `UNSTABLE_TIMEOUT_TRIAGE` populations"). **`CONSOLIDATION` (root-cause pass, `P3-CORRECTION-CHAIN-001`, following three narrow correction rounds that did not converge):** §13.8.1 is now the **sole normative source** for this rule — self-contained, requiring no reference to any ADR to understand or apply correctly. `docs/adr/ADR-044.md` v0.5 (`Draft`) carries the architecture rationale, alternatives, and consequences only, with no second executable copy of the gate semantics; a clause-trace table there maps every ADR guarantee to its exact normative clause here. If ADR prose and this section ever disagree, **this section controls Quality-Gate semantics** (§13.13). This consolidation restores the per-mutant/gate-level reproducibility reconciliation that a prior correction round had inadvertently dropped, clarifies Testing Convention item 8's evidence-layer precedence without ambiguous wording, and makes protocol provenance a structural (property-based) requirement rather than a reference to an unpinned "presently-governed" protocol. **`v1.7`, `Locked`, remains the sole controlling authoritative version of this chapter until this `v1.8` candidate is itself reviewed, accepted, and activated** — see MANIFEST for current authoritative pointer (I-12). No other section of this chapter is touched by this candidate; §13.8's own existing fail-closed text (above the new §13.8.1) is byte-unchanged.
 
 ## 13.1 Purpose and scope
 
@@ -318,31 +318,46 @@ Gate **fail-closed**. Gate = **FAIL** khi bất kỳ điều nào sau đây:
 
 ### 13.8.1 Bounded-measurement reproducibility for `UNSTABLE_TIMEOUT_TRIAGE` populations
 
-Ordinary §13.8 fail-closed semantics require measurement to be
-reproducible. The governed two-run timeout-triage classification contract
-(the canonical mechanism that produces `confirmed_timeout` / `killed` /
-`survived` / `UNSTABLE_TIMEOUT_TRIAGE` outcomes for raw-timeout mutant
-candidates, per its own locked protocol text) MAY leave a bounded
-population of individually-unresolved `UNSTABLE_TIMEOUT_TRIAGE`
-classifications — a deliberate design of that protocol (no majority vote,
-no forced tie-break, no retry-until-green). This subsection reconciles
-that case with §13.8/§13.9 by distinguishing two, separate reproducibility
-questions, and defines the gate-level measurement semantics this narrow
-case requires.
+This subsection is the **sole normative source** for bounded-uncertainty
+Quality-Gate measurement/applicability/precedence/result semantics for the
+narrow class of populations defined below — it is self-contained and can
+be read and applied correctly without reference to any ADR (§13.13).
+`docs/adr/ADR-044.md` records the architecture rationale, alternatives,
+and consequences for this rule, but carries no second, independently
+executable copy of it; if ADR prose and this subsection ever appear to
+disagree, **this subsection controls Quality-Gate semantics**.
 
-**Applicability — closed predicate.** This subsection applies to a Quality
-Gate evaluation **only when ALL of the following hold**:
+Ordinary §13.8 fail-closed semantics require measurement to be
+reproducible. A governed, closed-scope timeout-triage classification
+procedure (defined structurally under "Protocol provenance" below) MAY
+leave a bounded population of individually-unresolved
+`UNSTABLE_TIMEOUT_TRIAGE` classifications — a deliberate property of any
+qualifying such procedure (no majority vote, no forced tie-break, no
+retry-until-green). This subsection defines exactly how a Quality Gate
+consumes such a population: which mutants may enter it (Applicability),
+what "reproducible" means at two distinct layers (Reproducibility
+reconciliation), how it relates to Testing Convention item 8's per-mutant
+rule (Evidence-layer precedence), the exact arithmetic (Formal bound
+definitions), and the resulting gate-level outcome (Result semantics).
+
+**A. Applicability — closed predicate.** This subsection applies to a
+Quality Gate evaluation **only when ALL of the following hold**:
 
 ```text
-1. The Quality Gate is a mutation/test-effectiveness gate using an
-   already-authoritative Ride mutation metric, denominator, and
-   threshold (Testing Convention item 7).
+1. The Quality Gate is a mutation/test-effectiveness gate using the
+   authoritative Ride mutation metric, denominator, and threshold
+   pinned by that gate's own Quality-Gate evidence per §13.9 (current
+   approved source: Testing Convention v0.17 item 7's Ride-owned
+   mutation-effectiveness metric contract — this subsection depends on
+   whichever Testing Convention version/item is actually pinned by that
+   evidence, never a hard-coded item number that could silently drift
+   under future renumbering).
 2. Every mutant admitted to U carries the exact governed classification
    UNSTABLE_TIMEOUT_TRIAGE — no other status is admitted to U.
-3. That classification was produced by the governed two-run timeout-
-   triage classification contract applicable at that evaluation
-   boundary (see "Protocol identity" below) — never a different or
-   self-declared-equivalent mechanism.
+3. That classification was produced by a procedure satisfying every
+   structural property in "Protocol provenance" below, pinned at the
+   evaluation boundary — never a different or self-declared-equivalent
+   mechanism.
 4. Every U member remains counted in the gate's authoritative
    denominator — no silent exclusion.
 5. U is disjoint from the confirmed-favorable numerator:
@@ -374,41 +389,112 @@ that `FAIL — evidence` stands on its own authority and controls the
 overall gate result independently of this subsection's own Case A/B/C
 outcome.
 
-**Protocol identity — no self-declared equivalence.** This subsection
-applies to the canonical `UNSTABLE_TIMEOUT_TRIAGE` classification contract
-produced by the presently-governed two-run timeout-triage protocol. A
-future, different protocol may qualify under this subsection only if its
-equivalence/applicability to this exact rule has been explicitly
-established through a separately governed, Product-Owner-approved
-authority, recorded before the relevant evaluation boundary. No
-validator, evaluator, or executor may infer, assume, or self-declare such
-equivalence.
+**Protocol provenance — structural requirement, no self-declared
+equivalence.** No separate, named "canonical protocol" document exists in
+this repository today beyond the Feature Engine's own formal Quality-Gate
+evidence — this subsection does not invent one. Instead, a qualifying
+classification procedure is defined **structurally**: evidence for a
+mutant's `UNSTABLE_TIMEOUT_TRIAGE` membership in `U` must demonstrate,
+pinned at the evaluation boundary (§13.9):
 
-**Relationship to Testing Convention item 8 (per-mutant vs. gate-level).**
-Testing Convention v0.17 item 8's rule — "an unresolved/unreproduced
-timeout is `FAIL — evidence` for that mutant" — is a **per-mutant evidence
-disposition**, preserved unchanged, never rewritten or treated as
-resolved by this subsection: it means the mutant receives no favorable
-effectiveness credit, its own final killed/timeout/survived classification
-remains unresolved, and it stays disclosed/pinned as unresolved evidence.
-That per-mutant rule does **not**, by itself, automatically emit a
-**final gate-level** `FAIL — evidence` result whenever, and only when,
-the closed applicability predicate above is satisfied for that mutant's
-own `U` membership — for a §13.8.1-eligible population, **this
-subsection**, not Testing Convention item 8 directly, defines the
-gate-level aggregation semantics (a deliberate Quality-Gate measurement
-rule owned by this chapter, per §13.13; Testing Convention does not
-independently own gate-level PASS/FAIL authority). Strict precedence for
-an eligible population: the per-mutant unresolved status remains exactly
-as item 8 describes; the `[lower_score, upper_score]` interval is the
-gate-level measurement; Cases A/B/C below govern the gate-level outcome;
-and a separate, non-scoped evidence defect (Mixed-population rule above)
-still invokes ordinary §13.8/§13.9 independently. This reconciliation
-exists specifically so the same exact evidence set can never simultaneously
-yield both a `Case B` `PASS` and a `FINAL GATE RESULT: FAIL — evidence`.
+```text
+- the exact procedure's own identity/content, pinned (e.g. the exact
+  evidence artifact/section defining it);
+- exactly two qualifying independent reproductions of that mutant;
+- each reproduction performed under fresh regeneration/isolation
+  properties required by the governing evaluation contract (no reused
+  workspace, no shared state between the two reproductions);
+- the exact outcome of each of the two runs, individually recorded;
+- a disagreement between the two runs' outcomes produces
+  UNSTABLE_TIMEOUT_TRIAGE — never resolved by any of the following:
+  - no majority vote;
+  - no N-of-M resolution;
+  - no third-run tie-break;
+  - no retry-until-green.
+```
 
-**Formal bound definitions**, reusing — never replacing — the gate's own
-already-authoritative metric/denominator/threshold (no new metric, no
+Any procedure meeting all of the above structural properties qualifies —
+this is a property test, not a reference to one specific named artifact.
+For the current Feature Engine `P3-FEATURE-QG-EVID-03` application (as of
+this chapter's authoring), `feature-engine-mutation-step9-formal-
+evidence-005.json`'s own `timeout_triage` record and `feature-engine-
+mutation-step9-formal-evidence-005-correction-001.json` together document
+one procedure satisfying these properties — cited here as the current,
+non-normative illustration of the structural requirement, never as itself
+the defining authority. No validator, evaluator, or executor may infer,
+assume, or self-declare that a *different* procedure satisfies these
+properties without that determination itself being pinned as part of the
+evidence for that evaluation; and no future, materially different
+procedure may be treated as qualifying merely by an executor's own
+assertion of equivalence — establishing that requires a separately
+governed, Product-Owner-approved authority decision recorded before the
+relevant evaluation boundary.
+
+**B. Reproducibility reconciliation.** Ordinary §13.8 requires
+"measurement" to be reproducible. This subsection distinguishes two
+separate reproducibility questions, both of which apply to every
+`§13.8.1`-eligible evaluation, in every one of Cases A/B/C below:
+
+```text
+Per-mutant reproducibility (unchanged, governed exactly as §13.8/§13.9
+already require):
+  An UNSTABLE_TIMEOUT_TRIAGE mutant remains individually unresolved.
+  Its own killed/survived/confirmed-timeout classification is NEVER
+  treated as reproduced, resolved, or inferred, in Case A, B, or C
+  alike.
+
+Gate-level bounded-measurement reproducibility (the semantic this
+subsection defines):
+  When every authoritative interval input (confirmed-favorable
+  numerator, U, denominator, T, criteria/policy version, evaluation
+  boundary) is immutable and pinned per §13.9, the derived interval
+  [lower_score, upper_score] (Formal bound definitions below) is itself
+  a deterministic, reproducible function of those pinned inputs.
+
+  The reproducibility of the interval does NOT imply, and must never be
+  read to imply, reproducibility of any individual U member's own
+  classification.
+```
+
+**Precedence with §13.8.** For a population satisfying the Applicability
+predicate (A) above, §13.8's "measurement không reproducible → FAIL" rule
+is evaluated against the **gate-level bounded measurement** this
+subsection defines — not against any individual unresolved `U` member's
+own per-mutant status. An unresolved `U` member does not, by itself, make
+the bounded measurement non-reproducible when every required bound input
+is valid and pinned per §13.9; the bounded measurement's own
+reproducibility (defined above) is what §13.8 asks for at the gate level.
+This refinement of §13.8's "measurement not reproducible" trigger exists
+**only inside this subsection's own closed scope** (Applicability, A,
+above) — outside that scope, ordinary §13.8 semantics apply completely
+unchanged, with no refinement of any kind.
+
+**C. Evidence-layer precedence — Testing Convention item 8.** Testing
+Convention item 8's per-mutant timeout rule ("an unresolved/unreproduced
+timeout is `FAIL — evidence` for that mutant") is a **per-mutant evidence
+disposition** — preserved exactly, never rewritten, never treated as
+resolved by this subsection. For an evaluation satisfying the closed
+Applicability predicate (A) above, that per-mutant disposition:
+
+```text
+- remains attached to that mutant, unchanged;
+- grants zero favorable effectiveness credit to that mutant;
+- does not resolve that mutant's own classification;
+- does NOT, by itself, independently force a final gate-level
+  FAIL — evidence result.
+```
+
+The gate-level outcome for such a population is determined by this
+subsection's own Case A/B/C (Result semantics, below) — **unless** a
+separate, non-scoped evidence defect independently triggers ordinary
+§13.8/§13.9 (Mixed-population rule, above), in which case that defect's
+own `FAIL — evidence` controls regardless of this subsection's own Case
+A/B/C result. This precedence exists specifically so that the same exact
+evidence set can never simultaneously yield both a `Case B` `PASS` and a
+final gate-level `FAIL — evidence`.
+
+**D. Formal bound definitions**, reusing — never replacing — the gate's
+own already-authoritative metric/denominator/threshold (no new metric, no
 denominator change; threshold `T` is expressed as a percentage, so both
 bounds are computed in the same percentage units):
 
@@ -434,7 +520,7 @@ different normalized representation, that representation's exact
 semantics are preserved — but `lower_score`, `upper_score`, and `T` are
 always compared in identical units (percent, as defined above).
 
-**Result semantics**, given the gate's own required threshold `T`, for
+**E. Result semantics**, given the gate's own required threshold `T`, for
 any evaluation satisfying the Applicability predicate above. Cases A and
 B are **final Quality-Gate results** — the same `FAIL — criteria`/`PASS`
 vocabulary §13.9's existing `Result semantics` block already defines,
@@ -511,8 +597,7 @@ evaluation):**
 
 This subsection does not itself select, or make effective, any specific
 per-mutant timeout-triage protocol — it governs only how a gate consumes
-the *output* of the exact canonical protocol identified under "Protocol
-identity" above.
+the *output* of a procedure satisfying "Protocol provenance" above.
 
 ## 13.9 Evidence contract — pinning & reproducibility
 

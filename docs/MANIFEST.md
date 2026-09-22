@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.413"
+manifest_version: "10.414"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -36,7 +36,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | constitution/10-compatibility-capability-contract.md | 2.7 | **Locked** | Product Owner | 02-platform-invariants, 03-engineering-principles, 04-domain-principles, 07-module-taxonomy, 08-event-model, 09-plugin-model |
 | constitution/11-adr-process.md | 2.3 | **Locked** (activated 2026-09-10T15:51+07:00, ADR-042; supersedes the prior 2.2/ADR-031 activation recorded here — MANIFEST bookkeeping reconciliation only, `docs/constitution/11-adr-process.md` itself not further edited by this transaction) | Product Owner | 00-governance, 02-platform-invariants |
 | constitution/12-approval-gates.md | 1.7 | **Locked** (activated 2026-09-10T15:51+07:00, ADR-042; supersedes the prior 1.6/ADR-031 activation recorded here — MANIFEST bookkeeping reconciliation only, `docs/constitution/12-approval-gates.md` itself not further edited by this transaction) | Product Owner | 00-governance, 11-adr-process |
-| constitution/13-quality-gates.md | **1.7 (controlling)** — v1.8 candidate corrected `Draft` (§13.8.1 given a closed applicability predicate + mixed-population rule + Testing-Convention-item-8 reconciliation; NOT reviewed/approved/activated, NOT controlling; see MANIFEST ADR-044-CORR-003 section) | Locked (v1.7) | Product Owner | 02-platform-invariants, 07-module-taxonomy |
+| constitution/13-quality-gates.md | **1.7 (controlling)** — v1.8 candidate consolidated `Draft` (§13.8.1 is now the sole, self-contained normative source — reproducibility reconciliation restored, item-8 precedence unambiguous, structural protocol provenance; NOT reviewed/approved/activated, NOT controlling; see MANIFEST ADR-044-CONSOLIDATION section) | Locked (v1.7) | Product Owner | 02-platform-invariants, 07-module-taxonomy |
 | constitution/14-roadmap.md | 1.6 | Locked | Product Owner | ALL |
 
 ## ADR
@@ -28669,6 +28669,218 @@ Chapter 13:                    v1.7 Locked remains controlling; v1.8
 **Next governed step:** ChatGPT fresh Review A of `ADR-044` v0.4 and the corrected Chapter 13 v1.8 candidate together. If that fresh Review A discovers another semantic Major/Blocker, invoke `P3-CORRECTION-CHAIN-001` for root-cause consolidation rather than an automatic fourth correction round.
 
 **Files changed:** `docs/adr/ADR-044.md`, `docs/constitution/13-quality-gates.md`, `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all historical evidence, other ADRs, other Constitution chapters, Testing Convention, Global Execution Rules, Phase rules, and `python/feature-engine/**` verified byte-unchanged. `manifest_version` `"10.412"` → `"10.413"`.
+
+## ADR-044 v0.5 + Chapter 13 v1.8 candidate — ROOT-CAUSE CONSOLIDATION (`FE-EVID03-COND1-PROTOCOL-CONSOLIDATION-001`, `P3-CORRECTION-CHAIN-001` — NOT `CORR-004`)
+
+**Root-cause consolidation transaction — vai trò: `ADR-044 Root-Cause Consolidation Executor`, under ChatGPT-owned WP `FE-EVID03-COND1-PROTOCOL-CONSOLIDATION-001`.** After three narrow semantic correction rounds (CORR-001/002/003) did not produce stable convergence — a second, optional, Product-Owner-selected R2 independent cross-check on the ADR-044 v0.4 + Chapter 13 v1.8 bundle (reviewed boundary `82cba5dda79fe7138b8f76ebf73abdb841321610`, where ChatGPT's own Review A had already been `CLEAN`) found `DEFECT FOUND — 0 Blocker / 1 Major / 3 Minor`, independently accepted by ChatGPT as `REVISION_REQUIRED — 0 Blocker / 1 Major / 3 Minor` — the Major a **regression of a previously Review-A-validated closure** (CORR-003's own rewrite of §13.8.1 silently dropped the per-mutant/gate-level reproducibility reconciliation that had been present and validated at the prior boundary `926feab...`) — this transaction performs `P3-CORRECTION-CHAIN-001` root-cause consolidation, not a fourth narrow patch.
+
+**Fresh boundary verification:** HEAD confirmed exactly `82cba5dda79fe7138b8f76ebf73abdb841321610`, identical to `origin/main` — no drift. `docs/adr/ADR-044.md` confirmed `version: "0.4"`, `status: Draft`, `approved_by: null`; `docs/constitution/13-quality-gates.md` confirmed `version: "1.8"`, `status: Draft`; MANIFEST confirmed still pinning Chapter 13 `v1.7` as controlling — before this transaction.
+
+### Root cause diagnosed
+
+```text
+ADR-044 and Chapter 13 §13.8.1 carried PARALLEL COPIES of normative gate
+  semantics -- two sources that must manually remain equivalent. Drift
+  had already occurred in BOTH directions across the correction chain:
+    earlier (round 1): ADR scope narrower than Chapter 13
+      -> Chapter 13 accidentally authorized broader behavior;
+    now (after round 3): ADR reproducibility model fuller than Chapter 13
+      -> Chapter 13 lost a required semantic (reproducibility
+         reconciliation) while the ADR retained it.
+  The architecture itself -- dual normative authorship -- is the root
+  cause, not any single wording defect.
+```
+
+### Consolidated authority model (effective from this v0.5 candidate)
+
+```text
+Chapter 13 §13.8.1 = SOLE normative source for bounded-uncertainty
+                     Quality-Gate measurement/applicability/precedence/
+                     result semantics -- self-contained, readable and
+                     applicable without ADR-044.
+ADR-044            = architecture decision record only: WHY, alternatives/
+                     trade-offs, invariants/goals, consequences, authority
+                     rationale, activation model, clause-trace table.
+                     Carries NO second executable copy of the gate rule.
+On disagreement after activation: Chapter 13 controls Quality-Gate
+  semantics (§13.13) -- stated explicitly in ADR-044's own text.
+```
+
+### X2-MAJ-01 remediation — restored reproducibility reconciliation
+
+```text
+Defect: CORR-003's rewrite of §13.8.1 left an unfulfilled promise -- its
+  intro still said "this subsection reconciles [§13.8/§13.9] by
+  distinguishing two separate reproducibility questions" but no
+  definitions followed. Strict Chapter-13-only reading permitted:
+  "U mutants did not reproduce -> §13.8 measurement-not-reproducible ->
+  FAIL" simultaneously with "lower_score >= T -> §13.8.1 Case B -> PASS".
+Correction: §13.8.1 now contains, exactly once, a new lettered
+  "B. Reproducibility reconciliation" subsection defining BOTH layers
+  normatively -- per-mutant reproducibility (an UNSTABLE_TIMEOUT_TRIAGE
+  mutant remains individually unresolved in Case A/B/C alike) and
+  gate-level bounded-measurement reproducibility (the derived interval
+  is itself deterministic/reproducible given pinned inputs) -- plus an
+  explicit "Precedence with §13.8" statement: for a §13.8.1-eligible
+  population, §13.8's "measurement not reproducible" rule is evaluated
+  against the GATE-LEVEL bounded measurement, not against any individual
+  U member's own status; this refinement exists ONLY inside §13.8.1's
+  closed scope, never outside it. Restored, not reinvented -- matches
+  the reconciliation already present and Review-A-validated at boundary
+  926feab....
+Status: REMEDIATED -- PENDING BOUNDED REVIEW A RE-REVIEW.
+```
+
+### X2-MIN-01 remediation — Testing Convention item-8 wording clarity
+
+```text
+Defect: §13.8.1's item-8 reconciliation used the ambiguous construction
+  "does not, by itself, automatically emit a final gate-level FAIL --
+  evidence result whenever, and only when, the closed applicability
+  predicate ... is satisfied" -- confusing double-conditional phrasing.
+Correction: rewritten as a new lettered "C. Evidence-layer precedence"
+  subsection using a simple, unambiguous rule: for an evaluation
+  satisfying the closed predicate, the per-mutant FAIL -- evidence
+  disposition remains attached/grants zero credit/does not resolve the
+  mutant/does NOT independently force a final gate-level FAIL --
+  evidence; gate-level outcome is determined by Case A/B/C, unless a
+  separate non-scoped defect independently triggers ordinary §13.8/
+  §13.9. No same-input PASS + final FAIL -- evidence ambiguity remains.
+  ADR-044's own §6 (old numbering) removed entirely -- the ADR no longer
+  restates this reconciliation, only cites it via the clause-trace table.
+Status: REMEDIATED -- PENDING BOUNDED REVIEW A RE-REVIEW.
+```
+
+### X2-MIN-02 remediation — protocol provenance made structural
+
+```text
+Defect: "the presently-governed two-run timeout-triage protocol" was
+  insufficiently pinned -- an evaluator could self-assert "this is the
+  canonical protocol" for a future, different procedure.
+Fresh-inspected repository authority (this transaction): confirmed no
+  separately governed, named "canonical protocol" document exists
+  anywhere in this repository beyond the Feature Engine's own formal
+  Quality-Gate evidence (evidence-005.json's own timeout_triage record) --
+  Testing Convention v0.17 defines NO "two-run"/UNSTABLE_TIMEOUT_TRIAGE
+  concept of its own (verified via direct grep, zero matches). Per
+  explicit instruction, no canonical-protocol authority is fabricated.
+Correction: §13.8.1's "Protocol provenance" is now a STRUCTURAL,
+  property-based requirement -- a qualifying procedure must demonstrate
+  (pinned at the evaluation boundary): exact procedure identity/content;
+  exactly two independent reproductions; fresh regeneration/isolation
+  per reproduction; each run's exact outcome; disagreement ->
+  UNSTABLE_TIMEOUT_TRIAGE; no majority vote/N-of-M/third-run tie-break/
+  retry-until-green. evidence-005.json + evidence-005-correction-001.json
+  cited as the CURRENT non-normative illustration satisfying these
+  properties for Feature Engine EVID-03, never as the defining authority
+  itself. A future different procedure qualifies only by meeting the
+  same structural properties, or via a separately governed, Product-
+  Owner-approved equivalence determination -- never self-declared.
+Status: REMEDIATED -- PENDING BOUNDED REVIEW A RE-REVIEW.
+```
+
+### X2-MIN-03 remediation — Testing Convention reference stability
+
+```text
+Defect: applicability condition 1 cited "Testing Convention item 7" as
+  a bare, unpinned item number that could silently change meaning under
+  future item renumbering.
+Correction: reworded to "the authoritative Ride mutation metric,
+  denominator, and threshold pinned by that gate's own Quality-Gate
+  evidence per §13.9" -- with "(current approved source: Testing
+  Convention v0.17 item 7's Ride-owned mutation-effectiveness metric
+  contract)" as a non-binding current-state note, not the binding
+  reference itself. The rule now survives item renumbering without
+  silently changing meaning; no mutable/"latest" reference used
+  (verified fresh: testing.md confirmed v0.17, status Approved).
+Status: REMEDIATED -- PENDING BOUNDED REVIEW A RE-REVIEW.
+```
+
+### ADR-044 restructuring — no second executable gate specification
+
+```text
+Removed entirely (§§1-6 of the old "Decision candidate" section --
+  Preserve-unstable-classification, Formal bound definitions, Gate
+  interpretation truth table, Anti-gaming constraints, Chapter-13-§13.8
+  reconciliation, Testing-Convention-item-8 reconciliation) and replaced
+  with a compact "## Decision" (decision statement, explicit pointer to
+  Chapter 13 §13.8.1 as sole normative source) + "## Architectural
+  invariants" (9 goal-level bullets, no executable formulas/tables).
+  "Relationship to the existing locked timeout-triage protocol" renamed
+  "Relationship to protocol provenance", rewritten to match the
+  structural model. "Relationship to Chapter 13 §13.13" gained an
+  explicit "Chapter 13 controls on disagreement" statement. All internal
+  §1-§6 self-references throughout Alternatives/Consequences/Failure
+  modes/Scope-non-goals/Scale-check rewritten to point to Chapter 13
+  §13.8.1's own lettered subsections instead. Worked example kept
+  (illustrative, non-normative, explicitly notes it applies -- does not
+  define -- Chapter 13's formula). New "## Clause-trace table" added,
+  mapping every ADR guarantee to its exact Chapter 13 §13.8.1 clause --
+  no orphan guarantee, no duplicate/conflicting normative definition.
+```
+
+### ADR-044 frontmatter transition
+
+```text
+version:      "0.4" -> "0.5"
+status:       Draft (unchanged)
+approved_by:  null (unchanged)
+approved_at:  null (unchanged)
+addresses:    [] (unchanged, from CORR-003)
+```
+
+### Chapter 13 candidate — corrected in place, still v1.8, no v1.9
+
+```text
+Per explicit instruction: the still-unapproved v1.8 Draft candidate is
+  corrected directly (same file, same version "1.8", status Draft
+  unchanged) -- no v1.9, consistent with the CORR-002/CORR-003
+  precedent.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/adr/ADR-044.md (v0.4 -> v0.5); docs/constitution/
+  13-quality-gates.md (v1.8 Draft candidate corrected in place, banner +
+  §13.8.1 only, version/status unchanged at "1.8"/Draft);
+  docs/governance/quality-gate/feature-engine-chapter13-remediation-
+  plan-001.md; docs/project/milestone.md; docs/project/
+  milestone-dashboard.html; docs/MANIFEST.md; docs/CHANGELOG.md only.
+  evidence-005.json, evidence-005-correction-001.json, feature-engine-
+  condition1-unstable-timeout-investigation-001.json, every other ADR,
+  every other Constitution chapter, Testing Convention, Global
+  Execution Rules, Phase rules, python/feature-engine/{src,tests,
+  tooling} all verified byte-unchanged (git diff --stat empty; Chapter
+  13 diff hunks confirmed confined to frontmatter/banner/§13.8.1, §13.9
+  onward untouched). No mutation execution. No source/test/tooling
+  change. No Condition-1/2/3 state change. No EVID-03 closure. No ADR/
+  Chapter-13 approval or activation performed or implied. Case A/B/C
+  truth table and activation model NOT redesigned. No unresolved root
+  contradiction discovered -- the consolidation was fully coherent
+  under existing repository authority.
+```
+
+### State summary (preserved)
+
+```text
+Condition 1:                   STOPPED / UNRESOLVED (unchanged).
+Condition 2:                   167/170 (unchanged, not touched).
+Condition 3:                   SATISFIED — REVIEW A VALIDATED
+                                (unchanged, not reopened).
+P3-FEATURE-QG-EVID-03:         OPEN (unchanged, not closed).
+Feature Engine approval:       NOT APPROVED.
+LIVE:                          NOT_AUTHORIZED.
+ADR-044:                       v0.5, Draft, NOT reviewed (this
+                                candidate), NOT approved.
+Chapter 13:                    v1.7 Locked remains controlling; v1.8
+                                candidate Draft (consolidated), NOT
+                                reviewed, NOT approved, NOT activated.
+```
+
+**Next governed step:** ChatGPT fresh Review A of the consolidated, single-normative-source ADR-044 v0.5 + Chapter 13 v1.8 bundle.
+
+**Files changed:** `docs/adr/ADR-044.md`, `docs/constitution/13-quality-gates.md`, `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all historical evidence, other ADRs, other Constitution chapters, Testing Convention, Global Execution Rules, Phase rules, and `python/feature-engine/**` verified byte-unchanged. `manifest_version` `"10.413"` → `"10.414"`.
 
 ## Decision Log
 

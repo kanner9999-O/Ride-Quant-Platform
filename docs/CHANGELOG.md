@@ -2,6 +2,22 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-22 — governance: ADR-044 v0.5 + Chapter 13 v1.8 candidate — ROOT-CAUSE CONSOLIDATION (P3-CORRECTION-CHAIN-001, not CORR-004)
+
+Starting HEAD `82cba5dda79fe7138b8f76ebf73abdb841321610`, verified `main == origin/main`, no drift. ADR-044 confirmed v0.4/Draft, Chapter 13 confirmed v1.8/Draft, MANIFEST confirmed still pinning v1.7 as controlling, before this transaction.
+
+After three narrow correction rounds did not converge, a second Product-Owner-selected R2 cross-check on the v0.4 bundle found DEFECT FOUND -- 0 Blocker / 1 Major / 3 Minor, accepted by ChatGPT as REVISION_REQUIRED -- 0 Blocker / 1 Major / 3 Minor. The Major was a regression of a previously Review-A-validated closure: CORR-003's own §13.8.1 rewrite had silently dropped the per-mutant/gate-level reproducibility reconciliation. Diagnosed root cause: ADR-044 and Chapter 13 §13.8.1 carried parallel copies of normative gate semantics, drifting in both directions across the chain.
+
+Consolidated authority model: Chapter 13 §13.8.1 is now the SOLE, self-contained normative source (restored reproducibility reconciliation as a lettered B. subsection with explicit §13.8 precedence; rewrote Testing Convention item-8 precedence as an unambiguous C. subsection; made protocol provenance structural/property-based since no separately governed named-protocol authority exists beyond Feature Engine's own formal evidence -- fresh-inspected, none fabricated; fixed the Testing Convention item-7 reference to survive renumbering). ADR-044 v0.4 -> v0.5 restructured to rationale-only (removed the old §§1-6 executable specification entirely; new compact Decision + Architectural invariants sections; explicit "Chapter 13 controls on disagreement" statement; new Clause-trace table mapping every guarantee to its exact Chapter 13 clause -- no orphan guarantee, no duplicate normative definition).
+
+Chapter 13 stays v1.8 (same Draft candidate corrected in place, no v1.9). Case A/B/C truth table, activation model, split-authority architecture (§13.13) all preserved unchanged. v1.7 confirmed still controlling. No unresolved root contradiction.
+
+Condition 1 (STOPPED/UNRESOLVED), Condition 2 (167/170), Condition 3 (SATISFIED) all unchanged. Threshold, historical evidence, source/tests/tooling all unchanged. Milestone tracking updated in the same transaction.
+
+**Files changed:** `docs/adr/ADR-044.md`, `docs/constitution/13-quality-gates.md`, `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.413"` -> `"10.414"`.
+
+---
+
 ## [Unreleased] — 2026-09-22 — governance: ADR-044 v0.4 + Chapter 13 v1.8 candidate — third bounded correction (P3-CORRECTION-CHAIN-001, round 3)
 
 Starting HEAD `926feab8b4c1b6b7168f153713c37fe18a04d28c`, verified `main == origin/main`, no drift. ADR-044 confirmed v0.3/Draft, Chapter 13 confirmed v1.8/Draft, MANIFEST confirmed still pinning v1.7 as controlling, before this transaction.
