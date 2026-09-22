@@ -2,6 +2,30 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-22 — feature-engine: `P3-FEATURE-QG-EVID-03` Condition-2 candidate-003 PO approval (164/170) + final-six evidence assessment
+
+Starting HEAD `22043f406e9f41ddf355f0357f6c22a456196558`, verified `main == origin/main`, no drift. Reviewed candidate-003 blob verified fresh: matches `7341629364c922c60f7fb98b617bdd4415d15ab6` exactly.
+
+Part A: ChatGPT bounded Review A of candidate-003 returned CLEAN -- 0 Blocker/0 Major/0 Minor, Risk R1, ADR_NOT_REQUIRED (all 53 validated). Product Owner decision (verbatim, 2026-09-22T10:34:00+07:00): "APPROVE Feature Engine Condition-2 §4.1(b) Reclassification Candidate 003 for the 53 Review-A-validated historical mutant identities... does NOT approve the remaining 5 ambiguous identities or the existing _seal_verified_authority NOT_READY identity... does NOT satisfy Condition 1, does NOT close EVID-03, does NOT approve Feature Engine, and does NOT authorize LIVE." All 53 rows transitioned to RESOLVED_BY_GOVERNED_RECLASSIFICATION -- REVIEW A VALIDATED -- PRODUCT OWNER APPROVED. Governed Condition 2: 111/170 -> 164/170 (6 unresolved: 5 ambiguous + 1 not-ready, untouched).
+
+Part B: final-six evidence-resolution assessment (new artifact, evidence-only -- grants zero credit), re-investigated all 6 remaining rows via fresh exact-diff extraction (disposable create_mutants() workspace, zero test execution).
+
+3 of 5 ambiguous rows now uniquely resolved: 2 regime 0->1 index-literal rows exact-matched to _prepare_original/_prepare_replacement's window_start=key[0]->key[1] (both killed); 1 swing 1->2 row exact-matched to prepare_candle's len(self._candles) - 1 -> - 2 (killed) -- all verified unique via exhaustive per-function diff scan. 2 of 5 remain genuinely AMBIGUOUS -- EVIDENCE INSUFFICIENT: _reevaluate_all_windows__mutmut_32's prior downgrade rationale ("exactly 2 continue statements") was found incorrect on fresh recount (actually 4, 2 already claimed, 2 unclaimed candidates remain -- one survived, one killed, not forced); on_swing_confirmed__mutmut_35 similarly matches 2 distinct unclaimed sites (both killed but semantically different checks, not forced).
+
+contracts.x__seal_verified_authority__mutmut_33 assessed fresh: TOOL_IDENTITY_DRIFT -- NO EXISTING GOVERNED RESOLUTION MECHANISM. Confirmed the function's delegating call is structurally unchanged; current mutmut_36 is content-identical to the historical obligation; the ID drift is attributable solely to mutmut's own AST-ordinal-counting perturbation from unrelated file-level changes, not any refactor. Neither §4.1(a), §4.1(b), nor Testing Convention item 8 covers this case -- no existing mechanism, no new mechanism invented, flagged as a future evidence-contract/identity-continuity decision package (likely ADR-required if pursued).
+
+Condition 1 unchanged STOPPED/UNRESOLVED; Condition 3 unchanged SATISFIED. P3-FEATURE-QG-EVID-03 remains OPEN -- 164/170 explicitly NOT treated as sufficient to close it. Feature Engine remains NOT APPROVED; LIVE remains NOT_AUTHORIZED.
+
+Recommended next transaction (not executed here): a bounded Candidate-004 for exactly the 3 newly-ready rows only.
+
+Created `docs/governance/mutation-baseline-evidence/feature-engine-condition2-final-six-resolution-assessment-001.json` (new, additive).
+
+**Next governed step:** ChatGPT architecture-level review of the final-six assessment and routing of the next governed transaction.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-reclassification-candidate-003.json` (lifecycle/Review A/PO approval recording only, in place), `docs/governance/mutation-baseline-evidence/feature-engine-condition2-final-six-resolution-assessment-001.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only -- verified via `git status --porcelain=v1`; no source/test/tooling/dependency/contract/ADR/governance-rule file touched; no mutation test execution; no historical correction artifact modified; scratch cleaned; no background watcher/mutmut/pytest/tooling process remained. `manifest_version` `"10.402"` -> `"10.403"`.
+
+---
+
 ## [Unreleased] — 2026-09-22 — feature-engine: `P3-FEATURE-QG-EVID-03` Condition-2 correction-003 closure/Minor cleanup + §4.1(b) candidate-003 authoring (53 rows)
 
 Starting HEAD `99642208042248f9c8b0a0d7f032401ffe37bcfd`, verified `main == origin/main`, no drift.

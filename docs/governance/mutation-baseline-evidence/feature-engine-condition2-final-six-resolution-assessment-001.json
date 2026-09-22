@@ -1,0 +1,211 @@
+{
+  "artifact_id": "feature-engine-condition2-final-six-resolution-assessment-001",
+  "schema_note": "Bounded evidence-resolution ASSESSMENT of the exact 6 remaining unresolved Condition-2 historical identities (5 AMBIGUOUS \u2014 MULTIPLE POSSIBLE SUCCESSORS + 1 NOT_READY_FOR_4_1_B_RECLASSIFICATION) after the 164/170 governed state was reached. This is EVIDENCE/ASSESSMENT ONLY \u2014 it does NOT grant Condition-2 credit for any row, does NOT author a \u00a74.1(b) candidate, and does NOT modify any earlier evidence artifact.",
+  "input_population": {
+    "source": "5 ambiguous identities from resolution-002.json (3) and resolution-002-correction-001.json (2); 1 NOT_READY identity from reclassification-candidate-002.json",
+    "count": 6
+  },
+  "governing_question": "Can each of the final six historical obligations be resolved under an EXISTING \u00a74.1 mechanism with defensible evidence, or is a different governed decision/evidence-contract issue exposed?",
+  "method": "For each row, reconstructed the exact historical mutant ID/function/mutation fingerprint from the strongest available historical evidence in the repository (resolution-001.json for the 3 original ambiguous rows, resolution-002-correction-001.json for the 2 correction-001-downgraded rows, reclassification-candidate-002.json's not_ready_row_detail for the NOT_READY row). Generated a fresh disposable mutation workspace via mutmut's own create_mutants() Python API directly (zero test execution) and extracted exact current mutant diffs for every candidate construction site in the relevant current functions, cross-referencing Evidence-005 for exact per-ID status. Never inferred from function-name similarity or aggregate kill ratios.",
+  "all_six_rows": [
+    {
+      "historical_mutant_id": "regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_emit_original__mutmut_46",
+      "historical_source_file": "src/feature_engine/regime_passthrough.py",
+      "historical_function": "RegimePassthroughFeatureEngine._emit_original",
+      "historical_category": "numeric_literal_mutation",
+      "historical_change": "0 -> 1",
+      "historical_materiality": "actionable_test_gap_candidate",
+      "why_prior_mapping_was_ambiguous": "resolution-002.json's automated pass recorded only 'Successor function contains operator/control-flow sites of the same general kind, but this specific historical row's exact corrupted site was not individually pinpointed this transaction' \u2014 a function-level guess, not an exact-site match.",
+      "fresh_investigation": "Direct reading of current _prepare_original (regime_passthrough.py) plus exact diff extraction from a fresh disposable mutation workspace (mutmut create_mutants() API, zero test execution) found exactly ONE construction site matching a literal '0 -> 1' index-literal mutation: 'window_start=key[0]' -> 'window_start=key[1]' (current mutmut_48). No other site in the function produces this exact literal transformation \u2014 verified by scanning all 67 current mutant diffs for the pattern.",
+      "current_semantic_location": "RegimePassthroughFeatureEngine._prepare_original",
+      "exact_current_mutant_id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_prepare_original__mutmut_48",
+      "exact_current_mutation_diff": "--- +++ @@ -14,7 +14,7 @@             scope=self.scope,\n             value=value,\n             unit=self.definition.unit,\n-            window_start=key[0],\n+            window_start=key[1],\n             window_end=key[1],\n             input_fact_refs=normalized_refs,\n             supersedes_fact_ref=None,\n",
+      "evidence_005_status": "killed",
+      "why_alternatives_excluded": "Exhaustive scan of all 67 current _prepare_original mutant diffs found no other site producing a bare '0'->'1' index-literal transformation \u2014 unique match.",
+      "resolution_classification": "SUCCESSOR_MATCH \u2014 CURRENT KILLED",
+      "existing_governance_applicability": "\u00a74.1(b) candidate-eligible (ADR-043 prepare-seam pattern, same family as the already-approved 69/53) \u2014 NOT self-granted here.",
+      "candidate_authoring_ready": true,
+      "remaining_uncertainty": "None \u2014 unique exact-diff match, single candidate."
+    },
+    {
+      "historical_mutant_id": "regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_emit_replacement__mutmut_49",
+      "historical_source_file": "src/feature_engine/regime_passthrough.py",
+      "historical_function": "RegimePassthroughFeatureEngine._emit_replacement",
+      "historical_category": "numeric_literal_mutation",
+      "historical_change": "0 -> 1",
+      "historical_materiality": "actionable_test_gap_candidate",
+      "why_prior_mapping_was_ambiguous": "Same generic function-level-only reasoning as Row 1, applied to the sibling _emit_replacement function.",
+      "fresh_investigation": "Identical pattern to Row 1: current _prepare_replacement (regime_passthrough.py) contains exactly ONE '0 -> 1' index-literal site: 'window_start=key[0]' -> 'window_start=key[1]' (current mutmut_51). No other site in the function's 70 mutant diffs produces this exact transformation.",
+      "current_semantic_location": "RegimePassthroughFeatureEngine._prepare_replacement",
+      "exact_current_mutant_id": "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1_prepare_replacement__mutmut_51",
+      "exact_current_mutation_diff": "--- +++ @@ -16,7 +16,7 @@             scope=self.scope,\n             value=value,\n             unit=self.definition.unit,\n-            window_start=key[0],\n+            window_start=key[1],\n             window_end=key[1],\n             input_fact_refs=normalized_refs,\n             supersedes_fact_ref=existing.head_fact.ref,\n",
+      "evidence_005_status": "killed",
+      "why_alternatives_excluded": "Exhaustive scan of all 70 current _prepare_replacement mutant diffs found no other site producing a bare '0'->'1' index-literal transformation \u2014 unique match.",
+      "resolution_classification": "SUCCESSOR_MATCH \u2014 CURRENT KILLED",
+      "existing_governance_applicability": "\u00a74.1(b) candidate-eligible (ADR-043 prepare-seam pattern) \u2014 NOT self-granted here.",
+      "candidate_authoring_ready": true,
+      "remaining_uncertainty": "None \u2014 unique exact-diff match, single candidate."
+    },
+    {
+      "historical_mutant_id": "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1on_candle__mutmut_37",
+      "historical_source_file": "src/feature_engine/swing_distance.py",
+      "historical_function": "SwingDistanceFeatureEngine.on_candle",
+      "historical_category": "numeric_literal_mutation",
+      "historical_change": "1 -> 2",
+      "historical_materiality": "actionable_test_gap_candidate",
+      "why_prior_mapping_was_ambiguous": "Same generic function-level-only reasoning; on_candle's inline logic relocated to prepare_candle per ADR-043.",
+      "fresh_investigation": "Direct reading of current prepare_candle plus exact diff extraction found exactly ONE construction site matching a literal '1 -> 2' subtraction-operand mutation: 'self._candle_index[subject_id] = len(self._candles) - 1' -> '... - 2' (current mutmut_37, coincidentally the SAME ordinal number as the historical ID). Verified unique by scanning all 44 current prepare_candle mutant diffs for the '- 1' -> '- 2' pattern \u2014 only mutmut_37 matches; mutmut_36 (+1 instead of -1) and mutmut_35 (None) are different transformations at the same base site, not '1->2' literal matches.",
+      "current_semantic_location": "SwingDistanceFeatureEngine.prepare_candle",
+      "exact_current_mutant_id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1prepare_candle__mutmut_37",
+      "exact_current_mutation_diff": "--- +++ @@ -42,7 +42,7 @@             )\n         self._check_candle_recorded_time(fact.recorded_time)\n         self._candles.append(fact)\n-        self._candle_index[subject_id] = len(self._candles) - 1\n+        self._candle_index[subject_id] = len(self._candles) - 2\n         self._candle_by_window[(fact.scope.window_start, fact.scope.window_end)] = fact\n         return self._prepare_recompute(fact, correction_ref=None, correction_recorded_time=None, cursor=cursor)\n \n",
+      "evidence_005_status": "killed",
+      "why_alternatives_excluded": "Exhaustive scan of all 44 current prepare_candle mutant diffs found no other site producing a pure '1'->'2' literal transformation \u2014 unique match.",
+      "resolution_classification": "SUCCESSOR_MATCH \u2014 CURRENT KILLED",
+      "existing_governance_applicability": "\u00a74.1(b) candidate-eligible (ADR-043 prepare-seam pattern) \u2014 NOT self-granted here.",
+      "candidate_authoring_ready": true,
+      "remaining_uncertainty": "None \u2014 unique exact-diff match, single candidate."
+    },
+    {
+      "historical_mutant_id": "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_reevaluate_all_windows__mutmut_32",
+      "historical_source_file": "src/feature_engine/swing_distance.py",
+      "historical_function": "SwingDistanceFeatureEngine._reevaluate_all_windows",
+      "historical_category": "control_flow_statement_mutation",
+      "historical_change": "continue -> break",
+      "historical_materiality": "actionable_test_gap_candidate",
+      "why_prior_mapping_was_ambiguous": "Prior transaction's downgrade rationale stated 'the current function contains exactly 2 distinct continue statements total' \u2014 this is INCORRECT on fresh recount: the current function _prepare_reevaluate_all_windows contains FOUR distinct continue statements (current mutmut_6, 13, 32, 37). Two (13, 37) are already exactly claimed by sibling historical rows hist_13->cur_13 and hist_37->cur_37 (both exact-content-verified, both killed). That leaves current_6 and current_32 unclaimed for this single remaining historical row hist_32.",
+      "fresh_investigation": "Direct source reading confirms 4 continue statements at lines 1106 ('if candle is None: continue'), 1111 ('if winner is None: continue # still PENDING_CORRECTION'), 1126 (bare continue after replacement-only append), and further down ('continue # still the best available'). Lines corresponding to 1111 and the 'still the best available' line are exact-content-matched to hist_13 and hist_37 respectively (both already SUCCESSOR_MATCH \u2014 CURRENT KILLED, Review-A-validated, NOT reopened here). The historical description for hist_32 is only the generic 'continue -> break' with no further disambiguating text in resolution-001.json (verified fresh \u2014 no richer historical record exists). Same-ordinal-number continuity (hist_13->cur_13, hist_37->cur_37 both hold exactly) is SUGGESTIVE that hist_32->cur_32 would also hold, but this is NOT proof: an independent counter-example exists in the SAME family (hist_22->cur_23, a +1 shift), showing mutmut's ordinal numbering is not globally stable across this refactor \u2014 only locally, in ranges unaffected by intervening AST-node count changes. Content alone cannot disambiguate: BOTH current_6 and current_32 are genuine 'continue -> break' mutations with no further distinguishing literal/text.",
+      "current_semantic_location": "SwingDistanceFeatureEngine._prepare_reevaluate_all_windows (2 unclaimed candidate sites)",
+      "candidate_current_mutant_ids": [
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_prepare_reevaluate_all_windows__mutmut_6",
+          "diff": "--- +++ @@ -11,7 +11,7 @@         for key, lineage in list(self._lineage.items()):\n             candle = self._candle_by_window.get(key)\n             if candle is None:\n-                continue\n+                break\n             winner = self._select_eligible_swing(candle.scope.window_end, cursor)\n \n             if lineage.invalidated:\n",
+          "evidence_005_status": "survived"
+        },
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_prepare_reevaluate_all_windows__mutmut_32",
+          "diff": "--- +++ @@ -31,7 +31,7 @@                         cursor=cursor,\n                     )\n                 )\n-                continue\n+                break\n \n             if winner is None or winner[1].ref == lineage.used_swing_ref:\n                 continue  # still the best available (or nothing better) \u2014 no repaint\n",
+          "evidence_005_status": "killed"
+        }
+      ],
+      "why_alternatives_excluded": "NOT excluded \u2014 both remain live candidates. Materially significant: the two candidates have DIFFERENT Evidence-005 statuses (mutmut_6 = survived, mutmut_32 = killed) \u2014 crediting the wrong one would misstate Condition-1-adjacent evidence. This is exactly the case where forcing a resolution would be dishonest.",
+      "resolution_classification": "AMBIGUOUS \u2014 EVIDENCE INSUFFICIENT",
+      "existing_governance_applicability": "Not \u00a74.1(b)-ready \u2014 no unique successor identifiable from available historical evidence.",
+      "candidate_authoring_ready": false,
+      "remaining_uncertainty": "Genuine 2-way ambiguity between a killed and a survived current mutant; no additional historical evidence exists in the repository to disambiguate."
+    },
+    {
+      "historical_mutant_id": "swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1on_swing_confirmed__mutmut_35",
+      "historical_source_file": "src/feature_engine/swing_distance.py",
+      "historical_function": "SwingDistanceFeatureEngine.on_swing_confirmed",
+      "historical_category": "numeric_literal_mutation",
+      "historical_change": "1 -> 2",
+      "historical_materiality": "actionable_test_gap_candidate",
+      "why_prior_mapping_was_ambiguous": "Sibling historical row hist_34 (arithmetic '+  -> -') already exact-content-matched to current mutmut_31 ('existing.revision + 1' -> '- 1'). hist_35's own generic 'numeric_literal_mutation: 1 -> 2' matches TWO distinct unclaimed current sites in prepare_swing_confirmed.",
+      "fresh_investigation": "Direct diff extraction confirms exactly two unclaimed '1 -> 2' sites in current prepare_swing_confirmed: (a) mutmut_26: 'if fact.swing_revision != 1:' -> '!= 2' (first-seen-revision literal check), and (b) mutmut_32: 'existing.revision + 1' -> '+ 2' (revision-advance-by-exactly-one literal). Both are genuine, independent '1'->'2' numeric-literal transformations at semantically DIFFERENT validation sites (first-seen vs. revision-advance). resolution-001.json's historical record for hist_35 carries no further disambiguating text beyond the generic category/change fields \u2014 verified fresh, no richer record exists.",
+      "current_semantic_location": "SwingDistanceFeatureEngine.prepare_swing_confirmed (2 unclaimed candidate sites)",
+      "candidate_current_mutant_ids": [
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1prepare_swing_confirmed__mutmut_26",
+          "diff": "--- +++ @@ -48,7 +48,7 @@         # tracked history \u2014 Feature independently enforces this ordering, never\n         # trusting that the producer's own causation chain alone is sufficient.\n         if existing is None:\n-            if fact.swing_revision != 1:\n+            if fact.swing_revision != 2:\n                 raise InvalidSwingEligibilityInputError(\n                     f\"swing_id {fact.swing_id!r} first-seen revision must be 1, got {fact.swing_revision!r}\"\n                 )\n",
+          "evidence_005_status": "killed"
+        },
+        {
+          "id": "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1prepare_swing_confirmed__mutmut_32",
+          "diff": "--- +++ @@ -58,7 +58,7 @@                     f\"swing_id {fact.swing_id!r} revision {fact.swing_revision!r} received before revision \"\n                     f\"{existing.revision!r} was explicitly invalidated\"\n                 )\n-            if fact.swing_revision != existing.revision + 1:\n+            if fact.swing_revision != existing.revision + 2:\n                 raise InvalidSwingEligibilityInputError(\n                     f\"swing_id {fact.swing_id!r} revision must advance by exactly one: expected \"\n                     f\"{existing.revision + 1!r}, got {fact.swing_revision!r}\"\n",
+          "evidence_005_status": "killed"
+        }
+      ],
+      "why_alternatives_excluded": "NOT excluded \u2014 both remain live candidates, both independently confirmed killed in Evidence-005. Unlike Row 4, both candidates share the SAME status here, so crediting either would not misstate the raw killed/survived count \u2014 but \u00a74.1(b) still requires EXACT identity, and no historical evidence distinguishes 'first-seen revision' from 'revision-advance' as the true original target.",
+      "resolution_classification": "AMBIGUOUS \u2014 EVIDENCE INSUFFICIENT",
+      "existing_governance_applicability": "Not \u00a74.1(b)-ready \u2014 no unique successor identifiable from available historical evidence, despite both candidates sharing status 'killed'.",
+      "candidate_authoring_ready": false,
+      "remaining_uncertainty": "Genuine 2-way ambiguity between two distinct killed current mutants at semantically different validation sites; no additional historical evidence exists to disambiguate."
+    },
+    {
+      "historical_mutant_id": "contracts.x__seal_verified_authority__mutmut_33",
+      "historical_source_file": "src/feature_engine/contracts.py",
+      "historical_function": "_seal_verified_authority",
+      "historical_category": "value_replaced_with_none",
+      "historical_change": "Identical downstream effect to _construct_verified_authority_mutmut_5 (same field \u2014 feature_computation_profile \u2014 corrupted one call-site earlier in the chain, at the _seal_verified_authority -> _construct_verified_authority delegating call).",
+      "historical_materiality": "actionable_test_gap_candidate",
+      "why_prior_not_ready": "candidate-002.json's NOT_READY rationale: '_seal_verified_authority's name, signature, and validation structure are UNCHANGED from the historical boundary; only the specific mutmut ID assigned to this exact field-corruption site drifted.' \u2014 i.e. no refactor occurred, only tool-level renumbering.",
+      "fresh_investigation": "Confirmed independently this transaction: (1) current _seal_verified_authority's delegating call to _construct_verified_authority passes the identical 7-kwarg list (feature_computation_profile/input_contract_ref/stream_registry_version/included_streams/input_contract_content_id/stream_registry_content_id/merge_policy) as it did historically \u2014 the function body is structurally unchanged, not refactored. (2) Current mutmut_33 (the exact-ID-collided current mutation) is 'not isinstance(merge_policy, InputMergePolicy)' -> 'isinstance(...)' \u2014 a boolean-negation removal, CONFIRMING this is a genuine IDENTITY_COLLISION (current mutmut_33's content is unrelated to the historical mutmut_33's feature_computation_profile corruption; already correctly documented as DISCONTINUOUS by resolution-001.json). (3) Current mutmut_36 IS exactly 'feature_computation_profile=feature_computation_profile,' -> '=None,' at the delegating call site \u2014 content-identical to the historical obligation's own description. (4) The ONLY explanation for the 33->36 ID shift is mutmut's own AST-node ordinal counting being perturbed by unrelated changes elsewhere in the same (large, multi-function) contracts.py file \u2014 NOT any change to _seal_verified_authority's own body. This is the textbook 'same semantic mutant, newly numbered ID' case the task explicitly distinguishes from a legitimate \u00a74.1(b) engineering change.",
+      "current_semantic_location": "_seal_verified_authority (contracts.py) \u2014 unchanged function, delegating call to _construct_verified_authority",
+      "exact_current_mutant_id": "feature_engine.contracts.x__seal_verified_authority__mutmut_36",
+      "exact_current_mutation_diff": "--- +++ @@ -55,7 +55,7 @@             f\"merge_policy must be a genuine InputMergePolicy instance, got {type(merge_policy).__name__!r}\"\n         )\n     return _construct_verified_authority(\n-        feature_computation_profile=feature_computation_profile,\n+        feature_computation_profile=None,\n         input_contract_ref=input_contract_ref,\n         stream_registry_version=stream_registry_version,\n         included_streams=included_streams,\n",
+      "evidence_005_status": "killed",
+      "existing_mechanism_check": {
+        "section_4_1_a": "Does not apply \u2014 requires the EXACT historical ID (33) itself killed/confirmed_timeout; current mutmut_33 is a different, unrelated mutation (confirmed DISCONTINUOUS).",
+        "section_4_1_b": "Does not apply as written \u2014 requires 'a reviewed refactor altered or removed the exact code path such that the original material-gap classification no longer applies.' No refactor occurred; the code path is IDENTICAL. \u00a74.1(b) explicitly forbids crediting on ID-drift alone.",
+        "testing_convention_v0_16_item_8": "Does not apply \u2014 that mechanism governs EQUIVALENT mutants (semantically no-op corruptions), not identical-behavior mutants that merely acquired a new tool-generated ordinal ID.",
+        "conclusion": "No existing governed mechanism in this repository's Testing Convention / \u00a74.1 stack covers 'same semantic mutation, different tool-assigned ID due to unrelated file-level AST-node-count drift.'"
+      },
+      "resolution_classification": "TOOL_IDENTITY_DRIFT \u2014 NO EXISTING GOVERNED RESOLUTION MECHANISM",
+      "existing_governance_applicability": "None \u2014 this is a gap in the historical-ID gate contract itself, not a Feature Engine semantic defect and not a \u00a74.1(b)-eligible engineering change.",
+      "candidate_authoring_ready": false,
+      "remaining_uncertainty": "None regarding the technical facts (content match to mutmut_36 is exact and unique). The uncertainty is purely governance-mechanism: no existing rule text authorizes crediting this kind of drift, and this transaction does not invent one, per explicit instruction."
+    }
+  ],
+  "result_counts": {
+    "READY_FOR_EXISTING_4_1_B_CANDIDATE": 3,
+    "STILL_AMBIGUOUS": 2,
+    "TOOL_IDENTITY_DRIFT_mechanism_missing": 1,
+    "other": 0,
+    "total": 6
+  },
+  "evidence_005_status_reconciliation": {
+    "ready_rows_all_killed": true,
+    "ambiguous_row_4_candidates": {
+      "survived": 1,
+      "killed": 1,
+      "note": "Materially different statuses \u2014 cannot be honestly resolved without forcing an arbitrary choice."
+    },
+    "ambiguous_row_5_candidates": {
+      "killed": 2,
+      "note": "Both candidates killed \u2014 status is not the blocker here, unique identity is."
+    },
+    "tool_drift_row_current_mutant_status": "killed (mutmut_36) \u2014 supporting evidence only, not \u00a74.1(a)/(b) credit given no mechanism applies.",
+    "contradictions_with_prior_164_governed_rows": 0,
+    "note": "No exact historical ID among these 6 independently resolves killed/confirmed_timeout under \u00a74.1(a); no prior governedly-resolved identity among the 164 is contradicted by this assessment."
+  },
+  "recommended_next_governed_transaction": {
+    "primary_recommendation": "Outcome A (partial) \u2014 bounded Candidate-004 for the 3 READY rows only.",
+    "objective": "Author docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-reclassification-candidate-004.json for EXACTLY the 3 ready rows: regime_passthrough.x__emit_original__mutmut_46, regime_passthrough.x__emit_replacement__mutmut_49, swing_distance.x_on_candle__mutmut_37 \u2014 each with the exact current successor ID/diff/killed status pinned in this assessment, under the same ADR-043 prepare-seam \u00a74.1(b) authority already validated for the 27+69 prior rows.",
+    "why_higher_decision_value_than_alternatives": "This is the only path with zero remaining evidentiary uncertainty \u2014 3 unique exact-diff matches, all killed, same already-validated engineering authority. Pursuing the 2 ambiguous rows further would require inventing historical evidence that does not exist in the repository (dishonest); pursuing _seal_verified_authority would require inventing a new governance mechanism (out of scope, explicitly forbidden).",
+    "expected_files": [
+      "docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-reclassification-candidate-004.json (new)",
+      "remediation plan / MANIFEST / CHANGELOG pointer updates"
+    ],
+    "source_test_changes": false,
+    "likely_risk_classification": "R1",
+    "fresh_adr_scope_expectation": "ADR_NOT_REQUIRED (applies the existing \u00a74.1(b) mechanism to 3 more rows; no new mechanism, no architecture change).",
+    "explicit_stop_conditions": [
+      "HEAD drift.",
+      "Any of the 3 rows' exact current successor status contradicts Evidence-005 on fresh re-check.",
+      "Any of the 164 already-governedly-resolved identities is contradicted.",
+      "Candidate authoring would require inventing new \u00a74.1 text."
+    ],
+    "secondary_recommendation_deferred": "Outcome C \u2014 a separate, future 'historical-mutant-identity-continuity across tool-generated renumbering' evidence-contract/governance decision package for contracts.x__seal_verified_authority__mutmut_33 and any future rows of the same class. NOT recommended as the immediate next transaction (narrower, higher-value work \u2014 the 3 ready rows \u2014 exists first); flagged here so it is not lost. If pursued, this would likely require amending Testing Convention v0.16/v0.17's \u00a74.1 text itself (a NEW identity-continuity clause) \u2014 Chapter 0 \u00a74b ADR Scope Rule assessment for THAT prospective work: 'Governance/Approval process change' -> likely ADR REQUIRED, since it would add a new rule to an already-Locked Testing Convention/threshold-proposal mechanism, not merely apply an existing one. This is a fresh classification for that PROSPECTIVE future work only \u2014 no ADR is authored or scoped as required by THIS assessment transaction itself.",
+    "the_2_ambiguous_rows": "No transaction recommended \u2014 genuinely insufficient historical evidence exists in the repository to uniquely resolve either row. Left honestly unresolved. A future transaction could only proceed if new historical evidence surfaces (e.g., an archived pre-refactor test file, commit message, or design doc pinning the exact original construction site) \u2014 inventing such evidence is not permitted."
+  },
+  "adr_scope_rule_fresh_for_this_transaction": {
+    "assessment": "This transaction is evidence-assessment only \u2014 no Condition-2 credit granted, no \u00a74.1(b) candidate authored, no governance mechanism changed. No Platform Invariant, Event Schema, Module Taxonomy, or Governance/Approval-process change.",
+    "result": "ADR_NOT_REQUIRED"
+  },
+  "review_risk_classification": "R1",
+  "not_performed_by_this_transaction": [
+    "No production src/** change.",
+    "No test change.",
+    "No tooling change.",
+    "No dependency change.",
+    "No mutation test execution (workspace generated via create_mutants() API directly, zero tests run).",
+    "No full mutation rerun, no isolated mutant execution, no timeout reruns.",
+    "No Condition-1 work.",
+    "No Condition-3 work.",
+    "No Condition-2 credit granted for any of these 6 rows.",
+    "No candidate-004 artifact authored this transaction \u2014 recommended as the next, separate transaction.",
+    "No new governance mechanism invented for the TOOL_IDENTITY_DRIFT row.",
+    "No modification to resolution-001.json, resolution-002.json, correction-001/002/003.json, evidence-005.json, or reclassification-candidate-002/003.json's substantive content.",
+    "No Product Owner decision fabricated. No Feature Engine approval. No LIVE authorization."
+  ]
+}
