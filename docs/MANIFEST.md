@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.404"
+manifest_version: "10.405"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -28014,9 +28014,29 @@ The 2 ambiguous rows and the 1 tool-identity-drift row remain entirely untouched
 
 **Created:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-reclassification-candidate-004.json` — new, additive candidate artifact.
 
-**Next governed step:** ChatGPT bounded Review A of `feature-engine-mutation-material-gap-reclassification-candidate-004.json`.
+~~**Next governed step:** ChatGPT bounded Review A of `feature-engine-mutation-material-gap-reclassification-candidate-004.json`.~~ — **COMPLETE, see below.**
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-reclassification-candidate-004.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no `src/**`/`tests/**`/tooling/dependency/contract/ADR/governance-rule file touched; no mutation test execution; `feature-engine-condition2-final-six-resolution-assessment-001.json`'s semantic content unchanged; no historical evidence artifact modified; scratch cleaned; no background watcher/mutmut/pytest/tooling process remained. `manifest_version` `"10.403"` → `"10.404"`.
+
+## `feature-engine` — `P3-FEATURE-QG-EVID-03` Condition-2 Candidate-004 PO-approval recording (167/170)
+
+**Consolidated transaction — vai trò: `Feature Engine EVID-03 Candidate-004 PO Recorder + Historical-Baseline Ambiguity Reconstruction Executor` (Part A only — Part B scope clarification pending, see report).** Starting HEAD `9a8a36de59ecfe7013263306a3e36fb41cde9595`, verified `main == origin/main`, no drift; candidate-004.json blob independently re-verified `299e1fe0a4084b31e550a887239407aa52bb08a3`, matches exactly.
+
+**Review A result recorded:** ChatGPT bounded Review A of candidate-004 at boundary `9a8a36de59ecfe7013263306a3e36fb41cde9595` / blob `299e1fe0a4084b31e550a887239407aa52bb08a3` — `CLEAN — 0 Blocker / 0 Major / 0 Minor`, Risk `R1`, `ADR_NOT_REQUIRED`, validating all 3 candidates.
+
+**Product Owner decision recorded (verbatim, timestamp `2026-09-22T13:58:00+07:00`):** APPROVE Candidate-004's 3 Review-A-validated historical identities under §4.1(b), explicitly scoped to only those 3, explicitly excluding the 2 remaining ambiguous rows and the tool-identity-drift row, explicitly not satisfying Condition 1/closing EVID-03/approving Feature Engine/authorizing LIVE.
+
+**Independent re-verification this transaction:** all 3 exact current successor IDs cross-checked directly against Evidence-005's own `full_current_mutant_mapping` (not merely trusting candidate-004's own citation) — `_prepare_original__mutmut_48`, `_prepare_replacement__mutmut_51`, `prepare_candle__mutmut_37` all reconfirmed `killed`, zero discrepancy, zero contradiction with any of the 164 already-governedly-resolved identities.
+
+**Recording applied:** candidate-004.json's 3 rows transitioned `review_a_state`/`product_owner_state: PENDING → REVIEW A VALIDATED / PRODUCT OWNER APPROVED`, `lifecycle_state: RESOLVED_BY_GOVERNED_RECLASSIFICATION — REVIEW A VALIDATED — PRODUCT OWNER APPROVED` added to each row. New top-level fields `review_a_closure`/`product_owner_decision`/`effectiveness_basis`/`governed_condition_2_state_after_recording` added in place (mirroring the candidate-003 precedent — the original candidate-authoring-time `governed_condition_2_accounting`/`non_controlling_projected_state_if_approved` fields left byte-unchanged as historical record of what was true at authoring time, not reverted-then-reapplied).
+
+**Governed Condition-2 count: `164/170` → `167/170`** (164 previously effective + 3 newly effective from Candidate-004; 3 unresolved remain: 2 ambiguous + 1 tool-identity-drift).
+
+`P3-FEATURE-QG-EVID-03` remains `OPEN` (Condition 1 `STOPPED/UNRESOLVED`, not reopened; Condition 2 `FAIL/PARTIALLY SATISFIED — 167/170`; Condition 3 `SATISFIED`, unchanged). Feature Engine remains **NOT APPROVED**; LIVE remains **NOT_AUTHORIZED**.
+
+**Part B not performed this transaction:** the task specification naming this executor's Part B ("Historical-Baseline Ambiguity Reconstruction") was truncated mid-instruction in the originating message before its scope/requirements were stated. Per this repository's own repeated discipline against inventing governed work without explicit instruction, Part B is deferred pending clarification rather than guessed — see final report.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-reclassification-candidate-004.json`, `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — no `src/**`/`tests/**`/tooling/dependency/contract/ADR/governance-rule file touched; no mutation test execution; no historical evidence artifact modified. `manifest_version` `"10.404"` → `"10.405"`.
 
 ## Decision Log
 

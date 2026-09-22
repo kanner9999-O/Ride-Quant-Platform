@@ -2,6 +2,26 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-22 — feature-engine: `P3-FEATURE-QG-EVID-03` Condition-2 Candidate-004 PO-approval recording (167/170)
+
+Starting HEAD `9a8a36de59ecfe7013263306a3e36fb41cde9595`, verified `main == origin/main`, no drift. candidate-004.json blob independently re-verified `299e1fe0a4084b31e550a887239407aa52bb08a3`, matches exactly.
+
+Review A result recorded: CLEAN -- 0 Blocker/0 Major/0 Minor, Risk R1, ADR_NOT_REQUIRED, validating all 3 candidates at this same boundary/blob.
+
+Product Owner decision (verbatim, 2026-09-22T13:58:00+07:00): "APPROVE Feature Engine Condition-2 §4.1(b) Reclassification Candidate 004 for the 3 Review-A-validated historical mutant identities... It does NOT approve or resolve the 2 remaining ambiguous historical identities or contracts.x__seal_verified_authority__mutmut_33 tool-identity-drift identity. It does NOT satisfy Condition 1, does NOT close EVID-03, does NOT approve Feature Engine, and does NOT authorize LIVE."
+
+Independent re-verification this transaction: all 3 exact current successor IDs cross-checked directly against Evidence-005's own full_current_mutant_mapping (not merely trusting candidate-004's own citation) -- all 3 reconfirmed killed, zero discrepancy, zero contradiction with the 164 already-governedly-resolved identities.
+
+All 3 rows transitioned to RESOLVED_BY_GOVERNED_RECLASSIFICATION -- REVIEW A VALIDATED -- PRODUCT OWNER APPROVED. New review_a_closure/product_owner_decision/effectiveness_basis/governed_condition_2_state_after_recording fields added in place (candidate-004.json's original candidate-authoring-time fields left byte-unchanged as historical record, per the candidate-003 precedent).
+
+Governed Condition 2: 164/170 -> 167/170 (3 unresolved remain: 2 ambiguous + 1 tool-identity-drift, untouched). Condition 1 unchanged STOPPED/UNRESOLVED; Condition 3 unchanged SATISFIED. P3-FEATURE-QG-EVID-03 remains OPEN. Feature Engine remains NOT APPROVED; LIVE remains NOT_AUTHORIZED.
+
+**Part B not performed:** this executor's own Part B ("Historical-Baseline Ambiguity Reconstruction") was truncated mid-instruction in the originating task message before its scope/requirements were stated -- deferred pending clarification rather than guessed, per this repository's repeated discipline against inventing governed work without explicit instruction.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-reclassification-candidate-004.json`, `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only -- no source/test/tooling/dependency/contract/ADR/governance-rule file touched; no mutation test execution; no historical evidence artifact modified. `manifest_version` `"10.404"` -> `"10.405"`.
+
+---
+
 ## [Unreleased] — 2026-09-22 — feature-engine: `P3-FEATURE-QG-EVID-03` Condition-2 §4.1(b) reclassification candidate authoring (Candidate-004, 3 rows)
 
 Starting HEAD `d37a58914fd462332db1fc780bcb5198e6bfb571`, verified `main == origin/main`, no drift.
