@@ -2,6 +2,28 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-22 — feature-engine: `P3-FEATURE-QG-EVID-03` Condition-2 §4.1(b) reclassification candidate authoring (Candidate-004, 3 rows)
+
+Starting HEAD `d37a58914fd462332db1fc780bcb5198e6bfb571`, verified `main == origin/main`, no drift.
+
+Architecture-level review recorded: ChatGPT architecture-level review of feature-engine-condition2-final-six-resolution-assessment-001.json accepted the assessment with no correction required -- the validated final-six structure (3 ready / 2 ambiguous / 1 tool-identity-drift) is unchanged, not reopened.
+
+§4.1(b) reclassification candidate authoring (feature-engine-mutation-material-gap-reclassification-candidate-004.json, candidate-only -- does NOT self-grant a governed decision): took exactly the 3 READY_FOR_EXISTING_§4.1(b)_CANDIDATE rows. Independently re-cross-checked all 3 exact current successor IDs and their killed status directly against Evidence-005's own full_current_mutant_mapping (not merely trusting the assessment's own citation) -- 3/3 reconfirmed, zero discrepancy. Fresh-read python/feature-engine/README.md and current source to confirm, specifically per row rather than by name-stamping ADR-043 alone, that the documented _emit_*/on_* -> prepare_* split ("byte-identical behavior/output, all pre-existing tests pass unchanged", README.md L580) genuinely covers: _emit_original -> _prepare_original and _emit_replacement -> _prepare_replacement (both regime_passthrough.py); on_candle -> prepare_candle (swing_distance.py, prepare_candle's own docstring cites "ADR-043 prepare seam" verbatim).
+
+All 3 recorded CANDIDATE_RECLASSIFY_4_1_B -- LEGITIMATE REFACTOR / SUCCESSOR VERIFIED, review_a_state/product_owner_state: PENDING -- the same already-Product-Owner-approved ADR-043 architecture authority as the prior 96 rows, not a new justification. Gap-avoidance: the README's own implementation record asserts behavioral equivalence as the refactor's own acceptance criterion, not test-gap avoidance; each successor's killed status is corroborating evidence only.
+
+Governed Condition-2 count: 0 rows permitted to alter it this transaction -- remains exactly 164/170. Non-controlling projected state if all 3 later approved: 164 + 3 = 167/170; 3/170 would remain (2 ambiguous + 1 tool-identity-drift) -- explicitly labeled NON-CONTROLLING / FUTURE-IF-APPROVED. Condition 1 unchanged STOPPED/UNRESOLVED; Condition 3 unchanged SATISFIED. P3-FEATURE-QG-EVID-03 remains OPEN. Feature Engine remains NOT APPROVED; LIVE remains NOT_AUTHORIZED.
+
+The 2 ambiguous rows and the 1 tool-identity-drift row remain entirely untouched; no identity-continuity governance rule authored or amended.
+
+Created `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-reclassification-candidate-004.json` (new, additive).
+
+**Next governed step:** ChatGPT bounded Review A of `feature-engine-mutation-material-gap-reclassification-candidate-004.json`.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-reclassification-candidate-004.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only -- verified via `git status --porcelain=v1`; no source/test/tooling/dependency/contract/ADR/governance-rule file touched; no mutation test execution; final-six assessment's semantic content unchanged; no historical evidence artifact modified; scratch cleaned; no background watcher/mutmut/pytest/tooling process remained. `manifest_version` `"10.403"` -> `"10.404"`.
+
+---
+
 ## [Unreleased] — 2026-09-22 — feature-engine: `P3-FEATURE-QG-EVID-03` Condition-2 candidate-003 PO approval (164/170) + final-six evidence assessment
 
 Starting HEAD `22043f406e9f41ddf355f0357f6c22a456196558`, verified `main == origin/main`, no drift. Reviewed candidate-003 blob verified fresh: matches `7341629364c922c60f7fb98b617bdd4415d15ab6` exactly.
