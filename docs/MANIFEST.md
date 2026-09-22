@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.411"
+manifest_version: "10.412"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -36,7 +36,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | constitution/10-compatibility-capability-contract.md | 2.7 | **Locked** | Product Owner | 02-platform-invariants, 03-engineering-principles, 04-domain-principles, 07-module-taxonomy, 08-event-model, 09-plugin-model |
 | constitution/11-adr-process.md | 2.3 | **Locked** (activated 2026-09-10T15:51+07:00, ADR-042; supersedes the prior 2.2/ADR-031 activation recorded here — MANIFEST bookkeeping reconciliation only, `docs/constitution/11-adr-process.md` itself not further edited by this transaction) | Product Owner | 00-governance, 02-platform-invariants |
 | constitution/12-approval-gates.md | 1.7 | **Locked** (activated 2026-09-10T15:51+07:00, ADR-042; supersedes the prior 1.6/ADR-031 activation recorded here — MANIFEST bookkeeping reconciliation only, `docs/constitution/12-approval-gates.md` itself not further edited by this transaction) | Product Owner | 00-governance, 11-adr-process |
-| constitution/13-quality-gates.md | **1.7 (controlling)** — v1.8 candidate authored `Draft` (new §13.8.1, NOT reviewed/approved/activated, NOT controlling; see MANIFEST ADR-044-CORR-001 section) | Locked (v1.7) | Product Owner | 02-platform-invariants, 07-module-taxonomy |
+| constitution/13-quality-gates.md | **1.7 (controlling)** — v1.8 candidate corrected `Draft` (§13.8.1 Case C reclassified as evaluation state, not a fourth final result; NOT reviewed/approved/activated, NOT controlling; see MANIFEST ADR-044-CORR-002 section) | Locked (v1.7) | Product Owner | 02-platform-invariants, 07-module-taxonomy |
 | constitution/14-roadmap.md | 1.6 | Locked | Product Owner | ALL |
 
 ## ADR
@@ -28386,6 +28386,121 @@ Chapter 13:                    v1.7 Locked remains controlling; v1.8
 **Next governed step:** ChatGPT fresh Review A of `ADR-044` v0.2 and the Chapter 13 v1.8 successor candidate together (the same reviewed bundle the activation model treats as one coherent decision), followed by fresh Risk Classification (expected `R2`, not self-finalized) and a Product Owner decision.
 
 **Files changed:** `docs/adr/ADR-044.md`, `docs/constitution/13-quality-gates.md`, `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all historical evidence, other ADRs, other Constitution chapters, Global Execution Rules, Phase rules, and `python/feature-engine/**` verified byte-unchanged. `manifest_version` `"10.410"` → `"10.411"`.
+
+## ADR-044 v0.3 + Chapter 13 v1.8 candidate — second bounded correction (`FE-EVID03-COND1-PROTOCOL-DECISION-001-CORR-002`, remediating Review A `REVISION_REQUIRED — 0 Blocker / 1 Major / 1 Minor`, Risk `R2`)
+
+**Bounded correction transaction — vai trò: `ADR-044 Bounded Correction Executor` (round 2), under ChatGPT-owned WP `FE-EVID03-COND1-PROTOCOL-DECISION-001-CORR-002`.** Remediates ChatGPT Review A findings against the ADR-044 v0.2 + Chapter 13 v1.8 candidate bundle (reviewed boundary `09bf6c7dd760deff7307fe8fbccb6f57217c4fc5`), verdict `REVISION_REQUIRED — 0 Blocker / 1 Major / 1 Minor`, Risk `R2`. Round-1 findings (`MAJOR-01` §13.8 reconciliation, `MAJOR-02` §13.13 authority boundary/activation, `MINOR-01` Alternative 3 logic) reconfirmed `CLOSED — REVIEW A VALIDATED` by this same round-2 review — **not reopened, not re-litigated**.
+
+**Fresh boundary verification:** HEAD confirmed exactly `09bf6c7dd760deff7307fe8fbccb6f57217c4fc5`, identical to `origin/main` — no drift. `docs/adr/ADR-044.md` confirmed `version: "0.2"`, `status: Draft`, `approved_by: null`; `docs/constitution/13-quality-gates.md` confirmed `version: "1.8"`, `status: Draft`; MANIFEST confirmed still pinning Chapter 13 `v1.7` as controlling — before this transaction.
+
+### New MAJOR-01 remediation — Case C final-result-vs-evaluation-state conflict
+
+```text
+Defect: §13.8.1's Case C (lower_score < T <= upper_score) read as though
+  STOPPED / UNRESOLVED were a fourth final Quality-Gate result alongside
+  §13.9's existing FAIL — criteria / FAIL — evidence / PASS taxonomy --
+  no such fourth result is authorized by existing Chapter 13 structure.
+Correction: in BOTH ADR-044 (§3 "Gate interpretation", §5
+  "Reconciliation with Chapter 13 §13.8") and Chapter 13 §13.8.1 --
+  Case A (FAIL — criteria) and Case B (PASS) remain the ONLY final
+  Quality-Gate results, unchanged vocabulary, no new result type added.
+  Case C is explicitly reclassified as an EVALUATION STATE, not a final
+  result: no PASS/FAIL is emitted; Quality-Gate eligibility remains
+  incomplete and fail-closed, directly invoking the existing §13.1/§13.8
+  "Missing gate != passed gate" principle without redefining Product
+  Owner approval authority or Chapter 12's own decision authority; a
+  downstream Approval Gate PASS prerequisite (Chapter 12 §12.2(5)) is
+  therefore not satisfied by a Case C state. Case C's evidence is
+  explicitly NOT relabeled FAIL — evidence either -- the bounded
+  interval itself can be complete, pinned, and reproducible per §13.9,
+  it simply does not yet determine a final criteria outcome. Resume/
+  follow-up semantics added for Case C: a later evaluation may reach a
+  final result only after separately governed remediation of the
+  authoritative inputs (no mechanism prescribed); majority vote, N-of-M
+  voting, third-run tie-break, retry-until-green, and denominator
+  manipulation remain explicitly prohibited as ways out of Case C, same
+  as Case A/B. §13.9's existing three-entry final-result taxonomy
+  verified to remain internally consistent -- no fourth entry added.
+Status: REMEDIATED -- PENDING BOUNDED REVIEW A RE-REVIEW.
+```
+
+### New MINOR-01 remediation — stale ADR version reference
+
+```text
+Defect: Chapter 13 v1.8 candidate's own banner still cited
+  "docs/adr/ADR-044.md v0.1", stale since the ADR had already reached
+  v0.2 (and now v0.3 via this same transaction).
+Correction: banner updated to cite the exact resulting v0.3 candidate
+  version, plus a note that round-1 findings are CLOSED — REVIEW A
+  VALIDATED (not reopened) and round-2 remediates a new MAJOR-01/
+  MINOR-01 pair.
+Status: REMEDIATED -- PENDING BOUNDED REVIEW A RE-REVIEW.
+```
+
+### ADR-044 frontmatter transition
+
+```text
+version:      "0.2" -> "0.3"
+status:       Draft (unchanged)
+approved_by:  null (unchanged)
+approved_at:  null (unchanged)
+```
+
+### Chapter 13 candidate — corrected in place, NOT versioned to v1.9
+
+```text
+Per explicit instruction: the still-unapproved v1.8 Draft candidate is
+  corrected directly (same file, same version "1.8", status Draft
+  unchanged) -- no v1.9 authored for a correction to a not-yet-approved
+  candidate. This mirrors the general bounded-correction convention
+  already used throughout this repository for Draft/unapproved
+  candidates (e.g. ADR-041/ADR-043's own v0.1 -> v0.2 in-place
+  corrections before their first approval) -- distinct from the living-
+  document Locked -> Draft-successor-version mechanic (Chapter 0 §5.1),
+  which applies when authoring a NEW candidate against an ALREADY-
+  Locked/Approved prior version, not when correcting an already-Draft,
+  not-yet-approved candidate.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/adr/ADR-044.md (v0.2 -> v0.3); docs/constitution/
+  13-quality-gates.md (v1.8 Draft candidate corrected in place, banner
+  + §13.8.1 only, version/status unchanged at "1.8"/Draft);
+  docs/governance/quality-gate/feature-engine-chapter13-remediation-
+  plan-001.md; docs/project/milestone.md; docs/project/
+  milestone-dashboard.html; docs/MANIFEST.md; docs/CHANGELOG.md only.
+  evidence-005.json, evidence-005-correction-001.json, feature-engine-
+  condition1-unstable-timeout-investigation-001.json, every other ADR,
+  every other Constitution chapter, Global Execution Rules, Phase
+  rules, python/feature-engine/{src,tests,tooling} all verified byte-
+  unchanged (git diff --stat empty). No mutation execution. No source/
+  test/tooling change. No Condition-1/2/3 state change. No EVID-03
+  closure. No ADR/Chapter-13 approval or activation performed or
+  implied.
+```
+
+### State summary (preserved)
+
+```text
+Condition 1:                   STOPPED / UNRESOLVED (unchanged).
+Condition 2:                   167/170 (unchanged, not touched).
+Condition 3:                   SATISFIED — REVIEW A VALIDATED
+                                (unchanged, not reopened).
+P3-FEATURE-QG-EVID-03:         OPEN (unchanged, not closed).
+Feature Engine approval:       NOT APPROVED.
+LIVE:                          NOT_AUTHORIZED.
+ADR-044:                       v0.3, Draft, NOT reviewed (this
+                                candidate), NOT approved.
+Chapter 13:                    v1.7 Locked remains controlling; v1.8
+                                candidate Draft (corrected), NOT
+                                reviewed, NOT approved, NOT activated.
+```
+
+**Next governed step:** ChatGPT fresh Review A of `ADR-044` v0.3 and the corrected Chapter 13 v1.8 candidate together, followed by fresh Risk Classification (expected `R2`, not self-finalized) and a Product Owner decision.
+
+**Files changed:** `docs/adr/ADR-044.md`, `docs/constitution/13-quality-gates.md`, `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all historical evidence, other ADRs, other Constitution chapters, Global Execution Rules, Phase rules, and `python/feature-engine/**` verified byte-unchanged. `manifest_version` `"10.411"` → `"10.412"`.
 
 ## Decision Log
 

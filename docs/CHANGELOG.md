@@ -2,6 +2,24 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-22 — governance: ADR-044 v0.3 + Chapter 13 v1.8 candidate — second bounded correction
+
+Starting HEAD `09bf6c7dd760deff7307fe8fbccb6f57217c4fc5`, verified `main == origin/main`, no drift. ADR-044 confirmed v0.2/Draft, Chapter 13 confirmed v1.8/Draft, MANIFEST confirmed still pinning v1.7 as controlling, before this transaction.
+
+Remediates ChatGPT Review A REVISION_REQUIRED (0 Blocker / 1 Major / 1 Minor, Risk R2) against the ADR-044 v0.2 + Chapter 13 v1.8 bundle. Round-1 findings (MAJOR-01/MAJOR-02/MINOR-01) reconfirmed CLOSED -- REVIEW A VALIDATED, not reopened.
+
+New MAJOR-01: Chapter 13 §13.8.1's Case C read as a fourth final Quality-Gate result alongside §13.9's FAIL — criteria/FAIL — evidence/PASS taxonomy. Corrected in both ADR-044 and §13.8.1: Case A/B remain the only final results (unchanged vocabulary); Case C reclassified as an evaluation state, not a final result -- no PASS/FAIL emitted, eligibility remains incomplete/fail-closed per §13.1/§13.8's "Missing gate != passed gate," a downstream Approval Gate PASS prerequisite is not satisfied, and Case C's evidence is not relabeled FAIL — evidence either since the bounded interval can be complete/pinned/reproducible while the threshold question remains undetermined. Resume/follow-up semantics added for Case C without prescribing a specific mechanism; no majority vote/N-of-M/tie-break/retry-until-green/denominator manipulation authorized.
+
+New MINOR-01: Chapter 13 banner's stale "ADR-044.md v0.1" reference corrected to the resulting v0.3.
+
+ADR-044 v0.2 -> v0.3. Chapter 13 stays v1.8 (same Draft candidate corrected in place, per explicit instruction not to bump to v1.9 for a correction to an already-unapproved Draft). Neither file marked Review-A CLEAN. Activation model and split-authority architecture preserved unchanged. v1.7 confirmed still controlling.
+
+Condition 1 (STOPPED/UNRESOLVED), Condition 2 (167/170), Condition 3 (SATISFIED) all unchanged. Threshold, historical evidence, source/tests/tooling all unchanged. Milestone tracking updated in the same transaction.
+
+**Files changed:** `docs/adr/ADR-044.md`, `docs/constitution/13-quality-gates.md`, `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.411"` -> `"10.412"`.
+
+---
+
 ## [Unreleased] — 2026-09-22 — governance: ADR-044 v0.2 + Chapter 13 v1.8 candidate — bounded correction
 
 Starting HEAD `ca7034143a6e0c7a4d78c88baa3daa0e83364e3d`, verified `main == origin/main`, no drift. ADR-044 confirmed v0.1/Draft/approved_by:null before this transaction.

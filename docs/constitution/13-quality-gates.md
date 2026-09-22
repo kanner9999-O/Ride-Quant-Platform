@@ -17,7 +17,7 @@ depends_on: ["02-platform-invariants", "07-module-taxonomy"]
 
 > **Trạng thái:** `Locked`. Product Owner đã **Approve and Lock** Chapter 13 v1.7. Theo [Chapter 12 §12.3](./12-approval-gates.md), chương này từ nay là **binding authoritative Quality Gates contract** — đúng contract mà [Chapter 12 §12.2(5)](./12-approval-gates.md) yêu cầu cho applicable quality gates. Quality Gate vẫn khác Product Owner Approval Gate (§13.1) — trạng thái Locked không đổi phân biệt đó.
 >
-> **v1.8 CANDIDATE (2026-09-22) — `Draft`, NOT reviewed, NOT approved, NOT controlling.** Authored per Chapter 0 §5.1 (a Locked living document cannot be edited in place at the same version — a new candidate version must be authored and pass its own fresh approval gate). Adds new §13.8.1 ("Bounded-measurement reproducibility for governed unresolved-mutant populations"), the authoritative Quality-Gate measurement-rule counterpart to `docs/adr/ADR-044.md` v0.1 (`Draft`, itself under Review-A correction for `MAJOR-01`/`MAJOR-02`/`MINOR-01`). **`v1.7`, `Locked`, remains the sole controlling authoritative version of this chapter until this `v1.8` candidate is itself reviewed, accepted, and activated** — see MANIFEST for current authoritative pointer (I-12). No other section of this chapter is touched by this candidate; §13.8's own existing fail-closed text (above the new §13.8.1) is byte-unchanged.
+> **v1.8 CANDIDATE (2026-09-22) — `Draft`, NOT reviewed, NOT approved, NOT controlling.** Authored per Chapter 0 §5.1 (a Locked living document cannot be edited in place at the same version — a new candidate version must be authored and pass its own fresh approval gate). Adds new §13.8.1 ("Bounded-measurement reproducibility for governed unresolved-mutant populations"), the authoritative Quality-Gate measurement-rule counterpart to `docs/adr/ADR-044.md` v0.3 (`Draft`, itself under Review-A correction — `CORR-002`, remediating a new `MAJOR-01`/`MINOR-01` pair; prior `MAJOR-01`/`MAJOR-02`/`MINOR-01` from the original Review A round CLOSED — REVIEW A VALIDATED, not reopened). **`v1.7`, `Locked`, remains the sole controlling authoritative version of this chapter until this `v1.8` candidate is itself reviewed, accepted, and activated** — see MANIFEST for current authoritative pointer (I-12). No other section of this chapter is touched by this candidate; §13.8's own existing fail-closed text (above the new §13.8.1) is byte-unchanged.
 
 ## 13.1 Purpose and scope
 
@@ -334,20 +334,68 @@ lower_score      = lower_numerator / authoritative denominator
 upper_score      = upper_numerator / authoritative denominator
 ```
 
-**Result semantics**, given the gate's own required threshold `T`:
+**Result semantics**, given the gate's own required threshold `T`. Cases A
+and B are **final Quality-Gate results** — the same `FAIL — criteria`/
+`PASS` vocabulary §13.9's existing `Result semantics` block already
+defines, unchanged, un-extended. **Case C is not a fourth final result —
+it is an evaluation state.** This subsection does not add a fourth entry
+to §13.9's `FAIL — criteria` / `FAIL — evidence` / `PASS` taxonomy:
 
 ```text
-upper_score < T          -> FAIL — criteria
-lower_score >= T          -> PASS
-lower_score < T <= upper  -> STOPPED / UNRESOLVED
+Case A — upper_score < T         -> FINAL RESULT: FAIL — criteria
+Case B — lower_score >= T        -> FINAL RESULT: PASS
+Case C — lower_score < T <= upper -> EVALUATION STATE: STOPPED / UNRESOLVED
+                                      (NO final result emitted)
 ```
 
-Required interpretation, binding wherever this subsection is activated for a specific gate:
+Required interpretation, binding wherever this subsection is activated for
+a specific gate:
 
-- **Case A (`FAIL — criteria`)** is authorized only when authoritative bounded measurement proves that even the best-case resolution of every unresolved mutant cannot meet `T` — i.e. genuine §13.8-style fail-closed criteria-failure, established with certainty despite per-mutant uncertainty, not a guess.
-- **Case B (`PASS`)** is authorized only when `T` is met granting **zero** favorable credit to any unresolved mutant — a `PASS` under this subsection never relies on unresolved evidence, consistent with §13.10's "unstable evidence is never credited as passing evidence."
-- **Case C (`STOPPED / UNRESOLVED`)** applies whenever the unresolved classifications could still change the verdict — no `PASS`/`FAIL` is authorized; this is the fail-closed default whenever both bounds straddle `T`, with no discretionary override to Case A/B.
-- In all three cases, the unresolved mutants' own individual classifications remain exactly as unresolved as the governing per-mutant protocol left them — this subsection never resolves, infers, or credits them individually.
+- **Case A (`FAIL — criteria`, final result)** is authorized only when
+  authoritative bounded measurement proves that even the best-case
+  resolution of every unresolved mutant cannot meet `T` — i.e. genuine
+  §13.8-style fail-closed criteria-failure, established with certainty
+  despite per-mutant uncertainty, not a guess.
+- **Case B (`PASS`, final result)** is authorized only when `T` is met
+  granting **zero** favorable credit to any unresolved mutant — a `PASS`
+  under this subsection never relies on unresolved evidence, consistent
+  with §13.10's "unstable evidence is never credited as passing evidence."
+- **Case C (`STOPPED / UNRESOLVED`, evaluation state — NOT a final
+  result)** applies whenever the unresolved classifications could still
+  change the verdict. No `PASS`/`FAIL` is authorized or emitted. The
+  bounded interval itself may be entirely valid, pinned, and reproducible
+  per §13.9 — reproducibility of the *measurement* does not resolve the
+  *threshold question*, since current evidence genuinely does not
+  determine whether the eventual criteria outcome is PASS or FAIL. Gate
+  eligibility under §13.1/§13.8 remains **incomplete**, and the gate
+  remains **fail-closed** — exactly the existing "**Missing gate ≠ passed
+  gate**" principle (§13.8), applied here without redefining Product Owner
+  approval authority or Chapter 12's own decision authority. A downstream
+  Approval Gate prerequisite requiring `PASS` (Chapter 12 §12.2(5)) is
+  **not satisfied** by a Case C state — `not PASS → cannot satisfy an
+  Approval-Gate prerequisite requiring PASS`. Case C's own bounded
+  measurement is explicitly **not** relabeled `FAIL — evidence` merely
+  because it produced no final result — that label is reserved for
+  genuinely missing/invalid/unresolvable evidence (§13.9's existing
+  taxonomy), and Case C's evidence, by construction, is none of those; it
+  is complete, pinned, and reproducible evidence that simply does not
+  yet determine a final criteria outcome.
+- In all three cases, the unresolved mutants' own individual
+  classifications remain exactly as unresolved as the governing per-mutant
+  protocol left them — this subsection never resolves, infers, or credits
+  them individually, in Case C no less than in A or B.
+
+**Resume / follow-up (Case C only).** A later evaluation may reach a final
+result only after a separately governed action changes the authoritative
+inputs relevant to the interval — for example: legitimate resolution or
+remediation of the underlying unresolved cases under an authorized
+protocol; a new authoritative measurement/evidence boundary; or other
+separately governed remediation. This subsection does not itself prescribe
+which such mechanism applies to any given Case C — that remains a future,
+separately governed determination. It explicitly does NOT authorize, as a
+way to leave Case C: majority vote, N-of-M voting, an arbitrary third-run
+tie-break, retry-until-green, or denominator manipulation — all remain
+prohibited exactly as in Case A/B.
 
 **Explicit constraints (binding on any future gate evaluation invoking this subsection):**
 

@@ -6,7 +6,7 @@ status: Active
 owner: Product Owner
 maintainer: "WP executors under Lean Ride Operating Model v1.1"
 visual_companion: docs/project/milestone-dashboard.html
-state_verified_against_head: ca7034143a6e0c7a4d78c88baa3daa0e83364e3d
+state_verified_against_head: 09bf6c7dd760deff7307fe8fbccb6f57217c4fc5
 state_verified_against_at: "2026-09-22"
 ---
 
@@ -145,27 +145,41 @@ candidate authored (`ADR-044.md` v0.1), then Review A returned
 `REVISION_REQUIRED — 0 Blocker / 2 Major / 1 Minor`, Risk `R2`.**
 
 **Primary Work Package — `FE-EVID03-COND1-PROTOCOL-DECISION-001-CORR-001`:
-IN PROGRESS (bounded ADR correction).** Remediates the 3 Review A findings:
-`MAJOR-01` (reconciled Chapter 13 §13.8 fail-closed semantics — per-mutant
+COMPLETE.** Remediated the 3 round-1 Review A findings: `MAJOR-01`
+(reconciled Chapter 13 §13.8 fail-closed semantics — per-mutant
 reproducibility vs. gate-level bounded-measurement reproducibility, the
 latter a new measurement semantic); `MAJOR-02` (corrected authority-
 boundary model — ADR-044 is architecture decision/rationale only; the
 authoritative measurement rule now lives in a new Chapter 13 successor,
 `docs/constitution/13-quality-gates.md` v1.8 candidate, `Draft`, new
-§13.8.1, NOT reviewed/approved/activated, **`v1.7` remains the chapter's
-sole controlling version**; activation model added requiring the ADR
-AND the Chapter 13 successor AND MANIFEST to activate together);
-`MINOR-01` (corrected Alternative 3's straddle-region logic error).
-`ADR-044.md` v0.1 → v0.2, `status: Draft` unchanged, NOT marked
-Review-A CLEAN. Current EVID-03 worked example under the candidate rule
-(illustrative, **`NON-CONTROLLING / FUTURE-IF-ACTIVATED`** — both ADR
-approval AND Chapter-13 activation required, not ADR approval alone):
-projected `FAIL — criteria` if later activated (upper bound 84.56% <
-required 87.001959503592%). **Condition 1 remains `STOPPED / UNRESOLVED`
-now — this correction changes nothing until reviewed and the full
-activation model completes.** Awaiting ChatGPT fresh Review A + Risk
-Classification of the corrected ADR-044 v0.2 + Chapter 13 v1.8 bundle
-before any Product Owner decision point.
+§13.8.1; activation model added requiring the ADR AND the Chapter 13
+successor AND MANIFEST to activate together); `MINOR-01` (corrected
+Alternative 3's straddle-region logic error). `ADR-044.md` v0.1 → v0.2.
+ChatGPT's fresh Review A on this v0.2 bundle reconfirmed all 3 findings
+`CLOSED — REVIEW A VALIDATED`, but returned a **new** verdict
+`REVISION_REQUIRED — 0 Blocker / 1 Major / 1 Minor`, Risk `R2`.
+
+**Primary Work Package — `FE-EVID03-COND1-PROTOCOL-DECISION-001-CORR-002`:
+IN PROGRESS (second bounded ADR correction).** Remediates the 2 new
+round-2 findings: new `MAJOR-01` — §13.8.1's Case C read as a fourth
+final Quality-Gate result; corrected in both ADR-044 and §13.8.1 so
+Case A/B remain the only final results (`FAIL — criteria`/`PASS`,
+unchanged vocabulary) and **Case C is reclassified as an evaluation
+state, not a final result** — no PASS/FAIL emitted, eligibility remains
+incomplete/fail-closed per §13.1/§13.8's "Missing gate ≠ passed gate,"
+a downstream Approval Gate PASS prerequisite is not satisfied, and Case
+C's evidence is not relabeled `FAIL — evidence` either. New `MINOR-01` —
+Chapter 13 banner's stale `ADR-044.md v0.1` reference corrected to the
+resulting v0.3. `ADR-044.md` v0.2 → v0.3; Chapter 13 stays v1.8 (same
+Draft candidate corrected in place, no v1.9). `status: Draft` unchanged
+on both, NOT marked Review-A CLEAN. Current EVID-03 worked example under
+the candidate rule (illustrative, **`NON-CONTROLLING / FUTURE-IF-
+ACTIVATED`**): projected `FAIL — criteria` if later activated (upper
+bound 84.56% < required 87.001959503592%). **Condition 1 remains
+`STOPPED / UNRESOLVED` now — this correction changes nothing until
+reviewed and the full activation model completes.** Awaiting ChatGPT
+fresh Review A + Risk Classification of the corrected ADR-044 v0.3 +
+Chapter 13 v1.8 bundle before any Product Owner decision point.
 
 **Secondary queue:** `Candidate-005` — govern the 2 historically
 reconstructed Condition-2 identities, when doing so does not disrupt the
@@ -180,12 +194,13 @@ primary critical path.
 
 | Lane | Item | Status |
 |---|---|---|
-| Primary | `FE-EVID03-COND1-PROTOCOL-DECISION-001-CORR-001` | ADR-044 v0.2 + Chapter 13 v1.8 candidate corrected; awaiting ChatGPT fresh Review A + Risk Classification |
+| Primary | `FE-EVID03-COND1-PROTOCOL-DECISION-001-CORR-002` | ADR-044 v0.3 + Chapter 13 v1.8 candidate corrected (Case C reclassified as evaluation state); awaiting ChatGPT fresh Review A + Risk Classification |
 | Secondary | `Candidate-005` (2 Condition-2 identities) | Queued, non-blocking |
 | Deferred | `contracts.x__seal_verified_authority__mutmut_33` (TOOL_IDENTITY_DRIFT) | Deferred — no existing governed mechanism |
 | Completed | `RIDE-PROJECT-MILESTONE-DASHBOARD-001` | Tracking infrastructure only |
 | Completed | `FE-EVID03-COND1-STOP-001` | 9/9 mutants `REQUIRES_GOVERNED_PROTOCOL_DECISION`; §13.10 applicability question flagged for ChatGPT review |
 | Completed | `FE-EVID03-COND1-PROTOCOL-DECISION-001` | ADR-044 v0.1 Draft authored; Review A returned `REVISION_REQUIRED — 0 Blocker / 2 Major / 1 Minor`, R2 |
+| Completed | `FE-EVID03-COND1-PROTOCOL-DECISION-001-CORR-001` | ADR-044 v0.2 + Chapter 13 v1.8 corrected (round-1 findings CLOSED); Review A returned `REVISION_REQUIRED — 0 Blocker / 1 Major / 1 Minor`, R2 |
 
 ## 6. PO dashboard snapshot
 
@@ -193,15 +208,17 @@ primary critical path.
 Current milestone:        M1 — Feature Engine EVID-03 Closure (ACTIVE)
 Primary blocker:          Condition 1 — STOPPED / UNRESOLVED
                            (9 UNSTABLE_TIMEOUT_TRIAGE mutants)
-Current primary WP:       FE-EVID03-COND1-PROTOCOL-DECISION-001-CORR-001
-                           (ADR-044 v0.2 + Chapter 13 v1.8 candidate
-                           corrected: MAJOR-01/MAJOR-02/MINOR-01
-                           remediated, NOT yet re-reviewed)
-Last Review A:             REVISION_REQUIRED — 0 Blocker / 2 Major /
-                           1 Minor, Risk R2 (on v0.1, remediated above)
+Current primary WP:       FE-EVID03-COND1-PROTOCOL-DECISION-001-CORR-002
+                           (ADR-044 v0.3 + Chapter 13 v1.8 candidate
+                           corrected: Case C reclassified as evaluation
+                           state, not a fourth final result; NOT yet
+                           re-reviewed)
+Last Review A:             REVISION_REQUIRED — 0 Blocker / 1 Major /
+                           1 Minor, Risk R2 (on v0.2, remediated above;
+                           round-1 findings CLOSED — REVIEW A VALIDATED)
 PO decision required now: NO
                            (deferred until the corrected semantic
-                           bundle — ADR-044 v0.2 + Chapter 13 v1.8 —
+                           bundle — ADR-044 v0.3 + Chapter 13 v1.8 —
                            receives a CLEAN Review A)
 ```
 
