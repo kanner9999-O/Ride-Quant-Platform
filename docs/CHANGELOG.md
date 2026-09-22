@@ -2,6 +2,28 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-22 — feature-engine: `P3-FEATURE-QG-EVID-03` Condition-2 correction-003 closure/Minor cleanup + §4.1(b) candidate-003 authoring (53 rows)
+
+Starting HEAD `99642208042248f9c8b0a0d7f032401ffe37bcfd`, verified `main == origin/main`, no drift.
+
+Review A recording: ChatGPT bounded Review A re-review of correction-003.json returned `CLEAN -- 0 Blocker/0 Major/1 Minor`, Risk `R1`, `ADR_NOT_REQUIRED`. `P3-FEATURE-EVID03-COND2-RES002-CORR002-A-MAJ-01: CLOSED -- REVIEW A VALIDATED` -- semantic result confirmed (27 SUCCESSOR_MATCH -- CURRENT KILLED + 20 SEMANTIC_SUCCESSOR_CONSOLIDATED + 6 BEHAVIOR_GENUINELY_REMOVED = 53), no new Condition-2 credit granted by correction-003.
+
+Minor cleanup, folded (`P3-FEATURE-EVID03-COND2-CORR003-A-MIN-01: CLOSED -- DETERMINISTIC REVIEW A MINOR CLEANUP`): corrected in place inside correction-003.json, no semantic re-review -- (A) distinct current mutant count corrected 20 -> 14 (6 `_commit_live` + 4 + 4 `_finalize_prepared_batch`); (B) distinct historical ref-allocation functions corrected 7 -> 8 (3 regime + 5 swing); (C) all 14 ref-allocation rows corrected to pin only their own engine's `_commit_live` current mutants at row level (5 regime rows -> regime's 3 mutants only; 9 swing rows -> swing's 3 mutants only) -- no semantic disposition altered.
+
+§4.1(b) reclassification candidate authoring (feature-engine-mutation-material-gap-reclassification-candidate-003.json, this transaction, candidate-only -- does NOT self-grant a governed decision): took exactly the 53 Review-A-validated rows -- Cohort A (27) unique successor-killed from correction-002 (ADR-043 prepare-seam authority verified per row, identical pattern to the already-PO-approved 69); Cohort B (20) consolidated-successor from correction-003 (consolidation evidence carried forward, never forced into artificial one-to-one mappings); Cohort C (6) genuinely-removed, independently re-verified this transaction (constructor signature confirmed to contain no stream_id parameter; self._stream_id derivation traced to output_authority's own verified-authority chain; no equivalent caller-controllable vulnerability remains).
+
+All 53 recorded positive -- CANDIDATE_RECLASSIFY_4_1_B per cohort, review_a_state: PENDING, product_owner_state: PENDING for every row. 0 NOT_READY, 0 AMBIGUOUS -- all 53 draw their classification from evidence already independently validated by Review A, sharing the same already-validated engineering authority, not maximized for count.
+
+Governed Condition-2 count: 0 rows permitted to alter it this transaction -- remains exactly 111/170. Non-controlling projected state if all 53 later approved: 111 + 53 = 164/170; 6/170 would remain (5 ambiguous + 1 not-ready) -- explicitly labeled NON-CONTROLLING / FUTURE-IF-APPROVED. Condition 1 unchanged STOPPED/UNRESOLVED; Condition 3 unchanged SATISFIED. P3-FEATURE-QG-EVID-03 remains OPEN. Feature Engine remains NOT APPROVED; LIVE remains NOT_AUTHORIZED.
+
+Created `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-reclassification-candidate-003.json` (new, additive).
+
+**Next governed step:** ChatGPT bounded Review A of `feature-engine-mutation-material-gap-reclassification-candidate-003.json`.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-identity-resolution-002-correction-003.json` (Review A closure + Minor cleanup, in place), `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-reclassification-candidate-003.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only -- verified via `git status --porcelain=v1`; no source/test/tooling/dependency/contract/ADR/governance-rule file touched; no mutation test execution; resolution-001.json/resolution-002.json/resolution-002-correction-001.json/resolution-002-correction-002.json/evidence-005.json byte-unchanged; scratch cleaned; no background watcher/mutmut/pytest/tooling process remained. `manifest_version` `"10.401"` -> `"10.402"`.
+
+---
+
 ## [Unreleased] — 2026-09-22 — feature-engine: `P3-FEATURE-QG-EVID-03` Condition-2 69REC closure + correction-002 26-row cross-seam semantic remapping (correction-003)
 
 Starting HEAD `4fa56bf8350b497e21f34094a43519bf410e1bb4`, verified `main == origin/main`, no drift.

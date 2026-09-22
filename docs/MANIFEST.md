@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.401"
+manifest_version: "10.402"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -27948,9 +27948,31 @@ READY_FOR_FRESH_FORMAL_CONDITION_1_MEASUREMENT: NO (2224 < 2288).
 
 **Created:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-identity-resolution-002-correction-003.json` — new, additive; contains all 26 corrected rows, exact cross-seam mappings by family, exact current mutant IDs/diffs/statuses for every consolidated site, and the final corrected 53-row distribution.
 
-**Next governed step:** ChatGPT bounded Review A re-review of `feature-engine-mutation-material-gap-identity-resolution-002-correction-003.json`.
+**Next governed step (superseded — see below):** ~~ChatGPT bounded Review A re-review of `feature-engine-mutation-material-gap-identity-resolution-002-correction-003.json`~~ — COMPLETE, returned `CLEAN — 0 Blocker/0 Major/1 Minor`, Risk `R1`, `ADR_NOT_REQUIRED`; Major closes and Minor cleanup folded below.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-reclassification-candidate-002.json` (bookkeeping closure only, in place), `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-identity-resolution-002-correction-003.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no `src/**`/`tests/**`/tooling/dependency/contract/ADR/governance-rule file touched; no mutation test execution (workspace generated via `create_mutants()` API directly, zero tests run); `resolution-001.json`/`resolution-002.json`/`resolution-002-correction-001.json`/`resolution-002-correction-002.json`/`evidence-005.json` byte-unchanged; no candidate-004 artifact created; scratch cleaned; no background watcher/mutmut/pytest/tooling process remained. `manifest_version` `"10.400"` → `"10.401"`.
+
+## `feature-engine` — `P3-FEATURE-QG-EVID-03` Condition-2: correction-003 closure/Minor cleanup + §4.1(b) candidate-003 authoring (53 rows)
+
+**Consolidated transaction — vai trò: `Feature Engine EVID-03 Condition-2 §4.1(b) Candidate-003 Authoring Executor`.** Starting HEAD `99642208042248f9c8b0a0d7f032401ffe37bcfd`, verified `main == origin/main`, no drift.
+
+**Review A recording:** ChatGPT bounded Review A re-review of `correction-003.json` returned `CLEAN — 0 Blocker/0 Major/1 Minor`, Risk `R1`, `ADR_NOT_REQUIRED`. `P3-FEATURE-EVID03-COND2-RES002-CORR002-A-MAJ-01: CLOSED — REVIEW A VALIDATED` — the semantic result (27 `SUCCESSOR_MATCH — CURRENT KILLED` + 20 `SEMANTIC_SUCCESSOR_CONSOLIDATED` + 6 `BEHAVIOR_GENUINELY_REMOVED` = 53) is confirmed, no new Condition-2 credit was granted by correction-003.
+
+**Minor cleanup, folded (`P3-FEATURE-EVID03-COND2-CORR003-A-MIN-01: CLOSED — DETERMINISTIC REVIEW A MINOR CLEANUP`):** corrected in place inside `correction-003.json`, no semantic re-review, no semantic disposition altered — (A) distinct current mutant count corrected `20 → 14` (6 `_commit_live` + 4 causation + 4 recorded-time `_finalize_prepared_batch` mutants; the prior figure conflated row count with distinct-ID count); (B) distinct historical ref-allocation functions corrected `7 → 8` (3 `regime_passthrough` functions + 5 `swing_distance` functions, verified by direct extraction from the 14 historical IDs); (C) all 14 ref-allocation rows corrected to pin ONLY their own engine's `_commit_live` current mutants at row level (5 regime-originated rows → regime's own 3 `_commit_live` mutants; 9 swing-originated rows → swing's own 3 `_commit_live` mutants) — family-level summary correctly retains both engines' sites as the overall two-site consolidation target.
+
+**§4.1(b) reclassification candidate authoring (`feature-engine-mutation-material-gap-reclassification-candidate-003.json`, this transaction, candidate-only — does NOT self-grant a governed decision):** took exactly the 53 Review-A-validated rows: **Cohort A (27)** unique successor-killed from correction-002 (exact current ID/diff/killed status preserved, ADR-043 prepare-seam authority verified per row — identical pattern to the already-PO-approved 69); **Cohort B (20)** consolidated-successor from correction-003 (14 ref-allocation rows pinned to their own engine's `_commit_live`, 3 causation rows pinned to `_finalize_prepared_batch`/`PreparedFeatureComputed.finalize`, 3 recorded-time rows pinned to `_finalize_prepared_batch`'s materialize+floor-threading — consolidation evidence carried forward, never forced into artificial one-to-one mappings); **Cohort C (6)** genuinely-removed, independently re-verified this transaction (constructor signature confirmed to contain no `stream_id` parameter; `self._stream_id` derivation traced to `output_authority.authoritative_stream_id`'s own verified-authority chain; confirmed via grep that no equivalent caller-controllable vulnerability remains) rather than accepted on disappearance alone.
+
+**All 53 recorded positive** — `CANDIDATE_RECLASSIFY_4_1_B — LEGITIMATE REFACTOR/CONSOLIDATION/ENGINEERING REMOVAL VERIFIED` per cohort, `review_a_state: PENDING`, `product_owner_state: PENDING` for every row (mirroring the already-completed 69-row candidate-002 lifecycle's own Review A → Risk R1 → Product Owner Decision chain, not self-granted here). 0 `NOT_READY`, 0 `AMBIGUOUS` — all 53 draw their classification from evidence that already independently passed bounded Review A in correction-002/correction-003, not fresh discovery, and share the same already-validated ADR-043 (Cohorts A/B) or authority-derivation-hardening (Cohort C) engineering authority — not maximized for count.
+
+**Governed Condition-2 count: 0 rows permitted to alter it this transaction — remains exactly `111/170`.** Non-controlling projected state if all 53 later Review-A + Product-Owner approved: `111 + 53 = 164/170`; `6/170` would remain (5 pre-existing ambiguous + 1 existing `_seal_verified_authority` not-ready) — explicitly labeled NON-CONTROLLING / FUTURE-IF-APPROVED, not current state.
+
+`P3-FEATURE-QG-EVID-03` remains `OPEN` (Condition 1 `STOPPED/UNRESOLVED`, not reopened; Condition 2 `FAIL/PARTIALLY SATISFIED — 111/170`; Condition 3 `SATISFIED`, unchanged). Feature Engine remains **NOT APPROVED**; LIVE remains **NOT_AUTHORIZED**.
+
+**Created:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-reclassification-candidate-003.json` — new, additive candidate artifact.
+
+**Next governed step:** ChatGPT bounded Review A of `feature-engine-mutation-material-gap-reclassification-candidate-003.json`.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-identity-resolution-002-correction-003.json` (Review A closure + Minor cleanup, in place), `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-reclassification-candidate-003.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no `src/**`/`tests/**`/tooling/dependency/contract/ADR/governance-rule file touched; no mutation test execution; `resolution-001.json`/`resolution-002.json`/`resolution-002-correction-001.json`/`resolution-002-correction-002.json`/`evidence-005.json`/`reclassification-candidate-002.json`'s substantive 69-row content all byte-unchanged (beyond the already-recorded closure fields); scratch cleaned; no background watcher/mutmut/pytest/tooling process remained. `manifest_version` `"10.401"` → `"10.402"`.
 
 ## Decision Log
 
