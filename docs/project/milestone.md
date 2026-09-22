@@ -6,7 +6,7 @@ status: Active
 owner: Product Owner
 maintainer: "WP executors under Lean Ride Operating Model v1.1"
 visual_companion: docs/project/milestone-dashboard.html
-state_verified_against_head: af2903a73fdb52a66142c19191376d9e3c977a4a
+state_verified_against_head: ca7034143a6e0c7a4d78c88baa3daa0e83364e3d
 state_verified_against_at: "2026-09-22"
 ---
 
@@ -140,20 +140,32 @@ remains `STOPPED / UNRESOLVED` — unchanged. Full record:
 `docs/governance/mutation-baseline-evidence/feature-engine-condition1-
 unstable-timeout-investigation-001.json`.
 
-**Primary Work Package — `FE-EVID03-COND1-PROTOCOL-DECISION-001`: IN PROGRESS
-(ADR candidate authoring).** ChatGPT determined Chapter 13 §13.10 relevant
-but `EXISTING_AUTHORITY_INSUFFICIENT` for gate-level interpretation of
-`UNSTABLE_TIMEOUT_TRIAGE` disagreements, and fresh Chapter 0 §4b:
-`ADR_REQUIRED`. Draft candidate authored: `docs/adr/ADR-044.md` v0.1 —
-"Bounded-Uncertainty Interpretation for Mutation Timeout Triage" (lower/
-upper score bounds, PASS/FAIL/STOP truth table, preserves §13.10 and the
-existing locked timeout-triage protocol unchanged). Current EVID-03 worked
-example under the candidate rule (illustrative, `NON-CONTROLLING / FUTURE-
-IF-APPROVED`): projected `FAIL — criteria` if later approved (upper bound
-84.56% < required 87.001959503592%). **Condition 1 remains `STOPPED /
-UNRESOLVED` now — this candidate changes nothing until reviewed and
-approved.** Awaiting ChatGPT Review A + Risk Classification (expected
-`R2`) of the ADR candidate before any Product Owner decision point.
+**Primary Work Package — `FE-EVID03-COND1-PROTOCOL-DECISION-001`: Draft
+candidate authored (`ADR-044.md` v0.1), then Review A returned
+`REVISION_REQUIRED — 0 Blocker / 2 Major / 1 Minor`, Risk `R2`.**
+
+**Primary Work Package — `FE-EVID03-COND1-PROTOCOL-DECISION-001-CORR-001`:
+IN PROGRESS (bounded ADR correction).** Remediates the 3 Review A findings:
+`MAJOR-01` (reconciled Chapter 13 §13.8 fail-closed semantics — per-mutant
+reproducibility vs. gate-level bounded-measurement reproducibility, the
+latter a new measurement semantic); `MAJOR-02` (corrected authority-
+boundary model — ADR-044 is architecture decision/rationale only; the
+authoritative measurement rule now lives in a new Chapter 13 successor,
+`docs/constitution/13-quality-gates.md` v1.8 candidate, `Draft`, new
+§13.8.1, NOT reviewed/approved/activated, **`v1.7` remains the chapter's
+sole controlling version**; activation model added requiring the ADR
+AND the Chapter 13 successor AND MANIFEST to activate together);
+`MINOR-01` (corrected Alternative 3's straddle-region logic error).
+`ADR-044.md` v0.1 → v0.2, `status: Draft` unchanged, NOT marked
+Review-A CLEAN. Current EVID-03 worked example under the candidate rule
+(illustrative, **`NON-CONTROLLING / FUTURE-IF-ACTIVATED`** — both ADR
+approval AND Chapter-13 activation required, not ADR approval alone):
+projected `FAIL — criteria` if later activated (upper bound 84.56% <
+required 87.001959503592%). **Condition 1 remains `STOPPED / UNRESOLVED`
+now — this correction changes nothing until reviewed and the full
+activation model completes.** Awaiting ChatGPT fresh Review A + Risk
+Classification of the corrected ADR-044 v0.2 + Chapter 13 v1.8 bundle
+before any Product Owner decision point.
 
 **Secondary queue:** `Candidate-005` — govern the 2 historically
 reconstructed Condition-2 identities, when doing so does not disrupt the
@@ -168,11 +180,12 @@ primary critical path.
 
 | Lane | Item | Status |
 |---|---|---|
-| Primary | `FE-EVID03-COND1-PROTOCOL-DECISION-001` | ADR-044 v0.1 Draft authored; awaiting ChatGPT Review A + Risk Classification |
+| Primary | `FE-EVID03-COND1-PROTOCOL-DECISION-001-CORR-001` | ADR-044 v0.2 + Chapter 13 v1.8 candidate corrected; awaiting ChatGPT fresh Review A + Risk Classification |
 | Secondary | `Candidate-005` (2 Condition-2 identities) | Queued, non-blocking |
 | Deferred | `contracts.x__seal_verified_authority__mutmut_33` (TOOL_IDENTITY_DRIFT) | Deferred — no existing governed mechanism |
 | Completed | `RIDE-PROJECT-MILESTONE-DASHBOARD-001` | Tracking infrastructure only |
 | Completed | `FE-EVID03-COND1-STOP-001` | 9/9 mutants `REQUIRES_GOVERNED_PROTOCOL_DECISION`; §13.10 applicability question flagged for ChatGPT review |
+| Completed | `FE-EVID03-COND1-PROTOCOL-DECISION-001` | ADR-044 v0.1 Draft authored; Review A returned `REVISION_REQUIRED — 0 Blocker / 2 Major / 1 Minor`, R2 |
 
 ## 6. PO dashboard snapshot
 
@@ -180,13 +193,16 @@ primary critical path.
 Current milestone:        M1 — Feature Engine EVID-03 Closure (ACTIVE)
 Primary blocker:          Condition 1 — STOPPED / UNRESOLVED
                            (9 UNSTABLE_TIMEOUT_TRIAGE mutants)
-Current primary WP:       FE-EVID03-COND1-PROTOCOL-DECISION-001
-                           (ADR-044 v0.1 Draft authored, awaiting
-                           ChatGPT Review A + Risk Classification)
+Current primary WP:       FE-EVID03-COND1-PROTOCOL-DECISION-001-CORR-001
+                           (ADR-044 v0.2 + Chapter 13 v1.8 candidate
+                           corrected: MAJOR-01/MAJOR-02/MINOR-01
+                           remediated, NOT yet re-reviewed)
+Last Review A:             REVISION_REQUIRED — 0 Blocker / 2 Major /
+                           1 Minor, Risk R2 (on v0.1, remediated above)
 PO decision required now: NO
-                           (next PO decision point occurs only after
-                           ChatGPT Review A + Risk Classification of
-                           ADR-044)
+                           (deferred until the corrected semantic
+                           bundle — ADR-044 v0.2 + Chapter 13 v1.8 —
+                           receives a CLEAN Review A)
 ```
 
 ## 7. Update rules

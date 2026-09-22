@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.410"
+manifest_version: "10.411"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -36,7 +36,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | constitution/10-compatibility-capability-contract.md | 2.7 | **Locked** | Product Owner | 02-platform-invariants, 03-engineering-principles, 04-domain-principles, 07-module-taxonomy, 08-event-model, 09-plugin-model |
 | constitution/11-adr-process.md | 2.3 | **Locked** (activated 2026-09-10T15:51+07:00, ADR-042; supersedes the prior 2.2/ADR-031 activation recorded here — MANIFEST bookkeeping reconciliation only, `docs/constitution/11-adr-process.md` itself not further edited by this transaction) | Product Owner | 00-governance, 02-platform-invariants |
 | constitution/12-approval-gates.md | 1.7 | **Locked** (activated 2026-09-10T15:51+07:00, ADR-042; supersedes the prior 1.6/ADR-031 activation recorded here — MANIFEST bookkeeping reconciliation only, `docs/constitution/12-approval-gates.md` itself not further edited by this transaction) | Product Owner | 00-governance, 11-adr-process |
-| constitution/13-quality-gates.md | 1.7 | Locked | Product Owner | 02-platform-invariants, 07-module-taxonomy |
+| constitution/13-quality-gates.md | **1.7 (controlling)** — v1.8 candidate authored `Draft` (new §13.8.1, NOT reviewed/approved/activated, NOT controlling; see MANIFEST ADR-044-CORR-001 section) | Locked (v1.7) | Product Owner | 02-platform-invariants, 07-module-taxonomy |
 | constitution/14-roadmap.md | 1.6 | Locked | Product Owner | ALL |
 
 ## ADR
@@ -28259,6 +28259,133 @@ ADR-044:                       Draft, NOT reviewed, NOT approved.
 **Next governed step:** ChatGPT Review A of `ADR-044` v0.1 Draft (independent read-only assessment against Chapter 13 §13.10, the locked timeout-triage protocol, and repository authority — not inheriting this executor's own conclusions), followed by fresh Risk Classification (expected `R2`, not self-finalized) and a Product Owner decision on this exact candidate.
 
 **Files changed:** `docs/adr/ADR-044.md` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all historical evidence, other ADRs, Constitution, Global Execution Rules, Phase rules, and `python/feature-engine/**` verified byte-unchanged. `manifest_version` `"10.409"` → `"10.410"`.
+
+## ADR-044 v0.2 + Chapter 13 v1.8 candidate — bounded correction (`FE-EVID03-COND1-PROTOCOL-DECISION-001-CORR-001`, remediating Review A `REVISION_REQUIRED — 0 Blocker / 2 Major / 1 Minor`, Risk `R2`)
+
+**Bounded correction transaction — vai trò: `ADR-044 Bounded Correction Executor`, under ChatGPT-owned WP `FE-EVID03-COND1-PROTOCOL-DECISION-001-CORR-001`.** Remediates ChatGPT Review A findings against `ADR-044` v0.1 (reviewed boundary `ca7034143a6e0c7a4d78c88baa3daa0e83364e3d`), verdict `REVISION_REQUIRED — 0 Blocker / 2 Major / 1 Minor`, Risk `R2`: `MAJOR-01` (Chapter 13 §13.8 reconciliation), `MAJOR-02` (Chapter 13 §13.13 authority boundary), `MINOR-01` (Alternative 3 logic error). Neither finding self-closed here — closure is Review A's own re-review determination.
+
+**Fresh boundary verification:** HEAD confirmed exactly `ca7034143a6e0c7a4d78c88baa3daa0e83364e3d`, identical to `origin/main` — no drift. `docs/adr/ADR-044.md` confirmed `version: "0.1"`, `status: Draft`, `approved_by: null` before this transaction — no intervening correction found.
+
+### MAJOR-01 remediation
+
+```text
+Defect: v0.1 did not reconcile its PASS/FAIL/STOP truth table with
+  Chapter 13 §13.8's existing fail-closed semantics ("measurement không
+  reproducible" -> FAIL).
+Correction: ADR-044 §"Decision candidate" gains new subsection 5
+  ("Reconciliation with Chapter 13 §13.8") explicitly distinguishing
+  per-mutant reproducibility (an UNSTABLE_TIMEOUT_TRIAGE mutant's own
+  classification remains unresolved in every case, A/B/C alike -- never
+  asserted otherwise) from gate-level bounded-measurement reproducibility
+  (the derived interval [lower_score, upper_score] is itself a
+  deterministic, reproducible function of pinned inputs) -- stated
+  explicitly as a NEW Quality-Gate measurement semantic, NOT already
+  authorized by Chapter 13 v1.7 as written.
+Status: REMEDIATED -- PENDING BOUNDED REVIEW A RE-REVIEW.
+```
+
+### MAJOR-02 remediation
+
+```text
+Defect: v0.1 left a Chapter-13 update as a later, optional/likely
+  documentation step; Chapter 13 §13.13 (Locked) reserves "measurement
+  rules"/"pass/fail semantics" to Chapter 13 itself -- an ADR alone
+  cannot make a new gate measurement rule operational.
+Correction: split-authority model made explicit -- ADR-044 = architecture
+  decision/rationale only; the authoritative measurement rule now lives
+  in a NEW Chapter 13 successor. Authored docs/constitution/
+  13-quality-gates.md v1.8 (candidate, Draft, NOT reviewed/approved/
+  activated) per Chapter 0 §5.1 (a Locked living document cannot be
+  edited in place at the same version -- new candidate version authored,
+  status reset). New §13.8.1 ("Bounded-measurement reproducibility for
+  governed unresolved-mutant populations") added immediately after §13.8,
+  encoding the identical formal bounds/truth table/explicit constraints
+  as ADR-044's own §§2-4, marked itself "NOT YET EFFECTIVE" within the
+  section text. Only frontmatter (version/status/approved_by/approved_at/
+  last_review) and one new banner paragraph plus the new §13.8.1
+  subsection were touched -- every other section of Chapter 13 byte-
+  unchanged (verified via targeted diff hunks: 3 hunks only, at the
+  expected line ranges). Activation model added to ADR-044: preferred
+  single atomic activation transaction (Product Owner approval of the
+  reviewed bundle + ADR-044 Approved + Chapter 13 successor becomes the
+  chapter's controlling version + MANIFEST updated, together, at one
+  boundary -- precedented directly by ADR-042's own "Atomic Activation
+  Boundary," which bundled ADR-042 approval with coordinated Chapter
+  0/11/12 transitions in one Product Owner decision); fallback fail-
+  closed staged sequence specified if atomic bundling is later found
+  unsupported. Neither model is chosen/executed/activated by this
+  transaction.
+Status: REMEDIATED -- PENDING BOUNDED REVIEW A RE-REVIEW.
+```
+
+### MINOR-01 remediation
+
+```text
+Defect: v0.1's Alternative 3 ("treat all unstable as survived")
+  incorrectly stated it would force FAIL even when lower_score >= T.
+Correction: treating all unstable as survived is equivalent to using
+  lower_score as a single point estimate -- it AGREES with the bounded
+  rule whenever lower_score >= T (both PASS) or upper_score < T (both
+  FAIL). Its actual, sole defect is confined to the straddle region
+  (lower_score < T <= upper_score), where it wrongly forces FAIL instead
+  of the correct STOPPED / UNRESOLVED. Alternative 3's text corrected
+  accordingly; rejection rationale now cites the correct (straddle-
+  region) defect.
+Status: REMEDIATED -- PENDING BOUNDED REVIEW A RE-REVIEW.
+```
+
+### Chapter 13 v1.8 candidate — frontmatter transition
+
+```text
+Prior blob (Locked v1.7):  4bb697f3b43b0874a080015ef0ce6ca53de729f4
+New blob (Draft v1.8):     2f121c53dc08889dd79a23362668975c9de29416
+version:      "1.7" -> "1.8"
+status:       Locked -> Draft
+approved_by:  Kanner -> null
+approved_at:  "2026-07-28T10:14:34+07:00" -> null
+last_review:  "2026-07-27" -> null
+reviewers:    [ChatGPT, Claude] unchanged (role assignment retained, not
+              an assertion this candidate has already been reviewed)
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/adr/ADR-044.md (v0.1 -> v0.2); docs/constitution/
+  13-quality-gates.md (v1.7 Locked -> v1.8 Draft candidate, frontmatter +
+  banner + new §13.8.1 only); docs/governance/quality-gate/
+  feature-engine-chapter13-remediation-plan-001.md; docs/project/
+  milestone.md; docs/project/milestone-dashboard.html; docs/MANIFEST.md;
+  docs/CHANGELOG.md only. evidence-005.json, evidence-005-correction-
+  001.json, feature-engine-condition1-unstable-timeout-investigation-
+  001.json, every other ADR, every other Constitution chapter, Global
+  Execution Rules, Phase rules, python/feature-engine/{src,tests,tooling}
+  all verified byte-unchanged (git diff --stat empty). No mutation
+  execution. No source/test/tooling change. No Condition-1/2/3 state
+  change. No EVID-03 closure. No ADR/Chapter-13 approval or activation
+  performed or implied.
+```
+
+### State summary (preserved)
+
+```text
+Condition 1:                   STOPPED / UNRESOLVED (unchanged).
+Condition 2:                   167/170 (unchanged, not touched).
+Condition 3:                   SATISFIED — REVIEW A VALIDATED
+                                (unchanged, not reopened).
+P3-FEATURE-QG-EVID-03:         OPEN (unchanged, not closed).
+Feature Engine approval:       NOT APPROVED.
+LIVE:                          NOT_AUTHORIZED.
+ADR-044:                       v0.2, Draft, NOT reviewed (this
+                                candidate), NOT approved.
+Chapter 13:                    v1.7 Locked remains controlling; v1.8
+                                candidate Draft, NOT reviewed, NOT
+                                approved, NOT activated.
+```
+
+**Next governed step:** ChatGPT fresh Review A of `ADR-044` v0.2 and the Chapter 13 v1.8 successor candidate together (the same reviewed bundle the activation model treats as one coherent decision), followed by fresh Risk Classification (expected `R2`, not self-finalized) and a Product Owner decision.
+
+**Files changed:** `docs/adr/ADR-044.md`, `docs/constitution/13-quality-gates.md`, `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all historical evidence, other ADRs, other Constitution chapters, Global Execution Rules, Phase rules, and `python/feature-engine/**` verified byte-unchanged. `manifest_version` `"10.410"` → `"10.411"`.
 
 ## Decision Log
 

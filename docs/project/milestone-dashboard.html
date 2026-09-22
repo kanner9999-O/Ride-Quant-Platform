@@ -235,7 +235,7 @@
   <div class="wrap">
     <h1>Ride Quant Platform — Milestone Dashboard</h1>
     <div class="top-meta">
-      <span>Milestone state verified against: <code id="head-sha">af2903a73fdb52a66142c19191376d9e3c977a4a</code></span>
+      <span>Milestone state verified against: <code id="head-sha">ca7034143a6e0c7a4d78c88baa3daa0e83364e3d</code></span>
       <span>Lean Ride Operating Model v1.1: <span class="pill pill-done">Active — ADOPTED</span></span>
       <span>Current milestone: <span class="pill pill-active">M1 — Feature Engine EVID-03 Closure</span></span>
     </div>
@@ -358,8 +358,8 @@
       <div class="lane">
         <h4>Primary</h4>
         <div class="wp-item">
-          <code>FE-EVID03-COND1-PROTOCOL-DECISION-001</code>
-          <div class="desc">ADR-044 v0.1 Draft authored — "Bounded-Uncertainty Interpretation for Mutation Timeout Triage". Awaiting ChatGPT Review A + Risk Classification (expected R2). Condition 1 unchanged until reviewed and approved.</div>
+          <code>FE-EVID03-COND1-PROTOCOL-DECISION-001-CORR-001</code>
+          <div class="desc">Bounded correction of ADR-044 (v0.1 → v0.2) remediating Review A REVISION_REQUIRED (0 Blocker / 2 Major / 1 Minor, R2): MAJOR-01 (Chapter 13 §13.8 reconciliation), MAJOR-02 (new Chapter 13 v1.8 successor candidate, §13.8.1, carries the authoritative measurement rule — ADR-044 is rationale only), MINOR-01 (Alternative 3 logic fix). Awaiting ChatGPT fresh Review A + Risk Classification of the corrected bundle. Condition 1 unchanged; v1.7 remains Chapter 13's controlling version.</div>
         </div>
       </div>
       <div class="lane">
@@ -386,6 +386,10 @@
           <code>FE-EVID03-COND1-STOP-001</code>
           <div class="desc">Bounded investigation of the 9 unstable timeout-triage mutants. All 9 classified <code>REQUIRES_GOVERNED_PROTOCOL_DECISION</code>. §13.10 applicability question flagged for ChatGPT review. Condition 1 unchanged.</div>
         </div>
+        <div class="wp-item">
+          <code>FE-EVID03-COND1-PROTOCOL-DECISION-001</code>
+          <div class="desc">ADR-044 v0.1 Draft authored. Review A returned <code>REVISION_REQUIRED — 0 Blocker / 2 Major / 1 Minor</code>, Risk R2 — remediated by the CORR-001 WP above.</div>
+        </div>
       </div>
     </div>
   </section>
@@ -395,9 +399,10 @@
     <div class="po-snapshot">
       <div class="kv"><span class="k">Current milestone</span><span class="v">M1 — Feature Engine EVID-03 Closure (ACTIVE)</span></div>
       <div class="kv"><span class="k">Primary blocker</span><span class="v">Condition 1 — STOPPED / UNRESOLVED (9 unstable timeout-triage mutants)</span></div>
-      <div class="kv"><span class="k">Current WP</span><span class="v"><code>FE-EVID03-COND1-PROTOCOL-DECISION-001</code> — ADR-044 v0.1 Draft authored</span></div>
+      <div class="kv"><span class="k">Current WP</span><span class="v"><code>FE-EVID03-COND1-PROTOCOL-DECISION-001-CORR-001</code> — ADR-044 v0.2 + Chapter 13 v1.8 candidate corrected</span></div>
+      <div class="kv"><span class="k">Last Review A</span><span class="v">REVISION_REQUIRED — 0 Blocker / 2 Major / 1 Minor, Risk R2 (on v0.1, remediated)</span></div>
       <div class="kv"><span class="k">PO decision required</span><span class="v pill pill-no">NO</span></div>
-      <div class="kv"><span class="k">Next PO decision point</span><span class="v">After ChatGPT Review A + Risk Classification of ADR-044</span></div>
+      <div class="kv"><span class="k">Next PO decision point</span><span class="v">After the corrected semantic bundle (ADR-044 v0.2 + Chapter 13 v1.8) receives a CLEAN Review A</span></div>
     </div>
   </section>
 

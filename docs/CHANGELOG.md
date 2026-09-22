@@ -2,6 +2,26 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-22 — governance: ADR-044 v0.2 + Chapter 13 v1.8 candidate — bounded correction
+
+Starting HEAD `ca7034143a6e0c7a4d78c88baa3daa0e83364e3d`, verified `main == origin/main`, no drift. ADR-044 confirmed v0.1/Draft/approved_by:null before this transaction.
+
+Remediates ChatGPT Review A REVISION_REQUIRED (0 Blocker / 2 Major / 1 Minor, Risk R2) against ADR-044 v0.1.
+
+MAJOR-01: reconciled Chapter 13 §13.8 fail-closed semantics by distinguishing per-mutant reproducibility (unstable mutants remain unresolved in every case) from gate-level bounded-measurement reproducibility (the derived interval is itself deterministic/reproducible given pinned inputs) -- explicitly a NEW measurement semantic, not already authorized by v1.7.
+
+MAJOR-02: corrected the authority-boundary model -- ADR-044 is architecture decision/rationale only; the authoritative measurement rule now lives in a new Chapter 13 successor, docs/constitution/13-quality-gates.md v1.8 (candidate, Draft, new §13.8.1), authored in this same transaction per Chapter 0 §5.1 (Locked living document edited in place to author a new candidate version -- v1.7 content preserved unchanged in git history, v1.7 remains the sole controlling authoritative version per MANIFEST). Activation model added: preferred single atomic activation transaction (precedented by ADR-042's own Atomic Activation Boundary), fallback fail-closed staged sequence if unsupported; neither executed here.
+
+MINOR-01: corrected Alternative 3's logic (treat-all-as-survived agrees with the bounded rule outside the straddle region; its actual defect is forcing FAIL in the straddle region where the correct rule is STOP).
+
+ADR-044 v0.1 -> v0.2, status Draft unchanged, NOT marked Review-A CLEAN. Chapter 13 v1.7 -> v1.8 candidate (Draft), NOT reviewed/approved/activated, NOT controlling. Worked-example labeling corrected to NON-CONTROLLING / FUTURE-IF-ACTIVATED (two-part conjunctive requirement).
+
+Condition 1 (STOPPED/UNRESOLVED), Condition 2 (167/170), Condition 3 (SATISFIED) all unchanged. Threshold, historical evidence, source/tests/tooling all unchanged. Milestone tracking updated in the same transaction.
+
+**Files changed:** `docs/adr/ADR-044.md`, `docs/constitution/13-quality-gates.md`, `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.410"` -> `"10.411"`.
+
+---
+
 ## [Unreleased] — 2026-09-22 — governance: ADR-044 v0.1 Draft — Bounded-Uncertainty Interpretation for Mutation Timeout Triage
 
 Starting HEAD `af2903a73fdb52a66142c19191376d9e3c977a4a`, verified `main == origin/main`, no drift, no intervening commits.

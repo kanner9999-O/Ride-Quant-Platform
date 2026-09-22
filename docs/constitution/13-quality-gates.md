@@ -1,14 +1,14 @@
 ---
 id: 13-quality-gates
 title: Quality Gates
-version: "1.7"
-status: Locked
+version: "1.8"
+status: Draft
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
-approved_by: Kanner
-approved_at: "2026-07-28T10:14:34+07:00"
+approved_by: null
+approved_at: null
 created_at: "2026-07-16"
-last_review: "2026-07-27"
+last_review: null
 next_review: null
 depends_on: ["02-platform-invariants", "07-module-taxonomy"]
 ---
@@ -16,6 +16,8 @@ depends_on: ["02-platform-invariants", "07-module-taxonomy"]
 # 13. Quality Gates
 
 > **Trạng thái:** `Locked`. Product Owner đã **Approve and Lock** Chapter 13 v1.7. Theo [Chapter 12 §12.3](./12-approval-gates.md), chương này từ nay là **binding authoritative Quality Gates contract** — đúng contract mà [Chapter 12 §12.2(5)](./12-approval-gates.md) yêu cầu cho applicable quality gates. Quality Gate vẫn khác Product Owner Approval Gate (§13.1) — trạng thái Locked không đổi phân biệt đó.
+>
+> **v1.8 CANDIDATE (2026-09-22) — `Draft`, NOT reviewed, NOT approved, NOT controlling.** Authored per Chapter 0 §5.1 (a Locked living document cannot be edited in place at the same version — a new candidate version must be authored and pass its own fresh approval gate). Adds new §13.8.1 ("Bounded-measurement reproducibility for governed unresolved-mutant populations"), the authoritative Quality-Gate measurement-rule counterpart to `docs/adr/ADR-044.md` v0.1 (`Draft`, itself under Review-A correction for `MAJOR-01`/`MAJOR-02`/`MINOR-01`). **`v1.7`, `Locked`, remains the sole controlling authoritative version of this chapter until this `v1.8` candidate is itself reviewed, accepted, and activated** — see MANIFEST for current authoritative pointer (I-12). No other section of this chapter is touched by this candidate; §13.8's own existing fail-closed text (above the new §13.8.1) is byte-unchanged.
 
 ## 13.1 Purpose and scope
 
@@ -313,6 +315,49 @@ Gate **fail-closed**. Gate = **FAIL** khi bất kỳ điều nào sau đây:
 - measurement không reproducible.
 
 **Missing gate ≠ passed gate.** Nhất quán [Chapter 12 §12.2](./12-approval-gates.md): **fail-closed = eligibility incomplete**, **không** phải reviewer veto và **không** phải Product Owner rejection.
+
+### 13.8.1 Bounded-measurement reproducibility for governed unresolved-mutant populations (`v1.8 CANDIDATE — NOT YET EFFECTIVE`)
+
+> **This subsection is proposed text only.** It is part of the `v1.8` candidate (see file banner above) and is **not controlling** — `v1.7` (without this subsection) remains the sole authoritative Quality-Gate contract until this candidate is itself reviewed, accepted, and activated. It becomes operational for any specific gate evaluation only per the activation model in `docs/adr/ADR-044.md`'s own Consequences/Migration sections — never by virtue of this file alone.
+
+Ordinary §13.8 fail-closed semantics require measurement to be reproducible; a mutation-effectiveness gate's underlying protocol MAY produce a bounded population of individually-unresolved mutant classifications (e.g. `UNSTABLE_TIMEOUT_TRIAGE`, produced by a governed, Locked-protocol-level timeout-triage mechanism that intentionally declines to force a per-mutant resolution — no majority vote, no forced tie-break, no retry-until-green). This subsection reconciles that case with §13.8/§13.9 by distinguishing two, separate reproducibility questions:
+
+- **Per-mutant reproducibility (unchanged, still governed by §13.8/§13.9 as written).** An individually unresolved mutant (e.g. `UNSTABLE_TIMEOUT_TRIAGE`) remains **unresolved**. No gate evaluation under this subsection may assert, imply, or silently treat such a mutant's own killed/survived/confirmed-timeout classification as having become reproducible. Its status remains exactly as the governing per-mutant protocol left it, in every case below (A, B, and C alike).
+- **Gate-level bounded-measurement reproducibility (the new semantic this subsection adds).** When every input below is immutable and pinned per §13.9 — the confirmed-favorable numerator, the unresolved count `U`, the gate's own already-authoritative denominator, the required threshold `T`, the exact criteria/policy version, and the evaluation boundary — the **derived interval** `[lower_score, upper_score]` (defined below) is itself a deterministic, reproducible function of those pinned inputs. This interval-level reproducibility is a **distinct, new Quality-Gate measurement semantic**, not already authorized by this chapter absent this subsection — it does not, and must never be read to, retroactively establish that any individual unresolved mutant's own classification became reproducible.
+
+**Formal bound definitions**, reusing — never replacing — the gate's own already-authoritative metric/denominator/threshold (no new metric, no denominator change):
+
+```text
+lower_numerator = confirmed favorable numerator
+upper_numerator = lower_numerator + U          (U = unresolved/unstable count)
+lower_score      = lower_numerator / authoritative denominator
+upper_score      = upper_numerator / authoritative denominator
+```
+
+**Result semantics**, given the gate's own required threshold `T`:
+
+```text
+upper_score < T          -> FAIL — criteria
+lower_score >= T          -> PASS
+lower_score < T <= upper  -> STOPPED / UNRESOLVED
+```
+
+Required interpretation, binding wherever this subsection is activated for a specific gate:
+
+- **Case A (`FAIL — criteria`)** is authorized only when authoritative bounded measurement proves that even the best-case resolution of every unresolved mutant cannot meet `T` — i.e. genuine §13.8-style fail-closed criteria-failure, established with certainty despite per-mutant uncertainty, not a guess.
+- **Case B (`PASS`)** is authorized only when `T` is met granting **zero** favorable credit to any unresolved mutant — a `PASS` under this subsection never relies on unresolved evidence, consistent with §13.10's "unstable evidence is never credited as passing evidence."
+- **Case C (`STOPPED / UNRESOLVED`)** applies whenever the unresolved classifications could still change the verdict — no `PASS`/`FAIL` is authorized; this is the fail-closed default whenever both bounds straddle `T`, with no discretionary override to Case A/B.
+- In all three cases, the unresolved mutants' own individual classifications remain exactly as unresolved as the governing per-mutant protocol left them — this subsection never resolves, infers, or credits them individually.
+
+**Explicit constraints (binding on any future gate evaluation invoking this subsection):**
+
+- no majority vote; no N-of-M voting; no arbitrary third-run tie-break; no retry-until-green (§13.10, unchanged);
+- no denominator manipulation — the authoritative denominator is reused exactly as already established for that gate, never altered to change the interval;
+- no automatic test-level quarantine triggered by mutation-classification instability alone — §13.10's own quarantine trigger (evidence a specific *test* is itself flaky/timing-dependent) remains a distinct, separately-evidenced concern from this subsection's gate-interpretation mechanism; neither implies the other;
+- §13.9's evidence/pinning rules apply to every input used to derive the interval (numerator components, `U`, denominator, `T`, policy version, evaluation boundary) — this subsection creates no exemption from §13.9;
+- **no historical evidence rewrite and no retroactive reinterpretation of any prior gate evaluation** — this subsection applies only to bounded-measurement interpretation performed after its own activation, per the exact governed activation boundary recorded in MANIFEST/the relevant ADR; a prior gate's own recorded `PASS`/`FAIL`/`STOPPED` result is never silently reclassified by this subsection's later existence.
+
+This subsection does not itself select, or make effective, any specific per-mutant timeout-triage protocol — it governs only how a gate consumes the *output* of whatever governed protocol already produced a bounded unresolved-mutant population.
 
 ## 13.9 Evidence contract — pinning & reproducibility
 
