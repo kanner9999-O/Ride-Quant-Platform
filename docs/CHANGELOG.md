@@ -2,6 +2,20 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-22 — project: RIDE-PROJECT-MILESTONE-DASHBOARD-001 — PO milestone-tracking layer established
+
+Starting HEAD `063bc0771f25b59858df2e3906e00c7a238e0d31`, verified `main == origin/main`, no drift, no intervening commits.
+
+Creates a project-visibility layer only, under ChatGPT-owned WP `RIDE-PROJECT-MILESTONE-DASHBOARD-001` (milestone semantics/decomposition/acceptance criteria/independent verification/Review A/Risk Classification owned by ChatGPT). Two new files: `docs/project/milestone.md` (authoritative PO milestone register) and `docs/project/milestone-dashboard.html` (derived visual view, standalone, zero external CDN/JS/framework/build step, states the Markdown controls on disagreement).
+
+Milestone map: M0 Lean Ride Operating Model v1.1 Adoption -- DONE. M1 Feature Engine EVID-03 Closure -- ACTIVE (Condition 1 STOPPED/UNRESOLVED primary blocker, 9 UNSTABLE_TIMEOUT_TRIAGE mutants, 406 survivors, diagnostic-only bounds 84.21%-84.56% explicitly non-formal, threshold 87.001959503592% unchanged, Condition 2 167/170, Condition 3 SATISFIED -- DONE, not reopened; primary WP FE-EVID03-COND1-STOP-001 not executed, secondary Candidate-005 queued, deferred contracts.x__seal_verified_authority__mutmut_33). M2 Remaining Quality-Gate Closure -- QUEUED, scope not pre-invented. M3 Module Approval -- QUEUED, no approval granted. M4 Downstream Phase-3 Unlock/Integration -- PROVISIONAL, no speculative work hard-coded.
+
+Not performed: FE-EVID03-COND1-STOP-001 not executed; Candidate-005 not authored; Condition-1 protocol/Condition-2 governance unchanged; Condition 3 not reopened; Feature Engine not approved; LIVE not authorized; no Constitution/ADR/Quality-Gate-meaning change; no governance classification self-finalized (expected R0/R1, ADR_NOT_REQUIRED, pending ChatGPT's own verification and Review A).
+
+**Files changed:** `docs/project/milestone.md` (new), `docs/project/milestone-dashboard.html` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.407"` -> `"10.408"`.
+
+---
+
 ## [Unreleased] — 2026-09-22 — governance: Lean Ride Operating Model v1.1 — Product Owner adoption
 
 Starting HEAD `4ee761cd7b5776a93cf695ae3bdb8b64aafcf58b`, verified `main == origin/main`, no drift. Reviewed subject blob independently re-verified `a924aea62214bbbf60a9361f6d83511b9aedd09e`, matches exactly.

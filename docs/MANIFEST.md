@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.407"
+manifest_version: "10.408"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -28079,6 +28079,18 @@ The 2 ambiguous rows and the 1 tool-identity-drift row remain entirely untouched
 **Lean Ride Operating Model v1.1 state: `Active — ADOPTED`.**
 
 **Files changed:** `docs/governance/lean-ride-operating-model-v1-candidate.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — no Constitution/ADR/Global Execution Rule/Phase rule/Feature Engine evidence/source/tests/tooling touched (verified via `git status --porcelain=v1` and `git diff --stat` on all excluded paths, both empty/expected). `manifest_version` `"10.406"` → `"10.407"`.
+
+## `project` — RIDE-PROJECT-MILESTONE-DASHBOARD-001 — Product Owner milestone-tracking layer established
+
+**Implementation transaction — vai trò: `Ride Project Milestone Dashboard Executor`, under ChatGPT-owned WP `RIDE-PROJECT-MILESTONE-DASHBOARD-001`** (milestone semantics, decomposition, acceptance criteria, independent verification, Review A, and Risk Classification owned by ChatGPT — not self-finalized here). Starting HEAD `063bc0771f25b59858df2e3906e00c7a238e0d31`, verified `main == origin/main`, no drift, no intervening commits.
+
+**Creates a project-visibility layer only** — not a new governance framework, not a Governance/Approval-semantics change. Two new files: `docs/project/milestone.md` (authoritative PO milestone register) and `docs/project/milestone-dashboard.html` (derived visual view, standalone, zero external CDN/JS/framework/build step, explicitly states the Markdown controls on disagreement).
+
+**Milestone map implemented (M0–M4), sourced from current repository authority:** `M0` Lean Ride Operating Model v1.1 Adoption — `DONE` (closing boundary `063bc0771f25b59858df2e3906e00c7a238e0d31`). `M1` Feature Engine `P3-FEATURE-QG-EVID-03` Closure — `ACTIVE`, depends on M0; Condition 1 `STOPPED/UNRESOLVED` (primary blocker, 9 `UNSTABLE_TIMEOUT_TRIAGE` mutants, 406 current survivors, diagnostic-only bounds 84.21%–84.56% explicitly labeled non-formal, required threshold 87.001959503592% unchanged), Condition 2 `167/170`, Condition 3 `SATISFIED — REVIEW A VALIDATED` (recorded `DONE`, not reopened by this WP); primary WP `FE-EVID03-COND1-STOP-001` (not executed by this transaction), secondary queue `Candidate-005`, deferred item `contracts.x__seal_verified_authority__mutmut_33` (`TOOL_IDENTITY_DRIFT`). `M2` Remaining Quality-Gate Closure — `QUEUED`, depends on M1, scope explicitly not pre-invented. `M3` Module Approval — `QUEUED`, depends on M2, no approval granted. `M4` Downstream Phase-3 Unlock/Integration — `PROVISIONAL`, depends on M3, no speculative implementation work hard-coded.
+
+**Not performed by this transaction (per explicit WP scope):** `FE-EVID03-COND1-STOP-001` not executed; Candidate-005 not authored; Condition-1 protocol not changed; Condition-2 governance not changed; Condition 3 not reopened; Feature Engine not approved; LIVE not authorized; no Constitution/ADR/Quality-Gate-meaning change; no governance classification self-finalized (expected `R0`/`R1`, `ADR_NOT_REQUIRED`, pending ChatGPT's own independent verification and Review A).
+
+**Files changed:** `docs/project/milestone.md` (new), `docs/project/milestone-dashboard.html` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no Constitution/ADR/Global-Execution-Rule/Phase-rule/Feature-Engine-evidence/source/tests/tooling file touched. `manifest_version` `"10.407"` → `"10.408"`.
 
 ## Decision Log
 

@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ride Quant Platform — Milestone Dashboard</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #161923;
+    --panel-2: #1c202c;
+    --border: #2a2f3d;
+    --text: #e6e8ee;
+    --text-dim: #9aa1b2;
+    --accent: #5b8def;
+    --done: #3ecf8e;
+    --active: #f5a524;
+    --queued: #6b7280;
+    --provisional: #8b7cf6;
+    --blocked: #ef4444;
+    --risk: #ef4444;
+    --ok: #3ecf8e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    padding: 0 0 60px 0;
+  }
+  a { color: var(--accent); }
+  .wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  header.top {
+    background: linear-gradient(180deg, #161923 0%, #0f1115 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 24px 0;
+    margin-bottom: 28px;
+  }
+  header.top h1 {
+    margin: 0 0 6px 0;
+    font-size: 1.5rem;
+    letter-spacing: 0.2px;
+  }
+  .top-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 22px;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+  }
+  .top-meta code {
+    background: #0d0f14;
+    border: 1px solid var(--border);
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: var(--text);
+    font-size: 0.8rem;
+  }
+  .pill {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  .pill-active { background: rgba(245,165,36,0.15); color: var(--active); border: 1px solid rgba(245,165,36,0.4); }
+  .pill-done { background: rgba(62,207,142,0.15); color: var(--done); border: 1px solid rgba(62,207,142,0.4); }
+  .pill-queued { background: rgba(107,114,128,0.18); color: #c6cad3; border: 1px solid rgba(107,114,128,0.4); }
+  .pill-provisional { background: rgba(139,124,246,0.15); color: var(--provisional); border: 1px solid rgba(139,124,246,0.4); }
+  .pill-blocked { background: rgba(239,68,68,0.15); color: var(--blocked); border: 1px solid rgba(239,68,68,0.4); }
+  .pill-atrisk { background: rgba(239,68,68,0.15); color: var(--blocked); border: 1px solid rgba(239,68,68,0.4); }
+  .pill-yes { background: rgba(239,68,68,0.18); color: #ff8080; border: 1px solid rgba(239,68,68,0.5); }
+  .pill-no { background: rgba(62,207,142,0.15); color: var(--done); border: 1px solid rgba(62,207,142,0.4); }
+
+  section { margin-bottom: 34px; }
+  h2 {
+    font-size: 1.05rem;
+    margin: 0 0 14px 0;
+    color: var(--text);
+    border-left: 3px solid var(--accent);
+    padding-left: 10px;
+  }
+  h3 { font-size: 0.95rem; margin: 0 0 8px 0; color: var(--text); }
+
+  /* Milestone roadmap */
+  .roadmap {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+  }
+  .m-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    position: relative;
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .m-card.state-active { border-color: rgba(245,165,36,0.55); box-shadow: 0 0 0 1px rgba(245,165,36,0.15); }
+  .m-card.state-done { border-color: rgba(62,207,142,0.4); }
+  .m-card.state-provisional { border-color: rgba(139,124,246,0.35); }
+  .m-id { font-size: 0.72rem; color: var(--text-dim); letter-spacing: 1px; margin-bottom: 4px; }
+  .m-name { font-size: 0.88rem; font-weight: 600; margin-bottom: 10px; }
+  .m-dep { font-size: 0.72rem; color: var(--text-dim); margin-top: 8px; }
+  .arrow {
+    display: none;
+  }
+
+  /* Active milestone panel */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+  }
+  .kv {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.88rem;
+  }
+  .kv:last-child { border-bottom: none; }
+  .kv .k { color: var(--text-dim); }
+  .kv .v { font-weight: 600; text-align: right; }
+
+  .note {
+    margin-top: 12px;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    background: #0d0f14;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+
+  /* Metrics */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+  .metric {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+  }
+  .metric .num { font-size: 1.7rem; font-weight: 700; }
+  .metric .lbl { font-size: 0.75rem; color: var(--text-dim); margin-top: 4px; }
+
+  /* WP lanes */
+  .lanes {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+  .lane {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+  }
+  .lane h4 {
+    margin: 0 0 10px 0;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text-dim);
+  }
+  .wp-item {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 0.82rem;
+    margin-bottom: 8px;
+  }
+  .wp-item:last-child { margin-bottom: 0; }
+  .wp-item code { font-size: 0.75rem; }
+  .wp-item .desc { color: var(--text-dim); font-size: 0.76rem; margin-top: 4px; }
+
+  /* PO snapshot */
+  .po-snapshot {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+  }
+  .po-snapshot .kv { font-size: 0.95rem; }
+
+  footer.source-notice {
+    background: rgba(91,141,239,0.08);
+    border: 1px solid rgba(91,141,239,0.35);
+    border-radius: 10px;
+    padding: 16px 20px;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+  }
+  footer.source-notice code { color: var(--accent); }
+
+  @media (max-width: 860px) {
+    .roadmap { grid-template-columns: repeat(2, 1fr); }
+    .grid-2 { grid-template-columns: 1fr; }
+    .metrics { grid-template-columns: repeat(2, 1fr); }
+    .lanes { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 520px) {
+    .roadmap { grid-template-columns: 1fr; }
+    .metrics { grid-template-columns: 1fr; }
+    .lanes { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <h1>Ride Quant Platform — Milestone Dashboard</h1>
+    <div class="top-meta">
+      <span>Current verified HEAD: <code id="head-sha">063bc0771f25b59858df2e3906e00c7a238e0d31</code></span>
+      <span>Lean Ride Operating Model v1.1: <span class="pill pill-done">Active — ADOPTED</span></span>
+      <span>Current milestone: <span class="pill pill-active">M1 — Feature Engine EVID-03 Closure</span></span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section id="roadmap">
+    <h2>Milestone Roadmap — M0 → M4</h2>
+    <div class="roadmap">
+      <div class="m-card state-done">
+        <div>
+          <div class="m-id">M0</div>
+          <div class="m-name">Lean Ride Operating Model v1.1 Adoption</div>
+        </div>
+        <div>
+          <span class="pill pill-done">DONE</span>
+          <div class="m-dep">No dependency</div>
+        </div>
+      </div>
+      <div class="m-card state-active">
+        <div>
+          <div class="m-id">M1</div>
+          <div class="m-name">Feature Engine — P3-FEATURE-QG-EVID-03 Closure</div>
+        </div>
+        <div>
+          <span class="pill pill-active">ACTIVE</span>
+          <div class="m-dep">Depends on: M0</div>
+        </div>
+      </div>
+      <div class="m-card">
+        <div>
+          <div class="m-id">M2</div>
+          <div class="m-name">Feature Engine — Remaining Quality-Gate Closure</div>
+        </div>
+        <div>
+          <span class="pill pill-queued">QUEUED</span>
+          <div class="m-dep">Depends on: M1</div>
+        </div>
+      </div>
+      <div class="m-card">
+        <div>
+          <div class="m-id">M3</div>
+          <div class="m-name">Feature Engine — Module Approval</div>
+        </div>
+        <div>
+          <span class="pill pill-queued">QUEUED</span>
+          <div class="m-dep">Depends on: M2</div>
+        </div>
+      </div>
+      <div class="m-card state-provisional">
+        <div>
+          <div class="m-id">M4</div>
+          <div class="m-name">Feature Engine → Downstream Phase-3 Unlock / Integration</div>
+        </div>
+        <div>
+          <span class="pill pill-provisional">PROVISIONAL</span>
+          <div class="m-dep">Depends on: M3</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="m1-panel">
+    <h2>Active Milestone Detail — M1: Feature Engine EVID-03 Closure</h2>
+    <div class="grid-2">
+      <div class="panel">
+        <h3>Quality-Gate state</h3>
+        <div class="kv"><span class="k">Overall</span><span class="v pill pill-atrisk">AT RISK</span></div>
+        <div class="kv"><span class="k">Condition 1</span><span class="v" style="color:var(--blocked)">STOPPED / UNRESOLVED</span></div>
+        <div class="kv"><span class="k">Condition 2</span><span class="v">167 / 170</span></div>
+        <div class="kv"><span class="k">Condition 3</span><span class="v" style="color:var(--done)">SATISFIED — REVIEW A VALIDATED</span></div>
+        <div class="kv"><span class="k">P3-FEATURE-QG-EVID-03</span><span class="v">OPEN</span></div>
+        <div class="kv"><span class="k">Feature Engine approval</span><span class="v">NOT APPROVED</span></div>
+        <div class="kv"><span class="k">LIVE</span><span class="v">NOT AUTHORIZED</span></div>
+      </div>
+      <div class="panel">
+        <h3>Condition 1 — formal blocker</h3>
+        <div class="kv"><span class="k">Formal verdict</span><span class="v" style="color:var(--blocked)">STOPPED / UNRESOLVED</span></div>
+        <div class="kv"><span class="k">Unstable timeout-triage cases</span><span class="v">9</span></div>
+        <div class="kv"><span class="k">Current survivor count</span><span class="v">406</span></div>
+        <div class="kv"><span class="k">Diagnostic-only bounds</span><span class="v">≈ 84.21% – 84.56%</span></div>
+        <div class="kv"><span class="k">Required threshold</span><span class="v">87.001959503592%</span></div>
+        <div class="note">
+          The 84.21%–84.56% figures are <strong>diagnostic / planning evidence only</strong>.
+          They do <strong>not</strong> replace or substitute for the formal
+          <code>STOPPED / UNRESOLVED</code> Condition-1 verdict, which is triggered by the
+          locked timeout-triage protocol's disagreement clause on the 9 unstable mutants.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="metrics">
+    <h2>Key Metrics</h2>
+    <div class="metrics">
+      <div class="metric">
+        <div class="num" style="color:var(--blocked)">9</div>
+        <div class="lbl">Unstable timeout-triage mutants</div>
+      </div>
+      <div class="metric">
+        <div class="num">406</div>
+        <div class="lbl">Current survivor count</div>
+      </div>
+      <div class="metric">
+        <div class="num" style="color:var(--active)">167 / 170</div>
+        <div class="lbl">Condition-2 identities resolved</div>
+      </div>
+      <div class="metric">
+        <div class="num pill pill-no" style="font-size:1.1rem;">NO</div>
+        <div class="lbl">PO action required now</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="wp-lanes">
+    <h2>Work Package Lanes</h2>
+    <div class="lanes">
+      <div class="lane">
+        <h4>Primary</h4>
+        <div class="wp-item">
+          <code>FE-EVID03-COND1-STOP-001</code>
+          <div class="desc">Investigate the 9 unstable timeout-triage cases; determine whether resolution exists under the existing locked protocol or requires a separately governed protocol decision. Not yet executed.</div>
+        </div>
+      </div>
+      <div class="lane">
+        <h4>Secondary</h4>
+        <div class="wp-item">
+          <code>Candidate-005</code>
+          <div class="desc">Govern the 2 historically reconstructed Condition-2 identities, when doing so does not disrupt the primary critical path. Queued.</div>
+        </div>
+      </div>
+      <div class="lane">
+        <h4>Deferred</h4>
+        <div class="wp-item">
+          <code>contracts.x__seal_verified_authority__mutmut_33</code>
+          <div class="desc">TOOL_IDENTITY_DRIFT — no existing governed resolution mechanism. Deferred.</div>
+        </div>
+      </div>
+      <div class="lane">
+        <h4>Completed</h4>
+        <div class="wp-item">
+          <code>RIDE-PROJECT-MILESTONE-DASHBOARD-001</code>
+          <div class="desc">This tracking infrastructure WP — Markdown register + derived HTML dashboard only.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="po-snapshot">
+    <h2>PO Snapshot</h2>
+    <div class="po-snapshot">
+      <div class="kv"><span class="k">Current milestone</span><span class="v">M1 — Feature Engine EVID-03 Closure (ACTIVE)</span></div>
+      <div class="kv"><span class="k">Primary blocker</span><span class="v">Condition 1 — STOPPED / UNRESOLVED (9 unstable timeout-triage mutants)</span></div>
+      <div class="kv"><span class="k">Current WP</span><span class="v"><code>FE-EVID03-COND1-STOP-001</code> (not yet executed)</span></div>
+      <div class="kv"><span class="k">PO decision required</span><span class="v pill pill-no">NO</span></div>
+    </div>
+  </section>
+
+  <footer class="source-notice">
+    <strong>Source of truth:</strong> this HTML page is a derived visual view of
+    <code>docs/project/milestone.md</code>. If this dashboard disagrees with
+    <code>milestone.md</code>, the Markdown register controls.
+  </footer>
+
+</div>
+
+</body>
+</html>
