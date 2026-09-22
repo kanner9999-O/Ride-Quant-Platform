@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.405"
+manifest_version: "10.406"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -28034,9 +28034,31 @@ The 2 ambiguous rows and the 1 tool-identity-drift row remain entirely untouched
 
 `P3-FEATURE-QG-EVID-03` remains `OPEN` (Condition 1 `STOPPED/UNRESOLVED`, not reopened; Condition 2 `FAIL/PARTIALLY SATISFIED — 167/170`; Condition 3 `SATISFIED`, unchanged). Feature Engine remains **NOT APPROVED**; LIVE remains **NOT_AUTHORIZED**.
 
-**Part B not performed this transaction:** the task specification naming this executor's Part B ("Historical-Baseline Ambiguity Reconstruction") was truncated mid-instruction in the originating message before its scope/requirements were stated. Per this repository's own repeated discipline against inventing governed work without explicit instruction, Part B is deferred pending clarification rather than guessed — see final report.
+~~**Part B not performed this transaction:** the task specification naming this executor's Part B ("Historical-Baseline Ambiguity Reconstruction") was truncated mid-instruction in the originating message before its scope/requirements were stated.~~ — **Part B instructions received and executed below, this continuation.**
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-reclassification-candidate-004.json`, `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — no `src/**`/`tests/**`/tooling/dependency/contract/ADR/governance-rule file touched; no mutation test execution; no historical evidence artifact modified. `manifest_version` `"10.404"` → `"10.405"`.
+
+## `feature-engine` — `P3-FEATURE-QG-EVID-03` Condition-2 remaining-ambiguity historical-baseline reconstruction (Part B)
+
+**Consolidated transaction — vai trò: `Feature Engine EVID-03 Candidate-004 PO Recorder + Historical-Baseline Ambiguity Reconstruction Executor` (Part B).** Starting HEAD `e15f6aebf4ee10c039967085ccc35c956b195d1d`, verified `main == origin/main`, no drift. Part A (Candidate-004 PO approval, `167/170`) NOT rerun, reverted, or duplicated.
+
+**Historical reconstruction method:** checked out the ORIGINAL evaluated baseline repository boundary `8d6293aca773757bc3b62cc0d3b80cba9e243954` in an isolated git worktree (main working tree never modified) and freshly re-verified all three pinned tree identities — `python/feature-engine/src` tree `256421344a48a6c9d4ef72f81eb82b27dbedfc50`, `tests` tree `6cfe8097b061870493cd44d711d79cd9e04a538c`, `tooling` tree `b99f6252058cbf5404751cf85d80c6745eebd03b` — all matched exactly, plus tool identity (`mutmut 3.7.0` via the checkout's own locked requirements, `Python 3.13.6`). Generated the historical mutants workspace via `mutmut.__main__.create_mutants()` directly (zero test execution) and extracted exact historical diffs by trampoline-source parsing, content-identical to `tooling show` output.
+
+**`swing_distance.xǁSwingDistanceFeatureEngineǁ_reevaluate_all_windows__mutmut_32`:** exact historical site is the 3rd of 4 `continue` statements — immediately after `events.extend(self._emit_replacement_only(...))` inside `if lineage.invalidated:` — uniquely, structurally matching current `_prepare_reevaluate_all_windows__mutmut_32` (`killed`), confirmed via exhaustive scan of all 4 `continue`→`break` mutants in the current function (the sibling candidates `mutmut_6`/`mutmut_13`/`mutmut_37` are a structurally different site or already claimed by other, already-validated historical rows). Classification: `SUCCESSOR_MATCH — CURRENT KILLED`.
+
+**`swing_distance.xǁSwingDistanceFeatureEngineǁon_swing_confirmed__mutmut_35`:** exact historical site is the numeric literal INSIDE the exception MESSAGE-TEXT f-string of the revision-advance-by-one check (`{existing.revision + 1!r}` → `{existing.revision + 2!r}`) — NOT the validation condition itself, which is left unmutated. This finding excludes BOTH candidates the final-six assessment had previously considered (current `mutmut_26`/`mutmut_32`, which mutate the actual condition, not the message text) — neither was ever the true successor. Exhaustive scan of the current function's complete `1→2` mutation surface found current `prepare_swing_confirmed__mutmut_35` as the unique exact structural/textual match (`killed`). Classification: `SUCCESSOR_MATCH — CURRENT KILLED`. Noted as a factual observation, not a reclassification: the historical mutation is message-text-only, structurally similar to this document's own `low_materiality_message_text` survivor category, though tagged `actionable_test_gap_candidate` in `feature-engine-mutation-baseline-001-analysis.md` — that document is left byte-unchanged, this observation is carried forward for a future reviewer's judgment only.
+
+**Governed Condition-2 count: explicitly UNCHANGED at `167/170`.** Historical reconstruction alone grants zero §4.1(b) credit — a separate governed Review A → Risk Classification → Product Owner Decision chain is still required, per the precedent established for candidate-002/003/004. `168/170`/`169/170`/`170/170` NOT recorded by this transaction.
+
+**Tool-identity-drift row (`contracts.x__seal_verified_authority__mutmut_33`):** untouched, out of scope for this transaction, unchanged from `TOOL_IDENTITY_DRIFT — NO EXISTING GOVERNED RESOLUTION MECHANISM`.
+
+`P3-FEATURE-QG-EVID-03` remains `OPEN` (Condition 1 `STOPPED/UNRESOLVED`, not reopened; Condition 2 `FAIL/PARTIALLY SATISFIED — 167/170`; Condition 3 `SATISFIED`, unchanged). Feature Engine remains **NOT APPROVED**; LIVE remains **NOT_AUTHORIZED**.
+
+**Created:** `docs/governance/mutation-baseline-evidence/feature-engine-condition2-remaining-ambiguity-historical-reconstruction-001.json` — new, additive, evidence-only artifact. `feature-engine-condition2-final-six-resolution-assessment-001.json` and every other prior historical evidence artifact left byte-unchanged (verified via `git diff --stat`, empty).
+
+**Recommended next governed transaction:** bounded Candidate-005 authoring for exactly these 2 rows (Case A — both map uniquely to killed), under the same already-Product-Owner-approved ADR-043 prepare-seam §4.1(b) authority as the prior 167 rows. Projected non-controlling state if later approved: `167 + 2 = 169/170` (1/170 would remain — the tool-identity-drift row). Risk `R1`, ADR Scope Rule fresh-checked: `ADR_NOT_REQUIRED`.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-condition2-remaining-ambiguity-historical-reconstruction-001.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — no `src/**`/`tests/**`/tooling/dependency/contract/ADR/governance-rule file touched; no mutation test execution (historical AND current mutants both generated via `create_mutants()` directly, zero tests run); no historical evidence artifact modified; both isolated git worktrees removed after use; no lingering mutmut/pytest/tooling/watcher process. `manifest_version` `"10.405"` → `"10.406"`.
 
 ## Decision Log
 

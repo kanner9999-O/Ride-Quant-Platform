@@ -2,6 +2,30 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-22 — feature-engine: `P3-FEATURE-QG-EVID-03` Condition-2 remaining-ambiguity historical-baseline reconstruction (Part B)
+
+Starting HEAD `e15f6aebf4ee10c039967085ccc35c956b195d1d`, verified `main == origin/main`, no drift. Part A (Candidate-004 PO approval, 167/170) NOT rerun, reverted, or duplicated.
+
+Historical reconstruction method: checked out the ORIGINAL evaluated baseline boundary `8d6293aca773757bc3b62cc0d3b80cba9e243954` in an isolated git worktree (main working tree never modified), fresh-verified all 3 pinned tree identities (src/tests/tooling, all matched exactly) plus tool identity (mutmut 3.7.0, Python 3.13.6). Generated the historical mutants workspace via create_mutants() directly (zero test execution) and extracted exact historical diffs.
+
+_reevaluate_all_windows__mutmut_32: exact historical site is the 3rd of 4 continue statements (immediately after events.extend(self._emit_replacement_only(...)) inside if lineage.invalidated:), uniquely matching current _prepare_reevaluate_all_windows__mutmut_32 (killed) -- confirmed via exhaustive scan of all 4 continue->break mutants (the other candidates are a different site or already claimed by other sibling rows). SUCCESSOR_MATCH -- CURRENT KILLED.
+
+on_swing_confirmed__mutmut_35: exact historical site is the numeric literal INSIDE the exception message-text f-string of the revision-advance-by-one check ({existing.revision + 1!r} -> {existing.revision + 2!r}) -- NOT the validation condition, which is unmutated. This excludes BOTH candidates the final-six assessment had previously considered (current mutmut_26/mutmut_32, which mutate the actual condition, not the message text) -- neither was ever the true successor. Exhaustive scan of the current function's full 1->2 mutation surface found current prepare_swing_confirmed__mutmut_35 as the unique exact match (killed). SUCCESSOR_MATCH -- CURRENT KILLED. Noted, not reclassified: the historical mutation is message-text-only, tagged actionable_test_gap_candidate in baseline-001-analysis.md (left byte-unchanged) -- carried forward as an observation for a future reviewer.
+
+Governed Condition-2 count: explicitly UNCHANGED at 167/170 -- historical reconstruction alone grants zero §4.1(b) credit; a separate governed decision chain is still required. 168/170, 169/170, 170/170 NOT recorded.
+
+Tool-identity-drift row (contracts.x__seal_verified_authority__mutmut_33) untouched, out of scope.
+
+Condition 1 unchanged STOPPED/UNRESOLVED; Condition 3 unchanged SATISFIED. P3-FEATURE-QG-EVID-03 remains OPEN. Feature Engine remains NOT APPROVED; LIVE remains NOT_AUTHORIZED.
+
+Created `docs/governance/mutation-baseline-evidence/feature-engine-condition2-remaining-ambiguity-historical-reconstruction-001.json` (new, additive, evidence-only). All prior historical evidence artifacts, including final-six-resolution-assessment-001.json, left byte-unchanged.
+
+**Recommended next governed transaction:** bounded Candidate-005 authoring for exactly these 2 rows (both map uniquely to killed), same already-approved ADR-043 authority as the prior 167 rows. Projected non-controlling state if approved: 167 + 2 = 169/170 (1/170 remaining -- the tool-identity-drift row). Risk R1, ADR_NOT_REQUIRED.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-condition2-remaining-ambiguity-historical-reconstruction-001.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only -- no source/test/tooling/dependency/contract/ADR/governance-rule file touched; no mutation test execution; no historical evidence artifact modified; both isolated worktrees removed after use; no lingering process. `manifest_version` `"10.405"` -> `"10.406"`.
+
+---
+
 ## [Unreleased] — 2026-09-22 — feature-engine: `P3-FEATURE-QG-EVID-03` Condition-2 Candidate-004 PO-approval recording (167/170)
 
 Starting HEAD `9a8a36de59ecfe7013263306a3e36fb41cde9595`, verified `main == origin/main`, no drift. candidate-004.json blob independently re-verified `299e1fe0a4084b31e550a887239407aa52bb08a3`, matches exactly.

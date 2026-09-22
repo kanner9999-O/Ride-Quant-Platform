@@ -1,0 +1,125 @@
+{
+  "artifact_id": "feature-engine-condition2-remaining-ambiguity-historical-reconstruction-001",
+  "schema_note": "Bounded HISTORICAL reconstruction of the exact original mutant diffs for the 2 remaining AMBIGUOUS — EVIDENCE INSUFFICIENT Condition-2 identities (feature-engine-condition2-final-six-resolution-assessment-001.json), performed by checking out the ORIGINAL evaluated baseline repository boundary and generating mutants there with the exact original mutmut 3.7.0 tool identity — NOT by re-scanning current source for ordinal or textual similarity. This is evidence-only: it does NOT grant any Condition-2 credit, does NOT author a §4.1(b) candidate, and does NOT modify any earlier evidence artifact. The tool-identity-drift row (contracts.x__seal_verified_authority__mutmut_33) is explicitly out of scope for this transaction.",
+  "original_baseline_repository_identity": {
+    "source": "docs/governance/mutation-baseline-evidence/feature-engine-mutation-baseline-001.json evaluated_identities",
+    "repository_boundary": "8d6293aca773757bc3b62cc0d3b80cba9e243954",
+    "python_feature_engine_src_tree_pinned": "256421344a48a6c9d4ef72f81eb82b27dbedfc50",
+    "python_feature_engine_tests_tree_pinned": "6cfe8097b061870493cd44d711d79cd9e04a538c",
+    "python_feature_engine_tooling_tree_pinned": "b99f6252058cbf5404751cf85d80c6745eebd03b",
+    "tool_identities_pinned": {
+      "python": "3.13.6 (CPython, Darwin arm64)",
+      "mutmut": "3.7.0"
+    },
+    "testing_convention_version_pinned": "0.16"
+  },
+  "source_tree_verification": {
+    "method": "Isolated git worktree checked out at commit 8d6293aca773757bc3b62cc0d3b80cba9e243954 (detached HEAD), separate from the main working tree — main working tree never modified.",
+    "worktree_head_verified": "8d6293aca773757bc3b62cc0d3b80cba9e243954",
+    "git_rev_parse_HEAD_python_feature-engine_src": "256421344a48a6c9d4ef72f81eb82b27dbedfc50 — MATCHES pinned baseline value exactly (note: baseline's own field name 'python_feature_engine_src_tree' refers to the python/feature-engine/src directory, not python/feature-engine/src/feature_engine — verified both paths fresh to disambiguate; the parent 'src' path is the one that matches).",
+    "git_rev_parse_HEAD_python_feature-engine_tests": "6cfe8097b061870493cd44d711d79cd9e04a538c — MATCHES exactly.",
+    "git_rev_parse_HEAD_python_feature-engine_tooling": "b99f6252058cbf5404751cf85d80c6745eebd03b — MATCHES exactly.",
+    "result": "VERIFIED — checked-out historical source/tests/tooling trees are bit-identical to the baseline artifact's own pinned identities. Proceeding authorized."
+  },
+  "tool_version_verification": {
+    "method": "Isolated fresh venv built against Python 3.13.6 (matches pinned tool identity exactly, same interpreter binary used throughout this session's prior work), pip-installed from the historical checkout's own requirements-dev.lock.txt (pins mutmut==3.7.0) and pyproject.toml ([tool.mutmut] section, also pins mutmut==3.7.0).",
+    "python_version_confirmed": "3.13.6",
+    "mutmut_version_confirmed": "python -m mutmut --version -> 'python -m mutmut, version 3.7.0'; pip show mutmut -> 'Version: 3.7.0'",
+    "result": "VERIFIED — mutmut 3.7.0 exactly reproduced, no version substitution."
+  },
+  "historical_reconstruction_method": {
+    "mutant_generation": "mutmut.__main__.create_mutants(max_children=1) called directly (bypassing the 'run' CLI entirely) from within the historical worktree's python/feature-engine directory — generates the full trampoline source (every __mutmut_N variant plus __mutmut_orig) with ZERO test execution: no coverage collection, no clean-test run, no forced-fail sanity check, no mutation test dispatch.",
+    "stats": "MutantGenerationStats(mutated=14, unmodified=0, ignored=0) — all 14 historical source files under python/feature-engine/src/feature_engine mutated successfully.",
+    "diff_extraction": "Parsed the generated trampoline source (mutants/src/feature_engine/swing_distance.py) by locating each named __mutmut_orig and __mutmut_N function definition via source-line scanning, then computed a unified diff between __mutmut_orig and each named target ordinal — content-identical to mutmut's own 'tooling show' output, computed offline.",
+    "forbidden_actions_confirmed_not_performed": [
+      "No mutation test execution.",
+      "No pytest execution for mutation adjudication.",
+      "No full mutation rerun.",
+      "No isolated mutation execution.",
+      "No timeout reruns."
+    ]
+  },
+  "ambiguous_A_reconstruction": {
+    "historical_mutant_id": "swing_distance.xǁSwingDistanceFeatureEngineǁ_reevaluate_all_windows__mutmut_32",
+    "historical_recorded_mutation": "continue -> break",
+    "exact_reconstructed_historical_mutation_diff": "--- +++ @@ -31,7 +31,7 @@\n                        cursor,\n                    )\n                )\n-                continue\n+                break\n\n            if winner is None or winner[1].ref == lineage.used_swing_ref:\n                continue  # still the best available (or nothing better) — no repaint\n",
+    "historical_semantic_obligation": "The 3rd of 4 continue statements in _reevaluate_all_windows, positioned immediately after events.extend(self._emit_replacement_only(...)) inside the 'if lineage.invalidated:' branch — i.e. the loop-continuation that follows successfully emitting a replacement-only event for a window that was PENDING_CORRECTION and has now found an eligible Swing. Mutating this to 'break' would incorrectly abort the entire re-evaluation loop after handling the FIRST such window, silently skipping re-evaluation of every subsequent window with a lineage entry in the same call.",
+    "historical_source_context": "Enclosing branch: 'if lineage.invalidated:' (window was left PENDING_CORRECTION, i.e. previously invalidated with no eligible Swing at the time). Immediately preceding statement: events.extend(self._emit_replacement_only(key, candle, swing_id, state, lineage.pending_invalidation_ref, lineage.pending_invalidation_recorded_time, cursor)). Immediately following statement (outside the if-block): 'if winner is None or winner[1].ref == lineage.used_swing_ref: continue  # still the best available...'. This exact position — 3rd of 4 structurally distinct continue statements in program order — uniquely identifies the site; the other 3 continues are at semantically different branches (candle-is-None guard, PENDING_CORRECTION/winner-is-None guard, and the final no-repaint guard).",
+    "current_semantic_location": "SwingDistanceFeatureEngine._prepare_reevaluate_all_windows (ADR-043 prepare-seam renamed successor of _reevaluate_all_windows, same 4-continue structure verified byte-position-identical: candle-is-None guard, PENDING_CORRECTION guard, replacement-only-emit-then-continue, final no-repaint guard)",
+    "exhaustive_current_candidate_scan": "Fresh disposable mutants workspace generated for CURRENT HEAD (e15f6aebf4ee10c039967085ccc35c956b195d1d) via the same create_mutants() zero-test-execution method. Exhaustive scan of every mutant of _prepare_reevaluate_all_windows (51 total mutants) for continue->break transformations found EXACTLY 4: mutmut_6 (candle-is-None guard), mutmut_13 (PENDING_CORRECTION guard, already claimed by sibling historical row hist_13 — exact-content-matched, Review-A-validated, untouched here), mutmut_32 (replacement-only-emit-then-continue — the exact structural match to this historical row), mutmut_37 (final no-repaint guard, already claimed by sibling historical row hist_37 — exact-content-matched, Review-A-validated, untouched here). No 5th continue->break mutant exists.",
+    "exact_current_successor_mutant_id": "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_reevaluate_all_windows__mutmut_32",
+    "exact_current_mutation_diff": "--- +++ @@ -31,7 +31,7 @@\n                        cursor=cursor,\n                    )\n                )\n-                continue\n+                break\n\n            if winner is None or winner[1].ref == lineage.used_swing_ref:\n                continue  # still the best available (or nothing better) — no repaint\n",
+    "evidence_005_status": "killed",
+    "why_alternatives_excluded": "mutmut_6 (candle-is-None guard, current status: survived) is structurally a DIFFERENT site — its historical counterpart is a separate, distinct historical mutant (not this row), so mutmut_6 is excluded on structural grounds, not merely because it would be a less favorable status. mutmut_13 and mutmut_37 are already claimed by other, already-Review-A-validated sibling historical rows. This is the reverse of the prior final-six assessment's method (which searched CURRENT source for content matches without historical reconstruction, and correctly could not disambiguate mutmut_6 vs. mutmut_32 from generic 'continue -> break' text alone); this transaction instead reconstructed the HISTORICAL diff/position directly, which structurally, positionally, and textually matches only mutmut_32.",
+    "resulting_evidence_classification": "SUCCESSOR_MATCH — CURRENT KILLED",
+    "candidate_005_readiness": "READY — unique current successor identified, killed, same ADR-043 prepare-seam family as the already-approved 167 rows. Credit NOT granted in this transaction.",
+    "remaining_uncertainty": "None — historical reconstruction directly (not by ordinal inference) confirms a unique, structurally-verified current successor."
+  },
+  "ambiguous_B_reconstruction": {
+    "historical_mutant_id": "swing_distance.xǁSwingDistanceFeatureEngineǁon_swing_confirmed__mutmut_35",
+    "historical_recorded_mutation": "1 -> 2",
+    "exact_reconstructed_historical_mutation_diff": "--- +++ @@ -62,7 +62,7 @@\n            if fact.swing_revision != existing.revision + 1:\n                raise InvalidSwingEligibilityInputError(\n                    f\"swing_id {fact.swing_id!r} revision must advance by exactly one: expected \"\n-                    f\"{existing.revision + 1!r}, got {fact.swing_revision!r}\"\n+                    f\"{existing.revision + 2!r}, got {fact.swing_revision!r}\"\n                )\n",
+    "historical_semantic_obligation": "IMPORTANT FINDING: the exact historical mutation is NOT to the validation condition 'fact.swing_revision != existing.revision + 1' (which is left completely unchanged) — it is to the numeric literal INSIDE the f-string constructing the exception MESSAGE TEXT reported when that condition fires ('{existing.revision + 1!r}' -> '{existing.revision + 2!r}'), i.e. what value the raised InvalidSwingEligibilityInputError's message CLAIMS was expected. The actual pass/fail behavior of the validation is unaffected by this mutation — only the displayed expected-value text in the error message changes. This is a message-text-only mutation, structurally the same category used elsewhere in baseline-001-analysis.md for the 173 'low_materiality_message_text' survivors — though this specific historical row was tagged 'actionable_test_gap_candidate' in that document's per-mutant table. This transaction does NOT alter that historical materiality tag (baseline-001-analysis.md is untouched, per instruction); it is reported here as a factual observation for the next reviewer, not adjudicated.",
+    "historical_source_context": "Enclosing branch: the 'else' arm of 'if existing is None: ... else: ...' (a revision beyond the first-seen one), specifically the second validation check ('revision must advance by exactly one'), inside the raised exception's f-string. Immediately preceding line (unchanged): 'if fact.swing_revision != existing.revision + 1:'. This is the ONLY '1 -> 2' transformation anywhere in on_swing_confirmed's message-text/literal surface besides the sibling first-seen-revision check (a structurally distinct, separately-historically-pinned mutant, mutmut_26's historical counterpart — already resolved as a different row, not this one).",
+    "current_semantic_location": "SwingDistanceFeatureEngine.prepare_swing_confirmed (ADR-043 prepare-seam renamed successor of on_swing_confirmed; the revision-advance-by-one validation condition and its message-text construction are otherwise byte-identical to the historical version)",
+    "exhaustive_current_candidate_scan": "Fresh disposable mutants workspace generated for CURRENT HEAD, same zero-test-execution method. Exhaustive scan of every mutant of prepare_swing_confirmed (53 total) touching the 'revision' family found: mutmut_25/30 (!= <-> ==, condition), mutmut_26 (condition literal 1->2, DIFFERENT site — the first-seen-revision check, historically a separate row), mutmut_27/29/33 (message removed to None), mutmut_28 (not in <-> in), mutmut_31 (condition +1 -> -1), mutmut_32 (condition literal +1 -> +2, DIFFERENT site — mutates the CONDITION 'fact.swing_revision != existing.revision + 1', not the message text; this was the final-six assessment's 'candidate 2' but does NOT structurally match this historical row's message-text-only mutation), mutmut_34 (message literal +1 -> -1), and mutmut_35 (message literal +1 -> +2 — the EXACT structural and textual match to this historical row). A broader scan of the entire function for any other '1'->'2' literal transformation outside the 'revision' keyword family found none. mutmut_35 is the unique match.",
+    "exact_current_successor_mutant_id": "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁprepare_swing_confirmed__mutmut_35",
+    "exact_current_mutation_diff": "--- +++ @@ -58,7 +58,7 @@\n                    f\"swing_id {fact.swing_id!r} revision {fact.swing_revision!r} received before revision \"\n                    f\"{existing.revision!r} was explicitly invalidated\"\n                )\n            if fact.swing_revision != existing.revision + 1:\n                raise InvalidSwingEligibilityInputError(\n                    f\"swing_id {fact.swing_id!r} revision must advance by exactly one: expected \"\n-                    f\"{existing.revision + 1!r}, got {fact.swing_revision!r}\"\n+                    f\"{existing.revision + 2!r}, got {fact.swing_revision!r}\"\n                )\n",
+    "evidence_005_status": "killed",
+    "why_alternatives_excluded": "The two candidates previously considered by the final-six assessment (current mutmut_26 and mutmut_32) are BOTH excluded on structural grounds, not chosen-among: both mutate an actual validation CONDITION (a boolean comparison controlling whether an exception is raised at all), while the reconstructed historical diff shows the historical mutation targets only the MESSAGE-TEXT f-string of an exception that is raised (or not) by an entirely unmutated condition. Neither candidate 1 nor candidate 2 was therefore ever the correct successor — this is a correction of the final-six assessment's candidate ENUMERATION (it searched current source for '1'->'2' text patterns but did not itself perform historical reconstruction, so it could not see that the true historical site was a message string, and its search evidently did not enumerate mutmut_35 as a candidate). The final-six assessment's own classification (AMBIGUOUS — EVIDENCE INSUFFICIENT) remains an honest, correct statement of what was knowable from CURRENT-side inspection alone; it is not reopened as an error, only superseded here by resolving the same question. feature-engine-condition2-final-six-resolution-assessment-001.json is left byte-unchanged, per instruction.",
+    "resulting_evidence_classification": "SUCCESSOR_MATCH — CURRENT KILLED",
+    "candidate_005_readiness": "READY — unique current successor identified via historical reconstruction (not ordinal inference), killed, same ADR-043 prepare-seam family as the already-approved 167 rows. Credit NOT granted in this transaction.",
+    "remaining_uncertainty": "None regarding identity/uniqueness. One honest observation carried forward (not resolved, not self-adjudicated here): the historical mutation is message-text-only, which may be relevant to a future Review A's judgment of this row's own materiality — recorded as a factual note for that reviewer, not a re-classification."
+  },
+  "tool_identity_drift_row": {
+    "historical_mutant_id": "contracts.x__seal_verified_authority__mutmut_33",
+    "status": "UNTOUCHED — out of scope for this transaction, per explicit instruction. Remains TOOL_IDENTITY_DRIFT — NO EXISTING GOVERNED RESOLUTION MECHANISM, as established in feature-engine-condition2-final-six-resolution-assessment-001.json."
+  },
+  "summary_counts": {
+    "input_ambiguous_rows": 2,
+    "uniquely_resolved_via_historical_reconstruction": 2,
+    "still_ambiguous": 0,
+    "behavior_transformed_no_unique_current_mutant": 0,
+    "both_map_to_killed": true,
+    "candidate_005_ready_count": 2
+  },
+  "condition_2_accounting": {
+    "controlling_state_on_entry": "167/170",
+    "credit_granted_this_transaction": 0,
+    "controlling_state_after_this_transaction": "167/170 — UNCHANGED",
+    "reason": "This is a historical-evidence-reconstruction transaction only. Even though both ambiguous rows now uniquely and exactly resolve to a killed current successor, §4.1(b) requires a SEPARATE, governed decision (Review A + Risk Classification + Product Owner Decision, per the precedent established for candidate-002/003/004) before any identity may be credited. This executor does not self-grant that decision. Condition 2 does NOT become 168/170, 169/170, or 170/170 as a result of this transaction."
+  },
+  "next_transaction_recommendation": {
+    "case": "Case A — both map uniquely to killed",
+    "recommendation": "Author docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-reclassification-candidate-005.json for EXACTLY these 2 rows, under the same already-Product-Owner-approved ADR-043 prepare-seam §4.1(b) authority already exercised for the prior 167 rows.",
+    "why_higher_decision_value_than_alternatives": "This is the only remaining path with zero evidentiary uncertainty for both rows — both historical mutations were reconstructed exactly (not inferred), both current successors are unique and killed, and both rely on the identical, already-validated ADR-043 engineering-change authority. The tool-identity-drift row remains out of scope (no existing governed mechanism covers it; inventing one is explicitly forbidden).",
+    "note_on_ambiguous_B_materiality": "Candidate-005's authoring executor should independently confirm whether the message-text-only nature of Ambiguous B's historical mutation affects the appropriate §4.1(b) framing (it is still a genuine ID-discontinuity requiring §4.1(b) rather than §4.1(a), since the function itself was renamed under the ADR-043 prepare-seam split — the message-text observation bears on materiality context only, not on whether §4.1(b) applies).",
+    "expected_files": [
+      "docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-reclassification-candidate-005.json (new)",
+      "remediation plan / MANIFEST / CHANGELOG pointer updates"
+    ],
+    "projected_state_if_candidate_005_later_approved": "167 + 2 = 169/170 — NON-CONTROLLING / FUTURE-IF-APPROVED, not current state. 1/170 would remain (the tool-identity-drift row)."
+  },
+  "adr_scope_rule_fresh": {
+    "assessment": "This transaction performs historical evidence reconstruction only — no Condition-2 credit granted, no §4.1(b) candidate authored, no governance mechanism changed, altered, or amended. No Platform Invariant, Event Schema, Module Taxonomy, or Governance/Approval-process change.",
+    "result": "ADR_NOT_REQUIRED"
+  },
+  "review_risk_classification": "R1",
+  "not_performed_by_this_transaction": [
+    "No production src/** change.",
+    "No test change.",
+    "No tooling change.",
+    "No dependency change.",
+    "No mutation test execution (historical and current mutants both generated via create_mutants() API directly, zero tests run).",
+    "No full mutation rerun, no isolated mutant execution, no timeout reruns.",
+    "No Condition-1 work.",
+    "No Condition-3 work.",
+    "No Condition-2 credit granted for either row (remains 167/170).",
+    "No candidate-005 artifact authored this transaction — recommended as the next, separate transaction.",
+    "No modification to Candidate-004 (already committed at e15f6aebf4ee10c039967085ccc35c956b195d1d, not rerun/reverted/duplicated).",
+    "No modification to resolution-001.json, resolution-002.json, correction-001/002/003.json, evidence-005.json, reclassification-candidate-002/003/004.json, or feature-engine-condition2-final-six-resolution-assessment-001.json's substantive content — all verified byte-unchanged.",
+    "No identity-continuity rule authored for the tool-identity-drift row (untouched).",
+    "No Product Owner decision fabricated. No Feature Engine approval. No LIVE authorization.",
+    "Main working tree never modified — all reconstruction performed in isolated git worktrees (historical boundary 8d6293aca773757bc3b62cc0d3b80cba9e243954, current HEAD e15f6aebf4ee10c039967085ccc35c956b195d1d), both removed after use."
+  ]
+}
