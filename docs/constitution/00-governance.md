@@ -1,14 +1,14 @@
 ---
 id: 00-governance
 title: Governance
-version: "1.4"
-status: Locked
+version: "1.5"
+status: Draft
 owner: Product Owner
 reviewers: [ChatGPT]
-approved_by: Product Owner
-approved_at: "2026-09-11T09:30+07:00"
+approved_by: null
+approved_at: null
 created_at: "2026-07-16"
-last_review: "2026-09-11"
+last_review: null
 next_review: null
 depends_on: []
 ---
@@ -23,7 +23,9 @@ Chapter 0 — đứng trước cả Vision, vì nó quy định CÁCH mọi quy�
 >
 > **Governance migration (v1.2, historical — controlling from 2026-08-18T17:25:00+07:00 until the v1.3 boundary below):** phiên bản 1.2 kích hoạt mô hình đã được Product Owner approve tại [ADR-031](../adr/ADR-031.md) (Approved) — mở rộng independent-review eligibility từ principal-only sang Mode A (`DISTINCT_PRINCIPAL`, giữ nguyên preferred khi practical) HOẶC Mode B (`SAME_PRINCIPAL_DISTINCT_EXECUTION`, có execution-isolation evidence contract, ADR-031 §5). Atomic Activation Boundary (ADR-031 §11) hoàn tất TẠI ĐÚNG activation commit này, cùng lúc với Chapter 11 §11.5/§11.9 (v2.2, Locked) và Chapter 12 (v1.6, Locked) wording sync, cùng ADR template evidence-table update — Product Owner decision nguyên văn "ACTIVATE ADR-031 GOVERNANCE MIGRATION," 2026-08-18T17:25:00+07:00. This paragraph is preserved as accurate history of that migration; it no longer describes the currently controlling model from the v1.3 boundary below forward — current lifecycle/model state is authoritative at MANIFEST per I-12.
 >
-> **Governance migration (v1.3, ACTIVE):** phiên bản 1.3 kích hoạt mô hình đã được Product Owner approve tại [ADR-042](../adr/ADR-042.md) (Approved) — Atomic Activation Boundary hoàn tất TẠI ĐÚNG activation commit này, đồng bộ CÙNG [Chapter 11](./11-adr-process.md) §11.5/§11.9 (v2.3, Locked), [Chapter 12](./12-approval-gates.md) (v1.7, Locked), ADR template, Global Execution Rules (v0.6, EFFECTIVE), Phase-3 rules (v0.3, EFFECTIVE), và MANIFEST (ADR-042's own "single coherent atomic governance action," per its Migration section) — retires the `ADR-031` Mode A/Mode B mandatory-two-independent-review gate above and replaces it with: Review A remains the single mandatory formal technical review; a mandatory Risk Classification step (R0/R1/R2) follows Review A; R2 recommends, but never requires, an optional advisory cross-check chosen by the Product Owner. `ADR-031` itself is not modified (immutable, Chapter 11 §11.3) and its own definitions remain valid historical record — only its role as the *mandatory* approval-eligibility mechanism is retired; its current lifecycle state is `Superseded` (by `ADR-042`), recorded at MANIFEST per I-12. Product Owner decision nguyên văn: "APPROVE ADR-042 v0.5 AND ITS ATOMIC GOVERNANCE ACTIVATION at reviewed semantic boundary 64fc05becc6ca4245229db79b3fb6c5d9187e622, based on current main e975d44f813b1ee91d2dbf3793376ca1827dc0f1," `2026-09-10T15:51+07:00`.
+> **Governance migration (v1.3, ACTIVE):** phiên bản 1.3 kích hoạt mô hình đã được Product Owner approve tại [ADR-042](../adr/ADR-042.md) (Approved) — Atomic Activation Boundary hoàn tất TẠI ĐÚNG activation commit này, đồng bộ CÙNG [Chapter 11](./11-adr-process.md) §11.5/§11.9 (v2.3, Locked), [Chapter 12](./12-approval-gates.md) (v1.7, Locked), ADR template, Global Execution Rules (v0.6, EFFECTIVE), Phase-3 rules (v0.3, EFFECTIVE), và MANIFEST (ADR-042's own "single coherent atomic governance action," per its Migration section) — retires the `ADR-031` Mode A/Mode B mandatory-two-independent-review gate above and replaces it with: Review A remains the single mandatory formal technical review; a mandatory Risk Classification step (R0/R1/R2) follows Review A; R2 recommends, but never requires, an optional advisory cross-check chosen by the Product Owner. `ADR-031` itself is not modified (immutable, Chapter 11 §11.3) and its own definitions remain valid historical record — only its role as the *mandatory* approval-eligibility mechanism is retired; its current lifecycle state is `Superseded` (by `ADR-042`), recorded at MANIFEST per I-12. Product Owner decision nguyên văn: "APPROVE ADR-042 v0.5 AND ITS ATOMIC GOVERNANCE ACTIVATION at reviewed semantic boundary 64fc05becc6ca4245229db79b3fb6c5d9187e622, based on current main e975d44f813b1ee91d2dbf3793376ca1827dc0f1," `2026-09-10T15:51+07:00`. **This v1.3 paragraph remains the currently controlling description** — the v1.5 candidate below does not change it.
+>
+> **v1.5 CANDIDATE (2026-09-23) — `Draft`, NOT reviewed, NOT approved, NOT controlling.** Authored per §5.1 (a Locked living document cannot be edited in place at the same version — a new candidate version must be authored and pass its own fresh approval gate). Extends, does not replace, the v1.3 model above: [`ADR-045`](../adr/ADR-045.md) (`Draft`) proposes a bounded **Delegated Technical Resolution** lane — an eligible `AI Technical Architect`'s Review A may close a routine R0/R1 decision applying already-approved authority to a bounded technical/evidence case, WITHOUT a separate Product Owner Decision step, but only when a closed, conjunctive eligibility predicate (`D1`–`D12`, `ADR-045`) is satisfied; R2 and every Product-Owner-reserved decision class (ADR approval, Approval Gates, product direction/scope/priority, governance/approval-process change, Platform Invariant/Event Schema/module-taxonomy change, explicit risk acceptance, LIVE authorization) are **never** delegated and continue exactly as the v1.3 model above already governs. §3 below is amended to show both routes (Route A — Product-Owner-reserved; Route B — Delegated Technical Resolution) as a Draft candidate amendment; **this v1.4 wording (single route, every decision reaches Product Owner) remains controlling until this v1.5 candidate is itself reviewed, approved, and activated** together with `ADR-045`, Global Execution Rules v0.7, and MANIFEST — see MANIFEST for the current authoritative pointer (I-12). No other section of this chapter is touched by this candidate.
 
 ## 1. Purpose
 
@@ -72,6 +74,42 @@ Requirement
 - Product Owner là authority duy nhất approve/reject.
 - Nếu Review A execution KHÔNG resolve được, HOẶC Risk Classification KHÔNG resolve đúng một trong R0/R1/R2, tại review boundary — decision CHƯA đủ điều kiện đi tới Product Owner approval gate (fail-closed). Sự vắng mặt của một optional cross-check KHÔNG BAO GIỜ là lý do fail-closed.
 - Constitution khóa role (`AI Technical Architect`), Review A mandatory, Risk Classification mandatory, và optional-cross-check semantics; actor ↔ role assignment sống trong `/team/team.yaml`. [ADR-031](../adr/ADR-031.md)'s Mode A/Mode B execution-identity model (Approved, immutable) không còn là mandatory approval-eligibility mechanism kể từ activation này — định nghĩa của nó vẫn còn giá trị tham khảo lịch sử, có thể dùng để mô tả provenance của một optional cross-check nếu muốn, nhưng KHÔNG BAO GIỜ là bookkeeping bắt buộc.
+
+**Two routes after Risk Classification (v1.5 CANDIDATE — [`ADR-045`](../adr/ADR-045.md), `Draft`, NOT controlling until activated together with Global Execution Rules v0.7/MANIFEST; the single-route v1.4 text above remains the ONLY controlling description until then):**
+
+```text
+Route A — Product-Owner-reserved decision (unchanged, remains the ONLY
+route until ADR-045 activates; remains the ONLY route for the decision
+classes listed below even after activation):
+  Requirement / Decision
+  → Review A
+  → Risk Classification
+  → Product Owner Decision
+  → governed approval/decision transition
+
+Route B — Delegated Technical Resolution (ADR-045 candidate only, NOT
+available until activation):
+  bounded technical case
+  → Review A
+  → Risk Classification
+  → Delegation Eligibility D1-D12 (ADR-045, closed, conjunctive)
+  → if R0/R1 + Review A CLEAN + D1-D12 all satisfied:
+       DELEGATED TECHNICAL RESOLUTION (explicitly NOT an approval, NOT an
+       Approved/Locked transition — ADR-045)
+       → deterministic recording/execution
+  → otherwise: → Product Owner (Route A)
+```
+
+Once activated, Route A remains the **only** route for: ADR approval/
+rejection; Phase/Module Approval Gate decisions; product direction, scope,
+priority, and value tradeoffs; governance/approval-process changes;
+Platform Invariant/Event Schema/module-taxonomy/dependency changes; any
+decision requiring an ADR under §4b; every R2 decision; explicit risk
+acceptance; LIVE authorization; and any decision a governing artifact
+explicitly reserves to Product Owner. Route B never touches these — see
+`ADR-045` for the full closed eligibility predicate. R2 is **never**
+delegated under either route; ADR-042's own optional R2 cross-check
+semantics above are unchanged by this candidate.
 
 Mỗi review output tối thiểu:
 

@@ -235,7 +235,7 @@
   <div class="wrap">
     <h1>Ride Quant Platform — Milestone Dashboard</h1>
     <div class="top-meta">
-      <span>Milestone state verified against: <code id="head-sha">04cac699d17aea15fc2836a6e822ecf2ebae9bbc</code></span>
+      <span>Milestone state verified against: <code id="head-sha">31fc6f5dda1834916f68c55656bd2fa4893bdcb8</code></span>
       <span>Lean Ride Operating Model v1.1: <span class="pill pill-done">Active — ADOPTED</span></span>
       <span>Current milestone: <span class="pill pill-active">M1 — Feature Engine EVID-03 Closure</span></span>
     </div>
@@ -364,12 +364,16 @@
       <div class="lane">
         <h4>Primary</h4>
         <div class="wp-item">
-          <code>FE-EVID03-COND2-CANDIDATE-005-AUTHOR-001</code>
-          <div class="desc"><strong>COMPLETE — candidate authoring only, no credit granted.</strong> Authored Candidate-005 for the 2 historically reconstructed Condition-2 identities (direct historical-diff reconstruction, not ordinal inference): <code>_reevaluate_all_windows__mutmut_32</code> → <code>_prepare_reevaluate_all_windows__mutmut_32</code> (killed) and <code>on_swing_confirmed__mutmut_35</code> → <code>prepare_swing_confirmed__mutmut_35</code> (killed, historical mutation message-text-only). Both statuses cross-checked against evidence-005.json; both successors source-verified as the same ADR-043 prepare-seam family already used for the 167 approved rows. <code>review_a_state</code>/<code>product_owner_state</code> PENDING for both rows. Condition 2 remains <code>167/170</code> — UNCHANGED. Non-controlling projection only: <code>167 + 2 = 169/170</code> NON-CONTROLLING / FUTURE-IF-APPROVED. Awaiting ChatGPT Review A.</div>
+          <code>GOV-DELEGATION-MODEL-ADR-045-AUTHOR-001</code>
+          <div class="desc"><strong>COMPLETE — candidate authoring only. Does NOT activate the new model, does NOT resolve Candidate-005.</strong> Authored <code>ADR-045.md</code> v0.1 (Draft) — a bounded <strong>Delegated Technical Resolution</strong> lane extending (not superseding) ADR-042: an eligible <code>AI Technical Architect</code>'s Review A may close a routine R0/R1 decision applying already-approved authority to a bounded technical case, without a separate Product Owner Decision, only when a closed, conjunctive eligibility predicate (D1–D12) is satisfied — R2 and every Product-Owner-reserved class (ADR approval, Approval Gates, product direction, governance/approval-process change, invariant/schema/taxonomy change, risk acceptance, LIVE) are never delegated. Authored Chapter 0 v1.5 (Draft candidate, v1.4 remains controlling) adding a Route A/Route B addendum to §3; authored Global Execution Rules v0.7 (CANDIDATE, v0.6 remains EFFECTIVE) adding <code>G-DELEGATE-001</code>/<code>G-DELEGATE-002</code>. ADR Scope Rule: <code>ADR_REQUIRED</code>; expected Risk <code>R2</code> (not self-finalized). Verified no genuine contradiction in Chapter 11, Chapter 12, the ADR template, team.yaml, or Phase-3 Rules — none modified. Awaiting ChatGPT Review A.</div>
         </div>
       </div>
       <div class="lane">
         <h4>Secondary</h4>
+        <div class="wp-item">
+          <code>Candidate-005 — PAUSED</code>
+          <div class="desc">Review A <code>CLEAN</code> at <code>31fc6f5dda1834916f68c55656bd2fa4893bdcb8</code> (candidate blob <code>e217bda50f17b71792429e196a81583ae02633e8</code>), but no §4.1(b) credit granted. <strong>PAUSED — awaiting governance delegation-model resolution</strong> — not rejected, not approved. Condition 2 remains 167/170.</div>
+        </div>
         <div class="wp-item">
           <code>Condition-1 remediation</code>
           <div class="desc">Awaits a separate Product Owner scoping decision — not initiated by this transaction.</div>
@@ -420,6 +424,10 @@
           <code>FE-EVID03-COND1-APPLY-001</code>
           <div class="desc"><strong>First formally governed Condition-1 evaluation under controlling §13.8.1.</strong> Applied §13.8.1 mechanically to the existing, byte-unchanged evidence-005.json/-005-correction-001.json measurement. All 6 Applicability-predicate conditions independently re-verified satisfied; executable-boundary compatibility confirmed (all 5 pinned tree/blob hashes byte-identical — no rerun needed); Mixed-population rule analyzed and found not triggered (Condition 2's residual TOOL_IDENTITY_DRIFT/ambiguity gap is a separate historical-identity criterion, not present in the current raw-run population). Arithmetic independently recomputed, matching evidence-005.json exactly: bounds 84.21453023963484%–84.55686572841384%, both &lt; T (87.001959503592%) → <strong>Case A → FAIL — criteria</strong>. <strong>Condition 1: STOPPED / UNRESOLVED → FAIL — criteria</strong>, recorded prospectively; the prior evaluation remains immutable historical evidence at its own boundary. All 9 unstable mutants remain individually unresolved. Condition 2 (167/170) and Condition 3 unchanged. <code>P3-FEATURE-QG-EVID-03</code> remains OPEN.</div>
         </div>
+        <div class="wp-item">
+          <code>FE-EVID03-COND2-CANDIDATE-005-AUTHOR-001</code>
+          <div class="desc">Candidate-005 authored (2 rows): <code>_reevaluate_all_windows__mutmut_32</code> → <code>_prepare_reevaluate_all_windows__mutmut_32</code> (killed) and <code>on_swing_confirmed__mutmut_35</code> → <code>prepare_swing_confirmed__mutmut_35</code> (killed, message-text-only historical mutation). Review A <code>CLEAN</code> at <code>31fc6f5d...</code> — credit not granted. Now <code>PAUSED</code>, see Secondary lane above.</div>
+        </div>
       </div>
     </div>
   </section>
@@ -429,14 +437,16 @@
     <div class="po-snapshot">
       <div class="kv"><span class="k">Current milestone</span><span class="v">M1 — Feature Engine EVID-03 Closure (ACTIVE, AT RISK)</span></div>
       <div class="kv"><span class="k">Primary blocker</span><span class="v">Condition 1 — FAIL — criteria (formally governed, Chapter 13 v1.8 §13.8.1 Case A; 9 unstable timeout-triage mutants remain individually unresolved). Condition 2 (167/170) independently also blocks.</span></div>
-      <div class="kv"><span class="k">Current WP</span><span class="v"><code>FE-EVID03-COND2-CANDIDATE-005-AUTHOR-001</code> — candidate authoring only, no credit granted</span></div>
-      <div class="kv"><span class="k">Candidate-005 rows</span><span class="v">2 — both <code>review_a_state</code> PENDING, <code>product_owner_state</code> PENDING</span></div>
+      <div class="kv"><span class="k">Current WP</span><span class="v"><code>GOV-DELEGATION-MODEL-ADR-045-AUTHOR-001</code> — candidate authoring only; does NOT activate the new model, does NOT resolve Candidate-005</span></div>
+      <div class="kv"><span class="k">ADR-045</span><span class="v">v0.1, Draft — Delegated Technical Resolution lane (D1–D12 closed eligibility predicate), extends ADR-042, does not supersede it</span></div>
+      <div class="kv"><span class="k">Chapter 0 / Execution Rules</span><span class="v">Chapter 0 v1.5 Draft candidate (v1.4 remains controlling); Global Execution Rules v0.7 CANDIDATE (v0.6 remains EFFECTIVE)</span></div>
+      <div class="kv"><span class="k">Candidate-005 status</span><span class="v">PAUSED — awaiting governance delegation-model resolution (Review A CLEAN at 31fc6f5d..., no credit granted — not rejected, not approved)</span></div>
       <div class="kv"><span class="k">Condition 2 (current)</span><span class="v">167 / 170 — UNCHANGED by this transaction</span></div>
       <div class="kv"><span class="k">Condition 2 (projection)</span><span class="v">167 + 2 = 169/170 — NON-CONTROLLING / FUTURE-IF-APPROVED (Candidate-005 not yet reviewed or approved)</span></div>
-      <div class="kv"><span class="k">Last Review A</span><span class="v">CLEAN — 0 Blocker / 0 Major / 2 Minor, Risk R2 (on v0.5/v1.8, ADR-044/Chapter-13 activation). This Candidate-005 authoring is candidate authoring only — no new Review A performed by this transaction; Candidate-005 itself awaits its own future Review A.</span></div>
+      <div class="kv"><span class="k">Last Review A</span><span class="v">CLEAN — 0 Blocker / 0 Major / 2 Minor, on v0.5/v1.8 (ADR-044/Chapter-13 activation). ADR-045 itself has NOT yet had its own Review A — expected Risk R2, not self-finalized.</span></div>
       <div class="kv"><span class="k">PO decision required</span><span class="v pill pill-no">NO</span></div>
-      <div class="kv"><span class="k">Reason deferred</span><span class="v">Candidate-005 is authored but not yet reviewed or approved; Condition 1 and Condition 2 both independently fail; EVID-03 remains OPEN</span></div>
-      <div class="kv"><span class="k">Next PO decision point</span><span class="v">ChatGPT Review A of Candidate-005</span></div>
+      <div class="kv"><span class="k">Reason deferred</span><span class="v">ADR-045 is authored but not yet reviewed or approved; Condition 1 and Condition 2 both independently fail; EVID-03 remains OPEN; Candidate-005 remains PAUSED</span></div>
+      <div class="kv"><span class="k">Next PO decision point</span><span class="v">ChatGPT Review A of ADR-045</span></div>
     </div>
   </section>
 

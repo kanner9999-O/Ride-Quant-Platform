@@ -1,11 +1,11 @@
 ---
 id: execution-rules
 title: "Ride Quant Platform — Global Execution Rules"
-version: "0.6"
-operational_state: EFFECTIVE
+version: "0.7"
+operational_state: CANDIDATE
 owner: Product Owner
-accepted_by: Product Owner
-accepted_at: "2026-09-10"
+accepted_by: null
+accepted_at: null
 created_at: "2026-08-09"
 ---
 
@@ -15,7 +15,9 @@ created_at: "2026-08-09"
 
 **Product Owner instruction being formalized (nguyên văn ý, transaction 2026-08-09):** "Every project phase must have explicit phase-specific execution rules used to improve working efficiency and incorporate lessons learned." Global rules áp dụng xuyên suốt mọi phase; per-phase rules CHỈ áp dụng cho đúng phase của nó.
 
-> **v0.6 EFFECTIVE (accepted 2026-09-10, atomic with [ADR-042](../adr/ADR-042.md)'s own approval/activation):** ADR-042 alignment (`ACT-A-MAJ-02`) — `G-REV-002`/`G-REV-003`/Semantic Sufficiency interpretation point 7 updated to reflect Review A as the single mandatory review and an optional Product-Owner-chosen R2 cross-check, replacing the retired mandatory-Independent-Review-B premise, per ADR-042 Migration item 7. Version-identity/provenance correction ONLY — v0.5's every other Global rule (Authority hierarchy, `G-AUTH`/`G-ORCH`/`G-TXN`/`G-VERIFY`/`G-BUDGET`/`G-ID`, and v0.5's own already-accepted Semantic-Sufficiency clarification history) is preserved byte-equivalent, not reopened.
+> **v0.6 EFFECTIVE (accepted 2026-09-10, atomic with [ADR-042](../adr/ADR-042.md)'s own approval/activation):** ADR-042 alignment (`ACT-A-MAJ-02`) — `G-REV-002`/`G-REV-003`/Semantic Sufficiency interpretation point 7 updated to reflect Review A as the single mandatory review and an optional Product-Owner-chosen R2 cross-check, replacing the retired mandatory-Independent-Review-B premise, per ADR-042 Migration item 7. Version-identity/provenance correction ONLY — v0.5's every other Global rule (Authority hierarchy, `G-AUTH`/`G-ORCH`/`G-TXN`/`G-VERIFY`/`G-BUDGET`/`G-ID`, and v0.5's own already-accepted Semantic-Sufficiency clarification history) is preserved byte-equivalent, not reopened. **This v0.6 EFFECTIVE entry remains the currently accepted content — the v0.7 candidate below does not change it.**
+>
+> **v0.7 CANDIDATE (2026-09-23, NOT accepted) — [`ADR-045`](../adr/ADR-045.md) alignment.** Adds a new `G-DELEGATE` section (`G-DELEGATE-001`/`G-DELEGATE-002`) defining the closed Delegated Technical Resolution eligibility predicate and its recording/routing semantics, per `ADR-045`'s own Decision. No existing rule ID's substantive text is changed — `G-AUTH`/`G-VERIFY`/`G-ADR`/`G-TXN`/`G-REV`/`G-BUDGET`/`G-ID`/`G-QG`/`G-PHASE`/`G-ORCH` and the Semantic Sufficiency interpretation remain byte-equivalent to v0.6. `operational_state: EFFECTIVE -> CANDIDATE`, `accepted_by`/`accepted_at` reset to `null` — this exact content has not been reviewed/accepted. Effective only atomically with `ADR-045`'s own Product Owner approval, Chapter 0 v1.5's activation, and the MANIFEST update — see `ADR-045` "Activation."
 
 ## Authority hierarchy (bắt buộc, KHÔNG redefine higher authority nào)
 
@@ -150,6 +152,63 @@ G-REV-004   Dừng correction churn khi KHÔNG có Major/Blocker mới phát sin
    chọn dùng nó (ADR-042), hay bất kỳ yêu cầu remediate Blocker/Major nào —
    chỉ áp dụng cho phạm vi documentation-only, non-blocking Minor đã mô tả
    ở điểm 3.
+```
+
+## G-DELEGATE — Delegated Technical Resolution (v0.7 CANDIDATE, [`ADR-045`](../adr/ADR-045.md), NOT accepted — effective only atomically with ADR-045's own activation)
+
+**Not yet effective.** These two rules formalize `ADR-045`'s own Decision
+— a Draft candidate. Until `ADR-045` is approved and activated together
+with Chapter 0 v1.5 and this file's own acceptance, every decision
+continues to reach a Product Owner Decision exactly as `ADR-042`/v0.6
+already require; `G-DELEGATE-001`/`G-DELEGATE-002` below describe no
+currently operative authority.
+
+```text
+G-DELEGATE-001  Delegated Technical Resolution eligibility là một closed,
+                conjunctive predicate — D1-D12, định nghĩa đầy đủ tại
+                ADR-045 — TẤT CẢ 12 điều kiện PHẢI đồng thời đúng, KHÔNG
+                "phần lớn thỏa mãn." Tóm tắt (ADR-045 là nguồn authoritative
+                duy nhất cho từ ngữ đầy đủ): ADR Scope Rule =
+                ADR_NOT_REQUIRED; Risk Classification = R0 hoặc R1 (R2
+                KHÔNG BAO GIỜ delegate); một authority Approved/Locked/
+                EFFECTIVE đã tồn tại định nghĩa đúng rule đang áp dụng;
+                transaction CHỈ áp dụng rule đó vào một bounded, individually-
+                verifiable case; KHÔNG semantic/architecture/governance/
+                contract/invariant/schema/module-dependency/policy mới nào
+                được tạo; KHÔNG đổi product scope/priority/roadmap/value
+                tradeoff; KHÔNG chấp nhận residual risk mới thay Product
+                Owner; Review A độc lập, eligible, verdict CLEAN (0 Blocker
+                / 0 Major, Minor không blocking được phép dưới Semantic
+                Sufficiency); evidence/authority/boundary đã fresh-verify
+                đúng G-VERIFY-001/P3-VERIFY; KHÔNG governing artifact nào
+                tường minh yêu cầu Product Owner decision cho đúng lớp
+                quyết định này; kết quả đủ bounded/deterministic để một
+                reviewer eligible khác áp cùng authority/evidence sẽ ra
+                cùng disposition; VÀ chính eligibility này KHÔNG mơ hồ —
+                nếu KHÔNG chắc chắn, FAIL CLOSED VỀ Product Owner (Route A,
+                Chapter 0 §3). Executor KHÔNG được tự resolve đúng
+                semantic work của chính mình — Review A độc lập với
+                Executor vẫn áp dụng nguyên vẹn (G-REV-003, KHÔNG đổi).
+G-DELEGATE-002  Product Owner approval VÀ Delegated Technical Resolution LÀ
+                hai khái niệm khác nhau — một Delegated Technical
+                Resolution KHÔNG BAO GIỜ được ghi/gọi là "approval," KHÔNG
+                `approved_by: AI`, KHÔNG Product Owner decision text giả
+                mạo. Recording chỉ persist: resolution identity; exact
+                subject; governing authority/mechanism; reviewed boundary;
+                Review A principal; Review A verdict; Risk Classification;
+                delegation eligibility = satisfied (D1-D12); resulting
+                bounded state transition; remaining unresolved items nếu
+                có — KHÔNG cần persisted transcript/ceremony bổ sung, KHÔNG
+                cần optional cross-check evidence cho R0/R1 (cross-check
+                chỉ tồn tại tại R2 theo ADR-042, KHÔNG đổi). Deterministic
+                bookkeeping sinh ra TỪ một delegated terminal outcome tuân
+                theo đúng G-TXN/P3-TXN fold rules hiện có, KHÔNG rule mới.
+                Một Delegated Technical Resolution KHÔNG BAO GIỜ tự set
+                `Approved`, `Locked`, Phase Approved, Module Approved, hay
+                LIVE Authorized — CHỈ higher authority (ADR/Constitution/
+                Product Owner) mới cấp quyền đó, VÀ ADR-045 tường minh
+                KHÔNG cấp quyền đó. R2 VÀ ADR_REQUIRED KHÔNG BAO GIỜ được
+                delegate dưới rule này, không ngoại lệ.
 ```
 
 ## G-BUDGET — Prompt budgets
@@ -409,4 +468,30 @@ v0.6  2026-09-10  Product Owner acceptance — mechanical lifecycle
       này CHỈ mechanical). Effective atomically with `ADR-042`'s own
       `Approved` transition and `ADR-031`'s MANIFEST `Superseded` record,
       same activation commit.
+v0.7  2026-09-23  CANDIDATE (NOT accepted) — vai trò: `Global Execution
+      Rules ADR-045 Delegation Candidate Authoring Executor`. Adds a new
+      `G-DELEGATE` section (`G-DELEGATE-001`, `G-DELEGATE-002`) formalizing
+      `ADR-045`'s (Draft) closed, conjunctive Delegated Technical
+      Resolution eligibility predicate (D1-D12) and its recording/routing
+      semantics: Product Owner approval and Delegated Technical Resolution
+      are distinct concepts (no `approved_by: AI`, no fabricated Product
+      Owner decision text); an executor cannot self-resolve its own
+      semantic work (Review A independence, `G-REV-003`, unchanged); R2
+      and `ADR_REQUIRED` are never delegated; uncertain eligibility fails
+      closed to Product Owner (Route A, Chapter 0 §3 v1.5 candidate);
+      deterministic bookkeeping from a delegated terminal outcome follows
+      existing `G-TXN`/P3-TXN fold rules, no new rule; a delegated outcome
+      never sets `Approved`, `Locked`, Phase Approved, Module Approved, or
+      LIVE Authorized. `version: "0.6" -> "0.7"`, `operational_state:
+      EFFECTIVE -> CANDIDATE`, `accepted_by: Product Owner -> null`,
+      `accepted_at: "2026-09-10" -> null` — this exact content has not
+      been reviewed/accepted; no fabricated Product Owner acceptance.
+      `G-AUTH`/`G-VERIFY`/`G-ADR`/`G-TXN`/`G-REV`/(Semantic Sufficiency)/
+      `G-BUDGET`/`G-ID`/`G-QG`/`G-PHASE`/`G-ORCH` content byte-equivalent
+      to v0.6, no rule ID renumbered, no existing rule's substantive text
+      changed. Historical Change-history entries above (v0.1-v0.6) NOT
+      rewritten. `docs/adr/ADR-031.md`, `docs/adr/ADR-042.md` byte-
+      unchanged. Not effective until `ADR-045` is approved and activated
+      atomically together with Chapter 0 v1.5 and this file's own
+      acceptance (see `ADR-045` "Activation").
 ```

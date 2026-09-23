@@ -2,6 +2,22 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-23 — governance: ADR-045 Delegated Technical Resolution candidate authored (GOV-DELEGATION-MODEL-ADR-045-AUTHOR-001)
+
+Starting HEAD `31fc6f5dda1834916f68c55656bd2fa4893bdcb8`, verified `main == origin/main`, no drift. Candidate-authoring transaction only -- no activation, no Candidate-005 resolution. Repository-wide governance-process candidate, not an EVID-03 technical WP.
+
+Authored `docs/adr/ADR-045.md` v0.1 (Draft) -- a bounded Delegated Technical Resolution lane that extends (does not supersede) ADR-042: an eligible AI Technical Architect's Review A may close a routine R0/R1 decision applying already-approved authority to a bounded technical case, without a separate Product Owner Decision, only when a closed, conjunctive eligibility predicate (D1-D12) is satisfied. R2 and every Product-Owner-reserved decision class -- ADR approval, Approval Gates, product direction/scope/priority, governance/approval-process change, Platform Invariant/Event Schema/module-taxonomy change, explicit risk acceptance, LIVE authorization -- are never delegated, no exception. Delegated Technical Resolution is explicitly distinct from Product Owner approval: never called "AI approval," no `approved_by: AI`, no fabricated Product Owner decision. Persistence model persists outcome, not ceremony. Non-retroactive: applies only to resolution decisions made after activation, with an explicit pending-work rule so an already-authored, not-yet-resolved candidate (e.g. Candidate-005) may later use the delegated model post-activation only after fresh re-verification and a fresh D1-D12 pass at the resolution boundary -- never retroactively rewriting its authoring history. ADR Scope Rule run fresh: ADR_REQUIRED (Governance/Approval-process change). Expected Risk R2, not self-finalized.
+
+Authored `docs/constitution/00-governance.md` v1.5 candidate (Draft, v1.4 remains controlling) adding a Route A (Product-Owner-reserved, unchanged)/Route B (Delegated Technical Resolution, ADR-045-gated) addendum to §3; §4b (ADR Scope Rule) verified unchanged in substance. Authored `docs/governance/execution-rules.md` v0.7 candidate (CANDIDATE, v0.6 remains EFFECTIVE) adding `G-DELEGATE-001`/`G-DELEGATE-002`; all existing rule IDs verified byte-equivalent, none renumbered.
+
+Verified no genuine contradiction requiring modification: Chapter 11 (ADR approval, Product-Owner-only, unaffected), Chapter 12 (Approval Gates, Product-Owner-only, unaffected -- its ADR-Scope-Rule prerequisite is automatically compatible since D1 excludes ADR_REQUIRED decisions from delegation), the ADR template, `docs/team/team.yaml` (no new role needed), and `docs/governance/phases/phase-3-rules.md` (its Gate-path already defers to whichever model controls at Chapter 0 §3, terminal Product Owner Phase 3 Approval Gate decision step unaffected) -- none of these five files modified.
+
+Current Ride state preserved: M1 ACTIVE/AT RISK, Condition 1 FAIL -- criteria, Condition 2 167/170, Condition 3 SATISFIED -- REVIEW A VALIDATED, P3-FEATURE-QG-EVID-03 OPEN, Feature Engine NOT APPROVED, LIVE NOT_AUTHORIZED. Candidate-005 recorded PAUSED -- awaiting governance delegation-model resolution (Review A CLEAN at 31fc6f5dda1834916f68c55656bd2fa4893bdcb8, candidate blob e217bda50f17b71792429e196a81583ae02633e8, no credit granted; not rejected, not approved). No ADR-045 activation, no Chapter 0/Execution Rules acceptance, no Candidate-005 credit or rejection in this transaction.
+
+**Files changed:** `docs/adr/ADR-045.md` (new), `docs/constitution/00-governance.md`, `docs/governance/execution-rules.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html` only. `manifest_version` `"10.417"` -> `"10.418"`.
+
+---
+
 ## [Unreleased] — 2026-09-23 — feature-engine: Feature Condition-2 §4.1(b) reclassification Candidate-005 authored (FE-EVID03-COND2-CANDIDATE-005-AUTHOR-001)
 
 Starting HEAD `04cac699d17aea15fc2836a6e822ecf2ebae9bbc`, verified `main == origin/main`, no drift. Confirmed Condition 1 `FAIL — criteria` (not reopened), Condition 2 `167/170`, Condition 3 `SATISFIED — REVIEW A VALIDATED`, before this transaction. Candidate authoring only -- no §4.1(b) credit granted, no Condition-2 count change.
