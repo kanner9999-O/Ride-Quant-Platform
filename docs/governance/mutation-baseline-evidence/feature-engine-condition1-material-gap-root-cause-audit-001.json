@@ -1,0 +1,491 @@
+{
+ "artifact_id": "feature-engine-condition1-material-gap-root-cause-audit-001",
+ "schema_note": "Consolidated root-cause audit of the entire activated 42-identity Condition-1B material-gap set, triggered by Wave-5's discovery of 13 false positives (implementation evidence only) within the originally-targeted 25-ID subset. This artifact is EVIDENCE ONLY: it grants no formal gate credit, changes no threshold, issues no DTR, and does not modify the currently-ACTIVE governing artifacts (the recalibration proposal or the 42-ID material-gap-set artifact). All governed reclassification decisions -- including the two DISPUTED ownership CATCHING_UP identities -- are deferred to a separate, future, distinct-principal ChatGPT Review A.",
+ "audit_boundary": {
+  "starting_head": "908ef6dd0b3f3c0f43fc5ed0520f1832fa9edee3",
+  "extraction_method": "zero-test offline mutmut CST diff extraction (mutmut.mutation.file_mutation.create_mutations / group_by_top_level_node, mutmut.mutation.trampoline_templates.mangle_function_name, mutmut.utils.format_utils.get_mutant_name), self-verified to reproduce exactly 2629 total mutant IDs across src/feature_engine/*.py, matching Evidence-005's own universe."
+ },
+ "input_governing_artifacts": {
+  "threshold_proposal": {
+   "path": "docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-recalibration-proposal-001.md",
+   "blob": "12040044578d57d15e699a327a5a8ae39c1e9ea3",
+   "status": "APPROVED — EFFECTIVE (unchanged by this audit)"
+  },
+  "input_42_id_artifact": {
+   "path": "docs/governance/mutation-baseline-evidence/feature-engine-condition1-current-material-gap-set-001.json",
+   "blob": "49c30b439eb84db95c55dc4a86de22e2b491dbb5",
+   "sorted_set_identity_sha256": "932698b4b312c1a8f70c261426555a5c6f3566579ed0a27102d4a0f0214adedc",
+   "count": 42,
+   "status": "UNCHANGED by this audit (explicitly not modified)"
+  },
+  "wave5_evidence": {
+   "path": "docs/governance/mutation-baseline-evidence/feature-engine-condition1-wave5-test-remediation-001.json",
+   "blob": "6fd2f3a9aebe7df8035c0b64dac46de3fa707a26",
+   "status": "UNCHANGED by this audit (referenced/pinned, not rewritten)"
+  }
+ },
+ "per_id_classification": {
+  "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_18": {
+   "current_resolution_state": "KILLED_BY_WAVE5",
+   "classification": "GENUINE_TEST_GAP",
+   "reasoning": "Direct unit test on the private scalar-extraction helper asserts an X-boundary value is preserved verbatim; the mutation truncates/corrupts a leading/trailing character of a real parsed merge_policy field. Killed via real targeted mutmut execution. Re-confirmed: this validates real config-parsing correctness, not message text."
+  },
+  "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_33": {
+   "current_resolution_state": "KILLED_BY_WAVE5",
+   "classification": "GENUINE_TEST_GAP",
+   "reasoning": "Same family as mutmut_18, targeting the concurrent_tie_break item extraction path. Re-confirmed genuinely material for the same reason."
+  },
+  "feature_engine.authority_resolver.x__extract_scalar__mutmut_5": {
+   "current_resolution_state": "KILLED_BY_WAVE5",
+   "classification": "GENUINE_TEST_GAP",
+   "reasoning": "Direct unit test on _extract_scalar preserving an X-boundary value; genuinely material parsing-correctness property, re-confirmed."
+  },
+  "feature_engine.output_contract_resolver.x__extract_scalar__mutmut_5": {
+   "current_resolution_state": "KILLED_BY_WAVE5",
+   "classification": "GENUINE_TEST_GAP",
+   "reasoning": "Sibling private helper in output_contract_resolver.py with the identical extraction contract; re-confirmed genuinely material."
+  },
+  "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_30": {
+   "current_resolution_state": "KILLED_BY_WAVE5",
+   "classification": "GENUINE_TEST_GAP",
+   "reasoning": "Stream-registry-version grammar check must fire even when a coincidentally-well-formed snapshot exists at a non-canonical path -- fail-closed ordering is a genuine security/correctness property, re-confirmed."
+  },
+  "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_40": {
+   "current_resolution_state": "KILLED_BY_WAVE5",
+   "classification": "GENUINE_TEST_GAP",
+   "reasoning": "Contract-version grammar check, same reasoning as mutmut_30. Re-confirmed genuinely material."
+  },
+  "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_100": {
+   "current_resolution_state": "KILLED_BY_WAVE5",
+   "classification": "GENUINE_TEST_GAP",
+   "reasoning": "Missing contract_registry_ref field alone must fail closed; genuine defensive-parsing property, re-confirmed."
+  },
+  "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_101": {
+   "current_resolution_state": "KILLED_BY_WAVE5",
+   "classification": "GENUINE_TEST_GAP",
+   "reasoning": "Missing contract_version field alone must fail closed; genuine defensive-parsing property, re-confirmed."
+  },
+  "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_4": {
+   "current_resolution_state": "KILLED_BY_WAVE5",
+   "classification": "GENUINE_TEST_GAP",
+   "reasoning": "zip(..., strict=True) length-mismatch guard: _validate_canonical_recorded_time has NO prior internal length pre-check of its own (unlike _finalize_prepared_batch), so this is genuinely reachable and was killed by a direct mismatched-length call. Re-confirmed."
+  },
+  "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_7": {
+   "current_resolution_state": "KILLED_BY_WAVE5",
+   "classification": "GENUINE_TEST_GAP",
+   "reasoning": "Same zip(strict=True) family as mutmut_4. Re-confirmed genuinely material."
+  },
+  "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_8": {
+   "current_resolution_state": "KILLED_BY_WAVE5",
+   "classification": "GENUINE_TEST_GAP",
+   "reasoning": "Same zip(strict=True) family as mutmut_4. Re-confirmed genuinely material."
+  },
+  "feature_engine.identity.x_deterministic_id__mutmut_3": {
+   "current_resolution_state": "KILLED_BY_WAVE5",
+   "classification": "LOW_MATERIALITY_IMPLEMENTATION_DETAIL",
+   "reasoning": "RECLASSIFIED by this audit (was implicitly treated as genuine by virtue of being killed in Wave-5). identity.py's own module docstring states the algorithm is 'a module-local implementation detail, not a Domain Contract or cross-module semantic' and that feature.md Sec19 requires only opaque/stable/deterministic/collision-resistant -- it does NOT require the exact digest to match a hardcoded value, and does not require the separator to be '|' specifically. The mutation ('|' -> 'XX|XX') does not violate determinism, opacity, or (verified in Wave-5) collision-resistance -- the boundary-shift tests distinguish inputs under EITHER separator. The golden-digest-pin test that kills this mutant asserts an arbitrary implementation choice, not a documented contract; per this module's own disclaimer it should not be counted as resolving a genuine Condition-1B gap. Test itself is harmless to keep (real determinism-regression value) but is not evidence of materiality for gate-counting purposes."
+  },
+  "feature_engine.contracts.x__seal_verified_authority__mutmut_35": {
+   "current_resolution_state": "SURVIVED_WAVE5",
+   "classification": "LOW_MATERIALITY_MESSAGE_TEXT",
+   "reasoning": "Cluster A: mutmut's mutator replaces the ARGUMENT inside type(X) with None, producing type(None), not the whole type(X) call. type(None).__name__ == 'NoneType' is a valid string (no crash) so the same exception TYPE is raised either way; only the diagnostic message's reported type-name substring changes. Re-confirmed via the exact extracted diff in this audit -- unchanged from Wave-5's finding."
+  },
+  "feature_engine.regime_passthrough.xǁRegimePassthroughFeatureEngineǁ__init____mutmut_21": {
+   "current_resolution_state": "SURVIVED_WAVE5",
+   "classification": "LOW_MATERIALITY_MESSAGE_TEXT",
+   "reasoning": "Cluster A: mutmut's mutator replaces the ARGUMENT inside type(X) with None, producing type(None), not the whole type(X) call. type(None).__name__ == 'NoneType' is a valid string (no crash) so the same exception TYPE is raised either way; only the diagnostic message's reported type-name substring changes. Re-confirmed via the exact extracted diff in this audit -- unchanged from Wave-5's finding."
+  },
+  "feature_engine.regime_passthrough.xǁRegimePassthroughFeatureEngineǁ__init____mutmut_31": {
+   "current_resolution_state": "SURVIVED_WAVE5",
+   "classification": "LOW_MATERIALITY_MESSAGE_TEXT",
+   "reasoning": "Cluster A: mutmut's mutator replaces the ARGUMENT inside type(X) with None, producing type(None), not the whole type(X) call. type(None).__name__ == 'NoneType' is a valid string (no crash) so the same exception TYPE is raised either way; only the diagnostic message's reported type-name substring changes. Re-confirmed via the exact extracted diff in this audit -- unchanged from Wave-5's finding."
+  },
+  "feature_engine.regime_passthrough.xǁRegimePassthroughFeatureEngineǁprepare_upstream_event__mutmut_18": {
+   "current_resolution_state": "SURVIVED_WAVE5",
+   "classification": "LOW_MATERIALITY_MESSAGE_TEXT",
+   "reasoning": "Cluster A: mutmut's mutator replaces the ARGUMENT inside type(X) with None, producing type(None), not the whole type(X) call. type(None).__name__ == 'NoneType' is a valid string (no crash) so the same exception TYPE is raised either way; only the diagnostic message's reported type-name substring changes. Re-confirmed via the exact extracted diff in this audit -- unchanged from Wave-5's finding."
+  },
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ__init____mutmut_40": {
+   "current_resolution_state": "SURVIVED_WAVE5",
+   "classification": "LOW_MATERIALITY_MESSAGE_TEXT",
+   "reasoning": "Cluster A: mutmut's mutator replaces the ARGUMENT inside type(X) with None, producing type(None), not the whole type(X) call. type(None).__name__ == 'NoneType' is a valid string (no crash) so the same exception TYPE is raised either way; only the diagnostic message's reported type-name substring changes. Re-confirmed via the exact extracted diff in this audit -- unchanged from Wave-5's finding."
+  },
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ__init____mutmut_50": {
+   "current_resolution_state": "SURVIVED_WAVE5",
+   "classification": "LOW_MATERIALITY_MESSAGE_TEXT",
+   "reasoning": "Cluster A: mutmut's mutator replaces the ARGUMENT inside type(X) with None, producing type(None), not the whole type(X) call. type(None).__name__ == 'NoneType' is a valid string (no crash) so the same exception TYPE is raised either way; only the diagnostic message's reported type-name substring changes. Re-confirmed via the exact extracted diff in this audit -- unchanged from Wave-5's finding."
+  },
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁprepare_upstream_event__mutmut_6": {
+   "current_resolution_state": "SURVIVED_WAVE5",
+   "classification": "LOW_MATERIALITY_MESSAGE_TEXT",
+   "reasoning": "Cluster A: mutmut's mutator replaces the ARGUMENT inside type(X) with None, producing type(None), not the whole type(X) call. type(None).__name__ == 'NoneType' is a valid string (no crash) so the same exception TYPE is raised either way; only the diagnostic message's reported type-name substring changes. Re-confirmed via the exact extracted diff in this audit -- unchanged from Wave-5's finding."
+  },
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁprepare_upstream_event__mutmut_18": {
+   "current_resolution_state": "SURVIVED_WAVE5",
+   "classification": "LOW_MATERIALITY_MESSAGE_TEXT",
+   "reasoning": "Cluster A: mutmut's mutator replaces the ARGUMENT inside type(X) with None, producing type(None), not the whole type(X) call. type(None).__name__ == 'NoneType' is a valid string (no crash) so the same exception TYPE is raised either way; only the diagnostic message's reported type-name substring changes. Re-confirmed via the exact extracted diff in this audit -- unchanged from Wave-5's finding."
+  },
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁprepare_upstream_event__mutmut_28": {
+   "current_resolution_state": "SURVIVED_WAVE5",
+   "classification": "LOW_MATERIALITY_MESSAGE_TEXT",
+   "reasoning": "Cluster A: mutmut's mutator replaces the ARGUMENT inside type(X) with None, producing type(None), not the whole type(X) call. type(None).__name__ == 'NoneType' is a valid string (no crash) so the same exception TYPE is raised either way; only the diagnostic message's reported type-name substring changes. Re-confirmed via the exact extracted diff in this audit -- unchanged from Wave-5's finding."
+  },
+  "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_23": {
+   "current_resolution_state": "SURVIVED_WAVE5",
+   "classification": "STRUCTURALLY_UNREACHABLE",
+   "reasoning": "_SAFE_CONTRACT_ID.fullmatch(contract_id) mutation is unreachable: an earlier unconditional check (contract_id != authorized_contract_id, itself derived from a hardcoded well-formed-path-stem dict) already guarantees contract_id is well-formed by the time this line executes. Re-confirmed."
+  },
+  "feature_engine.contracts.x__finalize_prepared_batch__mutmut_8": {
+   "current_resolution_state": "SURVIVED_WAVE5",
+   "classification": "STRUCTURALLY_UNREACHABLE",
+   "reasoning": "zip(prepared_events, refs, strict=True) is unreachable: _finalize_prepared_batch has its own unconditional len(prepared_events) != len(refs) pre-check immediately before the zip, on the SAME two sequences. Re-confirmed."
+  },
+  "feature_engine.contracts.x__finalize_prepared_batch__mutmut_11": {
+   "current_resolution_state": "SURVIVED_WAVE5",
+   "classification": "STRUCTURALLY_UNREACHABLE",
+   "reasoning": "Same zip(strict=True) family as mutmut_8. Re-confirmed unreachable."
+  },
+  "feature_engine.contracts.x__finalize_prepared_batch__mutmut_12": {
+   "current_resolution_state": "SURVIVED_WAVE5",
+   "classification": "STRUCTURALLY_UNREACHABLE",
+   "reasoning": "Same zip(strict=True) family as mutmut_8. Re-confirmed unreachable."
+  },
+  "feature_engine.contracts.x__finalize_prepared_batch__mutmut_3": {
+   "current_resolution_state": "NOT_TARGETED_WAVE5",
+   "classification": "GENUINE_TEST_GAP",
+   "reasoning": "Sentinel default invalidation_ref: EventRecordRef|None = None mutated to ''. finalize() checks `if invalidation_ref is None: raise ValueError(...)` when preceding_batch_invalidation_causation=True. Under the mutation, '' is not None, so the guard is silently bypassed and a bogus empty-string ref is spliced into causation_refs instead of failing closed. Reachable via a batch whose first/only PreparedFeatureComputed has preceding_batch_invalidation_causation=True with no preceding invalidation in the same batch -- a legitimate, non-contrived construction. Kill target: pytest.raises(ValueError) on that construction."
+  },
+  "feature_engine.contracts.x__finalize_prepared_batch__mutmut_4": {
+   "current_resolution_state": "NOT_TARGETED_WAVE5",
+   "classification": "GENUINE_TEST_GAP",
+   "reasoning": "Sentinel default invalidation_recorded_time: datetime|None = None mutated to ''. Guarded by `if invalidation_recorded_time is None: raise ValueError(...)` when depends_on_preceding_invalidation_timing=True and no preceding invalidation was finalized yet in this batch. Under the mutation the guard is bypassed and `max(floor, '')` is attempted, raising TypeError instead of the documented ValueError -- an observable, reachable difference via the same first-item-with-no-preceding-invalidation construction as mutmut_3."
+  },
+  "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_1": {
+   "current_resolution_state": "NOT_TARGETED_WAVE5",
+   "classification": "GENUINE_TEST_GAP",
+   "reasoning": "Same sentinel pattern as _finalize_prepared_batch__mutmut_4, in the validate (historical-reconcile) path: guard `if invalidation_recorded_time is None: raise CanonicalHistoryMismatchError(...)` is bypassed under the mutation, producing TypeError from `max(floor, '')` instead of the documented CanonicalHistoryMismatchError. Reachable via a first prepared/canonical pair with depends_on_preceding_invalidation_timing=True and no preceding invalidation validated yet in the same call."
+  },
+  "feature_engine.ownership.x__tie_break_key__mutmut_9": {
+   "current_resolution_state": "NOT_TARGETED_WAVE5",
+   "classification": "GENUINE_TEST_GAP",
+   "reasoning": "key.append(envelope.ref.sequence) -> key.append(None) for the 'sequence' tie-break field. _tie_break_key is a small, directly-callable, well-defined semantic helper (build one tie-break tuple component per configured field); its own contract (each configured field name maps to the corresponding real ref attribute) is directly and legitimately testable in isolation via a direct call, independent of whether p_run_sort's overall sort order happens to ever compare on this exact position for two ready envelopes sharing a stream_id."
+  },
+  "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_catch_up__mutmut_18": {
+   "current_resolution_state": "NOT_TARGETED_WAVE5",
+   "classification": "GENUINE_TEST_GAP",
+   "reasoning": "`not canonical.events` -> `canonical.events` in the emptiness-proof guard. UpstreamHistoryResult/CanonicalOutputHistoryResult's own docstring: proven_empty is meaningful ONLY for validating a genuinely-empty events tuple; a real, non-contrived provider may legitimately return non-empty events with proven_empty=False (existing test fakes in test_ownership.py only ever set proven_empty=True for 'known' subjects, which is why this mutation currently survives -- proven_empty is conflated with 'known' rather than independently varied). A dedicated fake/stub returning real canonical events with proven_empty=False directly distinguishes the mutation: original proceeds normally, mutated incorrectly raises UnprovenCatchUpError."
+  },
+  "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_catch_up__mutmut_7": {
+   "current_resolution_state": "NOT_TARGETED_WAVE5",
+   "classification": "GENUINE_TEST_GAP",
+   "reasoning": "Same pattern as mutmut_18, on the upstream (not canonical) emptiness-proof guard. Genuinely material, same reachability argument (non-empty events + proven_empty=False is a legitimate, common real-world combination the existing test fakes never happen to exercise)."
+  },
+  "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁprocess_certified_frontier__mutmut_10": {
+   "current_resolution_state": "NOT_TARGETED_WAVE5",
+   "classification": "GENUINE_TEST_GAP",
+   "reasoning": "Same emptiness-proof-guard pattern (`not apply_set.events` -> `apply_set.events`) as the two _catch_up sentinels, on the ongoing (not historical) apply-set path. Same reachability argument."
+  },
+  "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁacquire_and_activate__mutmut_21": {
+   "current_resolution_state": "NOT_TARGETED_WAVE5",
+   "classification": "UNCLEAR",
+   "reasoning": "DISPUTED — reverses part of Task C's MAJOR-02 correction. Mutation replaces self._feature_subject_id with None in the INTERMEDIATE CATCHING_UP OwnerHandle set immediately before _catch_up() executes; unconditionally overwritten by the correct ACTIVE handle if _catch_up succeeds. MAJOR-02 argued the public .handle/.state read-only properties make this intermediate state 'concurrently observable' and therefore material. This audit's STRICTER re-evaluation finds: (1) AuthoritativeSubjectOwner's own class docstring documents no thread-safety contract and contains no lock -- the class is architected as a single-owner-per-subject coordinator ('the ONLY thing authorized to drive that engine's authoritative path'), which is the opposite of a design intended for concurrent multi-reader access to in-flight mutable state; (2) no ADR-043 clause, feature.md section, or module docstring documents a governed guarantee that .handle/.state must be internally-consistent during an in-flight acquire_and_activate call observed from another thread; (3) constructing a deterministic test for this window requires artificially injecting a synchronization point into a private collaborator (e.g. monkeypatching _catch_up/_history_provider to block on a threading.Event) purely to manufacture an observation window the production design does not promise to keep correct, which edges toward the prohibited 'contrived fixture construction' anti-gaming rule rather than testing a genuine documented contract. This is a genuine, material disagreement with a PRIOR formally-approved correction (MAJOR-02) and is NOT resolved by this transaction -- recorded as UNCLEAR/DISPUTED pending a separate, distinct-principal Review A. This audit does not modify the currently-ACTIVE 42-ID artifact or unilaterally reclassify this pair."
+  },
+  "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁacquire_and_activate__mutmut_23": {
+   "current_resolution_state": "NOT_TARGETED_WAVE5",
+   "classification": "UNCLEAR",
+   "reasoning": "DISPUTED — same reasoning as mutmut_21 (sibling mutation on the same intermediate OwnerHandle construction, replacing SubjectOwnershipState.CATCHING_UP with None instead of feature_subject_id). Recorded as UNCLEAR/DISPUTED pending a separate, distinct-principal Review A."
+  },
+  "feature_engine.swing_distance.x__total_order_key__mutmut_3": {
+   "current_resolution_state": "NOT_TARGETED_WAVE5",
+   "classification": "STRUCTURALLY_UNREACHABLE",
+   "reasoning": "-state.revision -> +state.revision (criterion 6 of the documented 8-criterion deterministic total order). Unreachable as a discriminator: criteria 3 and 5 of the same key tuple (state.ref.stream_id, state.ref.sequence) already uniquely identify the confirming event for any given swing_id (EventRecordRef is the durable unique identity of one committed event throughout this codebase, e.g. p_run_sort's own by_ref dedup/ConflictingUpstreamEnvelopeError). Two DIFFERENT candidate (swing_id, state) pairs in _select_eligible_swing's candidate list can therefore never tie on stream_id+sequence, so tuple comparison always resolves (or fails to resolve, i.e. never reaches) position 6 before criterion 5. Comparison short-circuits at the first differing element, so this mutation is never observably compared for genuinely distinct candidates."
+  },
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_original__mutmut_13": {
+   "current_resolution_state": "NOT_TARGETED_WAVE5",
+   "classification": "GENUINE_TEST_GAP",
+   "reasoning": "max(candle.recorded_time, state.recorded_time, cursor.recorded_time) drops the state.recorded_time term. The function's own comment states the floor deliberately includes cursor.recorded_time to guarantee computation_cursor.recorded_time <= FeatureComputed.recorded_time 'never merely evidence-derived' -- explicitly treating state.recorded_time (the used Swing's own recorded_time) as an independent, non-redundant evidence term. Reachable/material via a swing state whose recorded_time strictly exceeds both candle.recorded_time and cursor.recorded_time; the resulting recorded_time_floor differs observably (assertable directly on prepared.prepared_events[0].recorded_time_floor, a real structural field, not message text)."
+  },
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_preempt_settled_window__mutmut_20": {
+   "current_resolution_state": "NOT_TARGETED_WAVE5",
+   "classification": "GENUINE_TEST_GAP",
+   "reasoning": "Same 3-way max() floor pattern and same reachability argument as _prepare_original__mutmut_13, in the preempt-settled-window path."
+  },
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_replacement_only__mutmut_14": {
+   "current_resolution_state": "NOT_TARGETED_WAVE5",
+   "classification": "GENUINE_TEST_GAP",
+   "reasoning": "Same 3-way max() floor pattern and same reachability argument as _prepare_original__mutmut_13, in the replacement-only path."
+  },
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_recompute__mutmut_23": {
+   "current_resolution_state": "NOT_TARGETED_WAVE5",
+   "classification": "GENUINE_TEST_GAP",
+   "reasoning": "`assert correction_ref is not None and correction_recorded_time is not None` mutated to `or`. This internal invariant assert exists specifically to catch a caller supplying an inconsistent correction_ref/correction_recorded_time pair before entering _prepare_invalidate_and_replace, which consumes both. Under the mutation, a caller supplying exactly one of the two (not both) would incorrectly pass the assert and proceed with a None value threaded into a path that expects a real ref/time, an observable divergence testable via a direct call to the private method with a deliberately mismatched pair. Medium confidence: full downstream crash-site was not exhaustively traced in this pass; recommended for confirmation during implementation."
+  },
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_reevaluate_all_windows__mutmut_6": {
+   "current_resolution_state": "NOT_TARGETED_WAVE5",
+   "classification": "GENUINE_TEST_GAP",
+   "reasoning": "`continue` -> `break` inside the per-window re-evaluation loop (`for key, lineage in list(self._lineage.items())`), on the branch reached when an invalidated/PENDING_CORRECTION window still has no eligible Swing. Mutated to break, the ENTIRE loop stops as soon as ONE such window is encountered, silently skipping any subsequent window that legitimately needed re-evaluation. Reachable via >=2 lineage entries where the first (in insertion order) hits this branch and a second entry would otherwise produce a PreparedTransition -- a legitimate, non-contrived two-window scenario."
+  },
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_select_eligible_swing__mutmut_18": {
+   "current_resolution_state": "NOT_TARGETED_WAVE5",
+   "classification": "STRUCTURALLY_UNREACHABLE",
+   "reasoning": "_total_order_key(item[0], item[1]) -> _total_order_key(None, item[1]) — replaces swing_id (criterion 7 of 8) with None. Even less reachable than mutmut_3 above (criterion 6): reaching criterion 7 as a discriminator additionally requires criterion 6 (state.revision) to also tie, a strict superset of the already-impossible-for-distinct-candidates precondition established for _total_order_key__mutmut_3 (stream_id+sequence uniqueness). min()'s tuple comparison never reaches this position for genuinely distinct candidates, and a single-candidate call never triggers any pairwise comparison at all (min() returns the sole item unconditionally)."
+  },
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_select_eligible_swing__mutmut_22": {
+   "current_resolution_state": "NOT_TARGETED_WAVE5",
+   "classification": "GENUINE_TEST_GAP",
+   "reasoning": "state.pivot_effective_time[0] -> state.pivot_effective_time[1] in the eligibility filter `state.pivot_effective_time[0] < reference_cutoff`. pivot_effective_time is a real (start, end) datetime tuple; using the window END instead of START for the eligibility comparison is a materially different, easily reachable defect (construct a candidate whose start is before reference_cutoff but whose end is not, or vice versa) -- no unreachability argument applies here, unlike the tie-break-only mutants above."
+  }
+ },
+ "confirmed_material_ids": [
+  "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_18",
+  "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_33",
+  "feature_engine.authority_resolver.x__extract_scalar__mutmut_5",
+  "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_100",
+  "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_101",
+  "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_30",
+  "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_40",
+  "feature_engine.contracts.x__finalize_prepared_batch__mutmut_3",
+  "feature_engine.contracts.x__finalize_prepared_batch__mutmut_4",
+  "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_1",
+  "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_4",
+  "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_7",
+  "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_8",
+  "feature_engine.output_contract_resolver.x__extract_scalar__mutmut_5",
+  "feature_engine.ownership.x__tie_break_key__mutmut_9",
+  "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_catch_up__mutmut_18",
+  "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_catch_up__mutmut_7",
+  "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁprocess_certified_frontier__mutmut_10",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_original__mutmut_13",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_preempt_settled_window__mutmut_20",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_recompute__mutmut_23",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_reevaluate_all_windows__mutmut_6",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_replacement_only__mutmut_14",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_select_eligible_swing__mutmut_22"
+ ],
+ "confirmed_false_positive_ids": [
+  "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_23",
+  "feature_engine.contracts.x__finalize_prepared_batch__mutmut_11",
+  "feature_engine.contracts.x__finalize_prepared_batch__mutmut_12",
+  "feature_engine.contracts.x__finalize_prepared_batch__mutmut_8",
+  "feature_engine.contracts.x__seal_verified_authority__mutmut_35",
+  "feature_engine.identity.x_deterministic_id__mutmut_3",
+  "feature_engine.regime_passthrough.xǁRegimePassthroughFeatureEngineǁ__init____mutmut_21",
+  "feature_engine.regime_passthrough.xǁRegimePassthroughFeatureEngineǁ__init____mutmut_31",
+  "feature_engine.regime_passthrough.xǁRegimePassthroughFeatureEngineǁprepare_upstream_event__mutmut_18",
+  "feature_engine.swing_distance.x__total_order_key__mutmut_3",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ__init____mutmut_40",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ__init____mutmut_50",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_select_eligible_swing__mutmut_18",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁprepare_upstream_event__mutmut_18",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁprepare_upstream_event__mutmut_28",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁprepare_upstream_event__mutmut_6"
+ ],
+ "unclear_ids": [
+  "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁacquire_and_activate__mutmut_21",
+  "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁacquire_and_activate__mutmut_23"
+ ],
+ "material_gap_count": 24,
+ "non_material_count": 16,
+ "unclear_count": 2,
+ "sorted_material_set": [
+  "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_18",
+  "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_33",
+  "feature_engine.authority_resolver.x__extract_scalar__mutmut_5",
+  "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_100",
+  "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_101",
+  "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_30",
+  "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_40",
+  "feature_engine.contracts.x__finalize_prepared_batch__mutmut_3",
+  "feature_engine.contracts.x__finalize_prepared_batch__mutmut_4",
+  "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_1",
+  "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_4",
+  "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_7",
+  "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_8",
+  "feature_engine.output_contract_resolver.x__extract_scalar__mutmut_5",
+  "feature_engine.ownership.x__tie_break_key__mutmut_9",
+  "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_catch_up__mutmut_18",
+  "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_catch_up__mutmut_7",
+  "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁprocess_certified_frontier__mutmut_10",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_original__mutmut_13",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_preempt_settled_window__mutmut_20",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_recompute__mutmut_23",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_reevaluate_all_windows__mutmut_6",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_replacement_only__mutmut_14",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_select_eligible_swing__mutmut_22"
+ ],
+ "sorted_material_set_sha256": {
+  "method": "sha256 of the confirmed-material IDs, newline-joined, lexicographically sorted",
+  "sha256": "6c8181f7665a63494632ef89514ea7efdf9948c544c9a9a8094e87c17c3d2543"
+ },
+ "classification_changes_from_activated_set": [
+  {
+   "id": "feature_engine.identity.x_deterministic_id__mutmut_3",
+   "prior_treatment": "KILLED (Wave-5) -- implicitly treated as a resolved genuine gap, no materiality flag raised",
+   "audit_finding": "RECLASSIFIED to LOW_MATERIALITY_IMPLEMENTATION_DETAIL -- kill relies on an arbitrary implementation choice (exact separator/digest), not a documented contract (identity.py's own docstring: 'module-local implementation detail, not a Domain Contract'). Should not be counted toward the material-gap numerator despite currently killing."
+  },
+  {
+   "id": "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁacquire_and_activate__mutmut_21",
+   "prior_treatment": "GENUINE_TEST_GAP (Task C MAJOR-02 correction, formally Review-A approved, concurrent-observability argument)",
+   "audit_finding": "DISPUTED -- reclassified to UNCLEAR under this audit's stricter re-evaluation (no documented thread-safety contract, no lock, single-owner-per-subject architecture, manufacturing the observation window requires artificial synchronization injection bordering on contrived-fixture construction). NOT unilaterally resolved by this transaction -- flagged for a separate, distinct-principal Review A. The currently-ACTIVE 42-ID artifact is NOT modified by this audit."
+  },
+  {
+   "id": "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁacquire_and_activate__mutmut_23",
+   "prior_treatment": "GENUINE_TEST_GAP (Task C MAJOR-02 correction, formally Review-A approved, concurrent-observability argument)",
+   "audit_finding": "DISPUTED -- reclassified to UNCLEAR under this audit's stricter re-evaluation (no documented thread-safety contract, no lock, single-owner-per-subject architecture, manufacturing the observation window requires artificial synchronization injection bordering on contrived-fixture construction). NOT unilaterally resolved by this transaction -- flagged for a separate, distinct-principal Review A. The currently-ACTIVE 42-ID artifact is NOT modified by this audit."
+  },
+  {
+   "id": "feature_engine.contracts.x__finalize_prepared_batch__mutmut_3",
+   "prior_treatment": "NOT_TARGETED_WAVE5 -- no test implementation, no reachability analysis performed in any prior transaction",
+   "audit_finding": "First classification: GENUINE_TEST_GAP."
+  },
+  {
+   "id": "feature_engine.contracts.x__finalize_prepared_batch__mutmut_4",
+   "prior_treatment": "NOT_TARGETED_WAVE5 -- no test implementation, no reachability analysis performed in any prior transaction",
+   "audit_finding": "First classification: GENUINE_TEST_GAP."
+  },
+  {
+   "id": "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_1",
+   "prior_treatment": "NOT_TARGETED_WAVE5 -- no test implementation, no reachability analysis performed in any prior transaction",
+   "audit_finding": "First classification: GENUINE_TEST_GAP."
+  },
+  {
+   "id": "feature_engine.ownership.x__tie_break_key__mutmut_9",
+   "prior_treatment": "NOT_TARGETED_WAVE5 -- no test implementation, no reachability analysis performed in any prior transaction",
+   "audit_finding": "First classification: GENUINE_TEST_GAP."
+  },
+  {
+   "id": "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_catch_up__mutmut_18",
+   "prior_treatment": "NOT_TARGETED_WAVE5 -- no test implementation, no reachability analysis performed in any prior transaction",
+   "audit_finding": "First classification: GENUINE_TEST_GAP."
+  },
+  {
+   "id": "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_catch_up__mutmut_7",
+   "prior_treatment": "NOT_TARGETED_WAVE5 -- no test implementation, no reachability analysis performed in any prior transaction",
+   "audit_finding": "First classification: GENUINE_TEST_GAP."
+  },
+  {
+   "id": "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁprocess_certified_frontier__mutmut_10",
+   "prior_treatment": "NOT_TARGETED_WAVE5 -- no test implementation, no reachability analysis performed in any prior transaction",
+   "audit_finding": "First classification: GENUINE_TEST_GAP."
+  },
+  {
+   "id": "feature_engine.swing_distance.x__total_order_key__mutmut_3",
+   "prior_treatment": "NOT_TARGETED_WAVE5 -- no test implementation, no reachability analysis performed in any prior transaction",
+   "audit_finding": "First classification: STRUCTURALLY_UNREACHABLE."
+  },
+  {
+   "id": "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_original__mutmut_13",
+   "prior_treatment": "NOT_TARGETED_WAVE5 -- no test implementation, no reachability analysis performed in any prior transaction",
+   "audit_finding": "First classification: GENUINE_TEST_GAP."
+  },
+  {
+   "id": "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_preempt_settled_window__mutmut_20",
+   "prior_treatment": "NOT_TARGETED_WAVE5 -- no test implementation, no reachability analysis performed in any prior transaction",
+   "audit_finding": "First classification: GENUINE_TEST_GAP."
+  },
+  {
+   "id": "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_recompute__mutmut_23",
+   "prior_treatment": "NOT_TARGETED_WAVE5 -- no test implementation, no reachability analysis performed in any prior transaction",
+   "audit_finding": "First classification: GENUINE_TEST_GAP."
+  },
+  {
+   "id": "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_reevaluate_all_windows__mutmut_6",
+   "prior_treatment": "NOT_TARGETED_WAVE5 -- no test implementation, no reachability analysis performed in any prior transaction",
+   "audit_finding": "First classification: GENUINE_TEST_GAP."
+  },
+  {
+   "id": "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_replacement_only__mutmut_14",
+   "prior_treatment": "NOT_TARGETED_WAVE5 -- no test implementation, no reachability analysis performed in any prior transaction",
+   "audit_finding": "First classification: GENUINE_TEST_GAP."
+  },
+  {
+   "id": "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_select_eligible_swing__mutmut_18",
+   "prior_treatment": "NOT_TARGETED_WAVE5 -- no test implementation, no reachability analysis performed in any prior transaction",
+   "audit_finding": "First classification: STRUCTURALLY_UNREACHABLE."
+  },
+  {
+   "id": "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_select_eligible_swing__mutmut_22",
+   "prior_treatment": "NOT_TARGETED_WAVE5 -- no test implementation, no reachability analysis performed in any prior transaction",
+   "audit_finding": "First classification: GENUINE_TEST_GAP."
+  }
+ ],
+ "root_cause_of_prior_misclassification": [
+  {
+   "failure_mode": "message_text_pattern_misread_as_crash_type",
+   "description": "mutmut's mutator for type(X)-style diagnostic expressions replaces the ARGUMENT inside type(...) with None (producing type(None)), not the whole call with a bare None. type(None).__name__ == 'NoneType' is a valid string so the same exception TYPE is raised either way -- only the reported type-name substring in the message changes. The post-E005 diagnostic assumed a whole-call replacement (crash via AttributeError) without inspecting the precise extracted diff, over-classifying 9 Cluster-A identities as GENUINE_TEST_GAP.",
+   "affected_ids_this_audit": [
+    "feature_engine.contracts.x__seal_verified_authority__mutmut_35",
+    "feature_engine.regime_passthrough.xǁRegimePassthroughFeatureEngineǁ__init____mutmut_21",
+    "feature_engine.regime_passthrough.xǁRegimePassthroughFeatureEngineǁ__init____mutmut_31",
+    "feature_engine.regime_passthrough.xǁRegimePassthroughFeatureEngineǁprepare_upstream_event__mutmut_18",
+    "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ__init____mutmut_40",
+    "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ__init____mutmut_50",
+    "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁprepare_upstream_event__mutmut_6",
+    "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁprepare_upstream_event__mutmut_18",
+    "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁprepare_upstream_event__mutmut_28"
+   ],
+   "corrective_recommendation": "Before classifying any mutation touching a type()/isinstance()-style diagnostic expression as GENUINE_TEST_GAP, always inspect the exact extracted CST diff (original_node vs mutated_node), never infer the mutated shape from the source line alone."
+  },
+  {
+   "failure_mode": "sentinel_default_left_unclassified_rather_than_proactively_traced",
+   "description": "Three None -> '' sentinel-default mutations (_finalize_prepared_batch__mutmut_3/_4, _validate_canonical_recorded_time__mutmut_1) were left in the untested Wave-6 population without any reachability tracing across any prior transaction, despite being reachable in one hop from an `is None` guard whose bypass produces an observable different exception type. This audit found all three genuinely material on first inspection.",
+   "affected_ids_this_audit": [
+    "feature_engine.contracts.x__finalize_prepared_batch__mutmut_3",
+    "feature_engine.contracts.x__finalize_prepared_batch__mutmut_4",
+    "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_1"
+   ],
+   "corrective_recommendation": "Any None -> '' or None -> 0 sentinel-default mutation deserves a mandatory one-hop trace of every `is None` check on that same local before it is classified at all."
+  },
+  {
+   "failure_mode": "deep_tie_break_criteria_assumed_reachable_without_verifying_upstream_uniqueness_invariants",
+   "description": "Two mutations targeting the 6th/7th criteria of an 8-criterion deterministic total order (swing revision, swing_id) were left unclassified in Wave-6. Tracing the invariant that EventRecordRef (stream_id+sequence) is the durable unique identity of one committed event throughout this codebase shows criteria 3+5 already fully discriminate any two genuinely distinct candidates, making criteria 6/7 provably unreachable as comparison discriminators.",
+   "affected_ids_this_audit": [
+    "feature_engine.swing_distance.x__total_order_key__mutmut_3",
+    "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_select_eligible_swing__mutmut_18"
+   ],
+   "corrective_recommendation": "For any mutation inside a multi-criterion deterministic ordering/tie-break key, trace whether an EARLIER criterion in the same key already uniquely discriminates every legitimately-distinct input before assuming a later criterion is reachable."
+  },
+  {
+   "failure_mode": "concurrency_observability_argument_applied_without_checking_for_a_governed_contract",
+   "description": "Task C's MAJOR-02 correction reclassified acquire_and_activate__mutmut_21/_23 as GENUINE_TEST_GAP on the basis that the public .handle/.state properties make an in-flight intermediate CATCHING_UP OwnerHandle 'concurrently observable'. This audit's stricter re-check finds AuthoritativeSubjectOwner documents no thread-safety contract, has no lock, and is architected as a single-owner-per-subject coordinator -- the observability argument was not grounded in any documented governed contract, and manufacturing a deterministic test for it requires injecting artificial synchronization into a private collaborator.",
+   "affected_ids_this_audit": [
+    "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁacquire_and_activate__mutmut_21",
+    "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁacquire_and_activate__mutmut_23"
+   ],
+   "corrective_recommendation": "A 'concurrent observability' materiality argument must point to an explicit documented concurrency/thread-safety contract (ADR clause, class docstring, or feature.md section) before being accepted -- the mere existence of a public read-only property is not sufficient, and this is now an explicitly disputed, unresolved finding pending independent review."
+  },
+  {
+   "failure_mode": "kill_status_treated_as_proof_of_materiality_without_checking_the_documented_contract",
+   "description": "identity.x_deterministic_id__mutmut_3 was killed via a golden SHA-256 digest pin in Wave-5 and implicitly counted as a resolved genuine gap purely because a real targeted mutmut run showed it killed. identity.py's own module docstring explicitly states the concrete algorithm is a module-local implementation detail, not a Domain Contract, and that feature.md Sec19 requires only opaque/stable/deterministic/collision-resistant -- none of which this specific mutation (a wider separator) actually violates.",
+   "affected_ids_this_audit": [
+    "feature_engine.identity.x_deterministic_id__mutmut_3"
+   ],
+   "corrective_recommendation": "A killed mutant must still be checked against the function/module's own documented contract before being counted as a genuine gap -- 'the test now kills it' is necessary but not sufficient; the assertion must be shown to test something the contract actually promises, not merely something the current implementation happens to produce."
+  }
+ ],
+ "candidate_numeric_recalibration_math": {
+  "calibration_boundary_used": "Evidence-005 base figures (Testing Convention v0.17 item 7/8 formula): total=2629, confirmed_numerator=2214 (killed=2209 + confirmed_timeout=5). This audit deliberately uses this SAME boundary, NOT the post-Wave-5 killed count, per instruction.",
+  "M_confirmed_material_excluding_disputed": 24,
+  "candidate_numerator_excluding_disputed": 2238,
+  "candidate_percentage_excluding_disputed": 85.12742487637885,
+  "M_including_disputed_as_precautionary_material": 26,
+  "candidate_numerator_including_disputed": 2240,
+  "candidate_percentage_including_disputed": 85.20349942944085,
+  "status": "INFORMATIONAL ONLY -- NOT ACTIVATED. The currently-ACTIVE Condition 1A threshold (85.812095853937%) and Condition 1B gate (the 42-ID artifact, individually-resolved) remain fully controlling. This audit does not change, supersede, or weaken the active gate."
+ },
+ "active_gate_status": {
+  "condition_1a_threshold": "85.812095853937% -- STILL CONTROLLING, unchanged by this audit",
+  "condition_1b_gate": "42 exact IDs, individually resolved -- STILL CONTROLLING, unchanged by this audit",
+  "known_issue_recorded": "This audit finds the underlying materiality classification for the 42-ID set carries a known defect: at minimum 1 of 42 IDs is likely non-material (identity.x_deterministic_id__mutmut_3, killed but not contract-backed) and 2 of 42 IDs are disputed (acquire_and_activate__mutmut_21/_23, a prior formally-approved reclassification that this audit's stricter standard cannot confirm). This makes the active 42-ID gate CONSERVATIVE/OVER-STRICT relative to this audit's findings, not permissive -- there is no urgency to weaken it, and it remains controlling pending separate governed resolution.",
+  "wave6_status": "Wave 6 implementation PAUSED pending material-set audit -- this transaction performs classification/reachability analysis only for all 17 Wave-6 identities; no test code is written or implemented by this transaction."
+ },
+ "recommended_next_action": "1) A separate, distinct-principal ChatGPT Review A should adjudicate the 2 DISPUTED ownership CATCHING_UP identities (acquire_and_activate__mutmut_21/_23) and the 1 RECLASSIFIED identity (identity.x_deterministic_id__mutmut_3) before any future Condition-1 threshold recalibration is authored from this audit's findings. 2) A future Wave-6 implementation transaction may proceed against the 13 GENUINE_TEST_GAP Wave-6 identities identified here (test implementation only, no production code changes) once separately authorized -- the sentinel-default trio, the ownership emptiness-proof trio, the tie-break-field helper, and the 5 swing_distance floor/loop/index defects. 3) The 2 STRUCTURALLY_UNREACHABLE Wave-6 identities (total_order_key__mutmut_3, _select_eligible_swing__mutmut_18) should be proposed for the same governed non-material disposition as the existing 4 STRUCTURALLY_UNREACHABLE identities in the active set, in a future correction. 4) No action is required on the active Condition-1 gate itself as a result of this audit alone.",
+ "not_performed_by_this_transaction": [
+  "No test code was implemented for any of the 17 Wave-6 identities.",
+  "No production code was changed.",
+  "No modification was made to the activated 42-ID artifact or the recalibration proposal document.",
+  "No threshold change, DTR, or formal gate credit was issued.",
+  "No resolution of TOOL_IDENTITY_DRIFT.",
+  "No Feature Engine approval or LIVE authorization."
+ ]
+}
