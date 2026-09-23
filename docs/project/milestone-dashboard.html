@@ -235,7 +235,7 @@
   <div class="wrap">
     <h1>Ride Quant Platform — Milestone Dashboard</h1>
     <div class="top-meta">
-      <span>Milestone state verified against: <code id="head-sha">82cba5dda79fe7138b8f76ebf73abdb841321610</code></span>
+      <span>Milestone state verified against: <code id="head-sha">704e492f83af1d463117f002c9f319ebcadd8099</code></span>
       <span>Lean Ride Operating Model v1.1: <span class="pill pill-done">Active — ADOPTED</span></span>
       <span>Current milestone: <span class="pill pill-active">M1 — Feature Engine EVID-03 Closure</span></span>
     </div>
@@ -358,8 +358,8 @@
       <div class="lane">
         <h4>Primary</h4>
         <div class="wp-item">
-          <code>FE-EVID03-COND1-PROTOCOL-CONSOLIDATION-001</code>
-          <div class="desc"><strong>ROOT-CAUSE CONSOLIDATION</strong> (P3-CORRECTION-CHAIN-001 — not CORR-004). Review A on v0.4 was CLEAN — 0/0/0, R2; a second optional Product-Owner-selected R2 cross-check found DEFECT FOUND — 0 Blocker / 1 Major / 3 Minor, accepted as REVISION_REQUIRED — 0/1/3. The Major was a regression of a previously validated closure. Root cause: ADR-044 and Chapter 13 §13.8.1 carried parallel copies of normative gate semantics, drifted in both directions across 3 correction rounds. Consolidated: Chapter 13 §13.8.1 is now the sole, self-contained normative source (reproducibility reconciliation restored, item-8 precedence unambiguous, structural protocol provenance); ADR-044 (v0.4 → v0.5) restructured to rationale-only with no second executable gate specification, plus a new clause-trace table. Case A/B/C truth table and activation model unchanged. Awaiting ChatGPT fresh Review A. Condition 1 unchanged; v1.7 remains Chapter 13's controlling version.</div>
+          <code>FE-EVID03-COND1-PROTOCOL-ACTIVATION-001</code>
+          <div class="desc"><strong>ATOMIC PRODUCT OWNER ACTIVATION — COMPLETE.</strong> Review A on the consolidated v0.5/v1.8 bundle (boundary <code>704e492...</code>) returned <code>CLEAN — 0 Blocker / 0 Major / 2 Minor</code>, R2; an optional Product-Owner-selected R2 advisory cross-check (Claude) returned <code>0 Blocker / 0 Major / 5 Minor</code>, all accepted by ChatGPT as non-blocking. Product Owner approved the bundle (2026-09-23T09:34:00+07:00), accepting Risk R2 and all 5 Minors as non-blocking residual findings, authorizing deterministic non-normative cleanup of X3-MIN-01/02/03 (ADR-044 wording only) in this same transaction, while explicitly declining to touch Chapter 13 §13.8.1's normative semantics for X3-MIN-04/05 (both remain accepted, non-blocking). <strong>ADR-044 v0.5 is now Approved; Chapter 13 v1.8 is now Locked and controlling</strong> (v1.7 is its historical predecessor). §13.8.1's own semantic body verified byte-identical before/after. The rule is now effective prospectively. This activation did not apply the rule to EVID-03: Condition 1 remains <code>STOPPED / UNRESOLVED</code> until a separate, bounded application transaction. Next: ChatGPT fresh-verifies this activation.</div>
         </div>
       </div>
       <div class="lane">
@@ -400,7 +400,11 @@
         </div>
         <div class="wp-item">
           <code>FE-EVID03-COND1-PROTOCOL-DECISION-001-CORR-003</code>
-          <div class="desc">ADR-044 v0.4 + Chapter 13 v1.8 corrected (round-3 findings CLOSED — REVIEW A VALIDATED). Review A returned <code>CLEAN — 0 Blocker / 0 Major / 0 Minor</code>, Risk R2. A second optional Product-Owner-selected R2 cross-check then returned <code>DEFECT FOUND — 0 Blocker / 1 Major / 3 Minor</code>, accepted as <code>REVISION_REQUIRED — 0 Blocker / 1 Major / 3 Minor</code> (the Major a regression of a previously validated closure) — <code>P3-CORRECTION-CHAIN-001</code> triggered, narrow correction loop STOPPED, remediated by the CONSOLIDATION WP above.</div>
+          <div class="desc">ADR-044 v0.4 + Chapter 13 v1.8 corrected (round-3 findings CLOSED — REVIEW A VALIDATED). Review A returned <code>CLEAN — 0 Blocker / 0 Major / 0 Minor</code>, Risk R2. A second optional Product-Owner-selected R2 cross-check then returned <code>DEFECT FOUND — 0 Blocker / 1 Major / 3 Minor</code>, accepted as <code>REVISION_REQUIRED — 0 Blocker / 1 Major / 3 Minor</code> (the Major a regression of a previously validated closure) — <code>P3-CORRECTION-CHAIN-001</code> triggered, narrow correction loop STOPPED, remediated by the CONSOLIDATION WP below.</div>
+        </div>
+        <div class="wp-item">
+          <code>FE-EVID03-COND1-PROTOCOL-CONSOLIDATION-001</code>
+          <div class="desc"><strong>ROOT-CAUSE CONSOLIDATION</strong> (P3-CORRECTION-CHAIN-001 — not CORR-004). Consolidated Chapter 13 §13.8.1 as the sole, self-contained normative source (reproducibility reconciliation restored, item-8 precedence unambiguous, structural protocol provenance); ADR-044 (v0.4 → v0.5) restructured to rationale-only with no second executable gate specification, plus a new clause-trace table. Case A/B/C truth table and activation model unchanged. Review A <code>CLEAN — 0 Blocker / 0 Major / 2 Minor</code>, R2; optional cross-check <code>0 Blocker / 0 Major / 5 Minor</code>, all accepted non-blocking — remediated/approved by the ACTIVATION WP above.</div>
         </div>
       </div>
     </div>
@@ -409,14 +413,14 @@
   <section id="po-snapshot">
     <h2>PO Snapshot</h2>
     <div class="po-snapshot">
-      <div class="kv"><span class="k">Current milestone</span><span class="v">M1 — Feature Engine EVID-03 Closure (ACTIVE)</span></div>
+      <div class="kv"><span class="k">Current milestone</span><span class="v">M1 — Feature Engine EVID-03 Closure (ACTIVE, AT RISK)</span></div>
       <div class="kv"><span class="k">Primary blocker</span><span class="v">Condition 1 — STOPPED / UNRESOLVED (9 unstable timeout-triage mutants)</span></div>
-      <div class="kv"><span class="k">Current WP</span><span class="v"><code>FE-EVID03-COND1-PROTOCOL-CONSOLIDATION-001</code> — ADR-044 v0.5 + Chapter 13 v1.8 candidate consolidated</span></div>
-      <div class="kv"><span class="k">Root cause</span><span class="v">Dual normative authorship / semantic drift — ADR-044 and Chapter 13 §13.8.1 carried parallel copies of normative gate semantics, drifted in both directions across 3 correction rounds</span></div>
-      <div class="kv"><span class="k">Last Review A</span><span class="v">CLEAN — 0 Blocker / 0 Major / 0 Minor, Risk R2 (on v0.4). Second optional PO-selected R2 cross-check then found DEFECT FOUND — 0/1/3, accepted as REVISION_REQUIRED — 0/1/3 (remediated above)</span></div>
+      <div class="kv"><span class="k">Current WP</span><span class="v"><code>FE-EVID03-COND1-PROTOCOL-ACTIVATION-001</code> — ADR-044 v0.5 Approved + Chapter 13 v1.8 Locked/controlling, atomic activation COMPLETE</span></div>
+      <div class="kv"><span class="k">Root cause (prior WP)</span><span class="v">Dual normative authorship / semantic drift — ADR-044 and Chapter 13 §13.8.1 carried parallel copies of normative gate semantics, drifted in both directions across 3 correction rounds — remediated by the CONSOLIDATION WP</span></div>
+      <div class="kv"><span class="k">Last Review A</span><span class="v">CLEAN — 0 Blocker / 0 Major / 2 Minor, Risk R2 (on v0.5/v1.8). Optional PO-selected R2 advisory cross-check (Claude) returned 0 Blocker / 0 Major / 5 Minor, all accepted by ChatGPT as non-blocking. Product Owner approved 2026-09-23T09:34:00+07:00</span></div>
       <div class="kv"><span class="k">PO decision required</span><span class="v pill pill-no">NO</span></div>
-      <div class="kv"><span class="k">Reason deferred</span><span class="v">A known Major defect existed and required root-cause remediation — not because either optional cross-check itself needed to be "satisfied"</span></div>
-      <div class="kv"><span class="k">Next PO decision point</span><span class="v">After the consolidated, single-normative-source bundle (ADR-044 v0.5 + Chapter 13 v1.8) receives a CLEAN Review A</span></div>
+      <div class="kv"><span class="k">Reason deferred</span><span class="v">Activation is COMPLETE; Condition 1 stays STOPPED / UNRESOLVED until a separate, bounded application/re-evaluation transaction applies the now-controlling rule — not because activation itself is pending</span></div>
+      <div class="kv"><span class="k">Next PO decision point</span><span class="v">After ChatGPT fresh-verifies this atomic activation and a separate bounded Condition-1 application/re-evaluation WP is routed and reviewed</span></div>
     </div>
   </section>
 

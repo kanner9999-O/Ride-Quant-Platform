@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.414"
+manifest_version: "10.415"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -17,7 +17,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 **Constitution Version:** 1.1.0 — độc lập với Project Version (Project có thể lên v0.8 trong khi Constitution vẫn 1.1.0, hoặc ngược lại)
 **Schema Version của Manifest:** 1 — đổi format Manifest sau này phải bump field này để tooling không vỡ ngầm.
 
-**Chapter 0 — Governance: `Locked`** (v1.4, activated 2026-09-11T09:30+07:00 — `POST-ADR042-A-MAJ-01` mechanical approval on top of the ADR-042 v1.3 activation, 2026-09-10T15:51+07:00; originally Locked 2026-07-25, v1.1, ADR-011 activation). **Chapter 1 — Vision: `Locked`** (2026-07-17). **Chapter 2 — Platform Invariants: `Locked`** (2026-07-18, 13 invariant). **Chapter 3 — Engineering Principles: `Locked`** (2026-07-18). **Chapter 4 — Domain Principles: `Locked`** (2026-07-18). **Chapter 5 — Time Model: `Locked`** (2026-07-18). **Chapter 6 — Identity Model: `Locked`** (2026-07-18). **Chapter 7 — Module Taxonomy: `Locked`** (2026-07-18). **Chapter 8 — Event Model: `Locked`** (2026-07-18). **Chapter 9 — Plugin Model: `Locked`** (2026-07-24, v2.9, approved by Kanner). **Chapter 10 — Compatibility & Capability Contract: `Locked`** (2026-07-24, v2.7, approved by Kanner). **Chapter 11 — ADR Process: `Locked`** (v2.3, activated 2026-09-10T15:51+07:00, ADR-042; originally Locked 2026-07-25, v2.1, ADR-011 activation). **Chapter 12 — Approval Gates: `Locked`** (v1.7, activated 2026-09-10T15:51+07:00, ADR-042; originally Locked 2026-08-03, v1.5, approved by Product Owner — F-02 factual correction: removed stale "Chapter 13/14 In Review" claim, closes `F-02`). **Chapter 13 — Quality Gates: `Locked`** (2026-07-28, v1.7, approved by Kanner). **Chapter 14 — Roadmap: `Locked`** (2026-08-03, v1.6, approved by Product Owner — F-02 factual correction: opening banner now reflects actual `Locked` status, closes `F-02`). Governance review-gate model, current authoritative kể từ 2026-09-10T15:51+07:00 ([ADR-042](adr/ADR-042.md), Approved): Executor → Review A → Risk Classification (R0/R1/R2) → Product Owner Decision → Execution — Review A mandatory formal review; R0/R1 default no cross-check; R2 recommends, never requires, an optional advisory cross-check chosen by Product Owner. [ADR-031](adr/ADR-031.md)'s Mode A/Mode B mandatory-two-review model is `Superseded` (by ADR-042), historical/immutable, no longer the mandatory eligibility mechanism.
+**Chapter 0 — Governance: `Locked`** (v1.4, activated 2026-09-11T09:30+07:00 — `POST-ADR042-A-MAJ-01` mechanical approval on top of the ADR-042 v1.3 activation, 2026-09-10T15:51+07:00; originally Locked 2026-07-25, v1.1, ADR-011 activation). **Chapter 1 — Vision: `Locked`** (2026-07-17). **Chapter 2 — Platform Invariants: `Locked`** (2026-07-18, 13 invariant). **Chapter 3 — Engineering Principles: `Locked`** (2026-07-18). **Chapter 4 — Domain Principles: `Locked`** (2026-07-18). **Chapter 5 — Time Model: `Locked`** (2026-07-18). **Chapter 6 — Identity Model: `Locked`** (2026-07-18). **Chapter 7 — Module Taxonomy: `Locked`** (2026-07-18). **Chapter 8 — Event Model: `Locked`** (2026-07-18). **Chapter 9 — Plugin Model: `Locked`** (2026-07-24, v2.9, approved by Kanner). **Chapter 10 — Compatibility & Capability Contract: `Locked`** (2026-07-24, v2.7, approved by Kanner). **Chapter 11 — ADR Process: `Locked`** (v2.3, activated 2026-09-10T15:51+07:00, ADR-042; originally Locked 2026-07-25, v2.1, ADR-011 activation). **Chapter 12 — Approval Gates: `Locked`** (v1.7, activated 2026-09-10T15:51+07:00, ADR-042; originally Locked 2026-08-03, v1.5, approved by Product Owner — F-02 factual correction: removed stale "Chapter 13/14 In Review" claim, closes `F-02`). **Chapter 13 — Quality Gates: `Locked`** (v1.8, activated 2026-09-23T09:34:00+07:00, `FE-EVID03-COND1-PROTOCOL-ACTIVATION-001`, adding §13.8.1 bounded-uncertainty Quality-Gate semantics; originally Locked 2026-07-28, v1.7, approved by Kanner). **Chapter 14 — Roadmap: `Locked`** (2026-08-03, v1.6, approved by Product Owner — F-02 factual correction: opening banner now reflects actual `Locked` status, closes `F-02`). Governance review-gate model, current authoritative kể từ 2026-09-10T15:51+07:00 ([ADR-042](adr/ADR-042.md), Approved): Executor → Review A → Risk Classification (R0/R1/R2) → Product Owner Decision → Execution — Review A mandatory formal review; R0/R1 default no cross-check; R2 recommends, never requires, an optional advisory cross-check chosen by Product Owner. [ADR-031](adr/ADR-031.md)'s Mode A/Mode B mandatory-two-review model is `Superseded` (by ADR-042), historical/immutable, no longer the mandatory eligibility mechanism.
 
 ## Constitution
 
@@ -36,7 +36,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | constitution/10-compatibility-capability-contract.md | 2.7 | **Locked** | Product Owner | 02-platform-invariants, 03-engineering-principles, 04-domain-principles, 07-module-taxonomy, 08-event-model, 09-plugin-model |
 | constitution/11-adr-process.md | 2.3 | **Locked** (activated 2026-09-10T15:51+07:00, ADR-042; supersedes the prior 2.2/ADR-031 activation recorded here — MANIFEST bookkeeping reconciliation only, `docs/constitution/11-adr-process.md` itself not further edited by this transaction) | Product Owner | 00-governance, 02-platform-invariants |
 | constitution/12-approval-gates.md | 1.7 | **Locked** (activated 2026-09-10T15:51+07:00, ADR-042; supersedes the prior 1.6/ADR-031 activation recorded here — MANIFEST bookkeeping reconciliation only, `docs/constitution/12-approval-gates.md` itself not further edited by this transaction) | Product Owner | 00-governance, 11-adr-process |
-| constitution/13-quality-gates.md | **1.7 (controlling)** — v1.8 candidate consolidated `Draft` (§13.8.1 is now the sole, self-contained normative source — reproducibility reconciliation restored, item-8 precedence unambiguous, structural protocol provenance; NOT reviewed/approved/activated, NOT controlling; see MANIFEST ADR-044-CONSOLIDATION section) | Locked (v1.7) | Product Owner | 02-platform-invariants, 07-module-taxonomy |
+| constitution/13-quality-gates.md | **1.8 (controlling, activated 2026-09-23T09:34:00+07:00, `FE-EVID03-COND1-PROTOCOL-ACTIVATION-001`)** — §13.8.1 is the sole, self-contained normative source for bounded-uncertainty Quality-Gate semantics (`docs/adr/ADR-044.md` v0.5 `Approved` carries rationale only, no second executable copy); v1.7 (without §13.8.1) is now the historical predecessor, no longer controlling; see MANIFEST ADR-044-ACTIVATION section | Locked (v1.8) | Product Owner | 02-platform-invariants, 07-module-taxonomy |
 | constitution/14-roadmap.md | 1.6 | Locked | Product Owner | ALL |
 
 ## ADR
@@ -28881,6 +28881,64 @@ Chapter 13:                    v1.7 Locked remains controlling; v1.8
 **Next governed step:** ChatGPT fresh Review A of the consolidated, single-normative-source ADR-044 v0.5 + Chapter 13 v1.8 bundle.
 
 **Files changed:** `docs/adr/ADR-044.md`, `docs/constitution/13-quality-gates.md`, `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all historical evidence, other ADRs, other Constitution chapters, Testing Convention, Global Execution Rules, Phase rules, and `python/feature-engine/**` verified byte-unchanged. `manifest_version` `"10.413"` → `"10.414"`.
+
+## ADR-044 v0.5 + Chapter 13 v1.8 — ATOMIC PRODUCT OWNER ACTIVATION (`FE-EVID03-COND1-PROTOCOL-ACTIVATION-001`)
+
+**Governed atomic activation transaction** — not a semantic correction, not `CORR-004`, not a new Review A, not a Quality-Gate re-evaluation, not an application of the newly-effective rule to EVID-03.
+
+**Fresh boundary verification:** HEAD confirmed exactly `704e492f83af1d463117f002c9f319ebcadd8099`, identical to `origin/main` — no drift. `docs/adr/ADR-044.md` confirmed `version: "0.5"`, `status: Draft`, `approved_by: null`; `docs/constitution/13-quality-gates.md` confirmed `version: "1.8"`, `status: Draft`; MANIFEST confirmed still pinning Chapter 13 `v1.7` as controlling — before this transaction.
+
+**Product Owner decision (verbatim):** "APPROVE ADR-044 v0.5 + Chapter 13 v1.8 at reviewed boundary 704e492f83af1d463117f002c9f319ebcadd8099; accept Risk R2 and all 5 cross-check Minors as non-blocking residual findings; authorize deterministic non-normative cleanup of X3-MIN-01/02/03 in the atomic activation transaction; do not alter the normative Chapter 13 semantics for X3-MIN-04/05 during activation." Decision timestamp: `2026-09-23T09:34:00+07:00`.
+
+**Reviewed evidence approved:** Review A (ChatGPT, `AI Technical Architect`) on v0.5/v1.8 at boundary `704e492...`: `CLEAN — 0 Blocker / 0 Major / 2 Minor` (`X3-MIN-01` stale non-normative protocol terminology, `X3-MIN-02` clause-trace cardinality overclaim). Optional Product-Owner-selected R2 advisory cross-check (Claude, `AI Technical Architect`, never an approval prerequisite — ADR-042): `0 Blocker / 0 Major / 5 Minor` (`X3-MIN-01`/`X3-MIN-02` confirming ChatGPT's two, plus `X3-MIN-03` compressed structural-property paraphrase, `X3-MIN-04` undefined "governing evaluation contract" term in Chapter 13 §13.8.1, `X3-MIN-05` overlapping qualification wording in Chapter 13 §13.8.1). ChatGPT independently re-verified and dispositioned all 5 as `ACCEPTED — Minor / non-blocking`. Risk Classification: `R2`.
+
+**X3-MIN-01/02/03 — deterministic non-normative cleanup, folded into this transaction (ADR-044.md only, no Chapter 13 body touched):**
+
+- `X3-MIN-01` — stale protocol terminology (`locked timeout-triage protocol`, `existing two canonical protocol runs`, `already-Review-A-validated locked protocol`, `existing locked protocol`, `locked two-run timeout-triage protocol`, `same or an equivalently-governed protocol`) replaced throughout ADR-044's live (non-historical-banner) prose with concise references to `Chapter 13 §13.8.1's structural Protocol provenance requirements` or `the current Feature Engine procedure satisfying §13.8.1`, as contextually appropriate — no new property-list restatement introduced. Historical banner text (rounds 1-3, byte-preserved as provenance) left untouched.
+- `X3-MIN-02` — Clause-trace table's introductory over-claim ("resolves to exactly one Chapter 13 §13.8.1 clause") corrected to the Product-Owner-specified framing: executable bounded-uncertainty semantics resolve to §13.8.1; authority ownership resolves to §13.13; lifecycle/activation guarantees resolve to the ADR's own Activation model plus MANIFEST authority; the ADR itself is not an alternative executable Quality-Gate authority. The gate rule itself unchanged; table rows unchanged.
+- `X3-MIN-03` — compressed structural-property paraphrases in "Relationship to protocol provenance" and "Consequences" (each omitting at least one normative detail) removed and replaced with direct references to `Chapter 13 §13.8.1 — Protocol provenance`, with no normative list reproduced.
+
+**X3-MIN-04/05 — explicitly NOT remediated, Product-Owner-accepted residual findings:** `X3-MIN-04` (undefined "governing evaluation contract" term, Chapter 13 §13.8.1 — Protocol provenance) and `X3-MIN-05` (overlapping qualification wording, Chapter 13 §13.8.1 — Applicability / Protocol provenance) remain open, non-blocking, accepted findings. Chapter 13 §13.8.1's normative text was not touched for either, per explicit Product Owner instruction.
+
+**§13.8.1 semantic-range byte-identity (freeze verification):** Captured `### 13.8.1` through immediately before `## 13.9` at boundary `704e492...` (SHA-256 `1f744f4c3623c4fbcbe5a326e7aeb4d274ece73d86608ffd38a9a1d032e0595a`, 283 lines); re-captured after all edits — **identical hash, byte-for-byte confirmed**. No wording for `X3-MIN-04`/`X3-MIN-05` altered; no improvement/clarification/reformatting applied to §13.8.1.
+
+**ADR-044 frontmatter transition:** `version: "0.5"` unchanged; `status: Draft -> Approved`; `reviewers: [] -> [ChatGPT, Claude]`; `approved_by: null -> Product Owner`; `approved_at: null -> "2026-09-23T09:34:00+07:00"`; `last_review: null -> "2026-09-23"`; `depends_on`/`addresses`/`resolves`/`supersedes` all confirmed unchanged (`[]` each, no OQ transition invented). Per Chapter 0 §5.2, ADR-044.md is now immutable — any future change requires a superseding ADR. ADR-044's own tail Review-A/Risk-Classification table gained a fifth historical row recording v0.5's own Review A + cross-check + Product Owner approval; an "Approval provenance" paragraph explicitly records ChatGPT as mandatory Review A principal, Claude as the optional advisory cross-check principal, Risk `R2`, the reviewed boundary, and that the resulting `Approved` blob differs from `704e492...` only by approved-lifecycle frontmatter fields and the `X3-MIN-01`/`02`/`03` non-normative cleanup — distinguished per `G-ID-001`. A small number of forward-looking self-referential passages (Activation model's closing sentence, the worked-example's conditional framing, "Relationship to Chapter 13 §13.13" boundary paragraph, "Migration / adoption implications" heading) were updated to state that the atomic activation design was in fact the one executed and that Chapter 13 v1.8 is now controlling — none of this touches the Decision/Architectural-invariants/Clause-trace-table content, the Case A/B/C semantics, or any number in the worked example; Condition 1 is explicitly still stated as `STOPPED / UNRESOLVED`, pending a separate application transaction, throughout.
+
+**Chapter 13 v1.8 frontmatter transition:** `version: "1.8"` unchanged; `status: Draft -> Locked`; `reviewers: [ChatGPT, Claude]` unchanged; `approved_by: null -> Product Owner`; `approved_at: null -> "2026-09-23T09:34:00+07:00"`; `last_review: null -> "2026-09-23"`; `depends_on` unchanged (`["02-platform-invariants", "07-module-taxonomy"]`). Only the top-of-file banner (outside §13.8.1) was rewritten to state activation, Review A/cross-check results, Risk `R2`, the reviewed boundary, that §13.8.1 is the sole normative source, that `v1.7` is now the historical predecessor (no longer controlling), and that `X3-MIN-04`/`X3-MIN-05` remain accepted non-blocking residual findings — §13.8.1's own body byte-unchanged (verified above).
+
+**Atomic activation invariant — satisfied in one commit:** Product Owner approval of the reviewed bundle + ADR-044 `v0.5 -> Approved` + Chapter 13 `v1.8 -> Locked/controlling` + this MANIFEST update all land together, at the same boundary, in one commit — no partial-activation state exists at any point in the committed history.
+
+**Current authority (resolved by this transaction):**
+
+```text
+ADR-044 v0.5:      Approved
+Chapter 13:        v1.8 Locked -- controlling (v1.7 is the historical
+                    predecessor, no longer controlling)
+```
+
+**State summary (preserved, NOT recomputed by this activation):**
+
+```text
+Condition 1 (raw mutation score):  STOPPED / UNRESOLVED (unchanged --
+                                    the bounded-uncertainty rule is now
+                                    effective prospectively, but its
+                                    application to current EVID-03
+                                    evidence is a separate, subsequent,
+                                    bounded transaction, not performed
+                                    here).
+Condition 2 (ambiguity credit):    167/170 (unchanged, not reopened).
+Condition 3 (formal evidence):     SATISFIED -- REVIEW A VALIDATED
+                                    (unchanged, not reopened).
+P3-FEATURE-QG-EVID-03:             OPEN (unchanged, not closed).
+Feature Engine approval:           NOT APPROVED.
+LIVE:                              NOT_AUTHORIZED.
+```
+
+**No scope expansion — explicit verification:** no §13.8.1 normative-semantic edit; no `X3-MIN-04`/`X3-MIN-05` remediation; no ADR-045; no Chapter 13 v1.9; no application of the bounded rule to current EVID-03; no Condition-1/2/3 change; no mutation execution; no historical-evidence edit; no Feature source/tests/tooling edit; no Candidate-005; no `TOOL_IDENTITY_DRIFT` resolution; no Feature Engine approval; no LIVE authorization; no Review A performed by this executor; no additional cross-check performed by this executor.
+
+**Next governed step:** ChatGPT fresh-verifies this atomic activation; only after that may a separate, bounded application/re-evaluation WP formally apply the now-effective rule to current EVID-03 evidence and record a new controlling Condition-1 verdict.
+
+**Files changed:** `docs/adr/ADR-044.md`, `docs/constitution/13-quality-gates.md`, `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.414"` -> `"10.415"`.
 
 ## Decision Log
 

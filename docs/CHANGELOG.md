@@ -2,6 +2,24 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-23 — governance: ADR-044 v0.5 Approved + Chapter 13 v1.8 Locked — ATOMIC ACTIVATION (FE-EVID03-COND1-PROTOCOL-ACTIVATION-001)
+
+Starting reviewed semantic boundary `704e492f83af1d463117f002c9f319ebcadd8099`, verified `main == origin/main`, no drift. ADR-044 confirmed v0.5/Draft, Chapter 13 confirmed v1.8/Draft, MANIFEST confirmed still pinning v1.7 as controlling, before this transaction.
+
+Product Owner approved the reviewed v0.5/v1.8 bundle: "APPROVE ADR-044 v0.5 + Chapter 13 v1.8 at reviewed boundary 704e492f83af1d463117f002c9f319ebcadd8099; accept Risk R2 and all 5 cross-check Minors as non-blocking residual findings; authorize deterministic non-normative cleanup of X3-MIN-01/02/03 in the atomic activation transaction; do not alter the normative Chapter 13 semantics for X3-MIN-04/05 during activation" (`2026-09-23T09:34:00+07:00`). ADR-044 v0.5: `Draft -> Approved`. Chapter 13: `v1.8` `Draft -> Locked`, now the chapter's controlling version (`v1.7`, without §13.8.1, is its historical predecessor).
+
+Review A (ChatGPT, AI Technical Architect): `CLEAN -- 0 Blocker / 0 Major / 2 Minor`. Optional Product-Owner-selected R2 advisory cross-check (Claude, AI Technical Architect, never an approval prerequisite): `0 Blocker / 0 Major / 5 Minor`. ChatGPT independently accepted all five as Minor/non-blocking. Risk: R2.
+
+X3-MIN-01 (stale non-normative protocol terminology) and X3-MIN-02 (clause-trace cardinality overclaim) and X3-MIN-03 (compressed structural-property paraphrases) were mechanically cleaned in ADR-044.md only, wording-only, no executable gate specification added or changed. X3-MIN-04 (undefined "governing evaluation contract" term) and X3-MIN-05 (overlapping qualification wording), both in Chapter 13 §13.8.1, were deliberately NOT changed, per explicit Product Owner instruction -- both remain accepted, non-blocking, residual findings.
+
+Chapter 13 §13.8.1's reviewed semantic body (`### 13.8.1` through immediately before `## 13.9`) is verified BYTE-IDENTICAL before and after this transaction (SHA-256 `1f744f4c3623c4fbcbe5a326e7aeb4d274ece73d86608ffd38a9a1d032e0595a`) -- only the chapter's frontmatter and top-of-file banner were edited.
+
+The bounded-uncertainty rule becomes effective prospectively from this activation boundary. No historical evidence is reinterpreted. No Condition-1 re-evaluation occurs in this transaction: Condition 1 remains STOPPED/UNRESOLVED, Condition 2 remains 167/170, Condition 3 remains SATISFIED -- REVIEW A VALIDATED, EVID-03 remains OPEN, Feature Engine remains NOT APPROVED, LIVE remains NOT_AUTHORIZED, until a separate, subsequent, bounded application/re-evaluation transaction formally applies the now-effective rule.
+
+**Files changed:** `docs/adr/ADR-044.md`, `docs/constitution/13-quality-gates.md`, `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.414"` -> `"10.415"`.
+
+---
+
 ## [Unreleased] — 2026-09-22 — governance: ADR-044 v0.5 + Chapter 13 v1.8 candidate — ROOT-CAUSE CONSOLIDATION (P3-CORRECTION-CHAIN-001, not CORR-004)
 
 Starting HEAD `82cba5dda79fe7138b8f76ebf73abdb841321610`, verified `main == origin/main`, no drift. ADR-044 confirmed v0.4/Draft, Chapter 13 confirmed v1.8/Draft, MANIFEST confirmed still pinning v1.7 as controlling, before this transaction.

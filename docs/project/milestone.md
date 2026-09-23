@@ -6,8 +6,8 @@ status: Active
 owner: Product Owner
 maintainer: "WP executors under Lean Ride Operating Model v1.1"
 visual_companion: docs/project/milestone-dashboard.html
-state_verified_against_head: 82cba5dda79fe7138b8f76ebf73abdb841321610
-state_verified_against_at: "2026-09-22"
+state_verified_against_head: 704e492f83af1d463117f002c9f319ebcadd8099
+state_verified_against_at: "2026-09-23"
 ---
 
 # Ride Quant Platform — Milestone Register
@@ -194,27 +194,42 @@ present at the prior boundary. Per `P3-CORRECTION-CHAIN-001` (three
 narrow correction rounds without stable convergence), the **narrow
 correction loop STOPPED** — no `CORR-004` was created.
 
-**Primary Work Package — `FE-EVID03-COND1-PROTOCOL-CONSOLIDATION-001`:
-IN PROGRESS (ROOT-CAUSE CONSOLIDATION, `P3-CORRECTION-CHAIN-001`).**
+**`FE-EVID03-COND1-PROTOCOL-CONSOLIDATION-001`: COMPLETE (ROOT-CAUSE
+CONSOLIDATION, `P3-CORRECTION-CHAIN-001`).**
 Root cause: **dual normative authorship / semantic drift** — ADR-044 and
 Chapter 13 §13.8.1 carried parallel copies of normative gate semantics
 that had already drifted in both directions across the correction chain.
-Consolidated: Chapter 13 §13.8.1 is now the **sole, self-contained
+Consolidated: Chapter 13 §13.8.1 became the **sole, self-contained
 normative source** (reproducibility reconciliation restored; Testing
 Convention item-8 precedence rewritten unambiguously; protocol
 provenance made structural since no separately governed named-protocol
 authority exists beyond Feature Engine's own formal evidence). `ADR-044`
 v0.4 → v0.5 restructured to rationale-only, carrying no second
 executable gate specification, plus a new clause-trace table mapping
-every guarantee to its exact Chapter 13 clause. Chapter 13 stays v1.8
-(same Draft candidate, corrected in place, no v1.9). Case A/B/C truth
-table and activation model unchanged, not redesigned. **Condition 1
-remains `STOPPED / UNRESOLVED` now.** Approval remains deferred because a
-**known Major defect existed** (the dropped reproducibility
-reconciliation) and required root-cause remediation — not because
-either optional cross-check itself needed to be "satisfied." Awaiting
-ChatGPT fresh Review A of the consolidated single-normative-source
-ADR-044 v0.5 + Chapter 13 v1.8 bundle.
+every guarantee to its exact Chapter 13 clause. ChatGPT's fresh Review A
+on v0.5/v1.8 (boundary `704e492f83af1d463117f002c9f319ebcadd8099`)
+returned `CLEAN — 0 Blocker / 0 Major / 2 Minor`; an optional
+Product-Owner-selected R2 advisory cross-check (Claude) returned `0
+Blocker / 0 Major / 5 Minor`, all accepted by ChatGPT as non-blocking.
+
+**Primary Work Package — `FE-EVID03-COND1-PROTOCOL-ACTIVATION-001`:
+COMPLETE (ATOMIC PRODUCT OWNER ACTIVATION).** With zero Blocker/Major on
+both Review A and the optional cross-check, the Product Owner approved
+the reviewed v0.5/v1.8 bundle (`2026-09-23T09:34:00+07:00`), accepting
+Risk `R2` and all five cross-check Minors as non-blocking residual
+findings, and authorized deterministic non-normative cleanup of
+`X3-MIN-01`/`02`/`03` (ADR-044 wording only) folded into the same atomic
+transaction — while explicitly declining to touch Chapter 13 §13.8.1's
+normative semantics for `X3-MIN-04`/`05` (both remain accepted,
+non-blocking, residual findings). **`ADR-044` v0.5 is now `Approved`;
+Chapter 13 `v1.8` is now `Locked` and controlling** (`v1.7` is its
+historical predecessor). §13.8.1's own reviewed semantic body was
+verified byte-identical before and after. The bounded-uncertainty rule
+is now effective prospectively for new evaluations. **This activation
+did not apply the rule to EVID-03 and did not re-evaluate Condition
+1 — Condition 1 remains `STOPPED / UNRESOLVED` now**, until a separate,
+subsequent, bounded application/re-evaluation transaction formally
+applies the now-controlling rule and records a new verdict.
 
 **Secondary queue:** `Candidate-005` — govern the 2 historically
 reconstructed Condition-2 identities, when doing so does not disrupt the
@@ -223,13 +238,15 @@ primary critical path.
 **Deferred / blocked item:** `contracts.x__seal_verified_authority__mutmut_33`
 — `TOOL_IDENTITY_DRIFT — NO EXISTING GOVERNED RESOLUTION MECHANISM`.
 
-**PO action required now:** No.
+**PO action required now:** No. Next governed step: ChatGPT
+fresh-verifies this atomic activation; only after that may a separate,
+bounded Condition-1 application/re-evaluation WP be routed.
 
 ## 5. Work Package lanes
 
 | Lane | Item | Status |
 |---|---|---|
-| Primary | `FE-EVID03-COND1-PROTOCOL-CONSOLIDATION-001` | ROOT-CAUSE CONSOLIDATION (`P3-CORRECTION-CHAIN-001`, not CORR-004) — ADR-044 v0.5 + Chapter 13 v1.8 candidate consolidated to a single normative source; awaiting ChatGPT fresh Review A |
+| Primary | `FE-EVID03-COND1-PROTOCOL-ACTIVATION-001` | COMPLETE — ADR-044 v0.5 Approved + Chapter 13 v1.8 Locked/controlling, atomic Product Owner activation; awaiting ChatGPT fresh-verification, then a separate Condition-1 application WP |
 | Secondary | `Candidate-005` (2 Condition-2 identities) | Queued, non-blocking |
 | Deferred | `contracts.x__seal_verified_authority__mutmut_33` (TOOL_IDENTITY_DRIFT) | Deferred — no existing governed mechanism |
 | Completed | `RIDE-PROJECT-MILESTONE-DASHBOARD-001` | Tracking infrastructure only |
@@ -238,39 +255,36 @@ primary critical path.
 | Completed | `FE-EVID03-COND1-PROTOCOL-DECISION-001-CORR-001` | ADR-044 v0.2 + Chapter 13 v1.8 corrected (round-1 findings CLOSED); Review A returned `REVISION_REQUIRED — 0 Blocker / 1 Major / 1 Minor`, R2 |
 | Completed | `FE-EVID03-COND1-PROTOCOL-DECISION-001-CORR-002` | ADR-044 v0.3 + Chapter 13 v1.8 corrected (round-2 findings CLOSED); Review A `CLEAN — 0/0/0`, R2; optional PO-selected cross-check returned `DEFECT FOUND — 0/1/4`, accepted as `0/2/3` |
 | Completed | `FE-EVID03-COND1-PROTOCOL-DECISION-001-CORR-003` | ADR-044 v0.4 + Chapter 13 v1.8 corrected (round-3 findings CLOSED); Review A `CLEAN — 0/0/0`, R2; second optional PO-selected cross-check returned `DEFECT FOUND — 0/1/3`, accepted as `REVISION_REQUIRED — 0/1/3` (Major = regression) — `P3-CORRECTION-CHAIN-001` triggered, narrow loop STOPPED |
+| Completed | `FE-EVID03-COND1-PROTOCOL-CONSOLIDATION-001` | ROOT-CAUSE CONSOLIDATION — ADR-044 v0.5 + Chapter 13 v1.8 consolidated to a single normative source; Review A `CLEAN — 0/0/2`, R2; optional PO-selected cross-check `0/0/5`, all accepted non-blocking |
 
 ## 6. PO dashboard snapshot
 
 ```text
-Current milestone:        M1 — Feature Engine EVID-03 Closure (ACTIVE)
+Current milestone:        M1 — Feature Engine EVID-03 Closure (ACTIVE, AT RISK)
 Primary blocker:          Condition 1 — STOPPED / UNRESOLVED
                            (9 UNSTABLE_TIMEOUT_TRIAGE mutants)
-Current primary WP:       FE-EVID03-COND1-PROTOCOL-CONSOLIDATION-001
-                           (ROOT-CAUSE CONSOLIDATION — ADR-044 v0.5 +
-                           Chapter 13 v1.8 candidate consolidated to a
-                           single normative source; NOT yet re-reviewed)
-Root cause:                dual normative authorship / semantic drift
+Current primary WP:       FE-EVID03-COND1-PROTOCOL-ACTIVATION-001
+                           (ATOMIC PRODUCT OWNER ACTIVATION — ADR-044
+                           v0.5 Approved + Chapter 13 v1.8 Locked/
+                           controlling; rule now effective prospectively)
+Root cause (prior WP):     dual normative authorship / semantic drift
                            (ADR-044 and Chapter 13 §13.8.1 carried
                            parallel copies of normative gate semantics,
                            which had already drifted in both directions
-                           across 3 correction rounds)
-Last Review A:              CLEAN — 0 Blocker / 0 Major / 0 Minor
-                           (on v0.4, Risk R2). A second optional
-                           Product-Owner-selected R2 cross-check then
-                           returned DEFECT FOUND — 0 Blocker / 1 Major /
-                           3 Minor, accepted as REVISION_REQUIRED —
-                           0 Blocker / 1 Major / 3 Minor (the Major a
-                           regression of a previously validated closure)
-                           — remediated by this consolidation
+                           across 3 correction rounds) — remediated by
+                           FE-EVID03-COND1-PROTOCOL-CONSOLIDATION-001
+Last Review A:             CLEAN — 0 Blocker / 0 Major / 2 Minor (on
+                           v0.5/v1.8, Risk R2). Optional Product-Owner-
+                           selected R2 advisory cross-check returned
+                           0 Blocker / 0 Major / 5 Minor, all accepted
+                           by ChatGPT as non-blocking. Product Owner
+                           approved the bundle 2026-09-23T09:34:00+07:00.
 PO decision required now: NO
-                           (deferred because a KNOWN MAJOR DEFECT
-                           EXISTED and required root-cause remediation
-                           — not because either optional cross-check
-                           itself needed to be "satisfied"; next
-                           boundary occurs after the consolidated,
-                           single-normative-source bundle — ADR-044
-                           v0.5 + Chapter 13 v1.8 — receives a CLEAN
-                           Review A)
+                           (activation is COMPLETE; Condition 1 remains
+                           STOPPED / UNRESOLVED until a separate, bounded
+                           application/re-evaluation transaction applies
+                           the now-controlling rule; next governed step
+                           is ChatGPT fresh-verifying this activation)
 ```
 
 ## 7. Update rules
