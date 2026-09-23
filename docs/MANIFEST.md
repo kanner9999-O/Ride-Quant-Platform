@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.426"
+manifest_version: "10.427"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -29675,6 +29675,58 @@ LIVE:                        NOT_AUTHORIZED
 **Next governed action:** a separate, subsequent, bounded Work Package would be required to resolve the 42 Condition-1B identities (genuine test-effectiveness work, targeting the current material behavioral gaps) and/or to define a governed mechanism for the remaining `TOOL_IDENTITY_DRIFT` row — neither initiated here.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-recalibration-proposal-001.md` (activated, resulting blob `12040044578d57d15e699a327a5a8ae39c1e9ea3`), `docs/governance/mutation-baseline-evidence/feature-engine-condition1-current-material-gap-set-001.json` (authorized provenance cleanup, resulting blob `49c30b439eb84db95c55dc4a86de22e2b491dbb5`), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — `feature-engine-mutation-threshold-proposal-001.md`, the post-E005 assessment artifact, Evidence-005 + correction, Testing Convention, Chapter 13, ADR-044/ADR-045, Candidate-005, and all source/tests/tooling NOT touched. `manifest_version` `"10.425"` -> `"10.426"`.
+
+## Feature Condition-1 Wave-5 test remediation (`feature-engine-condition1-wave5-test-remediation-001.json`) — 12/25 targeted kills, implementation evidence only
+
+**Fresh boundary verification:** starting HEAD `a9f75be3ffa5df6d4b6f8b361ff15f28d6e0370a` fresh-verified equal to `origin/main`, no drift. Governing authority fresh-verified exact: recalibration proposal blob `12040044578d57d15e699a327a5a8ae39c1e9ea3` (`APPROVED — EFFECTIVE`), 42-ID artifact blob `49c30b439eb84db95c55dc4a86de22e2b491dbb5`, sorted-set sha256 `932698b4b312c1a8f70c261426555a5c6f3566579ed0a27102d4a0f0214adedc`.
+
+**Purpose:** implement real, behavior-oriented tests for exactly the 25 lowest-complexity/highest-yield of the 42 Condition-1B current-material identities. This WP does not formally re-evaluate the Condition-1 gate.
+
+**Method:** fresh-re-extracted the exact diff of all 25 target IDs (zero-test, offline mutmut CST reproduction, self-verified as an exact 2629/2629 match against the mutant universe) before designing tests, rather than inheriting the prior diagnostic's classification assumptions. Wrote 20 new tests across 7 files (`test_swing_distance.py`, `test_regime_passthrough.py`, `test_historical_authority_resolver.py`, `test_contracts.py`, `test_authority_resolver.py`, `test_output_contract_resolver.py`, and new `test_identity.py`). Full ordinary suite: **434/434 passed** (was 414); `ruff check` clean; `mypy src tests` clean. Performed BOUNDED targeted mutation verification via this repository's existing `python -m tooling run <id> ...` entrypoint — real test execution scoped to exactly the 25 named IDs only, no full 2629-mutant formal run.
+
+**Result: 12/25 targeted kills verified.**
+
+```text
+Cluster A (wrong-type validation, 9 IDs):        0/9 killed
+Cluster B (malformed authority fields, 5 IDs):   4/5 killed
+Cluster C (zip strict=True safety, 6 IDs):       3/6 killed
+Cluster D (quote-parsing precision, 4 IDs):      4/4 killed
+Cluster E (deterministic-ID boundary, 1 ID):     1/1 killed
+```
+
+**Honest, non-gamed analysis of the 13 remaining survivors:**
+
+- **Cluster A (9, all survive):** fresh re-extraction corrected an inherited assumption from the prior post-E005 diagnostic — all 9 mutate `type(X)` → `type(None)` (the argument inside `type()` is nulled, not the whole call). `type(None).__name__ == "NoneType"` is a valid string; no crash occurs, and the same exception type is raised either way — only the reported type-name substring in the diagnostic message differs. Real exception-type tests were written for all 9 regardless (3 close genuine prior coverage gaps: `prepare_upstream_event`'s fact/kind dispatch had no test at all), but none can be honestly killed without asserting diagnostic message content, which this WP's own anti-gaming rules prohibit absent a governed message contract.
+- **`resolve_historical_input_contract_authority_from_repository__mutmut_23` (1, survives):** STRUCTURALLY_UNREACHABLE — the mutated `_SAFE_CONTRACT_ID.fullmatch(contract_id)` check is provably dead code, since an earlier, unconditional `contract_id == authorized_contract_id` equality check (against a hardcoded, always-well-formed constant) already guarantees `contract_id` is well-formed by the time execution reaches the mutated line.
+- **`_finalize_prepared_batch__mutmut_8`/`_11`/`_12` (3, survive):** STRUCTURALLY_UNREACHABLE — `_finalize_prepared_batch` contains its own explicit, unconditional `len(prepared_events) != len(refs)` pre-check immediately before the mutated `zip(..., strict=True)`; by the time the zip executes, the two sequences are already provably equal length.
+
+None of the 13 were gamed via message-text assertion, mutant-naming, impossible/contrived fixtures, or a production-code change — each is reported with source-grounded reachability analysis.
+
+**Formal-credit distinction (explicit, per this task's own instruction):** this is implementation evidence only. `formal_gate_credit: "NOT YET CLAIMED"` — Condition 1B is NOT asserted as "12/42 formally resolved"; formal credit awaits a later, separately-governed formal measurement transaction.
+
+**Wave-6 remaining population:** the exact complement of the 25 Wave-5 targets against the 42-ID set is 17 identities (verified: Wave-5 ∪ Wave-6 == the full 42-ID set, Wave-5 ∩ Wave-6 == ∅), persisted in the new evidence artifact — not implemented by this transaction.
+
+**ADR Scope / Risk:** `ADR_NOT_REQUIRED` (test-only remediation under already-approved quality-gate authority, freshly re-run, not assumed). Risk: `R1`.
+
+**State summary:**
+
+```text
+Condition 1 (raw mutation score):  FAIL -- criteria (unchanged; no
+                                    formal re-measurement performed by
+                                    this transaction).
+Condition 2 (identity resolution): 169/170 (unchanged).
+Condition 3 (formal evidence):     SATISFIED -- REVIEW A VALIDATED
+                                    (unchanged).
+P3-FEATURE-QG-EVID-03:              OPEN (unchanged).
+Feature Engine approval:           NOT APPROVED.
+LIVE:                               NOT_AUTHORIZED.
+```
+
+**No scope expansion — explicit verification:** no production (`src/`) file touched; no tooling file touched; no dependency/lock file change; no fresh full 2629-mutant formal measurement performed; no Wave-6 test implemented; `contracts.x__seal_verified_authority__mutmut_33` (`TOOL_IDENTITY_DRIFT`) not touched; no Feature Engine approval; no LIVE authorization; no message-text/mutant-identity gaming; the currently-effective (activated) threshold, the old superseded threshold proposal, the post-E005 assessment artifact, the 42-ID artifact, Evidence-005 + correction, Testing Convention, Chapter 13, ADR-044/ADR-045, and Candidate-005 all fresh-verified byte-unchanged.
+
+**Next governed action:** a separate, subsequent, bounded Work Package for Wave-6 (the remaining 17 current-material identities), and, independently, a future formal measurement transaction to determine actual Condition-1B credit for any resolved identity — neither initiated here.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-condition1-wave5-test-remediation-001.json` (new, blob `6fd2f3a9aebe7df8035c0b64dac46de3fa707a26`), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md`, and exactly 7 test files under `python/feature-engine/tests/` (`test_swing_distance.py`, `test_regime_passthrough.py`, `test_historical_authority_resolver.py`, `test_contracts.py`, `test_authority_resolver.py`, `test_output_contract_resolver.py`, `test_identity.py` new) only — no `src/`, `tooling/`, dependency, Constitution, ADR, Testing Convention, threshold-artifact, 42-ID artifact, or Condition-2-evidence file touched. `manifest_version` `"10.426"` -> `"10.427"`.
 
 ## Decision Log
 

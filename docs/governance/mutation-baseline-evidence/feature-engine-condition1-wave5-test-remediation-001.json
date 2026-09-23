@@ -1,0 +1,389 @@
+{
+  "artifact_id": "feature-engine-condition1-wave5-test-remediation-001",
+  "schema_note": "Bounded Wave-5 engineering-remediation evidence for exactly the 25 lowest-complexity/highest-yield Condition-1B current-material identities. This is IMPLEMENTATION EVIDENCE from a bounded, targeted mutation verification run against the exact 25 named IDs only -- it is NOT the final formal Condition-1 gate measurement (no fresh full 2629-mutant formal run was performed). Formal Condition 1B credit for any of these 25 identities is NOT claimed by this artifact and remains pending a later, separately-governed formal measurement transaction.",
+  "starting_boundary": {
+    "commit": "a9f75be3ffa5df6d4b6f8b361ff15f28d6e0370a",
+    "fresh_verified_main_eq_origin_main": true
+  },
+  "governing_authority": {
+    "recalibration_proposal_path": "docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-recalibration-proposal-001.md",
+    "recalibration_proposal_blob": "12040044578d57d15e699a327a5a8ae39c1e9ea3",
+    "current_material_gap_set_path": "docs/governance/mutation-baseline-evidence/feature-engine-condition1-current-material-gap-set-001.json",
+    "current_material_gap_set_blob": "49c30b439eb84db95c55dc4a86de22e2b491dbb5",
+    "current_material_gap_set_sorted_sha256": "932698b4b312c1a8f70c261426555a5c6f3566579ed0a27102d4a0f0214adedc",
+    "gate": {
+      "condition_1a": "raw mutation-effectiveness >= 85.812095853937% (exact calibration numerator 2256/2629)",
+      "condition_1b": "all 42 exact current-material identities individually resolved"
+    },
+    "note": "This WP does not formally re-evaluate the gate. Condition 1 remains FAIL -- criteria."
+  },
+  "wave_target_count": 25,
+  "extraction_method": {
+    "description": "Zero-test, offline mutant-diff extraction (mutmut 3.7.0's own static CST mutation generator, mutate_file_contents/create_mutations, covered_lines=None) was used first to independently re-verify the exact diff content of all 25 target IDs before any test was written, grounding test design in real evidence rather than inherited assumptions from the prior diagnostic. Self-check: extraction produced exactly 2629 mutant IDs, an exact 1:1 match against Evidence-005's own mutant universe.",
+    "targeted_mutation_verification_method": "python -m tooling run <mutant_id> [<mutant_id> ...] (this repository's existing mutmut-compatibility-shim entrypoint, docs/governance/mutation-baseline-evidence pattern already used for prior isolated-mutant re-confirmations) -- invoked with the exact 25 target IDs as explicit positional arguments only. This performs REAL test execution scoped to exactly the named 25 mutants (each mutant's own coverage-selected test subset only), never the full 2629-mutant population. No formal full run was performed."
+  },
+  "exact_target_ids": [
+    "feature_engine.contracts.x__seal_verified_authority__mutmut_35",
+    "feature_engine.regime_passthrough.xǁRegimePassthroughFeatureEngineǁ__init____mutmut_21",
+    "feature_engine.regime_passthrough.xǁRegimePassthroughFeatureEngineǁ__init____mutmut_31",
+    "feature_engine.regime_passthrough.xǁRegimePassthroughFeatureEngineǁprepare_upstream_event__mutmut_18",
+    "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ__init____mutmut_40",
+    "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ__init____mutmut_50",
+    "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁprepare_upstream_event__mutmut_6",
+    "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁprepare_upstream_event__mutmut_18",
+    "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁprepare_upstream_event__mutmut_28",
+    "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_23",
+    "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_30",
+    "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_40",
+    "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_100",
+    "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_101",
+    "feature_engine.contracts.x__finalize_prepared_batch__mutmut_8",
+    "feature_engine.contracts.x__finalize_prepared_batch__mutmut_11",
+    "feature_engine.contracts.x__finalize_prepared_batch__mutmut_12",
+    "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_4",
+    "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_7",
+    "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_8",
+    "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_18",
+    "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_33",
+    "feature_engine.authority_resolver.x__extract_scalar__mutmut_5",
+    "feature_engine.output_contract_resolver.x__extract_scalar__mutmut_5",
+    "feature_engine.identity.x_deterministic_id__mutmut_3"
+  ],
+  "target_id_set_verification": {
+    "count": 25,
+    "duplicates": 0,
+    "all_members_of_42_id_set": true,
+    "complement_count_against_42_id_set": 17
+  },
+  "test_files_changed": [
+    "python/feature-engine/tests/test_swing_distance.py",
+    "python/feature-engine/tests/test_regime_passthrough.py",
+    "python/feature-engine/tests/test_historical_authority_resolver.py",
+    "python/feature-engine/tests/test_contracts.py",
+    "python/feature-engine/tests/test_authority_resolver.py",
+    "python/feature-engine/tests/test_output_contract_resolver.py",
+    "python/feature-engine/tests/test_identity.py (new)"
+  ],
+  "production_files_changed": false,
+  "tooling_files_changed": false,
+  "dependency_files_changed": false,
+  "ordinary_test_validation": {
+    "commands": [
+      "python -m pytest tests/ -q",
+      "python -m pytest tooling/tests/ -q",
+      "python -m ruff check tests/",
+      "python -m mypy src tests"
+    ],
+    "results": {
+      "pytest_tests": "434 passed (was 414 before this WP; +20 new tests: 19 new + 1 net from an existing test's replacement is not applicable here -- exactly 20 new test functions/parametrizations added net)",
+      "pytest_tooling_tests": "5 passed",
+      "ruff": "All checks passed!",
+      "mypy": "Success: no issues found in 36 source files"
+    }
+  },
+  "per_target_result": [
+    {
+      "target_id": "feature_engine.contracts.x__seal_verified_authority__mutmut_35",
+      "pre_wave_status": "survived",
+      "targeted_post_wave_status": "survived",
+      "cluster": "A",
+      "behavioral_obligation": "wrong-type merge_policy must fail with UnsupportedMergePolicyError, not an unrelated AttributeError",
+      "test(s)_written": ["tests/test_swing_distance.py::test_wrong_type_merge_policy_fails_closed_with_typed_error"],
+      "honest_analysis": "Fresh re-extraction of this exact mutant's diff shows 'type(merge_policy)' -> 'type(None)' (the ARGUMENT inside type() is nulled, not the whole type() call). type(None).__name__ == 'NoneType', a valid string -- no AttributeError occurs under this mutation, and the SAME exception type (UnsupportedMergePolicyError) is raised either way. Only the reported type-name substring in the diagnostic message differs ('dict' vs 'NoneType'). Exception-type assertion (as required by this WP's own anti-gaming rules) cannot distinguish this mutation. Killing it would require asserting the exact diagnostic message content, which is explicitly prohibited gaming under this WP's own rules. The written test is retained as real, independent behavioral-contract coverage (wrong-type merge_policy rejected with the correct exception type) even though it does not kill this specific mutant."
+    },
+    {
+      "target_id": "feature_engine.regime_passthrough.xǁRegimePassthroughFeatureEngineǁ__init____mutmut_21",
+      "pre_wave_status": "survived",
+      "targeted_post_wave_status": "survived",
+      "cluster": "A",
+      "behavioral_obligation": "wrong-type output_authority must fail with UnresolvedOutputContractAuthorityError, not an unrelated AttributeError",
+      "test(s)_written": ["pre-existing: tests/test_regime_passthrough.py::test_output_contract_authority_provider_wrong_type_fails_closed"],
+      "honest_analysis": "Same root cause as mutmut_35 above: 'type(output_authority)' -> 'type(None)', message-text-only, exception type unchanged. A pre-existing test already asserts the correct exception type; it cannot kill this mutation for the same structural reason."
+    },
+    {
+      "target_id": "feature_engine.regime_passthrough.xǁRegimePassthroughFeatureEngineǁ__init____mutmut_31",
+      "pre_wave_status": "survived",
+      "targeted_post_wave_status": "survived",
+      "cluster": "A",
+      "behavioral_obligation": "wrong-type resolved_input_contract must fail with UnresolvedComputationCursorAuthorityError, not an unrelated AttributeError",
+      "test(s)_written": ["pre-existing: tests/test_regime_passthrough.py (unverified-plain-authority test at ~line 591)"],
+      "honest_analysis": "Same root cause: 'type(self._resolved_input_contract)' -> 'type(None)', message-text-only. Pre-existing exception-type test cannot kill it."
+    },
+    {
+      "target_id": "feature_engine.regime_passthrough.xǁRegimePassthroughFeatureEngineǁprepare_upstream_event__mutmut_18",
+      "pre_wave_status": "survived",
+      "targeted_post_wave_status": "survived",
+      "cluster": "A",
+      "behavioral_obligation": "envelope.fact of the wrong type for envelope.kind must fail with TypeError",
+      "test(s)_written": ["tests/test_regime_passthrough.py::test_prepare_upstream_event_rejects_fact_mismatched_with_kind (new coverage -- no prior test of prepare_upstream_event's own fact/kind dispatch existed)"],
+      "honest_analysis": "Same root cause: 'type(envelope.fact)' -> 'type(None)', message-text-only; TypeError is raised either way. The new test closes a genuine prior coverage gap (no test previously exercised this dispatch's type-check at all) but cannot kill this specific message-text mutation without asserting message content."
+    },
+    {
+      "target_id": "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ__init____mutmut_40",
+      "pre_wave_status": "survived",
+      "targeted_post_wave_status": "survived",
+      "cluster": "A",
+      "behavioral_obligation": "wrong-type output_authority must fail with UnresolvedOutputContractAuthorityError, not an unrelated AttributeError",
+      "test(s)_written": ["pre-existing: tests/test_swing_distance.py::test_output_contract_authority_provider_wrong_type_fails_closed"],
+      "honest_analysis": "Same root cause as mutmut_21 above."
+    },
+    {
+      "target_id": "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ__init____mutmut_50",
+      "pre_wave_status": "survived",
+      "targeted_post_wave_status": "survived",
+      "cluster": "A",
+      "behavioral_obligation": "wrong-type resolved_input_contract must fail with UnresolvedComputationCursorAuthorityError, not an unrelated AttributeError",
+      "test(s)_written": ["pre-existing: tests/test_swing_distance.py::test_unverified_plain_authority_cannot_be_supplied_to_swing_engine_as_if_verified"],
+      "honest_analysis": "Same root cause as mutmut_31 above."
+    },
+    {
+      "target_id": "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁprepare_upstream_event__mutmut_6",
+      "pre_wave_status": "survived",
+      "targeted_post_wave_status": "survived",
+      "cluster": "A",
+      "behavioral_obligation": "envelope.fact of the wrong type for envelope.kind='candle' must fail with TypeError",
+      "test(s)_written": ["tests/test_swing_distance.py::test_prepare_upstream_event_rejects_fact_mismatched_with_kind[candle] (new coverage)"],
+      "honest_analysis": "Same message-text-only root cause as the other type() cluster members."
+    },
+    {
+      "target_id": "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁprepare_upstream_event__mutmut_18",
+      "pre_wave_status": "survived",
+      "targeted_post_wave_status": "survived",
+      "cluster": "A",
+      "behavioral_obligation": "envelope.fact of the wrong type for envelope.kind='swing_confirmed' must fail with TypeError",
+      "test(s)_written": ["tests/test_swing_distance.py::test_prepare_upstream_event_rejects_fact_mismatched_with_kind[swing_confirmed] (new coverage)"],
+      "honest_analysis": "Same message-text-only root cause."
+    },
+    {
+      "target_id": "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁprepare_upstream_event__mutmut_28",
+      "pre_wave_status": "survived",
+      "targeted_post_wave_status": "survived",
+      "cluster": "A",
+      "behavioral_obligation": "envelope.fact of the wrong type for envelope.kind='swing_invalidated' must fail with TypeError",
+      "test(s)_written": ["tests/test_swing_distance.py::test_prepare_upstream_event_rejects_fact_mismatched_with_kind[swing_invalidated] (new coverage)"],
+      "honest_analysis": "Same message-text-only root cause."
+    },
+    {
+      "target_id": "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_23",
+      "pre_wave_status": "survived",
+      "targeted_post_wave_status": "survived",
+      "cluster": "B",
+      "behavioral_obligation": "a non-empty but malformed contract_id must fail closed",
+      "test(s)_written": [],
+      "honest_analysis": "STRUCTURALLY_UNREACHABLE via this function's own control flow, confirmed by direct source reading. Before the mutated `_SAFE_CONTRACT_ID.fullmatch(contract_id)` check is ever reached, an EARLIER, unconditional check (`if contract_id != authorized_contract_id: raise ...`) already requires contract_id to be EXACTLY equal to the hardcoded, well-formed `_AUTHORIZED_INPUT_CONTRACT_ID_BY_PROFILE[feature_computation_profile]` value (itself derived from `_INPUT_CONTRACT_RELPATHS`, always a well-formed path stem). By the time execution reaches the mutated line, contract_id is therefore provably always well-formed already -- the `_SAFE_CONTRACT_ID.fullmatch` check can never actually fail for any value that survives the prior binding check. Killing this would require either a production-code change (weakening the `_AUTHORIZED_INPUT_CONTRACT_ID_BY_PROFILE` binding, or reordering the checks) or an impossible fixture (a malformed value that is simultaneously bit-for-bit equal to a known well-formed authorized constant) -- both explicitly prohibited by this WP. Reported honestly, not gamed."
+    },
+    {
+      "target_id": "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_30",
+      "pre_wave_status": "survived",
+      "targeted_post_wave_status": "killed",
+      "cluster": "B",
+      "behavioral_obligation": "a non-empty but malformed contract_version must fail closed, never merely because no snapshot exists at that malformed path",
+      "test(s)_written": ["tests/test_historical_authority_resolver.py::test_malformed_contract_version_grammar_enforced_even_when_a_coincidental_snapshot_exists"],
+      "honest_analysis": "A snapshot was deliberately placed at the non-canonical 'v1.yaml' path with self-consistent content; the mutated ('or'->'and') guard would let the malformed 'v1' token slip through to a successful resolution (the coincidentally-present file), while the correct code rejects it via the grammar check before any filesystem lookup. Killed cleanly via exception-type + successful-vs-failed-resolution distinction, no message-content assertion needed for the kill itself (a `match=` substring was additionally included for precision, but the pytest.raises(...) TYPE assertion alone already distinguishes the two behaviors)."
+    },
+    {
+      "target_id": "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_40",
+      "pre_wave_status": "survived",
+      "targeted_post_wave_status": "killed",
+      "cluster": "B",
+      "behavioral_obligation": "a non-empty but malformed stream_registry_version must fail closed, never merely because no snapshot exists at that malformed path",
+      "test(s)_written": ["tests/test_historical_authority_resolver.py::test_malformed_stream_registry_version_grammar_enforced_even_when_a_coincidental_snapshot_exists"],
+      "honest_analysis": "Mirrors mutmut_30's technique exactly for stream_registry_version, which has no prior binding-equality check (unlike contract_id) and is therefore genuinely reachable."
+    },
+    {
+      "target_id": "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_100",
+      "pre_wave_status": "survived",
+      "targeted_post_wave_status": "killed",
+      "cluster": "B",
+      "behavioral_obligation": "the snapshot-completeness check must independently fail when only stream_registry_version is missing from the snapshot content, not only when all four fields are simultaneously absent",
+      "test(s)_written": ["tests/test_historical_authority_resolver.py::test_missing_contract_registry_ref_field_alone_fails_closed"],
+      "honest_analysis": "Removed only the snapshot's own embedded stream_registry_version line, all other fields genuinely present -- kills the specific `or`->`and` operator-precedence mutation targeting that exact clause."
+    },
+    {
+      "target_id": "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_101",
+      "pre_wave_status": "survived",
+      "targeted_post_wave_status": "killed",
+      "cluster": "B",
+      "behavioral_obligation": "the snapshot-completeness check must independently fail when only contract_version is missing from the snapshot content",
+      "test(s)_written": ["tests/test_historical_authority_resolver.py::test_missing_contract_version_field_alone_fails_closed"],
+      "honest_analysis": "Mirrors mutmut_100's technique for the contract_version field specifically."
+    },
+    {
+      "target_id": "feature_engine.contracts.x__finalize_prepared_batch__mutmut_8",
+      "pre_wave_status": "survived",
+      "targeted_post_wave_status": "survived",
+      "cluster": "C",
+      "behavioral_obligation": "mismatched prepared_events/refs batch lengths must fail rather than silently truncate",
+      "test(s)_written": [],
+      "honest_analysis": "STRUCTURALLY_UNREACHABLE, confirmed by direct source reading. `_finalize_prepared_batch` itself contains an explicit, unconditional pre-check immediately before the mutated zip: `if len(prepared_events) != len(refs): raise ValueError(...)`. By the time `zip(prepared_events, refs, strict=True)` executes, the two sequences are already provably equal length -- strict=True (or its removal/weakening) can never actually observe a mismatch at that call site. Killing it would require either removing the pre-existing explicit guard (a production-code change) or an impossible fixture (a sequence whose len() lies about its true iteration length) -- both explicitly prohibited."
+    },
+    {
+      "target_id": "feature_engine.contracts.x__finalize_prepared_batch__mutmut_11",
+      "pre_wave_status": "survived",
+      "targeted_post_wave_status": "survived",
+      "cluster": "C",
+      "behavioral_obligation": "same as mutmut_8",
+      "test(s)_written": [],
+      "honest_analysis": "Same STRUCTURALLY_UNREACHABLE root cause as mutmut_8 -- a sibling mutation on the same already-guarded zip call."
+    },
+    {
+      "target_id": "feature_engine.contracts.x__finalize_prepared_batch__mutmut_12",
+      "pre_wave_status": "survived",
+      "targeted_post_wave_status": "survived",
+      "cluster": "C",
+      "behavioral_obligation": "same as mutmut_8",
+      "test(s)_written": [],
+      "honest_analysis": "Same STRUCTURALLY_UNREACHABLE root cause as mutmut_8 -- a sibling mutation on the same already-guarded zip call."
+    },
+    {
+      "target_id": "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_4",
+      "pre_wave_status": "survived",
+      "targeted_post_wave_status": "killed",
+      "cluster": "C",
+      "behavioral_obligation": "mismatched prepared_events/canonical_events batch lengths must fail rather than silently truncate",
+      "test(s)_written": ["tests/test_contracts.py::test_validate_canonical_recorded_time_rejects_mismatched_batch_lengths"],
+      "honest_analysis": "Unlike _finalize_prepared_batch, this function has NO prior length pre-check of its own -- its own zip(..., strict=True) is the sole guard, genuinely reachable when the private function is called directly (its one current caller, PreparedBatch.reconcile, has its own separate pre-check, but the function's own independent contract is directly testable, the same precedent already established for _seal_verified_authority elsewhere in this suite). Killed via a minimal direct call with empty vs. one-item sequences."
+    },
+    {
+      "target_id": "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_7",
+      "pre_wave_status": "survived",
+      "targeted_post_wave_status": "killed",
+      "cluster": "C",
+      "behavioral_obligation": "same as mutmut_4",
+      "test(s)_written": ["tests/test_contracts.py::test_validate_canonical_recorded_time_rejects_mismatched_batch_lengths (same test kills this sibling mutation too)"],
+      "honest_analysis": "Sibling mutation on the same now-tested zip call."
+    },
+    {
+      "target_id": "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_8",
+      "pre_wave_status": "survived",
+      "targeted_post_wave_status": "killed",
+      "cluster": "C",
+      "behavioral_obligation": "same as mutmut_4",
+      "test(s)_written": ["tests/test_contracts.py::test_validate_canonical_recorded_time_rejects_mismatched_batch_lengths (same test kills this sibling mutation too)"],
+      "honest_analysis": "Sibling mutation on the same now-tested zip call."
+    },
+    {
+      "target_id": "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_18",
+      "pre_wave_status": "survived",
+      "targeted_post_wave_status": "killed",
+      "cluster": "D",
+      "behavioral_obligation": "quote-stripping must remove only the delimiter quote characters, never legitimate content characters from a value beginning/ending in X",
+      "test(s)_written": ["tests/test_authority_resolver.py::test_extract_merge_policy_preserves_algorithm_value_with_leading_and_trailing_x"],
+      "honest_analysis": "Direct unit test on the private _extract_merge_policy function with an algorithm value 'Xcustom-algorithmX'; the widened '.strip(\"XX\\\"XX\")' mutant incorrectly strips the leading/trailing X characters, producing a different (wrong) value, which the assertion catches."
+    },
+    {
+      "target_id": "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_33",
+      "pre_wave_status": "survived",
+      "targeted_post_wave_status": "killed",
+      "cluster": "D",
+      "behavioral_obligation": "same quote-stripping precision for a concurrent_tie_break list item",
+      "test(s)_written": ["tests/test_authority_resolver.py::test_extract_merge_policy_preserves_concurrent_tie_break_item_with_leading_and_trailing_x"],
+      "honest_analysis": "Same technique applied to the concurrent_tie_break item's own quote-strip call site."
+    },
+    {
+      "target_id": "feature_engine.authority_resolver.x__extract_scalar__mutmut_5",
+      "pre_wave_status": "survived",
+      "targeted_post_wave_status": "killed",
+      "cluster": "D",
+      "behavioral_obligation": "same quote-stripping precision for authority_resolver.py's own _extract_scalar",
+      "test(s)_written": ["tests/test_authority_resolver.py::test_extract_scalar_preserves_value_with_leading_and_trailing_x"],
+      "honest_analysis": "Direct unit test on the shared scalar-extraction helper."
+    },
+    {
+      "target_id": "feature_engine.output_contract_resolver.x__extract_scalar__mutmut_5",
+      "pre_wave_status": "survived",
+      "targeted_post_wave_status": "killed",
+      "cluster": "D",
+      "behavioral_obligation": "same quote-stripping precision for output_contract_resolver.py's own, independently-mutated copy of _extract_scalar",
+      "test(s)_written": ["tests/test_output_contract_resolver.py::test_extract_scalar_preserves_value_with_leading_and_trailing_x"],
+      "honest_analysis": "mutmut mutates each module's own copy of structurally-identical code independently; this test targets output_contract_resolver.py's own copy directly."
+    },
+    {
+      "target_id": "feature_engine.identity.x_deterministic_id__mutmut_3",
+      "pre_wave_status": "survived",
+      "targeted_post_wave_status": "killed",
+      "cluster": "E",
+      "behavioral_obligation": "multi-part identity composition must preserve part boundaries / use the exact documented algorithm",
+      "test(s)_written": [
+        "tests/test_identity.py::test_boundary_shift_between_adjacent_parts_produces_a_different_id",
+        "tests/test_identity.py::test_boundary_shift_holds_for_three_part_identities",
+        "tests/test_identity.py::test_join_uses_the_exact_documented_pipe_separator"
+      ],
+      "honest_analysis": "First attempt (boundary-shift inequality, deterministic_id('ab','c') != deterministic_id('a','bc')) was independently verified via fresh diff extraction to NOT distinguish this specific mutation: the mutant WIDENS the separator from '|' to 'XX|XX' rather than narrowing/removing it, so boundary-shift inequality still holds under both the real and mutated separator (a wider unique separator does not reintroduce a collision). The mutation was killed instead via a determinism/stability pin: two exact SHA-256 digests (independently computed with the real '|' separator) asserted for known two- and three-part inputs -- this validates the module's own documented 'same parts always produce the same id' stability guarantee at a concrete, verifiable value, and is sensitive to any silent change of the join algorithm (including this exact separator-widening mutation). This is a legitimate golden-value regression test on a hash function's own documented determinism contract, not a message-text or mutant-identity assertion."
+    }
+  ],
+  "verified_targeted_kill_count": 12,
+  "remaining_wave5_survivors": {
+    "count": 13,
+    "ids": [
+      "feature_engine.contracts.x__seal_verified_authority__mutmut_35",
+      "feature_engine.regime_passthrough.xǁRegimePassthroughFeatureEngineǁ__init____mutmut_21",
+      "feature_engine.regime_passthrough.xǁRegimePassthroughFeatureEngineǁ__init____mutmut_31",
+      "feature_engine.regime_passthrough.xǁRegimePassthroughFeatureEngineǁprepare_upstream_event__mutmut_18",
+      "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ__init____mutmut_40",
+      "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ__init____mutmut_50",
+      "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁprepare_upstream_event__mutmut_6",
+      "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁprepare_upstream_event__mutmut_18",
+      "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁprepare_upstream_event__mutmut_28",
+      "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_23",
+      "feature_engine.contracts.x__finalize_prepared_batch__mutmut_8",
+      "feature_engine.contracts.x__finalize_prepared_batch__mutmut_11",
+      "feature_engine.contracts.x__finalize_prepared_batch__mutmut_12"
+    ],
+    "root_cause_summary": {
+      "cluster_A_type_none_message_text_only": "9 identities (all of Cluster A). Fresh re-extraction proved every one of these 9 mutates 'type(X)' -> 'type(None)' (the argument inside type() is nulled, not the whole call) -- type(None).__name__ == 'NoneType' is a valid string, so no crash occurs and the SAME exception type is raised either way. Only the reported type-name substring in the diagnostic message differs. This corrects an inherited assumption (from the prior post-E005 diagnostic classification) that this cluster crashed with AttributeError under mutation -- fresh, direct re-verification this transaction shows it does not. Real behavioral tests (exception-type assertions) were written for all 9 regardless, since the underlying wrong-type-rejection contract is genuinely valuable and, for 3 of the 9, previously entirely untested -- but none of the 9 can be honestly killed without asserting diagnostic message content, which this WP's own anti-gaming rules prohibit absent a governed message contract.",
+      "contract_id_binding_precheck_unreachable": "1 identity (resolve_historical...mutmut_23). The mutated _SAFE_CONTRACT_ID.fullmatch(contract_id) check is provably unreachable with any value that has already survived the function's own earlier, unconditional contract_id == authorized_contract_id equality check against a hardcoded well-formed constant.",
+      "finalize_prepared_batch_length_precheck_unreachable": "3 identities (_finalize_prepared_batch mutmut_8/_11/_12). The mutated zip(..., strict=True) is provably unreachable with any input that has already survived the function's own explicit, unconditional prior length-equality check on the exact same two sequences."
+    }
+  },
+  "formal_gate_credit": "NOT YET CLAIMED",
+  "wave5_engineering_remediation_summary": "12/25 targeted kills verified via bounded, real test execution against the exact 25 named IDs only.",
+  "formal_condition_1b_summary": "still awaiting final formal measurement -- this artifact is implementation evidence only, not a formal Condition-1B resolution record.",
+  "wave6_remaining_population": {
+    "count": 17,
+    "ids": [
+      "feature_engine.contracts.x__finalize_prepared_batch__mutmut_3",
+      "feature_engine.contracts.x__finalize_prepared_batch__mutmut_4",
+      "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_1",
+      "feature_engine.ownership.x__tie_break_key__mutmut_9",
+      "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_catch_up__mutmut_18",
+      "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_catch_up__mutmut_7",
+      "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁacquire_and_activate__mutmut_21",
+      "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁacquire_and_activate__mutmut_23",
+      "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁprocess_certified_frontier__mutmut_10",
+      "feature_engine.swing_distance.x__total_order_key__mutmut_3",
+      "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_original__mutmut_13",
+      "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_preempt_settled_window__mutmut_20",
+      "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_recompute__mutmut_23",
+      "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_reevaluate_all_windows__mutmut_6",
+      "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_replacement_only__mutmut_14",
+      "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_select_eligible_swing__mutmut_18",
+      "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_select_eligible_swing__mutmut_22"
+    ],
+    "conceptual_groups": {
+      "contracts_sentinel_invalidation_invariants": 3,
+      "ownership_tie_break": 1,
+      "ownership_unproven_emptiness": 3,
+      "ownership_catching_up_concurrent_observability": 2,
+      "swing_deep_order_revision": 1,
+      "swing_recorded_time_floor": 3,
+      "swing_recompute_invariant": 1,
+      "reevaluate_all_windows_continue_break": 1,
+      "swing_selection_timing_correctness": 2
+    },
+    "not_implemented_by_this_transaction": true
+  },
+  "not_performed_by_this_transaction": [
+    "No production source file created, edited, or executed against (verified byte-unchanged).",
+    "No tooling file created, edited, or modified.",
+    "No dependency/lock file change.",
+    "No fresh full 2629-mutant formal mutation measurement.",
+    "No Wave-6 test implemented.",
+    "No TOOL_IDENTITY_DRIFT resolution.",
+    "No Feature Engine approval.",
+    "No LIVE authorization.",
+    "No message-text or mutant-identity-based test assertion used to force a kill.",
+    "No production-code change made merely to make a mutant killable.",
+    "No impossible/contrived fixture constructed."
+  ]
+}

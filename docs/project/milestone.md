@@ -6,7 +6,7 @@ status: Active
 owner: Product Owner
 maintainer: "WP executors under Lean Ride Operating Model v1.1"
 visual_companion: docs/project/milestone-dashboard.html
-state_verified_against_head: b16f57e06be265125123cc3c7eb0b2d2bdc75c17
+state_verified_against_head: a9f75be3ffa5df6d4b6f8b361ff15f28d6e0370a
 state_verified_against_at: "2026-09-23"
 ---
 
@@ -568,33 +568,60 @@ MANIFEST now carries one canonical current-threshold pointer.
 **Deferred / blocked item:** `contracts.x__seal_verified_authority__mutmut_33`
 — `TOOL_IDENTITY_DRIFT — NO EXISTING GOVERNED RESOLUTION MECHANISM`.
 
-**PO action required now:** No. Activation is COMPLETE. Condition 2
-(`169/170`) and Condition 3 (`SATISFIED`) preserved as independent
-requirements, not merged with Condition 1B. No fresh mutation
-measurement was performed — current raw score
-(`84.21453023963484%–84.55686572841384%`) remains below the new
-`85.812095853937%` gate, and none of the 42 Condition-1B identities are
-yet resolved, so Condition 1 remains `FAIL — criteria` (Condition 1A
-`FAIL`, Condition 1B `FAIL`). Candidate-005 remains recorded `RESOLVED
-— DELEGATED TECHNICAL RESOLUTION` (`FE-EVID03-COND2-CANDIDATE-005-DTR-
-001`) — a governed technical resolution under `ADR-045` v0.3, **not** a
-Product Owner approval. EVID-03 remains OPEN independently on both
-grounds; Feature Engine remains NOT APPROVED; Phase-3 module approval
-remains NOT GRANTED; LIVE remains NOT_AUTHORIZED — threshold activation
-is not module approval. The sole remaining Condition-2 item,
+**Primary Work Package — Wave-5 test remediation (25 low-complexity/
+high-yield Condition-1B current-material gaps): COMPLETE.**
+Fresh-verified starting HEAD `a9f75be3ffa5df6d4b6f8b361ff15f28d6e0370a`
+== `origin/main`, no drift; governing authority (activated
+recalibration proposal, 42-ID artifact + hash) fresh-verified exact.
+Fresh-re-extracted all 25 target IDs' exact diffs before designing
+tests. Wrote 20 new real, behavior-oriented tests across 7 files (1
+new: `test_identity.py`) — full ordinary suite **434/434 passed** (was
+414); `ruff`/`mypy` clean. Bounded targeted mutation verification
+(`python -m tooling run <id> ...`, real execution scoped to exactly
+the 25 named IDs): **12/25 targeted kills verified** (Cluster A
+wrong-type-validation 0/9; Cluster B malformed-field 4/5; Cluster C
+`zip(strict=True)` 3/6; Cluster D quote-parsing 4/4; Cluster E
+deterministic-ID 1/1). Honest analysis of the 13 survivors: Cluster
+A's 9 are message-text-only (`type(X)` → `type(None)`, corrects an
+inherited assumption — no crash, same exception type either way);
+`resolve_historical...mutmut_23` and `_finalize_prepared_batch`'s
+`mutmut_8`/`_11`/`_12` (4 more) are STRUCTURALLY_UNREACHABLE given an
+earlier unconditional guard in the same function — none gamed.
+**Implementation evidence only — formal Condition 1B credit NOT
+claimed.** New artifact:
+`feature-engine-condition1-wave5-test-remediation-001.json`, exact
+17-ID Wave-6 complement persisted. `ADR_NOT_REQUIRED`; Risk `R1`. No
+`src/`/`tooling/` change.
+
+**Deferred / blocked item:** `contracts.x__seal_verified_authority__mutmut_33`
+— `TOOL_IDENTITY_DRIFT — NO EXISTING GOVERNED RESOLUTION MECHANISM`.
+
+**PO action required now:** No. Wave-5 is COMPLETE. Condition 1 remains
+`FAIL — criteria` — no fresh formal mutation measurement was performed,
+and formal Condition 1B credit is NOT claimed for any of the 12
+targeted-killed identities (implementation evidence only, pending a
+later, separately-governed formal measurement transaction). Condition
+2 (`169/170`) and Condition 3 (`SATISFIED`) preserved as independent
+requirements, not merged with Condition 1B. Candidate-005 remains
+recorded `RESOLVED — DELEGATED TECHNICAL RESOLUTION` (`FE-EVID03-
+COND2-CANDIDATE-005-DTR-001`) — a governed technical resolution under
+`ADR-045` v0.3, **not** a Product Owner approval. EVID-03 remains OPEN
+independently on both grounds; Feature Engine remains NOT APPROVED;
+Phase-3 module approval remains NOT GRANTED; LIVE remains
+NOT_AUTHORIZED. The sole remaining Condition-2 item,
 `contracts.x__seal_verified_authority__mutmut_33`
 (`TOOL_IDENTITY_DRIFT — NO EXISTING GOVERNED RESOLUTION MECHANISM`),
 remains unresolved; no identity-continuity mechanism was invented. Next
-governed step: a separate, subsequent, bounded Work Package to resolve
-the 42 Condition-1B identities (genuine test-effectiveness work) and/or
-define a governed mechanism for the `TOOL_IDENTITY_DRIFT` row — neither
-initiated here.
+governed step: a separate, subsequent, bounded Work Package for Wave-6
+(the remaining 17 current-material identities), and, independently, a
+future formal measurement transaction to determine actual Condition-1B
+credit — neither initiated here.
 
 ## 5. Work Package lanes
 
 | Lane | Item | Status |
 |---|---|---|
-| Primary | *(none currently assigned)* | `FE-EVID03-COND1-THRESHOLD-RECAL-001-ACTIVATION-001` is `DONE / ACTIVATED`. Next primary WP (resolving the 42 pinned Condition-1B current-material identities) awaits a separate scoping decision. |
+| Primary | *(none currently assigned)* | `FE-EVID03-COND1-WAVE5-001` (Wave-5 test remediation, 25 identities, 12/25 targeted kills verified) is COMPLETE. Next primary WP (Wave-6, remaining 17 identities, and/or a future formal measurement transaction) awaits a separate scoping decision. |
 | Deferred | `contracts.x__seal_verified_authority__mutmut_33` (TOOL_IDENTITY_DRIFT) | Deferred — no existing governed mechanism |
 | Completed | `RIDE-PROJECT-MILESTONE-DASHBOARD-001` | Tracking infrastructure only |
 | Completed | `FE-EVID03-COND1-STOP-001` | 9/9 mutants `REQUIRES_GOVERNED_PROTOCOL_DECISION`; §13.10 applicability question flagged for ChatGPT review |
@@ -615,6 +642,7 @@ initiated here.
 | Completed | `FE-EVID03-COND1-THRESHOLD-RECAL-001` | Condition-1 threshold recalibration proposal authored, `CANDIDATE — NOT EFFECTIVE / AWAITING REVIEW A` — **`CALIBRATION_DRIFT_CONFIRMED`** (71-credit robustness check still `3` short of `2288`); 2 `UNCLEAR` survivors fresh-resolved to `PROVABLY_EQUIVALENT`; Model A (`85.736021300875%`) recommended over Models B/C; `ADR_OPTIONAL`; Risk `R1`; currently-effective `87.001959503592%` threshold NOT changed — **superseded by the CORR-001 WP below** |
 | Completed | `FE-EVID03-COND1-THRESHOLD-RECAL-001-CORR-001` | Bounded correction remediating Review A `REVISION_REQUIRED — 0/2/2`, R1, `ADR_OPTIONAL` — `MAJOR-01`: Model A corrected to explicit Condition 1A/1B two-part gate (42 pinned current-material identities, reusing §4.1 pattern); `MAJOR-02`: `acquire_and_activate__mutmut_21`/`_23` reclassified `PROVABLY_EQUIVALENT` → `GENUINE_TEST_GAP` (public-property concurrent observability); settled `GENUINE_TEST_GAP=42`/`PROVABLY_EQUIVALENT=16`/`UNCLEAR=0`; corrected candidate `85.812095853937%` (numerator `2256`); `MINOR-01`: review authority corrected to ADR-045/Chapter 11 v2.4 (R1 = Review A only), DTR ineligible for threshold decision (D10(a)); `MINOR-02`: exact future SSOT transition defined; new artifact `feature-engine-condition1-current-material-gap-set-001.json` (42 IDs); `ADR_OPTIONAL`; Risk `R1`; currently-effective `87.001959503592%` threshold NOT changed — **activated by the ACTIVATION-001 WP below** |
 | Completed | `FE-EVID03-COND1-THRESHOLD-RECAL-001-ACTIVATION-001` | `DONE / ACTIVATED` — Final Review A `CLEAN — 0/0/1`, R1, `ADR_OPTIONAL`, no cross-check. Product Owner approved the recalibration at boundary `b16f57e06be265125123cc3c7eb0b2d2bdc75c17`, folding the authorized non-semantic 2-row provenance cleanup (42-ID artifact `6360c8c1...` → `49c30b439e...`, set/count/hash unchanged) into the atomic activation. `feature-engine-mutation-threshold-recalibration-proposal-001.md` `CANDIDATE → APPROVED — EFFECTIVE` (resulting blob `12040044578d...`), now sole current Condition-1 threshold authority: Condition 1A (raw score ≥ `85.812095853937%`) AND Condition 1B (42 current-material identities individually resolved). Old `87.001959503592%` threshold now historical/superseded, byte-unchanged. Condition 2/3 preserved independent. Condition 1 remains `FAIL — criteria` (no fresh measurement performed) |
+| Completed | `FE-EVID03-COND1-WAVE5-001` | Wave-5 test remediation of 25 low-complexity/high-yield Condition-1B identities — 20 new tests across 7 files (`test_identity.py` new), ordinary suite `434/434 passed` (was 414), `ruff`/`mypy` clean. Bounded targeted mutation verification (25 named IDs only): **`12/25` targeted kills verified** (Cluster A `0/9`, B `4/5`, C `3/6`, D `4/4`, E `1/1`). 13 survivors honestly reported: Cluster A (9) message-text-only (`type(X)`→`type(None)`, no crash, corrects a prior inherited assumption); 4 more `STRUCTURALLY_UNREACHABLE` given an earlier unconditional guard already in the same function — none gamed. **Implementation evidence only — formal Condition 1B credit NOT claimed.** New artifact `feature-engine-condition1-wave5-test-remediation-001.json`; exact 17-ID Wave-6 complement persisted. `ADR_NOT_REQUIRED`; Risk `R1`. No `src/`/`tooling/` change; Condition 1 remains `FAIL — criteria` |
 
 ## 6. PO dashboard snapshot
 
@@ -628,11 +656,9 @@ Primary blocker:          Condition 1 -- FAIL -- criteria under the NEW,
                            (169/170) independently also blocks (1
                            TOOL_IDENTITY_DRIFT row unresolved, no
                            governed mechanism).
-Current primary WP:       (none currently assigned) -- ATOMIC PRODUCT
-                           OWNER ACTIVATION of the Condition-1
-                           recalibration
-                           (`FE-EVID03-COND1-THRESHOLD-RECAL-001-ACTIVATION-001`)
-                           DONE / ACTIVATED
+Current primary WP:       (none currently assigned) -- Wave-5 test
+                           remediation (`FE-EVID03-COND1-WAVE5-001`)
+                           COMPLETE
 ADR-045:                   v0.3, Approved / ACTIVE -- Delegated
                            Technical Resolution lane, self-contained
                            R0/R1/R2 definitions (X-MAJ-02), D8
@@ -712,24 +738,47 @@ Condition-1 recalibration: **ACTIVATED (2026-09-23T20:01+07:00).**
                            one canonical current-threshold pointer. No
                            fresh mutation measurement performed by this
                            activation.
+Wave-5 test remediation:   COMPLETE. 20 new tests across 7 files
+                           (test_identity.py new); ordinary suite
+                           434/434 passed (was 414); ruff/mypy clean.
+                           Bounded targeted mutation verification (25
+                           named IDs only): 12/25 targeted kills
+                           verified (Cluster A wrong-type 0/9, B
+                           malformed-field 4/5, C zip-strict 3/6, D
+                           quote-parsing 4/4, E deterministic-ID 1/1).
+                           13 survivors honestly reported: Cluster A
+                           (9) message-text-only (type(X)->type(None),
+                           no crash, corrects a prior inherited
+                           assumption); 4 more STRUCTURALLY_UNREACHABLE
+                           given an earlier unconditional guard already
+                           in the same function -- none gamed.
+                           IMPLEMENTATION EVIDENCE ONLY -- formal
+                           Condition 1B credit NOT claimed. New
+                           artifact: feature-engine-condition1-wave5-
+                           test-remediation-001.json; exact 17-ID
+                           Wave-6 complement persisted. ADR_NOT_REQUIRED;
+                           Risk R1. No src/tooling change.
 PO decision required now: NO
-                           (Activation is COMPLETE. Condition 1 remains
-                           FAIL -- criteria under the new gate (1A FAIL:
-                           raw score 84.21%-84.56% < 85.812095853937%;
-                           1B FAIL: 42 identities not all resolved).
+                           (Wave-5 is COMPLETE. Condition 1 remains
+                           FAIL -- criteria under the activated gate
+                           (1A FAIL: raw score 84.21%-84.56% <
+                           85.812095853937%; 1B FAIL: 42 identities not
+                           all resolved) -- no fresh formal mutation
+                           measurement was performed, and formal
+                           Condition 1B credit is NOT claimed for any
+                           of the 12 targeted-killed identities.
                            Condition 2 (169/170) and Condition 3
                            (SATISFIED) preserved as independent
                            requirements, not merged with Condition 1B.
                            EVID-03 remains OPEN; Feature Engine remains
                            NOT APPROVED; Phase-3 module approval remains
-                           NOT GRANTED; LIVE remains NOT_AUTHORIZED --
-                           threshold activation is not module approval.
+                           NOT GRANTED; LIVE remains NOT_AUTHORIZED.
                            Next governed decision point: a separate,
-                           subsequent, bounded Work Package to resolve
-                           the 42 Condition-1B identities and/or define
-                           a governed mechanism for the remaining
-                           TOOL_IDENTITY_DRIFT row -- neither initiated
-                           here.)
+                           subsequent, bounded Work Package for Wave-6
+                           (remaining 17 identities), and,
+                           independently, a future formal measurement
+                           transaction to determine actual Condition-1B
+                           credit -- neither initiated here.)
 ```
 
 ## 7. Update rules

@@ -2,6 +2,32 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-23 — feature-engine: Condition-1 Wave-5 test remediation — 12/25 targeted kills verified, implementation evidence only
+
+Starting HEAD `a9f75be3ffa5df6d4b6f8b361ff15f28d6e0370a`, verified `main == origin/main`, no drift. Governing authority fresh-verified exact: activated recalibration proposal blob `12040044578d57d15e699a327a5a8ae39c1e9ea3`, 42-ID artifact blob `49c30b439eb84db95c55dc4a86de22e2b491dbb5`, sorted-set sha256 `932698b4b312c1a8f70c261426555a5c6f3566579ed0a27102d4a0f0214adedc`.
+
+Implemented real, behavior-oriented tests for exactly the 25 lowest-complexity/highest-yield of the 42 Condition-1B current-material identities (Cluster A: 9 wrong-type-validation; Cluster B: 5 malformed-authority-field; Cluster C: 6 `zip(strict=True)` safety; Cluster D: 4 quote-parsing precision; Cluster E: 1 deterministic-ID boundary). This WP does not formally re-evaluate the Condition-1 gate.
+
+Fresh-re-extracted the exact diff of all 25 target IDs (zero-test, offline mutmut CST reproduction, self-verified as an exact 2629/2629 match against the mutant universe) before designing tests, rather than inheriting the prior diagnostic's classification assumptions. Wrote 20 new tests across 7 files (6 modified, 1 new: `test_identity.py`). Full ordinary suite: **434/434 passed** (was 414); `ruff check` clean; `mypy src tests` clean.
+
+Performed BOUNDED targeted mutation verification via this repository's existing `python -m tooling run <id> ...` entrypoint (real test execution scoped to exactly the 25 named IDs only, no full 2629-mutant formal run). **Result: 12/25 targeted kills verified** — Cluster A 0/9, Cluster B 4/5, Cluster C 3/6, Cluster D 4/4, Cluster E 1/1.
+
+Honest, non-gamed root-cause analysis of the 13 remaining survivors: (1) Cluster A's 9 mutants all mutate `type(X)` → `type(None)` — a message-text-only change (`type(None).__name__` is a valid string, no crash, same exception type raised either way), correcting an inherited assumption from the prior diagnostic; real exception-type tests were written regardless (3 close genuine prior coverage gaps), but none can be honestly killed without prohibited message-content assertions. (2) `resolve_historical_input_contract_authority_from_repository__mutmut_23` is STRUCTURALLY_UNREACHABLE — an earlier, unconditional equality check against a hardcoded well-formed constant already guarantees the mutated grammar check can never actually differ. (3) `_finalize_prepared_batch__mutmut_8`/`_11`/`_12` (3 mutants) are STRUCTURALLY_UNREACHABLE — the function's own explicit prior length-equality check already guarantees the mutated `zip(strict=True)` can never observe a mismatch. None gamed via message-text assertion, mutant-naming, impossible fixtures, or production-code change.
+
+Explicit formal-credit distinction: this is implementation evidence only — `formal_gate_credit: "NOT YET CLAIMED"`. Condition 1B is NOT asserted as "12/42 formally resolved"; formal credit awaits a later, separately-governed formal measurement transaction.
+
+Wave-6 remaining population: exactly 17 identities (verified: Wave-5 ∪ Wave-6 reconstructs the full 42-ID set with no overlap), persisted in the new evidence artifact — not implemented by this transaction.
+
+ADR Scope: `ADR_NOT_REQUIRED` (test-only remediation under already-approved quality-gate authority, freshly re-run). Risk: `R1`.
+
+New artifact: `docs/governance/mutation-baseline-evidence/feature-engine-condition1-wave5-test-remediation-001.json`, blob `6fd2f3a9aebe7df8035c0b64dac46de3fa707a26`.
+
+State preserved unchanged: Condition 1 `FAIL — criteria` (no formal re-measurement performed); Condition 2 `169/170`; Condition 3 `SATISFIED`; `P3-FEATURE-QG-EVID-03` `OPEN`; Feature Engine `NOT APPROVED`; LIVE `NOT_AUTHORIZED`. No `src/`/`tooling/`/dependency/Constitution/ADR/Testing-Convention/threshold-artifact/42-ID-artifact/Condition-2-evidence change; no `TOOL_IDENTITY_DRIFT` resolution; no Wave-6 test implemented.
+
+Files changed: `feature-engine-condition1-wave5-test-remediation-001.json` (new), `feature-engine-chapter13-remediation-plan-001.md`, `milestone.md`, `milestone-dashboard.html`, `MANIFEST.md` (`manifest_version` `"10.426"` -> `"10.427"`), `CHANGELOG.md`, and 7 test files under `python/feature-engine/tests/` (`test_swing_distance.py`, `test_regime_passthrough.py`, `test_historical_authority_resolver.py`, `test_contracts.py`, `test_authority_resolver.py`, `test_output_contract_resolver.py`, `test_identity.py` new).
+
+---
+
 ## [Unreleased] — 2026-09-23 — feature-engine: Condition-1 threshold recalibration ACTIVATED — 85.812095853937% + 42-ID Condition 1B, supersedes 87.001959503592%
 
 Starting HEAD `b16f57e06be265125123cc3c7eb0b2d2bdc75c17`, verified `main == origin/main`, no drift. Reviewed semantic boundary pinned and fresh-verified exact: recalibration proposal blob `b7c9f0ec9661298a89567c4808e7e2721873ac80`, current-material 42-ID artifact blob `6360c8c1ad6e7c21129fa3b75415486d5447bf52`, old/current threshold proposal blob `f4a3ca0c37aeb4684409a7344141103e64051e04` — all three matched exactly.

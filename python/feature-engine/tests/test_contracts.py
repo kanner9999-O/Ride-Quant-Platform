@@ -10,7 +10,7 @@ from feature_engine import (
     EventRecordRef,
     InvalidFeatureDefinitionError,
 )
-from feature_engine.contracts import InputMergePolicy, is_visible_at_cursor
+from feature_engine.contracts import InputMergePolicy, _validate_canonical_recorded_time, is_visible_at_cursor
 from feature_engine.errors import UnsupportedMergePolicyError
 
 # Direct unit tests of `resolve_output_event_contract_authority_from_repository`
@@ -110,3 +110,22 @@ def test_input_merge_policy_accepts_well_formed_value() -> None:
     )
     assert policy.algorithm == "deterministic-causal-topological-order"
     assert policy.concurrent_tie_break == ("stream_id", "sequence")
+
+
+# --- ADR043-IMPL-A-MAJ-06: catch-up reconciliation batch-length safety net -
+
+
+def test_validate_canonical_recorded_time_rejects_mismatched_batch_lengths() -> None:
+    """Wave-5 (Condition-1B): `_validate_canonical_recorded_time`'s own
+    `zip(..., strict=True)` is an independent, direct safety net against a
+    caller supplying mismatched-length `prepared_events`/`canonical_events`
+    sequences — it must fail rather than silently pairing/truncating to
+    the shorter sequence. (The one current caller, `PreparedBatch.
+    reconcile`, already has its own equal-length pre-check before calling
+    this function; this test exercises the function's own independent
+    contract directly — the same "verify a private helper's own defensive
+    contract in isolation" discipline already established for
+    `_seal_verified_authority` elsewhere in this test suite.)
+    """
+    with pytest.raises(ValueError):
+        _validate_canonical_recorded_time((), (object(),))  # type: ignore[arg-type]

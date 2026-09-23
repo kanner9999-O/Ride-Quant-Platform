@@ -220,6 +220,83 @@ def test_malformed_contract_id_fails_closed(tmp_path: Path, bad_contract_id: str
         )
 
 
+def test_malformed_contract_version_grammar_enforced_even_when_a_coincidental_snapshot_exists(
+    tmp_path: Path,
+) -> None:
+    """Wave-5 (Condition-1B): the canonical `v<major>.<minor>` grammar check
+    on `contract_version` must independently reject a malformed token
+    BEFORE any filesystem lookup — never merely because no snapshot
+    happens to exist at that malformed path. A snapshot is deliberately
+    placed at the non-canonical `v1.yaml` path (self-consistent content,
+    embedding `contract_version: v1`) to prove the rejection is driven by
+    the grammar check itself: if the grammar guard were skipped, this
+    coincidentally-present file would resolve successfully instead of
+    raising.
+    """
+    repo = _write_fake_snapshot_repo(tmp_path, contract_version="v1")
+    with pytest.raises(UnresolvedComputationCursorAuthorityError, match="not a well-formed"):
+        resolve_historical_input_contract_authority_from_repository(
+            feature_computation_profile="regime",
+            input_contract_ref=InputContractRef("feature-regime-input", "v1"),
+            stream_registry_version="v1.0",
+            repo_root=repo,
+        )
+
+
+def test_malformed_stream_registry_version_grammar_enforced_even_when_a_coincidental_snapshot_exists(
+    tmp_path: Path,
+) -> None:
+    """Mirrors the contract_version case above for `stream_registry_version`
+    — a Stream Registry snapshot deliberately placed at the non-canonical
+    `v1.yaml` path must not be reached at all, since the grammar guard on
+    `stream_registry_version` must reject the malformed token first.
+    """
+    repo = _write_fake_snapshot_repo(tmp_path, registry_version="v1")
+    with pytest.raises(UnresolvedComputationCursorAuthorityError, match="not a well-formed"):
+        resolve_historical_input_contract_authority_from_repository(
+            feature_computation_profile="regime",
+            input_contract_ref=InputContractRef("feature-regime-input", "v1.0"),
+            stream_registry_version="v1",
+            repo_root=repo,
+        )
+
+
+def test_missing_contract_registry_ref_field_alone_fails_closed(tmp_path: Path) -> None:
+    """Wave-5 (Condition-1B): the Input Contract snapshot's completeness
+    check (`contract_id`/`contract_version`/`stream_registry_version`/
+    `included_streams` all required) must independently fail when ONLY the
+    snapshot's own embedded `stream_registry_version` field is missing —
+    every other required field genuinely present — not only when ALL
+    fields are simultaneously absent.
+    """
+    repo = _write_fake_snapshot_repo(tmp_path)
+    path = repo / "docs/architecture/input-contract-versions/feature-regime-input/v1.0.yaml"
+    path.write_text(path.read_text().replace("stream_registry_version: v1.0\n", ""))
+    with pytest.raises(UnresolvedComputationCursorAuthorityError, match="did not resolve a complete"):
+        resolve_historical_input_contract_authority_from_repository(
+            feature_computation_profile="regime",
+            input_contract_ref=InputContractRef("feature-regime-input", "v1.0"),
+            stream_registry_version="v1.0",
+            repo_root=repo,
+        )
+
+
+def test_missing_contract_version_field_alone_fails_closed(tmp_path: Path) -> None:
+    """Mirrors the missing-`stream_registry_version`-alone case above for
+    the snapshot's own embedded `contract_version` field.
+    """
+    repo = _write_fake_snapshot_repo(tmp_path)
+    path = repo / "docs/architecture/input-contract-versions/feature-regime-input/v1.0.yaml"
+    path.write_text(path.read_text().replace("  contract_version: v1.0\n", ""))
+    with pytest.raises(UnresolvedComputationCursorAuthorityError, match="did not resolve a complete"):
+        resolve_historical_input_contract_authority_from_repository(
+            feature_computation_profile="regime",
+            input_contract_ref=InputContractRef("feature-regime-input", "v1.0"),
+            stream_registry_version="v1.0",
+            repo_root=repo,
+        )
+
+
 # --- Self-identity consistency (snapshot content vs. its own canonical path)
 
 

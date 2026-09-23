@@ -18,6 +18,7 @@ from feature_engine.errors import (
 from feature_engine.output_contract_resolver import (
     FilesystemOutputEventContractAuthorityResolver,
     StaticOutputEventContractAuthorityProvider,
+    _extract_scalar,
     _find_repo_root,
     resolve_output_event_contract_authority_from_repository,
 )
@@ -415,3 +416,17 @@ def test_verified_output_authority_has_no_public_constructor() -> None:
             computed_contract_ref=EventContractRef("feature-computed", "v1.0"),
             invalidated_contract_ref=EventContractRef("feature-fact-invalidated", "v1.0"),
         )
+
+
+# --- Quote-strip precision -----------------------------------------------
+
+
+def test_extract_scalar_preserves_value_with_leading_and_trailing_x() -> None:
+    """Wave-5 (Condition-1B): this module's own `_extract_scalar` copy
+    (mutmut mutates each module's copy independently, even for
+    structurally identical code) must strip ONLY the surrounding `"`
+    delimiter characters, never incidental content characters from the
+    value itself — a legitimate value starting/ending with the letter `X`
+    must survive byte-for-byte.
+    """
+    assert _extract_scalar(['contract_id: "Xfeature-customX"'], "contract_id") == "Xfeature-customX"

@@ -57,6 +57,7 @@ from feature_engine.errors import (
     UnresolvedComputationCursorAuthorityError,
     UnresolvedOutputContractAuthorityError,
 )
+from feature_engine.ownership import UpstreamEnvelope
 
 
 @dataclasses.dataclass(frozen=True)
@@ -145,6 +146,50 @@ def test_output_contract_authority_provider_wrong_type_fails_closed(
             output_event_contract_authority_provider=_FixedOutputAuthorityProvider(authority=object()),
             input_contract_authority_provider=StaticInputContractAuthorityProvider(REGIME_INPUT_CONTRACT),
         )
+
+
+@pytest.mark.parametrize(
+    "kind, wrong_fact_builder",
+    [
+        (
+            "regime_classified",
+            lambda allocator: regime_invalidated_at(
+                allocator, invalidated_fact_ref=object(), recorded_time=BASE
+            ),
+        ),
+        (
+            "regime_invalidated",
+            lambda allocator: regime_classified_at(allocator, 0, computed_metric="1.5"),
+        ),
+    ],
+)
+def test_prepare_upstream_event_rejects_fact_mismatched_with_kind(
+    allocator: SequenceAllocator,
+    time_source: FixedDeltaTimeSource,
+    kind: str,
+    wrong_fact_builder: Any,
+) -> None:
+    """Wave-5 (Condition-1B): `prepare_upstream_event` dispatches purely on
+    `envelope.kind`, then independently verifies `envelope.fact` is
+    genuinely the type that `kind` promises — `ownership.py`'s
+    `AuthoritativeSubjectOwner` never inspects `fact` itself (module
+    docstring), so a caller/coordinator supplying a mismatched kind/fact
+    pair (e.g. a corrupted or misrouted envelope) must be rejected with
+    `TypeError`, never silently processed as if it were the kind it
+    claims to be.
+    """
+    engine = _engine(allocator, time_source)
+    wrong_fact = wrong_fact_builder(allocator)
+    envelope = UpstreamEnvelope(
+        ref=wrong_fact.ref,
+        recorded_time=wrong_fact.recorded_time,
+        causation_refs=(),
+        kind=kind,
+        fact=wrong_fact,
+        frontier=frontier_at(wrong_fact.recorded_time, resolved_input_contract=REGIME_INPUT_CONTRACT),
+    )
+    with pytest.raises(TypeError):
+        engine.prepare_upstream_event(envelope, cursor=envelope.frontier)
 
 
 # --- 3. Regime volatility pass-through ---------------------------------------

@@ -9,6 +9,8 @@ from feature_engine import InputContractRef
 from feature_engine.authority_resolver import (
     FilesystemInputContractAuthorityResolver,
     StaticInputContractAuthorityProvider,
+    _extract_merge_policy,
+    _extract_scalar,
     _find_repo_root,
     resolve_input_contract_authority_from_repository,
 )
@@ -518,6 +520,47 @@ def test_input_contract_id_tolerates_quoted_value(tmp_path: Path) -> None:
     )
     resolved = resolve_input_contract_authority_from_repository("distance_to_last_confirmed_swing", repo_root=repo)
     assert resolved.input_contract_ref.contract_id == "feature-swing-distance-input"
+
+
+def test_extract_scalar_preserves_value_with_leading_and_trailing_x() -> None:
+    """Wave-5 (Condition-1B): `_extract_scalar`'s surrounding-quote strip
+    (`.strip('"')`) must remove ONLY the delimiter quote characters, never
+    incidental content characters from the value itself — a legitimate
+    value that happens to start/end with the letter `X` must survive
+    byte-for-byte, proving the strip call targets exactly `"`, not a wider
+    character set.
+    """
+    assert _extract_scalar(['contract_id: "Xfeature-customX"'], "contract_id") == "Xfeature-customX"
+
+
+def test_extract_merge_policy_preserves_algorithm_value_with_leading_and_trailing_x() -> None:
+    """Mirrors the quote-strip precision test above for `_extract_merge_
+    policy`'s own `algorithm:` scalar extraction.
+    """
+    policy = _extract_merge_policy(
+        [
+            "merge_policy:",
+            '  algorithm: "Xcustom-algorithmX"',
+            "  concurrent_tie_break: [stream_id, sequence]",
+        ]
+    )
+    assert policy is not None
+    assert policy.algorithm == "Xcustom-algorithmX"
+
+
+def test_extract_merge_policy_preserves_concurrent_tie_break_item_with_leading_and_trailing_x() -> None:
+    """Mirrors the quote-strip precision test above for `_extract_merge_
+    policy`'s own `concurrent_tie_break:` list-item extraction.
+    """
+    policy = _extract_merge_policy(
+        [
+            "merge_policy:",
+            "  algorithm: deterministic-causal-topological-order",
+            '  concurrent_tie_break: ["Xstream_idX", "sequence"]',
+        ]
+    )
+    assert policy is not None
+    assert policy.concurrent_tie_break == ("Xstream_idX", "sequence")
 
 
 def test_unsupported_merge_algorithm_fails_closed(tmp_path: Path) -> None:

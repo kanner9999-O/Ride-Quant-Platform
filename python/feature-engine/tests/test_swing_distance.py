@@ -75,7 +75,9 @@ from feature_engine.errors import (
     UnresolvedComputationCursorAuthorityError,
     UnresolvedOutputContractAuthorityError,
     UnsupportedDistanceRepresentationError,
+    UnsupportedMergePolicyError,
 )
+from feature_engine.ownership import UpstreamEnvelope
 
 
 @dataclasses.dataclass(frozen=True)
@@ -714,6 +716,46 @@ def test_output_contract_authority_provider_wrong_type_fails_closed(
             authorized_swing_contract_refs=authorized_swing_contract_refs(),
             input_contract_authority_provider=StaticInputContractAuthorityProvider(SWING_DISTANCE_INPUT_CONTRACT),
         )
+
+
+@pytest.mark.parametrize(
+    "kind, wrong_fact_builder",
+    [
+        ("candle", lambda allocator: swing_confirmed_at(allocator, pivot_index=0, swing_id="s1")),
+        ("swing_confirmed", lambda allocator: candle_at(allocator, 0, high="110", low="90", close="105")),
+        (
+            "swing_invalidated",
+            lambda allocator: candle_at(allocator, 0, high="110", low="90", close="105"),
+        ),
+    ],
+)
+def test_prepare_upstream_event_rejects_fact_mismatched_with_kind(
+    allocator: SequenceAllocator,
+    time_source: FixedDeltaTimeSource,
+    kind: str,
+    wrong_fact_builder: Any,
+) -> None:
+    """Wave-5 (Condition-1B): `prepare_upstream_event` dispatches purely on
+    `envelope.kind`, then independently verifies `envelope.fact` is
+    genuinely the type that `kind` promises — `ownership.py`'s
+    `AuthoritativeSubjectOwner` never inspects `fact` itself (module
+    docstring), so a caller/coordinator supplying a mismatched
+    kind/fact pair (e.g. a corrupted or misrouted envelope) must be
+    rejected with `TypeError`, never silently processed as if it were the
+    kind it claims to be.
+    """
+    engine = _engine(allocator, time_source)
+    wrong_fact = wrong_fact_builder(allocator)
+    envelope = UpstreamEnvelope(
+        ref=wrong_fact.ref,
+        recorded_time=wrong_fact.recorded_time,
+        causation_refs=(),
+        kind=kind,
+        fact=wrong_fact,
+        frontier=frontier_at(wrong_fact.recorded_time),
+    )
+    with pytest.raises(TypeError):
+        engine.prepare_upstream_event(envelope, cursor=envelope.frontier)
 
 
 # --- Constructor validation guards (P3-FEATURE-QG-COV-01 remediation) -------
@@ -1686,6 +1728,31 @@ def test_empty_included_streams_fails_closed() -> None:
             input_contract_content_id=SWING_DISTANCE_INPUT_CONTRACT.input_contract_content_id,
             stream_registry_content_id=SWING_DISTANCE_INPUT_CONTRACT.stream_registry_content_id,
             merge_policy=SWING_DISTANCE_INPUT_CONTRACT.merge_policy,
+        )
+
+
+def test_wrong_type_merge_policy_fails_closed_with_typed_error() -> None:
+    """Wave-5 (Condition-1B, current-material identity `contracts.
+    x__seal_verified_authority__mutmut_35`): `merge_policy` must itself
+    already be a genuine `InputMergePolicy` instance (its own `__post_init__`
+    enforces basic well-formedness) — a caller supplying a plain,
+    plausible-looking dict instead must be rejected with the SPECIFIC typed
+    `UnsupportedMergePolicyError`, not an unrelated, uninformative
+    `AttributeError` leaking from the rejection path itself.
+    """
+    plausible_but_wrong_type = {
+        "algorithm": SWING_DISTANCE_INPUT_CONTRACT.merge_policy.algorithm,
+        "concurrent_tie_break": SWING_DISTANCE_INPUT_CONTRACT.merge_policy.concurrent_tie_break,
+    }
+    with pytest.raises(UnsupportedMergePolicyError):
+        _seal_verified_authority(
+            feature_computation_profile=SWING_DISTANCE_INPUT_CONTRACT.feature_computation_profile,
+            input_contract_ref=SWING_DISTANCE_INPUT_CONTRACT.input_contract_ref,
+            stream_registry_version=SWING_DISTANCE_INPUT_CONTRACT.stream_registry_version,
+            included_streams=SWING_DISTANCE_INPUT_CONTRACT.included_streams,
+            input_contract_content_id=SWING_DISTANCE_INPUT_CONTRACT.input_contract_content_id,
+            stream_registry_content_id=SWING_DISTANCE_INPUT_CONTRACT.stream_registry_content_id,
+            merge_policy=plausible_but_wrong_type,  # type: ignore[arg-type]
         )
 
 
