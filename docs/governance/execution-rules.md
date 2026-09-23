@@ -17,7 +17,7 @@ created_at: "2026-08-09"
 
 > **v0.6 EFFECTIVE (accepted 2026-09-10, atomic with [ADR-042](../adr/ADR-042.md)'s own approval/activation):** ADR-042 alignment (`ACT-A-MAJ-02`) — `G-REV-002`/`G-REV-003`/Semantic Sufficiency interpretation point 7 updated to reflect Review A as the single mandatory review and an optional Product-Owner-chosen R2 cross-check, replacing the retired mandatory-Independent-Review-B premise, per ADR-042 Migration item 7. Version-identity/provenance correction ONLY — v0.5's every other Global rule (Authority hierarchy, `G-AUTH`/`G-ORCH`/`G-TXN`/`G-VERIFY`/`G-BUDGET`/`G-ID`, and v0.5's own already-accepted Semantic-Sufficiency clarification history) is preserved byte-equivalent, not reopened. **This v0.6 EFFECTIVE entry remains the currently accepted content — the v0.7 candidate below does not change it.**
 >
-> **v0.7 CANDIDATE (2026-09-23, NOT accepted) — [`ADR-045`](../adr/ADR-045.md) alignment.** Adds a new `G-DELEGATE` section (`G-DELEGATE-001`/`G-DELEGATE-002`) defining the closed Delegated Technical Resolution eligibility predicate and its recording/routing semantics, per `ADR-045`'s own Decision. No existing rule ID's substantive text is changed — `G-AUTH`/`G-VERIFY`/`G-ADR`/`G-TXN`/`G-REV`/`G-BUDGET`/`G-ID`/`G-QG`/`G-PHASE`/`G-ORCH` and the Semantic Sufficiency interpretation remain byte-equivalent to v0.6. `operational_state: EFFECTIVE -> CANDIDATE`, `accepted_by`/`accepted_at` reset to `null` — this exact content has not been reviewed/accepted. Effective only atomically with `ADR-045`'s own Product Owner approval, Chapter 0 v1.5's activation, and the MANIFEST update — see `ADR-045` "Activation." **Bounded correction (2026-09-23, `MINOR-01` remediation, ChatGPT Review A `REVISION_REQUIRED — 0 Blocker / 2 Major / 1 Minor`):** `G-DELEGATE-001`'s `D10`-equivalent clause corrected in place (still `v0.7`, no version bump — candidate not yet accepted) to fail delegation closed to Product Owner when EITHER a governing artifact explicitly reserves the decision class OR the Product Owner explicitly calls in/reserves this specific decision — no AI may override an explicit call-in; matches `ADR-045` v0.2's own `D10` correction. `G-DELEGATE-001`'s Chapter-0 cross-reference updated from "Route A" to the corrected single branching-workflow terminology (Chapter 0 §3 v1.5 candidate, `POST-ADR045-A-MAJ-02`).
+> **v0.7 CANDIDATE (2026-09-23, NOT accepted) — [`ADR-045`](../adr/ADR-045.md) alignment.** Adds a new `G-DELEGATE` section (`G-DELEGATE-001`/`G-DELEGATE-002`) defining the closed Delegated Technical Resolution eligibility predicate and its recording/routing semantics, per `ADR-045`'s own Decision. No existing rule ID's substantive text is changed — `G-AUTH`/`G-VERIFY`/`G-ADR`/`G-TXN`/`G-REV`/`G-BUDGET`/`G-ID`/`G-QG`/`G-PHASE`/`G-ORCH` and the Semantic Sufficiency interpretation remain byte-equivalent to v0.6. `operational_state: EFFECTIVE -> CANDIDATE`, `accepted_by`/`accepted_at` reset to `null` — this exact content has not been reviewed/accepted. Effective only atomically with `ADR-045`'s own Product Owner approval, Chapter 0 v1.5's activation, and the MANIFEST update — see `ADR-045` "Activation." **Bounded correction (2026-09-23, `MINOR-01` remediation, ChatGPT Review A `REVISION_REQUIRED — 0 Blocker / 2 Major / 1 Minor`):** `G-DELEGATE-001`'s `D10`-equivalent clause corrected in place (still `v0.7`, no version bump — candidate not yet accepted) to fail delegation closed to Product Owner when EITHER a governing artifact explicitly reserves the decision class OR the Product Owner explicitly calls in/reserves this specific decision — no AI may override an explicit call-in; matches `ADR-045` v0.2's own `D10` correction. `G-DELEGATE-001`'s Chapter-0 cross-reference updated from "Route A" to the corrected single branching-workflow terminology (Chapter 0 §3 v1.5 candidate, `POST-ADR045-A-MAJ-02`). **Consolidated bounded correction (2026-09-23, CORR-002, remediating ChatGPT Review A `CLEAN — 0/0/1` plus an accepted optional cross-check `DEFECT FOUND — 0/2/5`, effective input `0 Blocker / 2 Major / 5 Minor`):** `G-DELEGATE-001` strengthened with `X-MAJ-01`'s `D8` distinct-principal safeguard (DTR-only, does not restore mandatory Review B) and updated to point R0/R1/R2 definitions at `ADR-045` post-activation (`X-MAJ-02`, self-contained, unchanged in substance). `G-DELEGATE-002` extended with the `X-MIN-01` PO-reserved lifecycle additions (document `Accepted`/`EFFECTIVE`, package/artifact `Consolidated Stable`) and the `X-MIN-05` legacy-schema delegated-closure recording rule (`resolution_authority`/`delegated_resolution_state` fields; never write `APPROVED`; `D12` fails if the schema cannot represent the result unambiguously). Still `v0.7`/`CANDIDATE`, no version bump — candidate not yet accepted. `G-AUTH` through `G-ORCH` (other than the `G-DELEGATE` section itself) and Semantic Sufficiency remain byte-equivalent to v0.6.
 
 ## Authority hierarchy (bắt buộc, KHÔNG redefine higher authority nào)
 
@@ -158,10 +158,10 @@ G-REV-004   Dừng correction churn khi KHÔNG có Major/Blocker mới phát sin
 
 **Not yet effective.** These two rules formalize `ADR-045`'s own Decision
 — a Draft candidate. Until `ADR-045` is approved and activated together
-with Chapter 0 v1.5 and this file's own acceptance, every decision
-continues to reach a Product Owner Decision exactly as `ADR-042`/v0.6
-already require; `G-DELEGATE-001`/`G-DELEGATE-002` below describe no
-currently operative authority.
+with Chapter 0 v1.5, Chapter 11 v2.4, and this file's own acceptance,
+every decision continues to reach a Product Owner Decision exactly as
+`ADR-042`/v0.6 already require; `G-DELEGATE-001`/`G-DELEGATE-002` below
+describe no currently operative authority.
 
 ```text
 G-DELEGATE-001  Delegated Technical Resolution eligibility là một closed,
@@ -170,50 +170,77 @@ G-DELEGATE-001  Delegated Technical Resolution eligibility là một closed,
                 "phần lớn thỏa mãn." Tóm tắt (ADR-045 là nguồn authoritative
                 duy nhất cho từ ngữ đầy đủ): ADR Scope Rule =
                 ADR_NOT_REQUIRED; Risk Classification = R0 hoặc R1 (R2
-                KHÔNG BAO GIỜ delegate); một authority Approved/Locked/
+                KHÔNG BAO GIỜ delegate; định nghĩa R0/R1/R2: trước
+                ADR-045 activate tại ADR-042, sau đó tại ADR-045 -- tự
+                chứa đầy đủ, `X-MAJ-02`); một authority Approved/Locked/
                 EFFECTIVE đã tồn tại định nghĩa đúng rule đang áp dụng;
                 transaction CHỈ áp dụng rule đó vào một bounded, individually-
                 verifiable case; KHÔNG semantic/architecture/governance/
                 contract/invariant/schema/module-dependency/policy mới nào
                 được tạo; KHÔNG đổi product scope/priority/roadmap/value
                 tradeoff; KHÔNG chấp nhận residual risk mới thay Product
-                Owner; Review A độc lập, eligible, verdict CLEAN (0 Blocker
-                / 0 Major, Minor không blocking được phép dưới Semantic
-                Sufficiency); evidence/authority/boundary đã fresh-verify
-                đúng G-VERIFY-001/P3-VERIFY; VÀ (D10, sửa `MINOR-01`) CẢ
-                HAI điều sau đều SAI — (a) một governing artifact nào đó
-                tường minh reserve đúng lớp quyết định này cho Product
-                Owner, HOẶC (b) Product Owner đã tường minh call-in/
-                reserve đúng quyết định cụ thể này — nếu (a) HOẶC (b)
-                đúng, KHÔNG AI nào được override, decision fail đúng
-                eligibility này; kết quả đủ bounded/deterministic để một
-                reviewer eligible khác áp cùng authority/evidence sẽ ra
-                cùng disposition; VÀ chính eligibility này KHÔNG mơ hồ —
+                Owner; D8 (sửa `X-MAJ-01`) -- CHO Delegated Technical
+                Resolution, CẢ HAI điều sau: (1) Review A độc lập, eligible,
+                verdict CLEAN (0 Blocker / 0 Major, Minor không blocking
+                được phép dưới Semantic Sufficiency); VÀ (2) Review A
+                principal identity PHÂN BIỆT với MỌI principal đã author
+                hoặc execute chính semantic work đang được resolve -- nếu
+                identity đó KHÔNG resolve được đáng tin cậy, D8 FAIL →
+                Product Owner Decision route. Đây LÀ một DTR-only safeguard
+                hẹp -- KHÔNG khôi phục mandatory Review B, KHÔNG đòi hai
+                reviewer, KHÔNG đổi ordinary ADR/Approval-Gate Review-A
+                semantics, VẪN đúng một Review A; evidence/authority/
+                boundary đã fresh-verify đúng G-VERIFY-001/P3-VERIFY; VÀ
+                (D10, sửa `MINOR-01`) CẢ HAI điều sau đều SAI — (a) một
+                governing artifact nào đó tường minh reserve đúng lớp
+                quyết định này cho Product Owner, HOẶC (b) Product Owner
+                đã tường minh call-in/reserve đúng quyết định cụ thể này —
+                nếu (a) HOẶC (b) đúng, KHÔNG AI nào được override, decision
+                fail đúng eligibility này; kết quả đủ bounded/deterministic
+                để một reviewer eligible khác áp cùng authority/evidence sẽ
+                ra cùng disposition; VÀ chính eligibility này KHÔNG mơ hồ —
                 nếu KHÔNG chắc chắn, FAIL CLOSED VỀ Product Owner Decision
                 route (Chapter 0 §3 v1.5 candidate's branching workflow).
                 Executor KHÔNG được tự resolve đúng semantic work của
-                chính mình — Review A độc lập với Executor vẫn áp dụng
-                nguyên vẹn (G-REV-003, KHÔNG đổi).
+                chính mình — D8's distinct-principal requirement (trên)
+                LÀ cơ chế thực thi cụ thể cho nguyên tắc này dưới DTR;
+                G-REV-003's independent-verification requirement (không
+                tự nó đòi distinct principal) VẪN áp dụng nguyên vẹn cho
+                Review A nói chung, KHÔNG đổi.
 G-DELEGATE-002  Product Owner approval VÀ Delegated Technical Resolution LÀ
                 hai khái niệm khác nhau — một Delegated Technical
                 Resolution KHÔNG BAO GIỜ được ghi/gọi là "approval," KHÔNG
                 `approved_by: AI`, KHÔNG Product Owner decision text giả
-                mạo. Recording chỉ persist: resolution identity; exact
+                mạo. Recording PHẢI persist: `resolution_authority:
+                DELEGATED_TECHNICAL_RESOLUTION`, `delegated_resolution_
+                state: RESOLVED` (`X-MIN-05`), resolution identity; exact
                 subject; governing authority/mechanism; reviewed boundary;
-                Review A principal; Review A verdict; Risk Classification;
-                delegation eligibility = satisfied (D1-D12); resulting
-                bounded state transition; remaining unresolved items nếu
-                có — KHÔNG cần persisted transcript/ceremony bổ sung, KHÔNG
-                cần optional cross-check evidence cho R0/R1 (cross-check
-                chỉ tồn tại tại R2 theo ADR-042, KHÔNG đổi). Deterministic
-                bookkeeping sinh ra TỪ một delegated terminal outcome tuân
-                theo đúng G-TXN/P3-TXN fold rules hiện có, KHÔNG rule mới.
-                Một Delegated Technical Resolution KHÔNG BAO GIỜ tự set
-                `Approved`, `Locked`, Phase Approved, Module Approved, hay
-                LIVE Authorized — CHỈ higher authority (ADR/Constitution/
-                Product Owner) mới cấp quyền đó, VÀ ADR-045 tường minh
-                KHÔNG cấp quyền đó. R2 VÀ ADR_REQUIRED KHÔNG BAO GIỜ được
-                delegate dưới rule này, không ngoại lệ.
+                Review A principal; Review A verdict; distinct-principal
+                confirmation (D8); Risk Classification; delegation
+                eligibility = satisfied (D1-D12); resulting bounded state
+                transition; remaining unresolved items nếu có — KHÔNG cần
+                persisted transcript/ceremony bổ sung, KHÔNG cần optional
+                cross-check evidence cho R0/R1 (cross-check chỉ tồn tại tại
+                R2, KHÔNG đổi). **Legacy schema mapping (`X-MIN-05`):** với
+                một artifact schema có sẵn chứa field PO-specific (vd
+                `product_owner_state`), một Delegated Technical Resolution
+                KHÔNG BAO GIỜ ghi `APPROVED` hay giá trị ngụ ý Product
+                Owner action; PHẢI set field đó thành một giá trị non-PO
+                tường minh (vd `NOT_REQUIRED_DUE_TO_DELEGATED_TECHNICAL_
+                RESOLUTION`) hoặc mapping tương đương KHÔNG mơ hồ; nếu
+                schema hiện có KHÔNG thể biểu diễn kết quả này KHÔNG mơ hồ
+                — D12 FAIL, case KHÔNG được delegate tới khi có bounded
+                schema alignment. Deterministic bookkeeping sinh ra TỪ một
+                delegated terminal outcome tuân theo đúng G-TXN/P3-TXN
+                fold rules hiện có, KHÔNG rule mới. Một Delegated Technical
+                Resolution KHÔNG BAO GIỜ tự set `Approved`, `Locked`, Phase
+                Approved, Module Approved, document `Accepted`/`EFFECTIVE`,
+                package/artifact `Consolidated Stable` (`X-MIN-01`;
+                `G-ORCH-002`/`G-ORCH-003`), hay LIVE Authorized — CHỈ higher
+                authority (ADR/Constitution/Product Owner) mới cấp quyền
+                đó, VÀ ADR-045 tường minh KHÔNG cấp quyền đó. R2 VÀ
+                ADR_REQUIRED KHÔNG BAO GIỜ được delegate dưới rule này,
+                không ngoại lệ.
 ```
 
 ## G-BUDGET — Prompt budgets
@@ -519,4 +546,40 @@ v0.7  2026-09-23  Bounded correction (still CANDIDATE, NOT accepted, no
       `G-ORCH` untouched. `version`/`operational_state`/`accepted_by`/
       `accepted_at` unchanged (still `"0.7"`/`CANDIDATE`/`null`/`null`).
       Historical entries above NOT rewritten.
+v0.7  2026-09-23  Consolidated bounded correction (CORR-002, still
+      CANDIDATE, NOT accepted, no version bump) — vai trò: `Global
+      Execution Rules ADR-045 Consolidated Correction Executor`.
+      Remediates ChatGPT Review A `CLEAN — 0 Blocker / 0 Major / 1
+      Minor` plus an accepted, Product-Owner-selected optional
+      independent cross-check `DEFECT FOUND — 0 Blocker / 2 Major / 5
+      Minor` (effective input `0 Blocker / 2 Major / 5 Minor`, on
+      reviewed blob `033c2a95d372c8cb93ef1f3495699dc95e925384`), Risk
+      `R2`: `X-MAJ-01` — `G-DELEGATE-001`'s `D8`-equivalent clause
+      strengthened to require, for Delegated Technical Resolution only,
+      BOTH an independent CLEAN Review A verdict AND a Review A principal
+      distinct from every principal that authored/executed the underlying
+      semantic work — a narrow DTR-only safeguard, no mandatory Review B
+      restored, no two-reviewer requirement, ordinary Review A semantics
+      unchanged. `X-MAJ-02` — `G-DELEGATE-001` updated to point R0/R1/R2
+      definitions at `ADR-045` (self-contained, unchanged in substance)
+      as the current source once activated, `ADR-042` before. `X-MIN-01`
+      — `G-DELEGATE-002` extended with document `Accepted`/`EFFECTIVE`
+      and package/artifact `Consolidated Stable` as explicit PO-reserved,
+      non-delegable transitions (`G-ORCH-002`/`G-ORCH-003`). `X-MIN-05` —
+      `G-DELEGATE-002` extended with the legacy-schema delegated-closure
+      recording rule: `resolution_authority: DELEGATED_TECHNICAL_
+      RESOLUTION`/`delegated_resolution_state: RESOLVED` plus normal
+      audit fields always persisted; a legacy PO-specific field (e.g.
+      `product_owner_state`) must never be set to `APPROVED` or any
+      PO-implying value, must map to an explicit non-PO value (e.g.
+      `NOT_REQUIRED_DUE_TO_DELEGATED_TECHNICAL_RESOLUTION`) or equivalent
+      unambiguous mapping, and `D12` fails if the schema cannot represent
+      the result unambiguously. No other rule text in `G-DELEGATE-001`/
+      `G-DELEGATE-002` changed beyond these four findings; no rule ID
+      renumbered; `G-AUTH` through `G-ORCH` (outside `G-DELEGATE`) and
+      Semantic Sufficiency verified byte-equivalent to v0.6.
+      `version`/`operational_state`/`accepted_by`/`accepted_at` unchanged
+      (still `"0.7"`/`CANDIDATE`/`null`/`null`). Historical entries above
+      NOT rewritten. `docs/adr/ADR-031.md`, `docs/adr/ADR-042.md` byte-
+      unchanged.
 ```

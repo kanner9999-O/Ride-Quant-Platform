@@ -51,12 +51,18 @@ Nếu Product Owner và Chief Architect là 2 người khác nhau và bất đ�
 
 ## 3. Decision Workflow
 
-**v1.5 CANDIDATE — the sole future controlling routing model (`POST-ADR045-A-MAJ-02` remediation — corrects a v1.5 draft that left the historical single-route diagram below live as a second, competing normative workflow alongside a separate Route A/Route B addendum; NOT controlling until this candidate activates together with [`ADR-045`](../adr/ADR-045.md), Global Execution Rules v0.7, and MANIFEST — the historical diagram immediately below this one remains the ONLY controlling description until then):**
+**v1.5 CANDIDATE — the sole future controlling routing model (`POST-ADR045-A-CORR-002` remediation — corrects a v1.5 draft that left the historical single-route diagram below live as a second, competing normative workflow alongside a separate Route A/Route B addendum; NOT controlling until this candidate activates together with [`ADR-045`](../adr/ADR-045.md), [Chapter 11](./11-adr-process.md) v2.4, Global Execution Rules v0.7, and MANIFEST — the historical diagram immediately below this one remains the ONLY controlling description until then):**
+
+`ADR-045` now carries the FULL, self-contained R0/R1/R2 definitions
+(`X-MAJ-02` correction) — once activated, `ADR-045` is the current
+definition authority for the R0/R1/R2 taxonomy platform-wide; before
+activation, `ADR-042` (Approved) remains that source, unchanged.
 
 ```text
 Requirement / governed decision
 → Review A, where required
-→ Risk Classification (R0/R1/R2)
+→ Risk Classification (R0/R1/R2 — definition source: ADR-042 before
+  activation, ADR-045 after activation, unchanged in substance)
 → routing:
 
     PO-reserved decision class, OR R2, OR ADR_REQUIRED, OR
@@ -117,7 +123,7 @@ Requirement
 **Review gate (v1.4 candidate — `POST-ADR042-A-MAJ-01` remediation: v1.3's own heading here still read "candidate... NOT ACTIVE cho tới atomic activation," stale/false the moment ADR-042 v0.5 activated at commit `8788895e8de8e8940e165abe3e4230ff15cf57bf` — factual/lifecycle-wording correction only, no semantic change. ACTIVE since that boundary; xem banner "Governance migration (v1.3, ACTIVE)" phía trên. This bullet list describes Review A/Risk Classification mechanics that remain unchanged under the v1.5 candidate above — only what happens *after* Risk Classification differs between the two diagrams):**
 
 - **Review A bắt buộc.** Trước khi Product Owner quyết một ADR hoặc tài liệu thuộc approval gate, phải có đúng một Review A — reviewer phải đang giữ role `AI Technical Architect` tại review boundary. Role eligibility LUÔN thuộc về **principal** (person/AI đã đăng ký giữ role tại `/team/team.yaml`), KHÔNG BAO GIỜ thuộc về một execution/session cụ thể. Review A phải độc lập kiểm tra trực tiếp candidate/repository authority — không kế thừa kết luận của Executor làm ground truth.
-- **Risk Classification bắt buộc, ngay sau Review A.** Mỗi decision được phân đúng một trong ba lớp — R0 (mechanical/không rủi ro semantic), R1 (bounded semantic/rủi ro implementation bình thường), R2 (rủi ro semantic/architecture cao) — theo định nghĩa đầy đủ tại [ADR-042](../adr/ADR-042.md) (đã Approved; carried forward unchanged bởi [`ADR-045`](../adr/ADR-045.md) một khi activated). R0/R1 mặc định `NO CROSS-CHECK`. R2: Review A `RECOMMEND OPTIONAL INDEPENDENT CROSS-CHECK` — KHÔNG BAO GIỜ tự động yêu cầu; Product Owner chọn `CROSS-CHECK` hoặc `PROCEED WITHOUT CROSS-CHECK`.
+- **Risk Classification bắt buộc, ngay sau Review A.** Mỗi decision được phân đúng một trong ba lớp — R0 (mechanical/không rủi ro semantic), R1 (bounded semantic/rủi ro implementation bình thường), R2 (rủi ro semantic/architecture cao). **Definition source (`X-MAJ-02` correction):** trước khi `ADR-045` activate, nguồn định nghĩa LÀ [ADR-042](../adr/ADR-042.md) (đã Approved) — SAU KHI `ADR-045` activate, nguồn định nghĩa hiện tại LÀ [`ADR-045`](../adr/ADR-045.md) (tự chứa đầy đủ R0/R1/R2, KHÔNG đổi substance so với ADR-042). R0/R1 mặc định `NO CROSS-CHECK`. R2: Review A `RECOMMEND OPTIONAL INDEPENDENT CROSS-CHECK` — KHÔNG BAO GIỜ tự động yêu cầu; Product Owner chọn `CROSS-CHECK` hoặc `PROCEED WITHOUT CROSS-CHECK`.
 - **Optional cross-check** (chỉ khi Product Owner chọn, chỉ tại R2): advisory only, không veto, KHÔNG là approval prerequisite, KHÔNG cần persisted transcript/report, KHÔNG cần Mode A/Mode B bookkeeping, KHÔNG bắt buộc xuất hiện trong ADR/MANIFEST/CHANGELOG. Sự vắng mặt của cross-check KHÔNG BAO GIỜ làm decision mất điều kiện approval.
 - Các reviewer ngang hàng; không reviewer nào có veto.
 - Product Owner là authority duy nhất approve/reject.

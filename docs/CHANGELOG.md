@@ -2,6 +2,32 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-23 — governance: ADR-045 consolidated bounded correction — D8 distinct-principal, self-contained R0/R1/R2, Chapter 11 v2.4 (GOV-DELEGATION-MODEL-ADR-045-CORR-002)
+
+Starting HEAD `bced025c6df3ca36f46313862fddac2c5c3dc8c1`, verified `main == origin/main`, no drift. ADR-045 confirmed v0.2/Draft, blob `033c2a95d372c8cb93ef1f3495699dc95e925384`. ChatGPT Review A: `CLEAN -- 0 Blocker / 0 Major / 1 Minor`, Risk R2. Product Owner selected the optional independent cross-check: `DEFECT FOUND -- 0 Blocker / 2 Major / 5 Minor`, ChatGPT-accepted in full. Consolidated bounded correction only -- no activation, no Candidate-005 resolution, no Product Owner approval requested.
+
+X-MAJ-01: existing Review A independence (G-REV-003) does not require distinct principal identity from the underlying work's author/executor -- under Delegated Technical Resolution, removing Product Owner as terminal decider creates a real self-resolution loop without explicit principal separation. Corrected: D8 strengthened to require, for DTR only, BOTH an independent CLEAN verdict AND Review A principal distinct from every author/executor principal of the underlying work -- narrow DTR-only safeguard, no mandatory Review B restored, no two-reviewer requirement, ordinary Review A semantics unchanged. Mirrored in G-DELEGATE-001. No team.yaml change required.
+
+X-MAJ-02: ADR-045 supersedes ADR-042 but did not carry the full R0/R1/R2 definitions forward, leaving Chapter 0/Chapter 11/the ADR template pointing at ADR-042 as a live source that would go stale once ADR-042 is Superseded. Corrected: ADR-045 now self-contains the FULL R0/R1/R2 definitions unchanged in substance (every R2 trigger preserved); becomes the current definition authority once activated. Chapter 0 v1.5, a new Chapter 11 v2.4 successor candidate, the ADR template, and Global Execution Rules v0.7 all redirect their future/post-activation definition-source pointer to ADR-045 (ADR-042 remains the source pre-activation). Absorbed: G-ORCH mischaracterized as merely transaction/review mechanics in ADR-045's "Ground truth" -- corrected, since G-ORCH-002/G-ORCH-003 already contain explicit PO-reserved lifecycle authority.
+
+X-MIN-01: document Accepted/EFFECTIVE and package/artifact Consolidated Stable transitions added explicitly to the PO-reserved/non-delegable lists (ADR-045, Chapter 0, G-DELEGATE-002).
+
+X-MIN-02: pending-work rule strengthened -- a pre-activation Review A verdict is historical input only and does NOT by itself satisfy D8 for a post-activation delegated closure; D8 must be freshly reconfirmed post-activation, against the exact subject/evidence, by the required distinct principal. Candidate-005's existing CLEAN review is historical input only; not resolved by this correction.
+
+X-MIN-03: fresh-verified and mechanically reconciled two pre-existing MANIFEST bookkeeping defects -- governance/execution-rules.md row (stale 0.5/EFFECTIVE, actual controlling 0.6/EFFECTIVE with v0.7 CANDIDATE preview) and governance/phases/phase-3-rules.md row (stale 0.2/CANDIDATE, actual 0.3/EFFECTIVE). phase-3-rules.md itself verified byte-unchanged.
+
+X-MIN-04: ADR-045's Review A table was empty/stale. Corrected: both review rounds now recorded accurately and compactly, without pasting the full cross-check transcript.
+
+X-MIN-05: defined a generic delegated-closure recording rule (resolution_authority: DELEGATED_TECHNICAL_RESOLUTION, delegated_resolution_state: RESOLVED, plus normal audit fields) and a legacy-schema mapping rule (never write APPROVED or PO-implying values; map to an explicit non-PO value or equivalent; D12 fails if the schema cannot represent the result unambiguously) in ADR-045 and G-DELEGATE-002. Candidate-005's own artifact not edited -- definitional only.
+
+ADR-045 v0.2 -> v0.3, still Draft, no approval metadata fabricated, supersedes: [ADR-042] unchanged. Chapter 0 stays v1.5/Draft; Chapter 11 v2.4 successor candidate authored (v2.3 remains controlling); Global Execution Rules stays v0.7/CANDIDATE; ADR template aligned with a before/after-activation bridge reference. Revised future activation bundle now explicitly includes Chapter 11 v2.4 -> Locked and the full MANIFEST atomic-recording checklist. ADR-042.md, Chapter 12, team.yaml, and Phase-3 Rules content all verified unchanged.
+
+Current Ride state preserved: Condition 1 FAIL -- criteria, Condition 2 167/170, Candidate-005 PAUSED (Review A CLEAN, historical only, no credit), Condition 3 SATISFIED -- REVIEW A VALIDATED, P3-FEATURE-QG-EVID-03 OPEN, Feature Engine NOT APPROVED, LIVE NOT_AUTHORIZED.
+
+**Files changed:** `docs/adr/ADR-045.md`, `docs/constitution/00-governance.md`, `docs/constitution/11-adr-process.md`, `docs/governance/execution-rules.md`, `docs/templates/adr-template.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html` only -- ADR-042.md, Chapter 12, team.yaml, Phase-3 Rules content, and Candidate-005's artifact NOT touched. `manifest_version` `"10.419"` -> `"10.420"`.
+
+---
+
 ## [Unreleased] — 2026-09-23 — governance: ADR-045 bounded correction — supersession + single routing model (GOV-DELEGATION-MODEL-ADR-045-CORR-001)
 
 Starting HEAD `fee5c582dc89efcd0eec8c537d56cd0151eea673`, verified `main == origin/main`, no drift. Confirmed reviewed blobs exactly: ADR-045 `e5e7357f16220777922b07bd4be29ef0cfe19007`, Chapter 0 v1.5 candidate `169821b2c9d6719956e86dafdc5fb1ca8ff07c37`, Global Execution Rules v0.7 candidate `7bc43913391f3d7b827e8603dbd841525b5ec286`. ChatGPT Review A: `REVISION_REQUIRED -- 0 Blocker / 2 Major / 1 Minor`, Risk R2. Bounded correction only -- no activation, no Candidate-005 resolution, no Product Owner approval requested.

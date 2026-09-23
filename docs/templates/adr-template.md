@@ -35,7 +35,11 @@ supersedes: []
 **Risk Classification (bắt buộc, ngay sau Review A):**
 
 ```text
-class: R0 | R1 | R2       # đúng một, định nghĩa đầy đủ tại ADR-042
+class: R0 | R1 | R2       # đúng một. Risk Classification source: trước
+                          # ADR-045 activate, định nghĩa đầy đủ tại
+                          # ADR-042; sau ADR-045 activate, định nghĩa
+                          # hiện tại tại ADR-045 (tự chứa đầy đủ, KHÔNG
+                          # đổi substance).
 reason: ""                 # vì sao thuộc lớp này
 ```
 
