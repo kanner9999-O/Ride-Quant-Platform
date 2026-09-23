@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.423"
+manifest_version: "10.424"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -29444,6 +29444,64 @@ LIVE:                               NOT_AUTHORIZED.
 **Next governed action:** two independently-scoped, separately-bounded future WPs identified (not initiated here) — (1) a bounded follow-up investigation of the 2 `UNCLEAR` items plus a light re-verification pass on pattern-level (vs. fully individual) classifications, and (2) a Product-Owner-level architecture/governance conversation about Condition 1's remaining structural gap.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-condition1-post-e005-survivor-assessment-001.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — `docs/adr/ADR-045.md`, all Constitution chapters, `docs/engineering/testing.md`, the threshold-proposal document, `feature-engine-mutation-step9-formal-evidence-005.json`, `feature-engine-mutation-step9-formal-evidence-005-correction-001.json`, `feature-engine-condition1-targeted-remediation-001.json`, `docs/adr/ADR-043.md`, and all source/tests/tooling NOT touched. `manifest_version` `"10.422"` -> `"10.423"`.
+
+## Feature Condition-1 threshold recalibration proposal (`feature-engine-mutation-threshold-recalibration-proposal-001.md`) — CANDIDATE, NOT EFFECTIVE
+
+**Fresh boundary verification:** starting HEAD `c77af110d7c273c7731001eaa218774c7fd7db95` fresh-verified equal to `origin/main`, no drift. Fresh-read the currently-effective threshold proposal (blob `f4a3ca0c37aeb4684409a7344141103e64051e04`, `APPROVED — EFFECTIVE`, unchanged), Testing Convention v0.17 (`Approved`), Chapter 13 v1.8 (`Locked`), ADR-044 v0.5 (`Approved`), ADR-045 v0.3 (`Approved`), Evidence-005 (blob `f7a6ab715155ad166808e0e9d9a7474196d9b69d`), and the post-E005 survivor assessment (blob `5d7d626cfd1b500a3751c90613bd041cec50a792`) — all matched their expected identities exactly.
+
+**Purpose:** author an evidence-grounded recalibration PROPOSAL only — does NOT change the currently-effective `87.001959503592%` threshold, which remains controlling. No Product Owner decision requested.
+
+**Calibration-drift finding, independently re-derived:** required numerator `2288` at `total=2629`; conservative numerator `2214`; conservative/best-case gaps `74`/`65`. Robustness check: crediting every non-message-text survivor (40 `GENUINE_TEST_GAP` + 2 `UNCLEAR` + 16 `PROVABLY_EQUIVALENT` + 4 `STRUCTURALLY_UNREACHABLE` + 9 `UNSTABLE_TIMEOUT_TRIAGE` = 71) as killed yields numerator `2285` — still `3` short of `2288`. **`CALIBRATION_DRIFT_CONFIRMED`**: the current fixed threshold can no longer be satisfied without also killing some `LOW_MATERIALITY_MESSAGE_TEXT` mutants, directly contradicting the original Candidate-3 intent (quoted verbatim from the effective proposal: "explicitly NOT requiring closure of the 174 low-priority message-text-only/currently-unexercised gaps").
+
+**2 `UNCLEAR` survivors fresh-resolved (folded in, no separate WP):** `ownership.acquire_and_activate__mutmut_21`/`_23` (the intermediate `CATCHING_UP` `OwnerHandle`'s `feature_subject_id`/`state` field, respectively). Full control-flow trace confirms both fields are unconditionally overwritten — on the success path by a freshly-reconstructed `ACTIVE` handle, on the failure path by `_mark_terminal()`'s freshly-reconstructed `REVOKED` handle — before any code (including `_catch_up`, which never reads `self._handle`) ever observes them. Both settled **`PROVABLY_EQUIVALENT`**. Settled classification: `GENUINE_TEST_GAP=40` (unchanged), `PROVABLY_EQUIVALENT=18` (16+2), `UNCLEAR=0`. The §1 robustness finding is unchanged and robust to this resolution.
+
+**Three recalibration models evaluated (not activated):**
+
+```text
+Model A -- numeric re-baseline, same raw metric.
+  Conservative candidate: (2214 + 40) / 2629 = 85.736021300875%
+    (required numerator 2254; does not depend on the 9 pending unstable
+    mutants). Best-case variant (pending unstable triage, not recommended):
+    (2214 + 40 + 9) / 2629 = 86.078356789654%. RECOMMENDED.
+Model B -- denominator/exclusion semantics change. Evaluated, NOT
+  recommended -- rewrites Testing Convention items 7-9's controlling
+  definitions, high anti-gaming risk (message-text exclusion loophole),
+  crosses into cross-cutting metric-methodology territory beyond a
+  single-module proposal's authority.
+Model C -- materiality-aware gate replaces raw percentage as primary gate.
+  Evaluated, NOT activated -- highest semantic fidelity but introduces a
+  new classification-drift gaming surface, highest classification burden,
+  weaker longitudinal comparability, highest governance complexity.
+```
+
+**Recommendation: Model A**, conservative candidate `85.736021300875%` (full precision `85.736021300874857360213008748573602130087485736021...%`, required numerator `2254`). Both Model A candidate figures remain above the current actual raw score (`84.21453023963484%-84.55686572841384%`) — Feature Engine would still `FAIL` Condition 1 under either recalibrated figure; not chosen merely to pass today.
+
+**Proposed recalibration trigger (candidate policy only, not activated):** a fourth §4.3-style trigger — `MATERIALITY / MUTATION-POPULATION COMPOSITION DRIFT` — fires only on fresh, evidence-backed proof (of the kind this transaction itself produced) that the fixed threshold can no longer be reached through the material-gap population's own closure without also requiring low-materiality/non-behavioral closure; reuses the existing governed re-proposal mechanism, never self-activating.
+
+**ADR Scope Rule:** freshly re-run against Model A specifically (NOT inherited from the original proposal's `ADR_OPTIONAL`) — same disposition, independently re-confirmed: `ADR_OPTIONAL`. No ADR authored.
+
+**Risk Classification (candidate, not self-finalized Review A):** `R1` — a significant, single-module, fully-reversible policy candidate that will eventually gate a real Quality Gate dimension if separately activated; not `R0` (substantive proposal, not mere recording), not `R2` (no cross-module/Platform-Invariant/Locked-ADR/hard-to-reverse effect).
+
+**State preserved, explicitly verified unchanged:**
+
+```text
+Condition 1 (raw mutation score):  FAIL -- criteria (unchanged; the
+                                    currently-effective 87.001959503592%
+                                    threshold remains controlling).
+Condition 2 (identity resolution): 169/170 (unchanged, not folded into
+                                    Condition 1).
+Condition 3 (formal evidence):     SATISFIED -- REVIEW A VALIDATED
+                                    (unchanged, not reopened).
+P3-FEATURE-QG-EVID-03:              OPEN (unchanged).
+Feature Engine approval:           NOT APPROVED.
+LIVE:                               NOT_AUTHORIZED.
+```
+
+**No scope expansion — explicit verification:** no threshold activated; no Product Owner decision requested or fabricated; no ADR authored; no denominator/exclusion manipulation performed; no source/test/tooling change; the currently-effective threshold proposal, Testing Convention, Chapter 13, ADR-044/ADR-045, Evidence-005 + correction, and the post-E005 survivor assessment artifact all fresh-verified byte-unchanged; `contracts.x__seal_verified_authority__mutmut_33` (`TOOL_IDENTITY_DRIFT`) not resolved, not touched.
+
+**Next governed action:** Step 7 — bounded Review A (ChatGPT) of this candidate recalibration proposal, followed by Independent Review B per Chapter 11 §11.5 (or a Delegated Technical Resolution eligibility determination under ADR-045, reserved for that future transaction), a fresh ADR Scope Rule re-run at that boundary, and only then an explicit Product Owner decision — none performed here.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-recalibration-proposal-001.md` (new, blob `bc7e0c9df45ff8e02451078ca7b74a54bac43ee5`), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — the currently-effective threshold proposal, Testing Convention, Chapter 13, ADR-044/ADR-045, Evidence-005 + correction, the post-E005 assessment artifact, and all source/tests/tooling NOT touched. `manifest_version` `"10.423"` -> `"10.424"`.
 
 ## Decision Log
 

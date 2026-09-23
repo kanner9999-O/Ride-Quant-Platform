@@ -6,7 +6,7 @@ status: Active
 owner: Product Owner
 maintainer: "WP executors under Lean Ride Operating Model v1.1"
 visual_companion: docs/project/milestone-dashboard.html
-state_verified_against_head: 2ca64a46a91a907c8976e7fe4ad6acaf151ac628
+state_verified_against_head: c77af110d7c273c7731001eaa218774c7fd7db95
 state_verified_against_at: "2026-09-23"
 ---
 
@@ -450,30 +450,61 @@ This diagnostic did **not** change Condition 1's formal result, did
 **Deferred / blocked item:** `contracts.x__seal_verified_authority__mutmut_33`
 — `TOOL_IDENTITY_DRIFT — NO EXISTING GOVERNED RESOLUTION MECHANISM`.
 
-**PO action required now:** No. Candidate-005 remains recorded
-`RESOLVED — DELEGATED TECHNICAL RESOLUTION` (`FE-EVID03-COND2-
-CANDIDATE-005-DTR-001`) — a governed technical resolution under
-`ADR-045` v0.3, **not** a Product Owner approval. Condition 2 remains
-`169/170`; Condition 1 remains `FAIL — criteria` (Case C diagnostic
-confirms the current survivor population's non-gaming test-remediation
-potential cannot close the gap alone); EVID-03 remains OPEN
-independently on both grounds; Feature Engine remains NOT APPROVED;
-LIVE remains NOT_AUTHORIZED. The sole remaining Condition-2 item,
-`contracts.x__seal_verified_authority__mutmut_33`
+**Primary Work Package — Condition-1 threshold recalibration proposal
+(candidate authoring only): COMPLETE.** Fresh-verified starting HEAD
+`c77af110d7c273c7731001eaa218774c7fd7db95` == `origin/main`, no drift.
+Independently re-derived the calibration-drift arithmetic: even
+crediting every non-message-text survivor (40 genuine + 2 unclear + 16
+equivalent + 4 unreachable + 9 unstable = 71) as killed, the numerator
+(`2285`) remains `3` short of the required `2288` — **
+`CALIBRATION_DRIFT_CONFIRMED`** against the original Candidate-3 intent
+(explicitly NOT requiring message-text closure). Fresh-resolved the 2
+`UNCLEAR` survivors in place: `ownership.acquire_and_activate
+__mutmut_21`/`_23`, both **`PROVABLY_EQUIVALENT`** (the intermediate
+`CATCHING_UP` handle is unconditionally overwritten on every path
+before any code observes it) — settled `GENUINE_TEST_GAP=40`,
+`PROVABLY_EQUIVALENT=18`, `UNCLEAR=0`. Evaluated three models: **Model
+A** (numeric re-baseline, conservative candidate `85.736021300875%`,
+derived as `(2214+40)/2629`) — **recommended**; **Model B**
+(denominator/exclusion semantics change) — NOT recommended, high
+anti-gaming risk; **Model C** (materiality-aware primary gate) — NOT
+activated, new classification-drift risk. Both Model A figures remain
+above the current actual raw score — not chosen merely to pass today.
+Proposed (not activated) a fourth recalibration trigger —
+`MATERIALITY / MUTATION-POPULATION COMPOSITION DRIFT`. ADR Scope Rule
+freshly re-run against Model A: `ADR_OPTIONAL`. Risk candidate: `R1`.
+New artifact: `docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-recalibration-proposal-001.md`,
+status `CANDIDATE — NOT EFFECTIVE / AWAITING REVIEW A`. This
+transaction did **not** activate any threshold, did **not** request a
+Product Owner decision, and did **not** touch Condition 2 or 3.
+
+**Deferred / blocked item:** `contracts.x__seal_verified_authority__mutmut_33`
+— `TOOL_IDENTITY_DRIFT — NO EXISTING GOVERNED RESOLUTION MECHANISM`.
+
+**PO action required now:** No. The currently-effective
+`87.001959503592%` threshold remains fully controlling — this
+transaction only authored a candidate recalibration proposal, not
+activated one. Candidate-005 remains recorded `RESOLVED — DELEGATED
+TECHNICAL RESOLUTION` (`FE-EVID03-COND2-CANDIDATE-005-DTR-001`) — a
+governed technical resolution under `ADR-045` v0.3, **not** a Product
+Owner approval. Condition 2 remains `169/170`; Condition 1 remains
+`FAIL — criteria` under the currently-effective threshold; EVID-03
+remains OPEN independently on both grounds; Feature Engine remains NOT
+APPROVED; LIVE remains NOT_AUTHORIZED. The sole remaining Condition-2
+item, `contracts.x__seal_verified_authority__mutmut_33`
 (`TOOL_IDENTITY_DRIFT — NO EXISTING GOVERNED RESOLUTION MECHANISM`),
 remains unresolved; no identity-continuity mechanism was invented.
-Next governed step: two independently-scoped future Work Packages —
-(1) a bounded follow-up investigation of the 2 `UNCLEAR` survivors plus
-a light re-verification pass, and/or (2) a Product-Owner-level
-architecture/governance conversation about Condition 1's remaining
-structural gap, since even a maximally successful test-only wave would
-leave the score short of threshold.
+Next governed step: Step 7 — bounded Review A (ChatGPT) of the
+recalibration proposal, then Independent Review B, then a fresh ADR
+Scope Rule re-run, then (only if the Product Owner separately elects
+to activate a recalibrated threshold) an explicit Product Owner
+decision — none performed here.
 
 ## 5. Work Package lanes
 
 | Lane | Item | Status |
 |---|---|---|
-| Primary | *(none currently assigned)* | `FE-EVID03-COND2-CANDIDATE-005-DTR-DIAG-001` (Condition-1 post-E005 survivor assessment) is COMPLETE. Next primary WP (bounded UNCLEAR-item follow-up, and/or a PO-level architecture/governance decision on Condition 1) awaits a separate scoping decision. |
+| Primary | *(none currently assigned)* | `FE-EVID03-COND1-THRESHOLD-RECAL-001` (Condition-1 threshold recalibration proposal, candidate authoring) is COMPLETE. Next primary WP is Step 7 (Review A + Independent Review B of the recalibration proposal) — awaits a separate scoping decision. |
 | Deferred | `contracts.x__seal_verified_authority__mutmut_33` (TOOL_IDENTITY_DRIFT) | Deferred — no existing governed mechanism |
 | Completed | `RIDE-PROJECT-MILESTONE-DASHBOARD-001` | Tracking infrastructure only |
 | Completed | `FE-EVID03-COND1-STOP-001` | 9/9 mutants `REQUIRES_GOVERNED_PROTOCOL_DECISION`; §13.10 applicability question flagged for ChatGPT review |
@@ -491,6 +522,7 @@ leave the score short of threshold.
 | Completed | `GOV-DELEGATION-MODEL-ADR-045-ACTIVATION-001` | `DONE / ACTIVATED` — `ADR-045` `Approved`, `ADR-042` `Superseded`, Chapter 0 v1.5 `Locked`, Chapter 11 v2.4 `Locked`, Execution Rules v0.7 `EFFECTIVE`; Delegated Technical Resolution model now binding |
 | Completed | `FE-EVID03-COND2-CANDIDATE-005-DTR-001` | `RESOLVED — DELEGATED TECHNICAL RESOLUTION` (not a Product Owner approval) — fresh post-activation Review A `CLEAN — 0/0/0`, R1, `ADR_NOT_REQUIRED`, D1-D12 all PASS (D8: reviewer ChatGPT distinct from author/executor Claude); both rows `RECLASSIFIED_4_1_B`; Condition 2 `167/170 → 169/170`; remaining item is the deferred `TOOL_IDENTITY_DRIFT` row |
 | Completed | `FE-EVID03-COND2-CANDIDATE-005-DTR-DIAG-001` | Condition-1 post-Evidence-005 survivor assessment (EVIDENCE/DIAGNOSTIC only) — all 406 survivors classified (`GENUINE_TEST_GAP=40`, `LOW_MATERIALITY_MESSAGE_TEXT=344`, `PROVABLY_EQUIVALENT=16`, `STRUCTURALLY_UNREACHABLE=4`, `UNCLEAR=2`); named section-7/8 candidates fresh-reassessed; **Case C — `CURRENT TEST-ONLY PATH APPEARS INSUFFICIENT`** (best-case combined numerator `2265`, still `23` short of `2288`); Condition 1/2 formal status unchanged |
+| Completed | `FE-EVID03-COND1-THRESHOLD-RECAL-001` | Condition-1 threshold recalibration proposal authored, `CANDIDATE — NOT EFFECTIVE / AWAITING REVIEW A` — **`CALIBRATION_DRIFT_CONFIRMED`** (71-credit robustness check still `3` short of `2288`); 2 `UNCLEAR` survivors fresh-resolved to `PROVABLY_EQUIVALENT`; Model A (`85.736021300875%`) recommended over Models B/C; `ADR_OPTIONAL`; Risk `R1`; currently-effective `87.001959503592%` threshold NOT changed |
 
 ## 6. PO dashboard snapshot
 
@@ -504,9 +536,9 @@ Primary blocker:          Condition 1 — FAIL — criteria (formally
                            independently also blocks (1 TOOL_IDENTITY_
                            DRIFT row unresolved, no governed mechanism).
 Current primary WP:       (none currently assigned) -- Condition-1
-                           post-Evidence-005 survivor assessment
-                           (`FE-EVID03-COND2-CANDIDATE-005-DTR-DIAG-001`)
-                           COMPLETE
+                           threshold recalibration proposal
+                           (`FE-EVID03-COND1-THRESHOLD-RECAL-001`)
+                           COMPLETE (candidate authoring only)
 ADR-045:                   v0.3, Approved / ACTIVE -- Delegated
                            Technical Resolution lane, self-contained
                            R0/R1/R2 definitions (X-MAJ-02), D8
@@ -552,18 +584,37 @@ Condition-1 assessment:    Post-Evidence-005 406-survivor classification
                            result or the approved threshold. Full
                            record: feature-engine-condition1-post-e005-
                            survivor-assessment-001.json.
+Condition-1 recalibration: Bounded recalibration PROPOSAL authored,
+                           CANDIDATE -- NOT EFFECTIVE / AWAITING REVIEW
+                           A. Robustness check (71 non-message-text
+                           survivors credited, incl. the 2 UNCLEAR now
+                           settled PROVABLY_EQUIVALENT): numerator 2285,
+                           still 3 short of 2288 --
+                           CALIBRATION_DRIFT_CONFIRMED vs. original
+                           Candidate-3 intent. Model A (numeric
+                           re-baseline, 85.736021300875%) RECOMMENDED
+                           over Model B (denominator/exclusion change,
+                           NOT recommended) and Model C (materiality-
+                           aware primary gate, NOT activated).
+                           ADR_OPTIONAL; Risk R1. Currently-effective
+                           87.001959503592% threshold NOT changed. Full
+                           record: feature-engine-mutation-threshold-
+                           recalibration-proposal-001.md.
 PO decision required now: NO
-                           (Both this diagnostic WP and the prior
-                           DTR-recording WP are COMPLETE. Condition 1
-                           and Condition 2 both independently still
-                           fail; EVID-03 remains OPEN; Feature Engine
-                           remains NOT APPROVED; LIVE remains NOT_
-                           AUTHORIZED. Next governed decision point: two
-                           separately-scoped future Work Packages -- a
-                           bounded follow-up on the 2 UNCLEAR survivors,
-                           and/or a Product-Owner-level architecture/
-                           governance conversation about Condition 1's
-                           remaining structural gap.)
+                           (This candidate-authoring WP, the prior
+                           diagnostic WP, and the prior DTR-recording WP
+                           are all COMPLETE. Condition 1 and Condition 2
+                           both independently still fail under the
+                           currently-effective (unchanged) threshold;
+                           EVID-03 remains OPEN; Feature Engine remains
+                           NOT APPROVED; LIVE remains NOT_AUTHORIZED.
+                           Next governed decision point: Step 7 --
+                           bounded Review A + Independent Review B of
+                           the recalibration proposal, then a fresh ADR
+                           Scope Rule re-run, then -- only if the
+                           Product Owner separately elects to activate a
+                           recalibrated threshold -- an explicit Product
+                           Owner decision.)
 ```
 
 ## 7. Update rules

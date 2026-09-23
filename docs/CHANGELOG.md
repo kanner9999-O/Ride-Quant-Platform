@@ -2,6 +2,32 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-23 — feature-engine: Condition-1 threshold recalibration proposal authored (CANDIDATE — NOT EFFECTIVE) — CALIBRATION_DRIFT_CONFIRMED, Model A recommended
+
+Starting HEAD `c77af110d7c273c7731001eaa218774c7fd7db95`, verified `main == origin/main`, no drift. Fresh-read and pinned the currently-effective threshold proposal (blob `f4a3ca0c37aeb4684409a7344141103e64051e04`, `APPROVED — EFFECTIVE`, unchanged by this transaction), Testing Convention v0.17, Chapter 13 v1.8, ADR-044 v0.5, ADR-045 v0.3, Evidence-005 (blob `f7a6ab715155ad166808e0e9d9a7474196d9b69d`), and the post-E005 survivor assessment (blob `5d7d626cfd1b500a3751c90613bd041cec50a792`) — all matched expected identities.
+
+This transaction AUTHORS a bounded recalibration proposal only. It does NOT change the currently-effective `87.001959503592%` threshold, which remains fully controlling. No Product Owner decision requested.
+
+Independently re-derived the calibration-drift arithmetic: required numerator `2288` at `total=2629`; conservative numerator `2214`; conservative/best-case gaps `74`/`65`. Robustness check: crediting every non-message-text survivor as killed (40 `GENUINE_TEST_GAP` + 2 `UNCLEAR` + 16 `PROVABLY_EQUIVALENT` + 4 `STRUCTURALLY_UNREACHABLE` + 9 `UNSTABLE_TIMEOUT_TRIAGE` = 71) yields numerator `2285` — still `3` short of `2288`. **`CALIBRATION_DRIFT_CONFIRMED`**: the fixed threshold can no longer be satisfied without also killing some `LOW_MATERIALITY_MESSAGE_TEXT` mutants, directly contradicting Candidate 3's original, accurately-quoted intent of explicitly NOT requiring low-priority message-text closure.
+
+Fresh-resolved the 2 `UNCLEAR` survivors in place (folded into this analysis, no separate WP): `ownership.acquire_and_activate__mutmut_21`/`_23`. A full control-flow trace confirmed the mutated intermediate `CATCHING_UP` `OwnerHandle` fields are unconditionally overwritten on every success path (fresh `ACTIVE` handle) and every failure path (`_mark_terminal()`'s fresh `REVOKED` handle) before any code — including `_catch_up`, verified to never read `self._handle` — ever observes them. Both settled `PROVABLY_EQUIVALENT`. Settled classification: `GENUINE_TEST_GAP=40`, `PROVABLY_EQUIVALENT=18`, `UNCLEAR=0`; the robustness finding is unchanged and robust to this resolution.
+
+Evaluated three recalibration models (none activated): **Model A** (numeric re-baseline, same raw metric `(killed+confirmed_timeout)/(total-skipped)`, conservative candidate `85.736021300875%` derived as `(2214+40)/2629`, following the exact same derivation principle as the original Candidate 3) — **recommended**, satisfying all 7 stated criteria (anti-gaming, real-behavior fidelity, no brittle message-text tests, reproducibility, minimal new machinery, longitudinal comparability, Condition-2/3 preservation). **Model B** (denominator/exclusion semantics change) — evaluated, NOT recommended: would rewrite Testing Convention items 7-9's controlling definitions, carries high anti-gaming risk (a message-text exclusion loophole), and crosses into cross-cutting metric-methodology territory beyond a single-module proposal. **Model C** (materiality-aware gate replaces raw percentage as primary gate) — evaluated, NOT activated: highest semantic fidelity but introduces a new classification-drift gaming surface, highest classification burden, weaker longitudinal comparability.
+
+Both Model A candidate figures (`85.736021300875%` conservative, `86.078356789654%` best-case-pending-unstable) remain above the current actual raw score (`84.21453023963484%-84.55686572841384%`) — Feature Engine would still `FAIL` Condition 1 under either recalibrated figure; not chosen merely to pass today, mirroring the original proposal's own rejection of a "round the baseline up to itself" candidate.
+
+Proposed (candidate policy only, not activated) a fourth §4.3-style recalibration trigger — `MATERIALITY / MUTATION-POPULATION COMPOSITION DRIFT` — evidence-gated (requires an actual bounded survivor-classification artifact, never fires from raw-score movement alone), reusing the existing governed re-proposal mechanism, never self-activating.
+
+ADR Scope Rule freshly re-run against Model A specifically (NOT inherited from the original proposal's `ADR_OPTIONAL`): same disposition, independently re-confirmed `ADR_OPTIONAL`. No ADR authored. Risk Classification candidate (not self-finalized Review A): `R1`.
+
+New artifact: `docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-recalibration-proposal-001.md`, status `CANDIDATE — NOT EFFECTIVE / AWAITING REVIEW A`, blob `bc7e0c9df45ff8e02451078ca7b74a54bac43ee5`.
+
+State preserved unchanged: Condition 1 `FAIL — criteria` (currently-effective threshold remains controlling); Condition 2 `169/170` (not folded into Condition 1); Condition 3 `SATISFIED`; `P3-FEATURE-QG-EVID-03` `OPEN`; Feature Engine `NOT APPROVED`; LIVE `NOT_AUTHORIZED`. No threshold activated; no denominator/exclusion manipulation performed; no ADR authored; no Product Owner decision requested or fabricated; no `TOOL_IDENTITY_DRIFT` resolution; no production/test/tooling change. The currently-effective threshold proposal, Testing Convention, Chapter 13, ADR-044/ADR-045, Evidence-005 + correction, and the post-E005 assessment artifact all fresh-verified byte-unchanged.
+
+Files changed: `feature-engine-mutation-threshold-recalibration-proposal-001.md` (new), `feature-engine-chapter13-remediation-plan-001.md`, `milestone.md`, `milestone-dashboard.html`, `MANIFEST.md` (`manifest_version` `"10.423"` -> `"10.424"`), `CHANGELOG.md`.
+
+---
+
 ## [Unreleased] — 2026-09-23 — feature-engine: Condition-1 post-Evidence-005 survivor assessment (EVIDENCE/DIAGNOSTIC only) — Case C, test-only path insufficient
 
 Starting HEAD `2ca64a46a91a907c8976e7fe4ad6acaf151ac628`, verified `main == origin/main`, no drift. Fresh-verified `feature-engine-mutation-step9-formal-evidence-005.json` blob exactly `f7a6ab715155ad166808e0e9d9a7474196d9b69d` (unchanged): `total_entries=2629`, `killed=2209`, `survived=406`, `unstable_timeout_triage=9`, `confirmed_timeout=5`.
