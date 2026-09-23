@@ -2,6 +2,32 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-23 — feature-engine: Condition-1 post-Evidence-005 survivor assessment (EVIDENCE/DIAGNOSTIC only) — Case C, test-only path insufficient
+
+Starting HEAD `2ca64a46a91a907c8976e7fe4ad6acaf151ac628`, verified `main == origin/main`, no drift. Fresh-verified `feature-engine-mutation-step9-formal-evidence-005.json` blob exactly `f7a6ab715155ad166808e0e9d9a7474196d9b69d` (unchanged): `total_entries=2629`, `killed=2209`, `survived=406`, `unstable_timeout_triage=9`, `confirmed_timeout=5`.
+
+This is an EVIDENCE/DIAGNOSTIC transaction only: it assesses whether the current 406-survivor population contains enough genuine, non-gaming test gaps to close Condition 1 under the already-approved threshold. It does not itself change Condition 1's formal `FAIL — criteria` result, does not touch Condition 2, does not alter the approved threshold, does not implement a test wave, and does not resolve the remaining `TOOL_IDENTITY_DRIFT` row.
+
+Built the exact current 406-survivor set directly from Evidence-005's own `full_current_mutant_mapping.survivor_mutant_ids` (exact match against `sorted_mutant_id_to_status`, no inference). Extracted every survivor's precise mutation diff via a zero-test, offline reproduction of mutmut 3.7.0's own static CST mutation generator (`mutate_file_contents`/`create_mutations`, no pytest, no coverage, no test execution, no cache write) — self-verified as an exact 2629/2629 match against Evidence-005's own mutant universe, confirming a faithful reproduction of mutmut's own numbering.
+
+Classified all 406 survivors (A-F taxonomy, every one accounted for exactly once, each with real per-mutant diff evidence and source-context reasoning): `GENUINE_TEST_GAP=40`, `LOW_MATERIALITY_MESSAGE_TEXT=344`, `PROVABLY_EQUIVALENT=16`, `STRUCTURALLY_UNREACHABLE=4`, `UNCLEAR=2`.
+
+Fresh-reassessed the named deferred candidates: `ownership._catch_up__mutmut_7`/`_18`, `swing_distance._select_eligible_swing`'s two swing_id tie-break mutants, and `swing_distance._total_order_key`'s revision-sign mutant — all four confirmed `GENUINE_TEST_GAP`, each independently constructible without violating production identity/sequence contracts (distinguished explicitly from any "test fake representational limitation" or "production protocol structural impossibility" framing).
+
+Fresh-assessed the known `identity.x_deterministic_id__mutmut_3` killed→survived regression: determined `GENUINE MISSING TEST`, not mutmut coverage/test-selection instability — `deterministic_id` is a pure function reached by a stable, per-function-coverage-mapped test set (ruling out selection nondeterminism as a plausible mechanism); no existing fixture constructs the one scenario the `"|"` separator actually protects against (a boundary-shift collision), despite the module's own documented collision-resistance claim.
+
+Threshold math: required numerator `2288` (`87.001959503592%`); conservative gap `74`, best-case gap `65`. Even crediting all 40 `GENUINE_TEST_GAP` and both `UNCLEAR` survivors as killed, AND all 9 `UNSTABLE_TIMEOUT_TRIAGE` mutants as killed (best case), the resulting numerator (`2265`) remains `23` short of `2288`.
+
+**Feasibility result: Case C — `CURRENT TEST-ONLY PATH APPEARS INSUFFICIENT`.** This does not change the approved threshold and does not recommend lowering it. Identified 8 ranked high-yield clusters for any future, separately-scoped test wave (not implemented here): (1) `type()`-based wrong-type validation gaps (9), (2) field-validation `or`/`and` guard weakening (5), (3) `zip(..., strict=True)` safety-net removal (6), (4) `max(...)` recorded-time floor drops (3), (5) "unproven emptiness" fail-closed guards (3), (6) deep swing-selection tie-break/eligibility-window correctness (3), (7) `deterministic_id` separator boundary-collision (1), (8) artifact-line quote-strip parsing corruption (4).
+
+New artifact: `docs/governance/mutation-baseline-evidence/feature-engine-condition1-post-e005-survivor-assessment-001.json`, blob `5d7d626cfd1b500a3751c90613bd041cec50a792`.
+
+State preserved unchanged: Condition 1 `FAIL — criteria`; Condition 2 `169/170`; Condition 3 `SATISFIED`; `P3-FEATURE-QG-EVID-03` `OPEN`; Feature Engine `NOT APPROVED`; LIVE `NOT_AUTHORIZED`. No production/test/tooling/ADR/Constitution/Testing-Convention change. No Product Owner decision fabricated or requested — PO action required now remains No.
+
+Files changed: `feature-engine-condition1-post-e005-survivor-assessment-001.json` (new), `feature-engine-chapter13-remediation-plan-001.md`, `milestone.md`, `milestone-dashboard.html`, `MANIFEST.md` (`manifest_version` `"10.422"` -> `"10.423"`), `CHANGELOG.md`.
+
+---
+
 ## [Unreleased] — 2026-09-23 — feature-engine: Candidate-005 recorded RESOLVED via Delegated Technical Resolution (FE-EVID03-COND2-CANDIDATE-005-DTR-001) — Condition 2 169/170
 
 Starting HEAD `1e4078c3edba521c7f6f182da09dd8c833b9a734`, verified `main == origin/main`, no drift. Confirmed Candidate-005 blob exactly `e217bda50f17b71792429e196a81583ae02633e8`, and ADR-045 v0.3 Approved/ACTIVE, Chapter 0 v1.5 Locked, Global Execution Rules v0.7 EFFECTIVE, G-DELEGATE-001/G-DELEGATE-002 active, before this transaction.

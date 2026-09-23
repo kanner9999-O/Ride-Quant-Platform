@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.422"
+manifest_version: "10.423"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -29394,6 +29394,56 @@ LIVE:                               NOT_AUTHORIZED.
 **Next governed action:** a separate, subsequent, bounded transaction to resolve the remaining `TOOL_IDENTITY_DRIFT` row, if/when a governed identity-continuity mechanism is established — not initiated here.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-reclassification-candidate-005.json`, `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — `docs/adr/ADR-045.md`, all Constitution chapters, `docs/engineering/testing.md`, the threshold-proposal document, `feature-engine-mutation-step9-formal-evidence-005.json`, the historical-reconstruction artifact, `docs/adr/ADR-043.md`, and all source/tests/tooling NOT touched. `manifest_version` `"10.421"` -> `"10.422"`.
+
+## Feature Condition-1 post-Evidence-005 survivor assessment (`feature-engine-condition1-post-e005-survivor-assessment-001.json`) — EVIDENCE/DIAGNOSTIC only, not a governed decision
+
+**Fresh boundary verification:** starting HEAD `2ca64a46a91a907c8976e7fe4ad6acaf151ac628` fresh-verified equal to `origin/main`, no drift. `feature-engine-mutation-step9-formal-evidence-005.json` fresh-verified at blob `f7a6ab715155ad166808e0e9d9a7474196d9b69d` (unchanged): `total_entries=2629`, `killed=2209`, `survived=406`, `unstable_timeout_triage=9`, `confirmed_timeout=5`.
+
+**Purpose and scope:** a bounded diagnostic assessment of whether the current 406-survivor population contains enough genuine, non-gaming test gaps to close Condition 1 under the already-approved threshold — explicitly not a remediation wave, not a governance/threshold change, and not a formal-status change. Condition 1's own recorded `FAIL — criteria` result is untouched.
+
+**Survivor-set identity:** built the exact 406 survivor IDs from `full_current_mutant_mapping.survivor_mutant_ids` (exact match against `sorted_mutant_id_to_status`, no inference). Extraction method: a zero-test, offline reproduction of mutmut 3.7.0's own static CST mutation generator (`mutate_file_contents`/`create_mutations`, `covered_lines=None` matching this repo's own `mutate_only_covered_lines = false`) — no pytest, no coverage collection, no test execution, no `.mutmut-cache` write. Self-check: the extraction independently produced exactly 2629 mutant IDs, an exact 1:1 set match against Evidence-005's own mutant universe (symmetric difference empty), confirming a faithful, byte-for-byte reproduction of mutmut's own numbering for this exact source tree.
+
+**Classification (A-F taxonomy, every one of 406 survivors accounted for exactly once):**
+
+```text
+A. GENUINE_TEST_GAP:                40
+B. LOW_MATERIALITY_MESSAGE_TEXT:   344
+C. PROVABLY_EQUIVALENT:             16
+D. STRUCTURALLY_UNREACHABLE:         4
+E. SELECTION_INSTABILITY:            0
+F. UNCLEAR:                          2
+```
+
+**Named deferred-candidate fresh reassessment (section 7):** `ownership._catch_up__mutmut_7`/`_18` — both `GENUINE_TEST_GAP` (a fake history provider returning `events=()`/`proven_empty=False` is a protocol-legitimate test-fake state, not a structural impossibility). `swing_distance._select_eligible_swing`'s two named swing_id tie-break mutants (`mutmut_18`, `mutmut_22`) — both `GENUINE_TEST_GAP`, constructible via fabricated `_SwingState` fixtures without violating any production identity/sequence contract. `swing_distance._total_order_key`'s revision-sign mutant (`mutmut_3`) — `GENUINE_TEST_GAP`, a deep-tie fixture (5 tied criteria, differing revision) is legitimately constructible at the unit level.
+
+**Known regression assessment (section 8):** `identity.x_deterministic_id__mutmut_3` (killed→survived, source/call sites unchanged) determined to be a **GENUINE MISSING TEST**, not mutmut coverage/test-selection instability — reasoning: pure function reached by a stable, per-function-coverage-mapped test set (ruling out selection nondeterminism); no existing fixture (direct or indirect) constructs a boundary-shift collision, the one scenario the `"|"` separator actually protects against, per the module's own documented collision-resistance claim.
+
+**Threshold numerator math:** required numerator `2288` (`87.001959503592%`); conservative gap `74`, best-case gap `65`. Even crediting all 40 `GENUINE_TEST_GAP` survivors AND both `UNCLEAR` survivors AND all 9 `UNSTABLE_TIMEOUT_TRIAGE` mutants as killed (the most generous possible combination), the resulting numerator is `2223 + 40 + 2 = 2265` — still `23` short of `2288`. Under the conservative (non-best-case) accounting, crediting only the 40 `GENUINE_TEST_GAP` survivors yields `2214 + 40 = 2254` — `34` short.
+
+**Feasibility result: Case C — `CURRENT TEST-ONLY PATH APPEARS INSUFFICIENT`.** This does not change the approved threshold and does not recommend lowering it — it identifies that no combination of this diagnostic's identified non-gaming test-remediation potential closes Condition 1's gap on its own.
+
+**8 ranked high-yield clusters** (for any future, separately-scoped test wave — NOT implemented by this diagnostic): (1) `type()`-based wrong-type validation branches never exercised, 9 survivors, 5 modules/functions; (2) field-validation `or`/`and` guard weakening, 5 survivors, `authority_resolver.resolve_historical_input_contract_authority_from_repository`; (3) `zip(..., strict=True)` safety-net removed, 6 survivors, `contracts._finalize_prepared_batch`/`_validate_canonical_recorded_time`; (4) `max(...)` recorded-time floor drops `state.recorded_time`, 3 survivors, `swing_distance` prepare functions; (5) "unproven emptiness" fail-closed guards, 3 survivors, `ownership._catch_up`/`process_certified_frontier`; (6) deep swing-selection tie-break/eligibility-window correctness (named section-7 candidates), 3 survivors; (7) `deterministic_id` separator boundary-collision (named section-8 regression), 1 survivor; (8) artifact-line quote-strip parsing corruption, 4 survivors. Full per-survivor classification, evidence, and remaining 6 genuine gaps not in the top 8: `docs/governance/mutation-baseline-evidence/feature-engine-condition1-post-e005-survivor-assessment-001.json` (new artifact, blob `5d7d626cfd1b500a3751c90613bd041cec50a792`).
+
+**State summary:**
+
+```text
+Condition 1 (raw mutation score):  FAIL -- criteria (unchanged, formal
+                                    status not touched by this
+                                    diagnostic).
+Condition 2 (identity resolution): 169/170 (unchanged by this
+                                    diagnostic).
+Condition 3 (formal evidence):     SATISFIED -- REVIEW A VALIDATED
+                                    (unchanged).
+P3-FEATURE-QG-EVID-03:              OPEN (unchanged).
+Feature Engine approval:           NOT APPROVED.
+LIVE:                               NOT_AUTHORIZED.
+```
+
+**No scope expansion — explicit verification:** no production/test/tooling file created, edited, or executed against; no mutmut test run (full or partial) — mutant generation was zero-test/offline only; no change to Condition 1's formal result; no change to Condition 2's count; no change to the approved threshold or its governing artifact; no ADR authored, no Constitution edit, no Testing Convention edit; no Wave 5 test implemented; no `TOOL_IDENTITY_DRIFT` resolution; no Product Owner decision fabricated or requested.
+
+**Next governed action:** two independently-scoped, separately-bounded future WPs identified (not initiated here) — (1) a bounded follow-up investigation of the 2 `UNCLEAR` items plus a light re-verification pass on pattern-level (vs. fully individual) classifications, and (2) a Product-Owner-level architecture/governance conversation about Condition 1's remaining structural gap.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-condition1-post-e005-survivor-assessment-001.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — `docs/adr/ADR-045.md`, all Constitution chapters, `docs/engineering/testing.md`, the threshold-proposal document, `feature-engine-mutation-step9-formal-evidence-005.json`, `feature-engine-mutation-step9-formal-evidence-005-correction-001.json`, `feature-engine-condition1-targeted-remediation-001.json`, `docs/adr/ADR-043.md`, and all source/tests/tooling NOT touched. `manifest_version` `"10.422"` -> `"10.423"`.
 
 ## Decision Log
 

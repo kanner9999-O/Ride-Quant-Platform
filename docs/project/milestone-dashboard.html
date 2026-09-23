@@ -235,7 +235,7 @@
   <div class="wrap">
     <h1>Ride Quant Platform — Milestone Dashboard</h1>
     <div class="top-meta">
-      <span>Milestone state verified against: <code id="head-sha">1e4078c3edba521c7f6f182da09dd8c833b9a734</code></span>
+      <span>Milestone state verified against: <code id="head-sha">2ca64a46a91a907c8976e7fe4ad6acaf151ac628</code></span>
       <span>Lean Ride Operating Model v1.1: <span class="pill pill-done">Active — ADOPTED</span></span>
       <span>Current milestone: <span class="pill pill-active">M1 — Feature Engine EVID-03 Closure</span></span>
     </div>
@@ -307,7 +307,7 @@
         <h3>Quality-Gate state</h3>
         <div class="kv"><span class="k">Overall</span><span class="v pill pill-atrisk">AT RISK</span></div>
         <div class="kv"><span class="k">Condition 1</span><span class="v" style="color:var(--blocked)">FAIL — criteria</span></div>
-        <div class="kv"><span class="k">Condition 2</span><span class="v">167 / 170</span></div>
+        <div class="kv"><span class="k">Condition 2</span><span class="v">169 / 170</span></div>
         <div class="kv"><span class="k">Condition 3</span><span class="v" style="color:var(--done)">SATISFIED — REVIEW A VALIDATED</span></div>
         <div class="kv"><span class="k">P3-FEATURE-QG-EVID-03</span><span class="v">OPEN</span></div>
         <div class="kv"><span class="k">Feature Engine approval</span><span class="v">NOT APPROVED</span></div>
@@ -331,6 +331,24 @@
           boundary (Chapter 13 v1.7, without §13.8.1, offered no governed rule for
           unresolved timeout-triage mutants). The 9 unstable mutants remain
           individually unresolved; none were reclassified.
+        </div>
+        <div class="note">
+          <strong>Post-Evidence-005 survivor assessment (EVIDENCE/DIAGNOSTIC
+          only, <code>FE-EVID03-COND2-CANDIDATE-005-DTR-DIAG-001</code>,
+          boundary <code>2ca64a46...</code>):</strong> all 406 current
+          survivors classified —
+          <code>GENUINE_TEST_GAP=40</code>,
+          <code>LOW_MATERIALITY_MESSAGE_TEXT=344</code>,
+          <code>PROVABLY_EQUIVALENT=16</code>,
+          <code>STRUCTURALLY_UNREACHABLE=4</code>, <code>UNCLEAR=2</code>.
+          Even crediting every <code>GENUINE_TEST_GAP</code> and
+          <code>UNCLEAR</code> survivor as killed, plus all 9 unstable
+          mutants (best case), the numerator (<code>2265</code>) remains
+          <code>23</code> short of the required <code>2288</code>.
+          <strong>Feasibility: Case C — CURRENT TEST-ONLY PATH APPEARS
+          INSUFFICIENT.</strong> Does not change Condition 1's formal
+          result or the approved threshold. Full record:
+          <code>feature-engine-condition1-post-e005-survivor-assessment-001.json</code>.
         </div>
       </div>
     </div>
@@ -365,11 +383,11 @@
         <h4>Primary</h4>
         <div class="wp-item">
           <code>(none currently assigned)</code>
-          <div class="desc"><code>FE-EVID03-COND2-CANDIDATE-005-DTR-001</code> is COMPLETE. Next primary WP (a governed mechanism, if any, for <code>TOOL_IDENTITY_DRIFT</code>, and/or progressing Condition 1) awaits a separate scoping decision.</div>
+          <div class="desc"><code>FE-EVID03-COND2-CANDIDATE-005-DTR-DIAG-001</code> (Condition-1 post-E005 survivor assessment) is COMPLETE. Next primary WP (bounded UNCLEAR-item follow-up, and/or a PO-level architecture/governance decision on Condition 1) awaits a separate scoping decision.</div>
         </div>
         <div class="wp-item">
           <code>Condition-1 remediation</code>
-          <div class="desc">Awaits a separate Product Owner scoping decision — not initiated by this transaction.</div>
+          <div class="desc">Awaits a separate Product Owner scoping decision — not initiated by this transaction. Case C diagnostic result: test-only path alone cannot close the gap.</div>
         </div>
       </div>
       <div class="lane">
@@ -441,6 +459,10 @@
           <code>FE-EVID03-COND2-CANDIDATE-005-DTR-001</code>
           <div class="desc"><strong>RESOLVED — DELEGATED TECHNICAL RESOLUTION</strong> (not a Product Owner approval). Fresh post-activation Review A by ChatGPT (AI Technical Architect, distinct from Candidate-005's author/executor principal Claude — D8) returned <code>CLEAN — 0 Blocker / 0 Major / 0 Minor</code>, Risk <code>R1</code>, ADR Scope <code>ADR_NOT_REQUIRED</code>; all D1–D12 PASS. Both rows closed <code>RECLASSIFIED_4_1_B — LEGITIMATE REFACTOR / SUCCESSOR VERIFIED</code>. Candidate-005's legacy <code>product_owner_state</code> mapped to <code>NOT_REQUIRED_DUE_TO_DELEGATED_TECHNICAL_RESOLUTION</code> (never <code>APPROVED</code>). Condition 2: <code>167/170 → 169/170</code>. Remaining item: <code>contracts.x__seal_verified_authority__mutmut_33</code> (<code>TOOL_IDENTITY_DRIFT</code>) — not resolved, no new mechanism invented. Condition 1 unchanged (<code>FAIL — criteria</code>); EVID-03 remains OPEN; Feature Engine remains NOT APPROVED; LIVE remains NOT_AUTHORIZED.</div>
         </div>
+        <div class="wp-item">
+          <code>FE-EVID03-COND2-CANDIDATE-005-DTR-DIAG-001</code>
+          <div class="desc"><strong>Condition-1 post-Evidence-005 survivor assessment (EVIDENCE/DIAGNOSTIC only).</strong> Built the exact current 406-survivor set from Evidence-005's own <code>full_current_mutant_mapping</code>; extracted every survivor's precise diff via a zero-test, offline reproduction of mutmut's own static CST mutation generator (no pytest, no coverage, no test execution — self-verified as an exact 2629/2629 match against Evidence-005's own mutant universe). Classified all 406 survivors: <code>GENUINE_TEST_GAP=40</code>, <code>LOW_MATERIALITY_MESSAGE_TEXT=344</code>, <code>PROVABLY_EQUIVALENT=16</code>, <code>STRUCTURALLY_UNREACHABLE=4</code>, <code>UNCLEAR=2</code>. Fresh-reassessed the named deferred candidates (<code>ownership._catch_up__mutmut_7</code>/<code>_18</code>, <code>_select_eligible_swing</code>'s two swing_id tie-break mutants, <code>_total_order_key</code>'s revision-sign mutant) — all four <code>GENUINE_TEST_GAP</code>. Fresh-assessed the known <code>identity.x_deterministic_id__mutmut_3</code> killed→survived regression as a <strong>GENUINE MISSING TEST</strong>, not tooling/selection instability. Threshold math: best-case combined numerator (crediting all genuine + unclear + unstable mutants as killed) is <code>2265</code>, still <code>23</code> short of the required <code>2288</code>. <strong>Feasibility: Case C — CURRENT TEST-ONLY PATH APPEARS INSUFFICIENT.</strong> Does not change Condition 1's formal result, Condition 2's count, or the approved threshold; no test implemented; no <code>TOOL_IDENTITY_DRIFT</code> resolution. Full record: <code>feature-engine-condition1-post-e005-survivor-assessment-001.json</code>.</div>
+        </div>
       </div>
     </div>
   </section>
@@ -450,16 +472,17 @@
     <div class="po-snapshot">
       <div class="kv"><span class="k">Current milestone</span><span class="v">M1 — Feature Engine EVID-03 Closure (ACTIVE, AT RISK)</span></div>
       <div class="kv"><span class="k">Primary blocker</span><span class="v">Condition 1 — FAIL — criteria (formally governed, Chapter 13 v1.8 §13.8.1 Case A; 9 unstable timeout-triage mutants remain individually unresolved). Condition 2 (169/170) independently also blocks (1 <code>TOOL_IDENTITY_DRIFT</code> row unresolved, no governed mechanism).</span></div>
-      <div class="kv"><span class="k">Current WP</span><span class="v">(none currently assigned) — <code>FE-EVID03-COND2-CANDIDATE-005-DTR-001</code> COMPLETE</span></div>
+      <div class="kv"><span class="k">Current WP</span><span class="v">(none currently assigned) — <code>FE-EVID03-COND2-CANDIDATE-005-DTR-DIAG-001</code> COMPLETE</span></div>
       <div class="kv"><span class="k">ADR-045</span><span class="v">v0.3, <strong>Approved / ACTIVE</strong> — Delegated Technical Resolution lane, self-contained R0/R1/R2 (X-MAJ-02), D8 distinct-principal safeguard (X-MAJ-01), supersedes ADR-042 (now Superseded)</span></div>
       <div class="kv"><span class="k">Chapter 0 / 11 / Exec Rules</span><span class="v">Chapter 0 v1.5 <strong>Locked</strong>/controlling (v1.4 historical); Chapter 11 v2.4 <strong>Locked</strong>/controlling (v2.3 historical); Global Execution Rules v0.7 <strong>EFFECTIVE</strong> (v0.6 historical) — all activated 2026-09-23T14:02+07:00</span></div>
       <div class="kv"><span class="k">Candidate-005 status</span><span class="v"><strong>RESOLVED — DELEGATED TECHNICAL RESOLUTION</strong> (<code>FE-EVID03-COND2-CANDIDATE-005-DTR-001</code>). NOT a Product Owner approval. Fresh post-activation Review A by ChatGPT (distinct from author/executor Claude — D8): <code>CLEAN — 0/0/0</code>, Risk R1, <code>ADR_NOT_REQUIRED</code>, D1-D12 all PASS. Both rows <code>RECLASSIFIED_4_1_B</code>.</span></div>
       <div class="kv"><span class="k">Condition 2 (current)</span><span class="v">169 / 170 — 2 rows resolved by this DTR (167 + 2 = 169)</span></div>
       <div class="kv"><span class="k">Condition 2 (remaining)</span><span class="v"><code>contracts.x__seal_verified_authority__mutmut_33</code> — <code>TOOL_IDENTITY_DRIFT — NO EXISTING GOVERNED RESOLUTION MECHANISM</code>. Not resolved by this transaction; no new mechanism invented.</span></div>
       <div class="kv"><span class="k">Last Review A</span><span class="v">CLEAN — 0 Blocker / 0 Major / 0 Minor, Risk R1 (on Candidate-005, boundary 1e4078c3...). Reviewer ChatGPT, AI Technical Architect, distinct from Candidate-005's author/executor principal Claude (D8).</span></div>
+      <div class="kv"><span class="k">Condition-1 assessment</span><span class="v">Post-Evidence-005 406-survivor classification (EVIDENCE/DIAGNOSTIC only, boundary <code>2ca64a46...</code>): <code>GENUINE_TEST_GAP=40</code>, <code>LOW_MATERIALITY_MESSAGE_TEXT=344</code>, <code>PROVABLY_EQUIVALENT=16</code>, <code>STRUCTURALLY_UNREACHABLE=4</code>, <code>UNCLEAR=2</code>. <strong>Case C — CURRENT TEST-ONLY PATH APPEARS INSUFFICIENT</strong> (best-case combined numerator <code>2265</code>, still <code>23</code> short of required <code>2288</code>). Does not change Condition 1's formal result or the approved threshold.</span></div>
       <div class="kv"><span class="k">PO decision required</span><span class="v pill pill-no">NO</span></div>
-      <div class="kv"><span class="k">Reason deferred</span><span class="v">D1-D12 satisfied → closes as Delegated Technical Resolution, not a Product Owner Decision. Condition 1 and Condition 2 both independently still fail; EVID-03 remains OPEN; Feature Engine remains NOT APPROVED; LIVE remains NOT_AUTHORIZED.</span></div>
-      <div class="kv"><span class="k">Next PO decision point</span><span class="v">A separate, subsequent, bounded Work Package to define a governed mechanism, if any, for the <code>TOOL_IDENTITY_DRIFT</code> class, and/or to progress Condition 1</span></div>
+      <div class="kv"><span class="k">Reason deferred</span><span class="v">Both the DTR-recording WP and this diagnostic WP are COMPLETE. Condition 1 and Condition 2 both independently still fail; EVID-03 remains OPEN; Feature Engine remains NOT APPROVED; LIVE remains NOT_AUTHORIZED.</span></div>
+      <div class="kv"><span class="k">Next PO decision point</span><span class="v">Two separately-scoped future Work Packages — a bounded follow-up on the 2 <code>UNCLEAR</code> survivors, and/or a Product-Owner-level architecture/governance conversation about Condition 1's remaining structural gap</span></div>
     </div>
   </section>
 

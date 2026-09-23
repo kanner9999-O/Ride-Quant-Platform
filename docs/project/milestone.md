@@ -6,7 +6,7 @@ status: Active
 owner: Product Owner
 maintainer: "WP executors under Lean Ride Operating Model v1.1"
 visual_companion: docs/project/milestone-dashboard.html
-state_verified_against_head: 1e4078c3edba521c7f6f182da09dd8c833b9a734
+state_verified_against_head: 2ca64a46a91a907c8976e7fe4ad6acaf151ac628
 state_verified_against_at: "2026-09-23"
 ---
 
@@ -418,26 +418,62 @@ determination.
 **Deferred / blocked item:** `contracts.x__seal_verified_authority__mutmut_33`
 — `TOOL_IDENTITY_DRIFT — NO EXISTING GOVERNED RESOLUTION MECHANISM`.
 
-**PO action required now:** No. Candidate-005 has been recorded
+**Primary Work Package — Condition-1 post-Evidence-005 survivor
+assessment (EVIDENCE/DIAGNOSTIC only): COMPLETE.** Fresh-verified
+starting HEAD `2ca64a46a91a907c8976e7fe4ad6acaf151ac628` ==
+`origin/main`, no drift; Evidence-005 blob
+`f7a6ab715155ad166808e0e9d9a7474196d9b69d` unchanged. Built the exact
+current 406-survivor set from `full_current_mutant_mapping.
+survivor_mutant_ids` (exact match, no inference); extracted every
+survivor's precise diff via a zero-test, offline reproduction of
+mutmut's own static CST mutation generator (no pytest, no coverage, no
+test execution — self-verified as an exact 2629/2629 match against
+Evidence-005's own mutant universe). Classified all 406 survivors:
+`GENUINE_TEST_GAP=40`, `LOW_MATERIALITY_MESSAGE_TEXT=344`,
+`PROVABLY_EQUIVALENT=16`, `STRUCTURALLY_UNREACHABLE=4`, `UNCLEAR=2`.
+Fresh-reassessed the named deferred candidates (`ownership.
+_catch_up__mutmut_7`/`_18`, `_select_eligible_swing`'s two swing_id
+tie-break mutants, `_total_order_key`'s revision-sign mutant) — all
+four `GENUINE_TEST_GAP`. Fresh-assessed the known
+`identity.x_deterministic_id__mutmut_3` killed→survived regression:
+**GENUINE MISSING TEST**, not tooling/selection instability. Threshold
+math: even crediting all 40 genuine + 2 unclear + all 9 unstable
+mutants as killed, the resulting numerator (`2265`) remains `23` short
+of the required `2288`. **Feasibility result: Case C — `CURRENT
+TEST-ONLY PATH APPEARS INSUFFICIENT`** — does not change the approved
+threshold. Full record, 8 ranked high-yield clusters:
+`docs/governance/mutation-baseline-evidence/feature-engine-condition1-post-e005-survivor-assessment-001.json`.
+This diagnostic did **not** change Condition 1's formal result, did
+**not** touch Condition 2, did **not** implement any test, and did
+**not** resolve the `TOOL_IDENTITY_DRIFT` row.
+
+**Deferred / blocked item:** `contracts.x__seal_verified_authority__mutmut_33`
+— `TOOL_IDENTITY_DRIFT — NO EXISTING GOVERNED RESOLUTION MECHANISM`.
+
+**PO action required now:** No. Candidate-005 remains recorded
 `RESOLVED — DELEGATED TECHNICAL RESOLUTION` (`FE-EVID03-COND2-
 CANDIDATE-005-DTR-001`) — a governed technical resolution under
-`ADR-045` v0.3, **not** a Product Owner approval. Condition 2 is now
-`169/170`; Condition 1 remains `FAIL — criteria`; EVID-03 remains OPEN
+`ADR-045` v0.3, **not** a Product Owner approval. Condition 2 remains
+`169/170`; Condition 1 remains `FAIL — criteria` (Case C diagnostic
+confirms the current survivor population's non-gaming test-remediation
+potential cannot close the gap alone); EVID-03 remains OPEN
 independently on both grounds; Feature Engine remains NOT APPROVED;
 LIVE remains NOT_AUTHORIZED. The sole remaining Condition-2 item,
 `contracts.x__seal_verified_authority__mutmut_33`
 (`TOOL_IDENTITY_DRIFT — NO EXISTING GOVERNED RESOLUTION MECHANISM`),
-was not resolved by this transaction and has no existing governed
-resolution mechanism; no identity-continuity mechanism was invented.
-Next governed step: a separate, subsequent, bounded Work Package would
-be required to define a governed mechanism (if any) for the
-`TOOL_IDENTITY_DRIFT` class, and/or to progress Condition 1.
+remains unresolved; no identity-continuity mechanism was invented.
+Next governed step: two independently-scoped future Work Packages —
+(1) a bounded follow-up investigation of the 2 `UNCLEAR` survivors plus
+a light re-verification pass, and/or (2) a Product-Owner-level
+architecture/governance conversation about Condition 1's remaining
+structural gap, since even a maximally successful test-only wave would
+leave the score short of threshold.
 
 ## 5. Work Package lanes
 
 | Lane | Item | Status |
 |---|---|---|
-| Primary | *(none currently assigned)* | `FE-EVID03-COND2-CANDIDATE-005-DTR-001` is COMPLETE. Next primary WP (a governed mechanism, if any, for `TOOL_IDENTITY_DRIFT`, and/or progressing Condition 1) awaits a separate scoping decision. |
+| Primary | *(none currently assigned)* | `FE-EVID03-COND2-CANDIDATE-005-DTR-DIAG-001` (Condition-1 post-E005 survivor assessment) is COMPLETE. Next primary WP (bounded UNCLEAR-item follow-up, and/or a PO-level architecture/governance decision on Condition 1) awaits a separate scoping decision. |
 | Deferred | `contracts.x__seal_verified_authority__mutmut_33` (TOOL_IDENTITY_DRIFT) | Deferred — no existing governed mechanism |
 | Completed | `RIDE-PROJECT-MILESTONE-DASHBOARD-001` | Tracking infrastructure only |
 | Completed | `FE-EVID03-COND1-STOP-001` | 9/9 mutants `REQUIRES_GOVERNED_PROTOCOL_DECISION`; §13.10 applicability question flagged for ChatGPT review |
@@ -454,6 +490,7 @@ be required to define a governed mechanism (if any) for the
 | Completed | `GOV-DELEGATION-MODEL-ADR-045-CORR-002` | `ADR-045` v0.3 `Draft` (D8 distinct-principal, self-contained R0/R1/R2, Chapter 11 v2.4 candidate authored); Review A `CLEAN — 0/0/1`, R2 — approved/activated by the ACTIVATION-001 WP |
 | Completed | `GOV-DELEGATION-MODEL-ADR-045-ACTIVATION-001` | `DONE / ACTIVATED` — `ADR-045` `Approved`, `ADR-042` `Superseded`, Chapter 0 v1.5 `Locked`, Chapter 11 v2.4 `Locked`, Execution Rules v0.7 `EFFECTIVE`; Delegated Technical Resolution model now binding |
 | Completed | `FE-EVID03-COND2-CANDIDATE-005-DTR-001` | `RESOLVED — DELEGATED TECHNICAL RESOLUTION` (not a Product Owner approval) — fresh post-activation Review A `CLEAN — 0/0/0`, R1, `ADR_NOT_REQUIRED`, D1-D12 all PASS (D8: reviewer ChatGPT distinct from author/executor Claude); both rows `RECLASSIFIED_4_1_B`; Condition 2 `167/170 → 169/170`; remaining item is the deferred `TOOL_IDENTITY_DRIFT` row |
+| Completed | `FE-EVID03-COND2-CANDIDATE-005-DTR-DIAG-001` | Condition-1 post-Evidence-005 survivor assessment (EVIDENCE/DIAGNOSTIC only) — all 406 survivors classified (`GENUINE_TEST_GAP=40`, `LOW_MATERIALITY_MESSAGE_TEXT=344`, `PROVABLY_EQUIVALENT=16`, `STRUCTURALLY_UNREACHABLE=4`, `UNCLEAR=2`); named section-7/8 candidates fresh-reassessed; **Case C — `CURRENT TEST-ONLY PATH APPEARS INSUFFICIENT`** (best-case combined numerator `2265`, still `23` short of `2288`); Condition 1/2 formal status unchanged |
 
 ## 6. PO dashboard snapshot
 
@@ -466,7 +503,10 @@ Primary blocker:          Condition 1 — FAIL — criteria (formally
                            unresolved). Condition 2 (169/170)
                            independently also blocks (1 TOOL_IDENTITY_
                            DRIFT row unresolved, no governed mechanism).
-Current primary WP:       (none currently assigned)
+Current primary WP:       (none currently assigned) -- Condition-1
+                           post-Evidence-005 survivor assessment
+                           (`FE-EVID03-COND2-CANDIDATE-005-DTR-DIAG-001`)
+                           COMPLETE
 ADR-045:                   v0.3, Approved / ACTIVE -- Delegated
                            Technical Resolution lane, self-contained
                            R0/R1/R2 definitions (X-MAJ-02), D8
@@ -499,16 +539,31 @@ Last Review A:             CLEAN -- 0 Blocker / 0 Major / 0 Minor, Risk
                            Reason deferred (no PO decision here): D1-D12
                            satisfied -> closes as Delegated Technical
                            Resolution, not a Product Owner Decision.
+Condition-1 assessment:    Post-Evidence-005 406-survivor classification
+                           (EVIDENCE/DIAGNOSTIC only, boundary
+                           2ca64a46...): GENUINE_TEST_GAP=40,
+                           LOW_MATERIALITY_MESSAGE_TEXT=344,
+                           PROVABLY_EQUIVALENT=16,
+                           STRUCTURALLY_UNREACHABLE=4, UNCLEAR=2.
+                           Feasibility: Case C -- CURRENT TEST-ONLY PATH
+                           APPEARS INSUFFICIENT (best-case combined
+                           numerator 2265, still 23 short of required
+                           2288). Does not change Condition 1's formal
+                           result or the approved threshold. Full
+                           record: feature-engine-condition1-post-e005-
+                           survivor-assessment-001.json.
 PO decision required now: NO
-                           (This DTR-recording WP is COMPLETE. Condition
-                           1 and Condition 2 both independently still
+                           (Both this diagnostic WP and the prior
+                           DTR-recording WP are COMPLETE. Condition 1
+                           and Condition 2 both independently still
                            fail; EVID-03 remains OPEN; Feature Engine
                            remains NOT APPROVED; LIVE remains NOT_
-                           AUTHORIZED. Next governed decision point: a
-                           separate, subsequent, bounded Work Package to
-                           define a governed mechanism, if any, for the
-                           TOOL_IDENTITY_DRIFT class, and/or to progress
-                           Condition 1.)
+                           AUTHORIZED. Next governed decision point: two
+                           separately-scoped future Work Packages -- a
+                           bounded follow-up on the 2 UNCLEAR survivors,
+                           and/or a Product-Owner-level architecture/
+                           governance conversation about Condition 1's
+                           remaining structural gap.)
 ```
 
 ## 7. Update rules
