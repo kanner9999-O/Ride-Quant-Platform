@@ -2,6 +2,34 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-23 — feature-engine: Condition-1 threshold recalibration proposal — bounded correction (MAJOR-01/MAJOR-02/MINOR-01/MINOR-02) — Model A now 85.812095853937% with Condition 1A/1B two-part gate
+
+Starting HEAD `0c9f4ef8eb8d7ad45afb604b3a8e7cfd1883fde9`, verified `main == origin/main`, no drift. Reviewed proposal fresh-verified at blob `bc7e0c9df45ff8e02451078ca7b74a54bac43ee5` before correction.
+
+Review A returned `REVISION_REQUIRED — 0 Blocker / 2 Major / 2 Minor`, Risk `R1`, ADR Scope `ADR_OPTIONAL`. Per current ADR-045/Chapter 11 v2.4 governance, R1's default is no independent cross-check. Remediated on Review A's own finding, not self-closed — pending a subsequent bounded Review A re-review, not performed by this transaction. No Product Owner approval requested.
+
+`MAJOR-01`: Model A's aggregate-only gate corrected to an explicit two-part gate — Condition 1A (raw score >= recalibrated threshold) AND Condition 1B (all 42 pinned current-material-gap identities individually resolved, reusing the currently-effective threshold proposal's own §4.1 per-identity pattern verbatim; unrelated/message-text kills can never substitute). Condition 1B is a new, current-boundary obligation, explicitly separate from and not merged with Condition 2's independent historical 170-identity obligation.
+
+`MAJOR-02`: reclassified `ownership.acquire_and_activate__mutmut_21`/`_23` from `PROVABLY_EQUIVALENT` to `GENUINE_TEST_GAP`. The prior conclusion wrongly assumed single-thread-only observability; `owner.handle`/`owner.state` are public properties on a shared, mutable object, observable by a concurrent reader while `acquire_and_activate` is blocked mid-flight inside `_catch_up` — ADR-043 itself treats concurrent acquisition attempts as a real runtime concern. A deterministic concurrent-observation test is described (not implemented, per instruction).
+
+Settled classification: `GENUINE_TEST_GAP=42`, `LOW_MATERIALITY_MESSAGE_TEXT=344`, `PROVABLY_EQUIVALENT=16`, `STRUCTURALLY_UNREACHABLE=4`, `UNCLEAR=0` (406 total; the post-E005 assessment artifact remains byte-immutable, not edited). `CALIBRATION_DRIFT_CONFIRMED` preserved unchanged — the 71-mutant robustness scenario's cardinality is unchanged by this reclassification (both formerly-`UNCLEAR` mutants were already counted in it); numerator `2285` at `total=2629` remains `3` short of the required `2288`.
+
+New pinned identity artifact: `docs/governance/mutation-baseline-evidence/feature-engine-condition1-current-material-gap-set-001.json`, blob `6360c8c1ad6e7c21129fa3b75415486d5447bf52` — the exact 42-ID set (`count=42`, `duplicates=0`, sorted-set sha256 `932698b4b312c1a8f70c261426555a5c6f3566579ed0a27102d4a0f0214adedc`).
+
+Corrected Model A candidate, superseding `85.736021300875%`: `(2214 + 42) / 2629 = 85.812095853936858120958539368581...%`, display `85.812095853937%`, required numerator `2256` at `total=2629` (exact-count normative derivation, not a formula to silently re-apply if the population changes).
+
+`MINOR-01`: corrected review/decision authority to current ADR-045/Chapter 11 v2.4 (R1 default: Review A only, no Independent Review B) — Testing Convention's legacy "Review A + Independent Review B" wording recorded as a known, lower-tier documentation-alignment residual, not remediated, not overriding current ADR authority. The numeric-threshold decision itself remains explicitly Product-Owner-reserved (ADR-045 `D10(a)` — a governing artifact reserves this decision class); DTR is explicitly NOT eligible for the threshold-selection decision.
+
+`MINOR-02`: defined one exact future SSOT authority transition (old threshold document → historical/superseded, byte-unchanged; new recalibration document → sole current authority if and when activated; a future MANIFEST update to carry a canonical current-threshold pointer) — future activation semantics only, not performed now.
+
+ADR Scope Rule freshly re-run against the corrected model (not inherited): `ADR_OPTIONAL`. Risk candidate: `R1`. No ADR authored. No threshold activated. No Product Owner decision requested.
+
+State preserved unchanged: Condition 1 `FAIL — criteria` (currently-effective threshold remains controlling); Condition 2 `169/170`; Condition 3 `SATISFIED`; `P3-FEATURE-QG-EVID-03` `OPEN`; Feature Engine `NOT APPROVED`; LIVE `NOT_AUTHORIZED`. No source/test/tooling change; the currently-effective threshold proposal, Testing Convention, Chapter 13, ADR-044/ADR-045, Evidence-005 + correction, the post-E005 assessment artifact, and Candidate-005 all fresh-verified byte-unchanged.
+
+Files changed: `feature-engine-mutation-threshold-recalibration-proposal-001.md` (corrected in place), `feature-engine-condition1-current-material-gap-set-001.json` (new), `feature-engine-chapter13-remediation-plan-001.md`, `milestone.md`, `milestone-dashboard.html`, `MANIFEST.md` (`manifest_version` `"10.424"` -> `"10.425"`), `CHANGELOG.md`.
+
+---
+
 ## [Unreleased] — 2026-09-23 — feature-engine: Condition-1 threshold recalibration proposal authored (CANDIDATE — NOT EFFECTIVE) — CALIBRATION_DRIFT_CONFIRMED, Model A recommended
 
 Starting HEAD `c77af110d7c273c7731001eaa218774c7fd7db95`, verified `main == origin/main`, no drift. Fresh-read and pinned the currently-effective threshold proposal (blob `f4a3ca0c37aeb4684409a7344141103e64051e04`, `APPROVED — EFFECTIVE`, unchanged by this transaction), Testing Convention v0.17, Chapter 13 v1.8, ADR-044 v0.5, ADR-045 v0.3, Evidence-005 (blob `f7a6ab715155ad166808e0e9d9a7474196d9b69d`), and the post-E005 survivor assessment (blob `5d7d626cfd1b500a3751c90613bd041cec50a792`) — all matched expected identities.

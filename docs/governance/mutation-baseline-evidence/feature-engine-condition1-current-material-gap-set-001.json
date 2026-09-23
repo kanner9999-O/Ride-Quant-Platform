@@ -1,0 +1,375 @@
+{
+  "artifact_id": "feature-engine-condition1-current-material-gap-set-001",
+  "schema_note": "Pinned identity source for the corrected Model-A Condition-1B companion gate (feature-engine-mutation-threshold-recalibration-proposal-001.md, Review-A MAJOR-01 correction). This is a NEW current-boundary obligation, distinct from and NOT a replacement for Condition 2's historical 170-identity obligation. Every one of these 42 exact mutant identities must be individually resolved -- killed/confirmed_timeout in fresh formal evidence, OR separately governed, individually-pinned semantic reclassification -- before Condition 1B is satisfied. Killing unrelated (e.g. message-text) mutants must never substitute for resolving these 42.",
+  "source_assessment": {
+    "path": "docs/governance/mutation-baseline-evidence/feature-engine-condition1-post-e005-survivor-assessment-001.json",
+    "blob": "5d7d626cfd1b500a3751c90613bd041cec50a792",
+    "genuine_test_gap_count_in_source": 40
+  },
+  "correction_boundary": {
+    "commit": "0c9f4ef8eb8d7ad45afb604b3a8e7cfd1883fde9",
+    "reviewed_proposal_blob": "bc7e0c9df45ff8e02451078ca7b74a54bac43ee5",
+    "review_a_finding": "REVISION_REQUIRED \u2014 0 Blocker / 2 Major / 2 Minor, Risk R1, ADR Scope ADR_OPTIONAL"
+  },
+  "composition": {
+    "from_post_e005_assessment_genuine_test_gap": 40,
+    "reclassified_by_major_02_correction": 2,
+    "reclassified_ids": [
+      "feature_engine.ownership.x\u01c1AuthoritativeSubjectOwner\u01c1acquire_and_activate__mutmut_21",
+      "feature_engine.ownership.x\u01c1AuthoritativeSubjectOwner\u01c1acquire_and_activate__mutmut_23"
+    ],
+    "total": 42
+  },
+  "exact_sorted_id_list": [
+    "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_18",
+    "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_33",
+    "feature_engine.authority_resolver.x__extract_scalar__mutmut_5",
+    "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_100",
+    "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_101",
+    "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_23",
+    "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_30",
+    "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_40",
+    "feature_engine.contracts.x__finalize_prepared_batch__mutmut_11",
+    "feature_engine.contracts.x__finalize_prepared_batch__mutmut_12",
+    "feature_engine.contracts.x__finalize_prepared_batch__mutmut_3",
+    "feature_engine.contracts.x__finalize_prepared_batch__mutmut_4",
+    "feature_engine.contracts.x__finalize_prepared_batch__mutmut_8",
+    "feature_engine.contracts.x__seal_verified_authority__mutmut_35",
+    "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_1",
+    "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_4",
+    "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_7",
+    "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_8",
+    "feature_engine.identity.x_deterministic_id__mutmut_3",
+    "feature_engine.output_contract_resolver.x__extract_scalar__mutmut_5",
+    "feature_engine.ownership.x__tie_break_key__mutmut_9",
+    "feature_engine.ownership.x\u01c1AuthoritativeSubjectOwner\u01c1_catch_up__mutmut_18",
+    "feature_engine.ownership.x\u01c1AuthoritativeSubjectOwner\u01c1_catch_up__mutmut_7",
+    "feature_engine.ownership.x\u01c1AuthoritativeSubjectOwner\u01c1acquire_and_activate__mutmut_21",
+    "feature_engine.ownership.x\u01c1AuthoritativeSubjectOwner\u01c1acquire_and_activate__mutmut_23",
+    "feature_engine.ownership.x\u01c1AuthoritativeSubjectOwner\u01c1process_certified_frontier__mutmut_10",
+    "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1__init____mutmut_21",
+    "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1__init____mutmut_31",
+    "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1prepare_upstream_event__mutmut_18",
+    "feature_engine.swing_distance.x__total_order_key__mutmut_3",
+    "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1__init____mutmut_40",
+    "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1__init____mutmut_50",
+    "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_prepare_original__mutmut_13",
+    "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_prepare_preempt_settled_window__mutmut_20",
+    "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_prepare_recompute__mutmut_23",
+    "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_prepare_reevaluate_all_windows__mutmut_6",
+    "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_prepare_replacement_only__mutmut_14",
+    "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_select_eligible_swing__mutmut_18",
+    "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_select_eligible_swing__mutmut_22",
+    "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1prepare_upstream_event__mutmut_18",
+    "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1prepare_upstream_event__mutmut_28",
+    "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1prepare_upstream_event__mutmut_6"
+  ],
+  "sorted_set_identity": {
+    "method": "sha256 of the 42 IDs, newline-joined, lexicographically sorted",
+    "sha256": "932698b4b312c1a8f70c261426555a5c6f3566579ed0a27102d4a0f0214adedc"
+  },
+  "per_id": {
+    "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_18": {
+      "module": "src/feature_engine/authority_resolver.py",
+      "class_name": null,
+      "function_name": "_extract_merge_policy",
+      "mutmut_index": 18,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_33": {
+      "module": "src/feature_engine/authority_resolver.py",
+      "class_name": null,
+      "function_name": "_extract_merge_policy",
+      "mutmut_index": 33,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.authority_resolver.x__extract_scalar__mutmut_5": {
+      "module": "src/feature_engine/authority_resolver.py",
+      "class_name": null,
+      "function_name": "_extract_scalar",
+      "mutmut_index": 5,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_100": {
+      "module": "src/feature_engine/authority_resolver.py",
+      "class_name": null,
+      "function_name": "resolve_historical_input_contract_authority_from_repository",
+      "mutmut_index": 100,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_101": {
+      "module": "src/feature_engine/authority_resolver.py",
+      "class_name": null,
+      "function_name": "resolve_historical_input_contract_authority_from_repository",
+      "mutmut_index": 101,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_23": {
+      "module": "src/feature_engine/authority_resolver.py",
+      "class_name": null,
+      "function_name": "resolve_historical_input_contract_authority_from_repository",
+      "mutmut_index": 23,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_30": {
+      "module": "src/feature_engine/authority_resolver.py",
+      "class_name": null,
+      "function_name": "resolve_historical_input_contract_authority_from_repository",
+      "mutmut_index": 30,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_40": {
+      "module": "src/feature_engine/authority_resolver.py",
+      "class_name": null,
+      "function_name": "resolve_historical_input_contract_authority_from_repository",
+      "mutmut_index": 40,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.contracts.x__finalize_prepared_batch__mutmut_11": {
+      "module": "src/feature_engine/contracts.py",
+      "class_name": null,
+      "function_name": "_finalize_prepared_batch",
+      "mutmut_index": 11,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.contracts.x__finalize_prepared_batch__mutmut_12": {
+      "module": "src/feature_engine/contracts.py",
+      "class_name": null,
+      "function_name": "_finalize_prepared_batch",
+      "mutmut_index": 12,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.contracts.x__finalize_prepared_batch__mutmut_3": {
+      "module": "src/feature_engine/contracts.py",
+      "class_name": null,
+      "function_name": "_finalize_prepared_batch",
+      "mutmut_index": 3,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.contracts.x__finalize_prepared_batch__mutmut_4": {
+      "module": "src/feature_engine/contracts.py",
+      "class_name": null,
+      "function_name": "_finalize_prepared_batch",
+      "mutmut_index": 4,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.contracts.x__finalize_prepared_batch__mutmut_8": {
+      "module": "src/feature_engine/contracts.py",
+      "class_name": null,
+      "function_name": "_finalize_prepared_batch",
+      "mutmut_index": 8,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.contracts.x__seal_verified_authority__mutmut_35": {
+      "module": "src/feature_engine/contracts.py",
+      "class_name": null,
+      "function_name": "_seal_verified_authority",
+      "mutmut_index": 35,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_1": {
+      "module": "src/feature_engine/contracts.py",
+      "class_name": null,
+      "function_name": "_validate_canonical_recorded_time",
+      "mutmut_index": 1,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_4": {
+      "module": "src/feature_engine/contracts.py",
+      "class_name": null,
+      "function_name": "_validate_canonical_recorded_time",
+      "mutmut_index": 4,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_7": {
+      "module": "src/feature_engine/contracts.py",
+      "class_name": null,
+      "function_name": "_validate_canonical_recorded_time",
+      "mutmut_index": 7,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_8": {
+      "module": "src/feature_engine/contracts.py",
+      "class_name": null,
+      "function_name": "_validate_canonical_recorded_time",
+      "mutmut_index": 8,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.identity.x_deterministic_id__mutmut_3": {
+      "module": "src/feature_engine/identity.py",
+      "class_name": null,
+      "function_name": "deterministic_id",
+      "mutmut_index": 3,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.output_contract_resolver.x__extract_scalar__mutmut_5": {
+      "module": "src/feature_engine/output_contract_resolver.py",
+      "class_name": null,
+      "function_name": "_extract_scalar",
+      "mutmut_index": 5,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.ownership.x__tie_break_key__mutmut_9": {
+      "module": "src/feature_engine/ownership.py",
+      "class_name": null,
+      "function_name": "_tie_break_key",
+      "mutmut_index": 9,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.ownership.x\u01c1AuthoritativeSubjectOwner\u01c1_catch_up__mutmut_18": {
+      "module": "src/feature_engine/ownership.py",
+      "class_name": "AuthoritativeSubjectOwner",
+      "function_name": "_catch_up",
+      "mutmut_index": 18,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.ownership.x\u01c1AuthoritativeSubjectOwner\u01c1_catch_up__mutmut_7": {
+      "module": "src/feature_engine/ownership.py",
+      "class_name": "AuthoritativeSubjectOwner",
+      "function_name": "_catch_up",
+      "mutmut_index": 7,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.ownership.x\u01c1AuthoritativeSubjectOwner\u01c1acquire_and_activate__mutmut_21": {
+      "module": "src/feature_engine/ownership.py",
+      "class_name": "AuthoritativeSubjectOwner",
+      "function_name": "acquire_and_activate",
+      "mutmut_index": 21,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.ownership.x\u01c1AuthoritativeSubjectOwner\u01c1acquire_and_activate__mutmut_23": {
+      "module": "src/feature_engine/ownership.py",
+      "class_name": "AuthoritativeSubjectOwner",
+      "function_name": "acquire_and_activate",
+      "mutmut_index": 23,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.ownership.x\u01c1AuthoritativeSubjectOwner\u01c1process_certified_frontier__mutmut_10": {
+      "module": "src/feature_engine/ownership.py",
+      "class_name": "AuthoritativeSubjectOwner",
+      "function_name": "process_certified_frontier",
+      "mutmut_index": 10,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1__init____mutmut_21": {
+      "module": "src/feature_engine/regime_passthrough.py",
+      "class_name": "RegimePassthroughFeatureEngine",
+      "function_name": "__init__",
+      "mutmut_index": 21,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1__init____mutmut_31": {
+      "module": "src/feature_engine/regime_passthrough.py",
+      "class_name": "RegimePassthroughFeatureEngine",
+      "function_name": "__init__",
+      "mutmut_index": 31,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.regime_passthrough.x\u01c1RegimePassthroughFeatureEngine\u01c1prepare_upstream_event__mutmut_18": {
+      "module": "src/feature_engine/regime_passthrough.py",
+      "class_name": "RegimePassthroughFeatureEngine",
+      "function_name": "prepare_upstream_event",
+      "mutmut_index": 18,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.swing_distance.x__total_order_key__mutmut_3": {
+      "module": "src/feature_engine/swing_distance.py",
+      "class_name": null,
+      "function_name": "_total_order_key",
+      "mutmut_index": 3,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1__init____mutmut_40": {
+      "module": "src/feature_engine/swing_distance.py",
+      "class_name": "SwingDistanceFeatureEngine",
+      "function_name": "__init__",
+      "mutmut_index": 40,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1__init____mutmut_50": {
+      "module": "src/feature_engine/swing_distance.py",
+      "class_name": "SwingDistanceFeatureEngine",
+      "function_name": "__init__",
+      "mutmut_index": 50,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_prepare_original__mutmut_13": {
+      "module": "src/feature_engine/swing_distance.py",
+      "class_name": "SwingDistanceFeatureEngine",
+      "function_name": "_prepare_original",
+      "mutmut_index": 13,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_prepare_preempt_settled_window__mutmut_20": {
+      "module": "src/feature_engine/swing_distance.py",
+      "class_name": "SwingDistanceFeatureEngine",
+      "function_name": "_prepare_preempt_settled_window",
+      "mutmut_index": 20,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_prepare_recompute__mutmut_23": {
+      "module": "src/feature_engine/swing_distance.py",
+      "class_name": "SwingDistanceFeatureEngine",
+      "function_name": "_prepare_recompute",
+      "mutmut_index": 23,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_prepare_reevaluate_all_windows__mutmut_6": {
+      "module": "src/feature_engine/swing_distance.py",
+      "class_name": "SwingDistanceFeatureEngine",
+      "function_name": "_prepare_reevaluate_all_windows",
+      "mutmut_index": 6,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_prepare_replacement_only__mutmut_14": {
+      "module": "src/feature_engine/swing_distance.py",
+      "class_name": "SwingDistanceFeatureEngine",
+      "function_name": "_prepare_replacement_only",
+      "mutmut_index": 14,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_select_eligible_swing__mutmut_18": {
+      "module": "src/feature_engine/swing_distance.py",
+      "class_name": "SwingDistanceFeatureEngine",
+      "function_name": "_select_eligible_swing",
+      "mutmut_index": 18,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1_select_eligible_swing__mutmut_22": {
+      "module": "src/feature_engine/swing_distance.py",
+      "class_name": "SwingDistanceFeatureEngine",
+      "function_name": "_select_eligible_swing",
+      "mutmut_index": 22,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1prepare_upstream_event__mutmut_18": {
+      "module": "src/feature_engine/swing_distance.py",
+      "class_name": "SwingDistanceFeatureEngine",
+      "function_name": "prepare_upstream_event",
+      "mutmut_index": 18,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1prepare_upstream_event__mutmut_28": {
+      "module": "src/feature_engine/swing_distance.py",
+      "class_name": "SwingDistanceFeatureEngine",
+      "function_name": "prepare_upstream_event",
+      "mutmut_index": 28,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    },
+    "feature_engine.swing_distance.x\u01c1SwingDistanceFeatureEngine\u01c1prepare_upstream_event__mutmut_6": {
+      "module": "src/feature_engine/swing_distance.py",
+      "class_name": "SwingDistanceFeatureEngine",
+      "function_name": "prepare_upstream_event",
+      "mutmut_index": 6,
+      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+    }
+  },
+  "resolution_requirement": "Every one of these 42 exact identities must be individually resolved for Condition 1B: (a) killed or confirmed_timeout in a fresh formal mutation measurement, OR (b) separately governed, individually-pinned semantic reclassification (exact mutant identity + specific semantic justification + a separate reviewed/recorded decision \u2014 never a blanket classification, never a score-offset substitution). No unrelated mutant's kill status may be credited toward this obligation.",
+  "not_performed_by_this_artifact": [
+    "No fresh formal mutation measurement performed.",
+    "No mutant individually resolved.",
+    "No test implemented.",
+    "No edit to feature-engine-condition1-post-e005-survivor-assessment-001.json (remains byte-immutable).",
+    "No relation to or substitution for Condition 2's independent 170-identity obligation."
+  ]
+}

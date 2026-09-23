@@ -1,6 +1,6 @@
 # Feature Engine Condition-1 Threshold — Recalibration Proposal 001
 
-**STATUS: CANDIDATE — NOT EFFECTIVE / AWAITING REVIEW A**
+**STATUS: CANDIDATE — NOT EFFECTIVE / AWAITING REVIEW A RE-REVIEW**
 
 This document is a **proposal only**. It does not activate, apply, or
 change the currently-effective threshold. The existing
@@ -10,6 +10,44 @@ remains byte-unchanged and remains the sole controlling Condition-1
 threshold: `87.001959503592%`, two-part gate (aggregate raw score **and**
 §4.1's per-identity resolution condition). No Product Owner decision is
 requested by this transaction.
+
+**Bounded correction (this transaction), remediating Review A findings on
+the prior candidate (reviewed boundary `bc7e0c9df45ff8e02451078ca7b74a54bac43ee5`):**
+Review A returned `REVISION_REQUIRED — 0 Blocker / 2 Major / 2 Minor`, Risk
+`R1`, ADR Scope `ADR_OPTIONAL`. Per current ADR-045/Chapter 11 governance,
+R1 requires no independent cross-check by default — this correction is
+remediated on Review A's own finding, not self-closed.
+
+- `MAJOR-01`: **REMEDIATED — PENDING REVIEW A RE-REVIEW.** Model A lacked a
+  current-material-identity companion condition, recreating the exact
+  aggregate-only loophole the original threshold proposal's own
+  `P3-PY-MUT-THRESH-A-MAJ-01` correction already closed once. §5 below now
+  defines an explicit two-part gate: Condition 1A (aggregate raw score) AND
+  Condition 1B (all 42 pinned current-material identities individually
+  resolved), reusing the existing §4.1 per-identity pattern.
+- `MAJOR-02`: **REMEDIATED — PENDING REVIEW A RE-REVIEW.** §3 below
+  corrects the classification of `ownership.acquire_and_activate
+  __mutmut_21`/`_23` from `PROVABLY_EQUIVALENT` to `GENUINE_TEST_GAP` — the
+  prior equivalence conclusion relied on a false single-thread-only
+  observability assumption; `owner.handle`/`owner.state` are public
+  properties with no lock/actor-isolation contract preventing a concurrent
+  reader from observing the intermediate `CATCHING_UP` handle.
+- `MINOR-01`: **REMEDIATED — PENDING REVIEW A RE-REVIEW.** §11 below
+  corrects the review/decision authority to current ADR-045/Chapter 11
+  semantics (Review A only at R1, no Independent Review B) and explicitly
+  states DTR's ineligibility for the threshold-selection decision itself
+  (ADR-045 D10).
+- `MINOR-02`: **REMEDIATED — PENDING REVIEW A RE-REVIEW.** §12 below
+  replaces the prior ambiguous activation language with one exact future
+  SSOT (single source of truth) authority transition.
+
+This document's content is corrected directly (not preserved-verbatim-and-
+annotated), consistent with how the currently-effective threshold
+proposal's own analogous bounded correction was recorded — it is
+analysis/proposal output, not a historical transaction log; the correction
+narrative itself is recorded in `docs/MANIFEST.md`/`docs/CHANGELOG.md`.
+**Not self-closed** — remediated pending a subsequent bounded Review A
+re-review, not performed by this transaction.
 
 ## 0. Authority resolved directly (fresh-read, not restated from memory)
 
@@ -22,9 +60,12 @@ requested by this transaction.
 | ADR-045 | `docs/adr/ADR-045.md` | `ac13ece16ff644d0d88ddf982d83bfb0e8d5ad16` | Yes — `version: "0.3"`, `status: Approved` |
 | Evidence-005 (formal) | `docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-005.json` | `f7a6ab715155ad166808e0e9d9a7474196d9b69d` | Yes |
 | Post-E005 survivor assessment | `docs/governance/mutation-baseline-evidence/feature-engine-condition1-post-e005-survivor-assessment-001.json` | `5d7d626cfd1b500a3751c90613bd041cec50a792` | Yes — matches expected exactly |
+| Current-material gap set (this correction, new) | `docs/governance/mutation-baseline-evidence/feature-engine-condition1-current-material-gap-set-001.json` | `6360c8c1ad6e7c21129fa3b75415486d5447bf52` | Created this transaction |
 
-**Post-E005 assessment identity, fresh-verified against §2 of this task's
-own citation (exact match, no drift):**
+**Post-E005 assessment identity, fresh-verified (exact match, no drift).
+The assessment artifact itself remains byte-immutable — it is NOT edited by
+this correction; the figures below are its own original, unedited
+classification:**
 
 ```text
 survivors:            406
@@ -33,6 +74,21 @@ LOW_MATERIALITY_MESSAGE_TEXT: 344
 PROVABLY_EQUIVALENT:   16
 STRUCTURALLY_UNREACHABLE: 4
 UNCLEAR:                2
+```
+
+**Settled classification after this correction's `MAJOR-02` remediation
+(§3 below; analytical resolution recorded in this proposal only, the
+assessment artifact is not edited):**
+
+```text
+GENUINE_TEST_GAP:              42  (40 + 2, both formerly-UNCLEAR mutants
+                                    reclassified)
+LOW_MATERIALITY_MESSAGE_TEXT: 344  (unchanged)
+PROVABLY_EQUIVALENT:           16  (unchanged — NOT 18; the 2 formerly-
+                                    UNCLEAR mutants moved to GENUINE_TEST_GAP,
+                                    not PROVABLY_EQUIVALENT)
+STRUCTURALLY_UNREACHABLE:       4  (unchanged)
+UNCLEAR:                        0  (settled)
 ```
 
 Chapter 13 v1.8 §13.14 (Locked) explicitly defers the exact
@@ -59,34 +115,38 @@ conservative gap                = 2288 − 2214 = 74
 best-case gap                   = 2288 − 2223 = 65
 ```
 
-**Credible test-remediation ceiling, two variants:**
-
-*If the 2 UNCLEAR survivors resolve GENUINE (not performed — hypothetical
-upper bound before §3's fresh resolution below):*
+**Credible test-remediation ceiling (settled, §3's `MAJOR-02` correction
+resolves the 2 formerly-`UNCLEAR` survivors to `GENUINE_TEST_GAP`, not
+hypothetically — this is now the definite figure, not an upper bound):**
 
 ```text
-40 GENUINE_TEST_GAP + 2 UNCLEAR + 9 UNSTABLE = 51
+42 GENUINE_TEST_GAP (settled) + 9 UNSTABLE = 51
 2214 + 51 = 2265
 2265 < 2288  →  shortfall = 23
 ```
 
-**Robustness check (independently recomputed):** even crediting every
-single non-message-text survivor — including the 16 `PROVABLY_EQUIVALENT`
-and 4 `STRUCTURALLY_UNREACHABLE` mutants, which Testing Convention v0.17
-item 8's raw-denominator-by-default rule explicitly forbids crediting
-without an individually-pinned, separately-governed equivalent-mutant
-adjustment — as if all were killed:
+**Robustness check (independently recomputed, cardinality unchanged by the
+`MAJOR-02` reclassification):** even crediting every single non-message-
+text survivor — including the 16 `PROVABLY_EQUIVALENT` and 4
+`STRUCTURALLY_UNREACHABLE` mutants, which Testing Convention v0.17 item 8's
+raw-denominator-by-default rule explicitly forbids crediting without an
+individually-pinned, separately-governed equivalent-mutant adjustment — as
+if all were killed:
 
 ```text
-40 genuine + 2 unclear + 16 equivalent + 4 unreachable + 9 unstable = 71
+42 genuine (settled) + 16 equivalent + 4 unreachable + 9 unstable = 71
 2214 + 71 = 2285
 2285 < 2288  →  shortfall = 3
 ```
 
 **Independently verified: both arithmetic chains reconcile exactly** against
 this task's own cited figures (`74`/`65` gaps, `51`/`71` combined credits,
-`2265`/`2285` resulting numerators, `23`/`3` shortfalls). No discrepancy
-found.
+`2265`/`2285` resulting numerators, `23`/`3` shortfalls) — the `MAJOR-02`
+reclassification moves the 2 formerly-`UNCLEAR` mutants from the "unclear"
+slot into the "genuine" slot within the SAME 71-mutant maximal
+non-message-text population; the combined total, and therefore this
+robustness finding, is **unchanged in cardinality and unchanged in
+conclusion**. No discrepancy found.
 
 **Conclusion, derived (not assumed):** even under the maximally generous,
 evidence-defying hypothetical where literally every currently-classified
@@ -144,10 +204,10 @@ non-creditable) mutants even in the best possible combination of every
 other category — directly contradicting intent point (2) above. The
 threshold was correctly calibrated to the **1531-mutant, 170-material-gap**
 population at Step 4/5; the population has since grown to **2629 mutants**
-with a **different, independently re-derived materiality composition** (40
-material, not 170 — see §3), and the fixed percentage carried forward
-unchanged no longer encodes the same closure obligation it was built to
-represent.
+with a **different, independently re-derived materiality composition** (42
+material, settled per §3, not 170), and the fixed percentage carried
+forward unchanged no longer encodes the same closure obligation it was
+built to represent.
 
 **Disposition:**
 
@@ -155,95 +215,130 @@ represent.
 CALIBRATION_DRIFT_CONFIRMED
 ```
 
-## 3. Fresh resolution of the 2 UNCLEAR survivors (folded in, no separate WP)
+## 3. Fresh resolution of the 2 UNCLEAR survivors (folded in, no separate WP) — corrected by Review A `MAJOR-02`
 
 ```text
 feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁacquire_and_activate__mutmut_21
 feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁacquire_and_activate__mutmut_23
 ```
 
+**`MAJOR-02` (Review A, this correction): the prior candidate's
+`PROVABLY_EQUIVALENT` conclusion is WRONG.** It relied on a false premise —
+that Python's single-threaded, synchronous execution *within one method
+call* is the only relevant observability boundary. That premise ignores
+that `acquire_and_activate` is a method on a **shared, mutable object**
+(`AuthoritativeSubjectOwner`), and `owner.handle`/`owner.state` are
+**public properties** with no lock, no actor-isolation contract, and no
+single-thread-only authority anywhere in `ownership.py` or ADR-043 itself.
+ADR-043 explicitly treats thread/process scheduling and concurrent
+acquisition attempts as real runtime concerns the module's own fencing
+design exists to address — it does not assume or require single-threaded
+access to an owner instance.
+
 Both mutate one field of the intermediate `OwnerHandle` constructed at
 `self._handle = OwnerHandle(self._feature_subject_id, generation,
 SubjectOwnershipState.CATCHING_UP)` inside `acquire_and_activate`
 (`ownership.py:538`) — mutmut_21 nulls `self._feature_subject_id`;
-mutmut_23 nulls `SubjectOwnershipState.CATCHING_UP`.
+mutmut_23 nulls `SubjectOwnershipState.CATCHING_UP`. The method explicitly
+transitions `INACTIVE → CATCHING_UP → ACTIVE`, and `self._catch_up(...)` —
+called while the handle is at `CATCHING_UP` — is exactly the kind of
+externally-triggerable, potentially slow/blocking operation (a history
+provider read) a concurrent reader can legitimately observe mid-flight.
 
-**Fresh trace of every path following that assignment (full source read,
-this transaction):**
-
-- **Success path:** `self._catch_up(catch_up_frontier)` returns without
-  raising, and the very next statement unconditionally executes
-  `self._handle = OwnerHandle(self._feature_subject_id, generation,
-  SubjectOwnershipState.ACTIVE)` (`ownership.py:544`) — a **freshly
-  reconstructed** handle using the real, unmutated
-  `self._feature_subject_id` and the real `SubjectOwnershipState.ACTIVE`,
-  completely overwriting the CATCHING_UP handle before the method returns.
-- **Failure path:** any exception from `_catch_up` is caught by
-  `except Exception: self._mark_terminal(); raise`. `_mark_terminal()`
-  (`ownership.py`, read in full) unconditionally executes `self._handle =
-  OwnerHandle(self._feature_subject_id, generation,
-  SubjectOwnershipState.REVOKED)` — again a freshly reconstructed handle
-  using the real, unmutated `self._feature_subject_id`, overwriting
-  whatever CATCHING_UP handle (mutated or not) was set beforehand.
-- **In between:** `_catch_up`'s own body (`ownership.py:567-613`, read in
-  full) contains **zero** references to `self._handle`, `self.handle`, or
-  `self.state` — confirmed by direct grep of the function body. It only
-  reads `self._feature_subject_id`, `self._history_provider`,
-  `self._merge_policy`, and `self._engine` (a distinct object with no
-  reference to the owner's `self._handle` — `self._engine.prepare_
-  upstream_event(...)` operates entirely on the wrapped engine, not the
-  owner). Python's single-threaded, synchronous execution within one method
-  call means no external observer can read `self._handle` between line 538
-  and either line 544 or `_mark_terminal`'s own reassignment.
-
-**Questions, answered directly:**
-
-- *Is the intermediate `CATCHING_UP` `OwnerHandle` observably meaningful?*
-  **No.** It is write-only — no code path, in this method or any method it
-  calls, ever reads it before it is unconditionally overwritten.
-- *Is `self._handle` deterministically overwritten before any external or
-  failure-path observation?* **Yes, on every path**, with no exception —
-  this is not merely likely, it is exhaustively confirmed by reading both
-  the success continuation and the exception handler, plus confirming
-  `_catch_up`'s own body never reads the field in between.
-- *Can a legitimate production-semantic test distinguish either mutation?*
-  **No.** Any test — unit-level or integration-level, black-box or
-  white-box — that calls `acquire_and_activate` and then inspects
-  `owner.handle`/`owner.state`/`owner.feature_subject_id` will observe only
-  the post-overwrite value (`ACTIVE` or `REVOKED`, both with the real,
-  unmutated `feature_subject_id`), regardless of whether the intermediate
-  CATCHING_UP handle was corrupted. This is a structural property of the
-  method's own control flow, not a gap in test authorship.
-- *Classification:* **`PROVABLY_EQUIVALENT`** for both `mutmut_21` and
-  `mutmut_23` — the same class of proof as the already-confirmed
-  `ownership.__init__`'s `self._usable = True → False/None` dead-write
-  (post-E005 assessment, `F_UNCLEAR` note on that earlier finding is now
-  superseded by this fully-traced confirmation for these two specific
-  mutants).
-
-**Settled classification (this transaction, supersedes the post-E005
-assessment's `UNCLEAR` label for exactly these two IDs — the assessment
-artifact itself is NOT edited, per §15's immutability requirement; this is
-a forward-looking analytical resolution recorded here only):**
+**A legitimate, non-gaming, production-semantic deterministic test is
+constructible** (not implemented by this correction, per instruction):
 
 ```text
-GENUINE_TEST_GAP:              40  (unchanged)
+1. Run acquire_and_activate in worker thread A.
+2. Use a blocking/synchronized test-double history-provider seam (a
+   legitimate fake, per this module's own documented fake-based testing
+   convention) to hold execution inside _catch_up after the CATCHING_UP
+   handle has been assigned at ownership.py:538.
+3. From thread B, read owner.handle / owner.state while thread A is
+   blocked inside _catch_up.
+4. Assert the observed handle's feature_subject_id equals the real,
+   expected subject id, and its state equals SubjectOwnershipState.
+   CATCHING_UP.
+```
+
+Under `mutmut_21`, thread B would observe `feature_subject_id = None`.
+Under `mutmut_23`, thread B would observe `state = None`. Both are
+concretely, deterministically **observable behavioral changes** through
+the object's own public interface — not an impossible or fabricated
+internal state, and not implementation trivia: `owner.handle`/`owner.state`
+are the documented, intended public surface for inspecting ownership
+progress.
+
+**Why the prior conclusion's "no external observer" claim was incorrect:**
+it is true that *within the single call to `acquire_and_activate` itself*,
+no code path re-reads `self._handle` before the final overwrite — that part
+of the prior trace was accurate. What it missed is that "no code path
+within this method reads it" is not the same claim as "no observer anywhere
+in the running process can read it" — the intermediate assignment mutates
+shared object state (`self._handle`) that is reachable, via the object's
+own public `.handle`/`.state` properties, from any other thread holding a
+reference to the same `owner` instance, at any point before the
+overwriting statement executes. This is a materially different (and
+correct) observability analysis than the single-call, single-threaded
+trace the prior candidate relied on.
+
+**Questions, answered directly (corrected):**
+
+- *Is the intermediate `CATCHING_UP` `OwnerHandle` observably meaningful?*
+  **Yes.** It is reachable via `owner.handle`/`owner.state` from any
+  concurrent reader before the method's own later overwrite executes.
+- *Is `self._handle` deterministically overwritten before any external or
+  failure-path observation?* **Only from the perspective of the SAME
+  calling thread's own subsequent statements** — not from the perspective
+  of a genuinely concurrent reader on another thread, which is exactly what
+  ADR-043's own fencing/concurrency design contemplates as a real scenario.
+- *Can a legitimate production-semantic test distinguish either mutation?*
+  **Yes** — via the deterministic concurrent-observation construction
+  above, using only the object's own public interface and a legitimate
+  test-double history-provider seam; no impossible state, no mutant-name
+  assertion, no message-text snapshotting.
+- *Classification:* **`GENUINE_TEST_GAP`** for both `mutmut_21` and
+  `mutmut_23`.
+
+**Settled classification (this transaction, supersedes both the post-E005
+assessment's `UNCLEAR` label AND this proposal's own prior, Review-A-
+corrected `PROVABLY_EQUIVALENT` conclusion, for exactly these two IDs — the
+assessment artifact itself is NOT edited, per §16's immutability
+requirement; this is a forward-looking analytical resolution recorded
+here, and in the new pinned identity artifact §"Current-material gap set"
+below, only):**
+
+```text
+GENUINE_TEST_GAP:              42  (40 + 2, settled)
 LOW_MATERIALITY_MESSAGE_TEXT: 344  (unchanged)
-PROVABLY_EQUIVALENT:           18  (16 + 2, settled)
+PROVABLY_EQUIVALENT:           16  (unchanged)
 STRUCTURALLY_UNREACHABLE:       4  (unchanged)
 UNCLEAR:                        0  (settled)
 ```
 
-**Robustness re-confirmed:** because both resolve to `PROVABLY_EQUIVALENT`
-— a category §1's robustness check already (correctly) included in the
-71-credit hypothetical — the §1 shortfall-of-3 finding is **unchanged and
-robust to this resolution**, exactly as required. The settled, non-
-hypothetical genuine-test-gap population remains exactly **40**, not up to
-42 — this *strengthens*, not weakens, the calibration-drift finding: the
-population of mutants whose closure the original intent actually
-contemplates crediting is now known precisely, not merely bounded.
+**Robustness re-confirmed:** both mutants were already counted within §1's
+71-mutant maximal non-message-text robustness hypothetical (under the
+"unclear" label); moving them to "genuine" changes which label they sit
+under, not the total population credited in that hypothetical — the §1
+shortfall-of-3 finding is **unchanged and robust to this correction**. The
+settled, non-hypothetical genuine-test-gap population is now precisely
+**42** — this directly grounds §"Current-material gap set" and the
+corrected Model A derivation in §5 below.
 
-## 4. Current population/materiality analysis (Model A's own basis)
+### Current-material gap set (new pinned identity artifact, this correction)
+
+`docs/governance/mutation-baseline-evidence/feature-engine-condition1-current-material-gap-set-001.json`
+(blob `6360c8c1ad6e7c21129fa3b75415486d5447bf52`) pins the exact 42-ID set
+this settled classification defines — the 40 `GENUINE_TEST_GAP` identities
+from the post-E005 assessment plus the 2 identities reclassified above.
+Fresh-verified: `count = 42`, `duplicates = 0`, sorted-set
+`sha256 = 932698b4b312c1a8f70c261426555a5c6f3566579ed0a27102d4a0f0214adedc`.
+This artifact is the pinned identity source for Condition 1B (§5 below) —
+it is a **new, current-boundary obligation, entirely separate from and not
+a replacement for** Condition 2's independent, historical 170-identity
+obligation (§4.1 of the currently-effective threshold proposal).
+
+## 4. Current population/materiality analysis (Model A's own basis) — settled figures per §3's `MAJOR-02` correction
 
 ```text
 total                          2629
@@ -253,20 +348,28 @@ unstable_timeout_triage           9   (not yet credited — pending individual
                                        re-confirmation per Testing Convention
                                        item 8's timeout-specific rule)
 survived (406), decomposed:
-  GENUINE_TEST_GAP                40  (the direct analog of the original
-                                       170-mutant "material actionable-
-                                       test-gap" population)
+  GENUINE_TEST_GAP                42  (40 from the post-E005 assessment +
+                                       2 reclassified by this correction's
+                                       MAJOR-02 remediation — the direct
+                                       analog of the original 170-mutant
+                                       "material actionable-test-gap"
+                                       population; pinned identity list:
+                                       feature-engine-condition1-current-
+                                       material-gap-set-001.json)
   LOW_MATERIALITY_MESSAGE_TEXT   344  (the direct analog of the original
                                        174 "low-priority-but-real" +
                                        message-text population — NOT to be
                                        required for closure, per original
                                        intent)
-  PROVABLY_EQUIVALENT             18  (analog of the original 25 candidate-
+  PROVABLY_EQUIVALENT             16  (analog of the original 25 candidate-
                                        equivalents — remains in the raw
                                        denominator, uncredited, per Testing
                                        Convention item 8, unless and until a
                                        separate governed per-identity
-                                       adjustment is recorded)
+                                       adjustment is recorded; NOT 18 — the
+                                       2 formerly-UNCLEAR mutants settled
+                                       to GENUINE_TEST_GAP, not this
+                                       category, per §3's correction)
   STRUCTURALLY_UNREACHABLE         4  (dead-field/defensive-fallback
                                        mutants — same treatment as
                                        PROVABLY_EQUIVALENT for scoring
@@ -275,7 +378,45 @@ survived (406), decomposed:
                                        adjustment)
 ```
 
-## 5. Model A — numeric re-baseline, same raw metric
+## 5. Model A — numeric re-baseline, same raw metric — corrected by Review A `MAJOR-01`
+
+**`MAJOR-01` (Review A, this correction): the prior candidate's Model A
+enforced only the aggregate percentage.** This recreates, at the
+recalibrated boundary, the exact loophole the currently-effective
+threshold proposal's own `P3-PY-MUT-THRESH-A-MAJ-01` correction already
+closed once at the original boundary: an unrelated set of low-materiality/
+message-text kills could numerically satisfy the aggregate percentage
+while leaving every one of the 42 pinned current-material identities
+exactly as they are today. Model A is now corrected to an explicit
+**two-part gate**, mirroring §4.1 of the currently-effective threshold
+proposal exactly:
+
+```text
+Condition 1A: raw mutation-effectiveness >= recalibrated numeric threshold
+              (necessary but not sufficient)
+
+AND
+
+Condition 1B: every one of the 42 exact current-material-gap mutant
+              identities pinned in
+              feature-engine-condition1-current-material-gap-set-001.json
+              (blob 6360c8c1ad6e7c21129fa3b75415486d5447bf52) is
+              individually resolved via exactly one of:
+                (a) Killed / confirmed_timeout in a fresh, formal mutation
+                    measurement; OR
+                (b) Individually reclassified — a SEPARATE, governed
+                    decision, exact mutant identity + specific semantic
+                    justification + a separate reviewed/recorded decision
+                    (never a blanket, unreviewed claim).
+              No blanket classification. No score-offset substitution.
+              Killing unrelated (e.g. message-text) mutants must NEVER
+              satisfy Condition 1B.
+```
+
+This is a direct, structurally identical reuse of the currently-effective
+proposal's own §4.1 per-identity resolution mechanism, applied to the
+current-boundary 42-identity set instead of the historical 170-identity
+set — not an invented new mechanism (see §14's ADR Scope re-analysis).
 
 **Formula unchanged:** `mutation_score = (killed + confirmed_timeout) /
 (total − skipped) × 100` (Testing Convention v0.17 item 7, unchanged, this
@@ -283,61 +424,81 @@ proposal does not modify it). `skipped = 0` in Evidence-005 (all ten
 statuses reconciled to `total`).
 
 **Same conceptual principle as Candidate 3:** close the current materially-
-actionable behavioral gap population (today's `GENUINE_TEST_GAP` survivors
-— the direct analog of the original 170) without requiring closure of the
-low-materiality/message-text population (today's `LOW_MATERIALITY_MESSAGE_
-TEXT`, analog of the original 174) or crediting equivalents/unreachables
-(today's `PROVABLY_EQUIVALENT`/`STRUCTURALLY_UNREACHABLE`, analog of the
-original 25 candidate-equivalents).
+actionable behavioral gap population (today's settled 42 `GENUINE_TEST_GAP`
+survivors — the direct analog of the original 170) without requiring
+closure of the low-materiality/message-text population (today's 344
+`LOW_MATERIALITY_MESSAGE_TEXT`, analog of the original 174) or crediting
+equivalents/unreachables (today's 16 `PROVABLY_EQUIVALENT`/4
+`STRUCTURALLY_UNREACHABLE`, analog of the original 25 candidate-
+equivalents).
 
-**Conservative candidate (recommended final method — does not depend on any
-pending measurement):**
+**Corrected candidate numerator and threshold (Condition 1A), using exact
+count semantics as the normative derivation — supersedes the prior
+candidate's `85.736021300875%`:**
 
 ```text
-(2214 + 40) / 2629 × 100 = 2254 / 2629 × 100
-= 85.736021300874857360213008748573602130087485736021...%
-display, same 12-decimal-place convention as the original: 85.736021300875%
+current confirmed numerator:  2214  (killed 2209 + confirmed_timeout 5)
+current genuine material gaps: 42  (settled, §3's MAJOR-02 correction)
+candidate numerator:          2214 + 42 = 2256
+
+candidate threshold = 2256 / 2629 × 100
+= 85.812095853936858120958539368581209585393685812096...%
+display, same 12-decimal-place convention as the original: 85.812095853937%
 ```
+
+`85.736021300875%` (the prior candidate's recommended figure, derived from
+40 rather than the settled 42) is **removed as the recommended figure** —
+it is retained below only as superseded historical candidate-analysis
+prose, per this correction's own instruction.
 
 **Best-case variant (pending unstable-triage resolution — NOT recommended
 as the final method, since it depends on 9 not-yet-individually-confirmed
 mutants; provided only for transparency):**
 
 ```text
-(2214 + 40 + 9) / 2629 × 100 = 2263 / 2629 × 100
-= 86.078356789653860783567896538607835678965386078357...%
-display: 86.078356789654%
+(2214 + 42 + 9) / 2629 × 100 = 2265 / 2629 × 100
+= 86.154431342715861544313427158615443134271586154431...%
+display: 86.154431342716%
 ```
 
 **Explicit distinctions (per this task's own requirement):**
 
-| Population | Count | Credited in Model A candidate? |
-|---|---|---|
-| Current already-positive numerator (killed + confirmed_timeout) | 2214 | Yes — base |
-| Current materially-actionable survivors (`GENUINE_TEST_GAP`) | 40 | Yes — the closure target, exactly mirroring the original 170 |
-| Unresolved/unclear population | 0 (settled this transaction, §3) | N/A |
-| Unstable triage (pending) | 9 | No, in the recommended conservative candidate; yes, only in the disclosed best-case variant |
-| Message-text-only population | 344 | **No** — never required, matching original intent |
-| Equivalent/unreachable population | 18 + 4 = 22 | **No** — remains uncredited per Testing Convention item 8, matching original intent |
+| Population | Count | Credited in Model A candidate (Condition 1A numerator)? | Individually required (Condition 1B)? |
+|---|---|---|---|
+| Current already-positive numerator (killed + confirmed_timeout) | 2214 | Yes — base | N/A |
+| Current materially-actionable survivors (`GENUINE_TEST_GAP`, settled) | 42 | Yes — the closure target, exactly mirroring the original 170 | **Yes — each of the exact 42 pinned identities, individually** |
+| Unresolved/unclear population | 0 (settled this transaction, §3) | N/A | N/A |
+| Unstable triage (pending) | 9 | No, in the recommended candidate; yes, only in the disclosed best-case variant | No |
+| Message-text-only population | 344 | **No** — never required, matching original intent | **No — may never substitute for Condition 1B** |
+| Equivalent/unreachable population | 16 + 4 = 20 | **No** — remains uncredited per Testing Convention item 8, matching original intent | No |
 
-**Why the conservative candidate, not the best-case variant, is
-recommended as the final auditable method:** the conservative candidate is
-computable and verifiable TODAY from already-confirmed categories only
-(`killed`, `confirmed_timeout`, and this transaction's own settled
-`GENUINE_TEST_GAP` classification); it never depends on an outstanding
-measurement (the 9 `unstable_timeout_triage` mutants' eventual disposition
-is explicitly unresolved and, per Testing Convention item 8, must not be
-credited before individual re-confirmation). This mirrors Candidate 3's own
-preference for "explicit traceability to a named, closeable gap set" over
-inspection-based ranges.
+**Why this candidate, not the best-case variant, is recommended as the
+final auditable method:** it is computable and verifiable TODAY from
+already-confirmed categories only (`killed`, `confirmed_timeout`, and this
+correction's own settled 42-identity `GENUINE_TEST_GAP` classification); it
+never depends on an outstanding measurement (the 9
+`unstable_timeout_triage` mutants' eventual disposition is explicitly
+unresolved and, per Testing Convention item 8, must not be credited before
+individual re-confirmation). This mirrors Candidate 3's own preference for
+"explicit traceability to a named, closeable gap set" over inspection-based
+ranges.
 
 **Not chosen merely because it passes today:** current raw score is
 `84.21453023963484%–84.55686572841384%`. Both Model A candidate figures
-(`85.736021300875%` and `86.078356789654%`) are **above** the current
+(`85.812095853937%` and `86.154431342716%`) are **above** the current
 actual score — Feature Engine would still `FAIL` Condition 1 under either
 recalibrated figure today. This is the same non-negotiable discipline the
 original proposal applied when rejecting Candidate 1 (~76%, "round the
 current baseline up to itself").
+
+**Normative derivation rule:** `required numerator = 2256` at `total =
+2629` is the exact-count basis for this candidate — not a formula to be
+mechanically re-applied if the population changes. If a future formal
+mutation population changes (population growth, a mutmut version change,
+or a fresh survivor-classification exercise), the normal governed
+recalibration/drift rules (§9's proposed trigger, or the existing §4.3
+triggers) apply; `2256`/`85.812095853937%` must never be silently
+transplanted onto a different population.
 
 ## 6. Model B — denominator/exclusion semantics change
 
@@ -436,43 +597,60 @@ partly in place), unchanged.
 
 **Not activated by this transaction.**
 
-## 8. Recommendation
+## 8. Recommendation — corrected by Review A `MAJOR-01`/`MAJOR-02`
 
-**Recommended: Model A**, conservative candidate `85.736021300875%` (full
-precision `85.736021300874857360213008748573602130087485736021...%`,
-required numerator `2254` at `total = 2629`), as a **candidate for a future
-governed Step 1–9-equivalent recalibration** — not activated here.
+**Recommended: Model A**, corrected two-part gate — **Condition 1A**
+(candidate numeric threshold `85.812095853937%`, full precision
+`85.812095853936858120958539368581209585393685812096...%`, required
+numerator `2256` at `total = 2629`) **AND Condition 1B** (all 42 exact
+current-material-gap identities in
+`feature-engine-condition1-current-material-gap-set-001.json` individually
+resolved) — as a **candidate for a future governed Step 1–9-equivalent
+recalibration** — not activated here.
 
 **Against the seven criteria:**
 
 1. **Preserves anti-gaming** — the raw metric, formula, and denominator
-   semantics are entirely unchanged; only the comparison figure moves,
-   using the same derivation method the original threshold itself used.
+   semantics are entirely unchanged; the comparison figure moves, using the
+   same derivation method the original threshold itself used, AND
+   Condition 1B (corrected, `MAJOR-01`) now forecloses the aggregate-only
+   loophole an unrelated set of low-materiality kills could otherwise
+   exploit — exactly mirroring the currently-effective proposal's own
+   §4.1 safeguard.
 2. **Reflects real behavior/testing quality** — the candidate figure is
-   directly, traceably derived from the current, freshly-classified
-   materially-actionable population (40 `GENUINE_TEST_GAP`), exactly as
-   Candidate 3 was derived from the original 170.
+   directly, traceably derived from the current, settled materially-
+   actionable population (42 `GENUINE_TEST_GAP`, corrected per `MAJOR-02`),
+   exactly as Candidate 3 was derived from the original 170; Condition 1B
+   further requires those SPECIFIC 42 identities, not merely an equal-sized
+   unrelated set.
 3. **Does not force brittle message-text tests** — the 344 `LOW_
-   MATERIALITY_MESSAGE_TEXT` and 22 equivalent/unreachable survivors remain
-   uncredited and unrequired, preserving the original intent exactly.
+   MATERIALITY_MESSAGE_TEXT` and 20 equivalent/unreachable survivors remain
+   uncredited, unrequired, and explicitly ineligible to satisfy Condition
+   1B, preserving the original intent exactly.
 4. **Remains reproducible/auditable** — a pure arithmetic recomputation
    from already-confirmed categories (`killed`, `confirmed_timeout`, and
-   the settled `GENUINE_TEST_GAP` count); any reviewer can independently
-   recompute it in seconds.
+   the settled 42-identity `GENUINE_TEST_GAP` classification, pinned in a
+   dedicated artifact with a verifiable sorted-set hash); any reviewer can
+   independently recompute the numerator and re-verify the exact identity
+   set in seconds.
 5. **Minimizes new governance machinery** — reuses the exact existing
    formula (Testing Convention item 7, unchanged), the exact existing §4.1
-   per-identity companion-condition pattern, and the exact existing Step
-   1–9 sequence; introduces no new exclusion mechanism, no new
-   classification-as-primary-gate structure.
+   per-identity companion-condition pattern (now explicitly applied as
+   Condition 1B, not merely referenced), and the exact existing Step 1–9
+   sequence; introduces no new exclusion mechanism, no new classification-
+   as-primary-gate structure.
 6. **Keeps longitudinal evidence interpretable** — still the same raw
    percentage metric, comparable across time exactly as before; only the
    calibration point is refreshed, the same conceptual move the original
    proposal itself made from `feature-engine-mutation-baseline-001.json`'s
    raw `75.898105813194%` to Candidate 3's `87.001959503592%`.
-7. **Preserves Condition-2 and Condition-3 safety rails** — Model A touches
-   only the Condition-1 numeric comparison; it does not read, reference, or
-   alter §4.1's 170-identity mechanism's applicability to Condition 2, nor
-   Condition 3's mutation-surface completeness requirement.
+7. **Preserves Condition-2 and Condition-3 safety rails** — Model A's
+   Condition 1B is explicitly a NEW, current-boundary obligation, entirely
+   separate from Condition 2's independent, historical 170-identity
+   obligation (currently `169/170`) — they answer different questions
+   (current-boundary material gaps vs. historically-pinned closure) and are
+   never merged; Condition 3's mutation-surface completeness requirement is
+   untouched.
 
 Models B and C are recorded for completeness and future reference but are
 **not** recommended: Model B carries materially higher anti-gaming risk and
@@ -480,12 +658,13 @@ crosses into cross-cutting metric-methodology territory this single-module
 proposal should not decide unilaterally; Model C, while offering higher
 semantic fidelity, introduces a new classification-drift gaming surface and
 a materially heavier, less-reproducible governance burden than Model A's
-simple, auditable re-baseline.
+simple, auditable re-baseline plus companion identity gate.
 
 **This transaction does not optimize for getting Feature Engine approved
-sooner** — both Model A candidate figures remain above the current actual
-raw score, so Feature Engine continues to `FAIL` Condition 1 under either
-figure exactly as it does under the current effective `87.001959503592%`.
+sooner** — both Model A candidate figures (`85.812095853937%` and the
+disclosed best-case `86.154431342716%`) remain above the current actual raw
+score, so Feature Engine continues to `FAIL` Condition 1 under either figure
+exactly as it does under the current effective `87.001959503592%`.
 
 ## 9. Proposed recalibration trigger (candidate policy only — not activated)
 
@@ -494,8 +673,8 @@ three proposed (not effective) recalibration triggers: tool/version change,
 165-cohort resolution, and baseline methodology change. **This trigger set
 is incomplete** — none of the three, on their own terms, covers what
 actually occurred here: the mutation population grew (1531 → 2629) and its
-materiality composition shifted (170 material-gap survivors → 40) through
-ordinary, legitimate engineering (ADR-043's ownership/fencing
+materiality composition shifted (170 material-gap survivors → 42, settled)
+through ordinary, legitimate engineering (ADR-043's ownership/fencing
 implementation and associated test suites), not a tool/version change, not
 165-cohort resolution, and not a formula/contract change (§4.3 trigger 3's
 own text). A fourth trigger category is proposed:
@@ -546,42 +725,142 @@ This transaction does **not**:
   mutant, from the raw denominator;
 - credit any survivor's status without a fresh, individual, formal
   re-measurement;
-- implement any Wave 5 (or any) test;
+- implement any Wave 5 (or any) test — including the deterministic
+  concurrent-observation test construction described in §3 for
+  `acquire_and_activate__mutmut_21`/`_23`, which is described only, not
+  implemented, per this correction's own explicit instruction;
 - resolve `contracts.x__seal_verified_authority__mutmut_33`
   (`TOOL_IDENTITY_DRIFT`);
 - touch Condition 2 (`169/170`) or Condition 3 (`SATISFIED — REVIEW A
-  VALIDATED`) in any way;
+  VALIDATED`) in any way, or merge Condition 1B into Condition 2 — they
+  remain independent obligations answering different questions;
 - request or fabricate a Product Owner decision;
 - author or modify any ADR;
 - edit Testing Convention, Chapter 13, ADR-044, or ADR-045;
 - edit the currently-effective threshold proposal, Evidence-005, its
   correction, or the post-E005 survivor assessment artifact (all remain
-  byte-unchanged).
+  byte-unchanged);
+- edit the new `feature-engine-condition1-current-material-gap-set-001.json`
+  artifact after this transaction creates it — it is a pinned identity
+  snapshot, not a living document.
 
-## 11. Activation requirements (future, not performed here)
+## 11. Activation requirements (future, not performed here) — corrected by Review A `MINOR-01`
 
-A future transaction may activate a recalibrated Condition-1 threshold only
-after ALL of:
+**`MINOR-01` (Review A, this correction): the prior candidate's review/
+decision authority citations were stale.** The prior text cited "Chapter 11
+§11.5's minimum-two-reviewer requirement" as controlling for this proposal.
+That is no longer current governing authority for a Feature-Engine-only,
+R1-classified quality-policy proposal — **current ADR-045/Chapter 11 v2.4
+review semantics control**, fresh-verified this transaction directly from
+`docs/adr/ADR-045.md`:
 
-1. Step 7 — bounded Review A (ChatGPT) of this candidate proposal,
-   independently re-verifying §1's arithmetic, §3's equivalence trace, and
-   the Model A/B/C comparison;
-2. Independent Review B, per Chapter 11 §11.5's minimum-two-reviewer
-   requirement (unless the reviewed proposal is itself eligible for
-   Delegated Technical Resolution under ADR-045 — a determination reserved
-   for that future transaction, not decided here);
+```text
+R1 — Bounded semantic / normal implementation risk... Default: NO
+  CROSS-CHECK -- Review A is sufficient unless Review A or the Product
+  Owner escalates the specific case to R2 because actual uncertainty/risk
+  is materially higher than the nominal category suggests.
+```
+
+(`ADR-045.md`, "Decision — R0/R1/R2 definitions", R1 entry, fresh-read this
+transaction, blob `ac13ece16ff644d0d88ddf982d83bfb0e8d5ad16`, unchanged.)
+
+**Corrected activation requirements** — a future transaction may activate a
+recalibrated Condition-1 threshold only after ALL of:
+
+1. Step 7 — bounded Review A (ChatGPT) of this candidate proposal (this
+   correction's own reviewed subject), independently re-verifying §1's
+   arithmetic, §3's corrected classification/observability trace, the
+   corrected Model A two-part gate, and the Model A/B/C comparison;
+2. **No Independent Review B is required at R1** under current ADR-045/
+   Chapter 11 v2.4 governance — R1's default is Review A alone, no
+   cross-check, unless Review A or the Product Owner itself escalates this
+   specific case to R2 (not decided by this correction). The Testing
+   Convention v0.17 9-step text's own "review → Product Owner decision"
+   wording (item sequence, §0) still uses pre-ADR-045-era "Review A +
+   Independent Review B" phrasing in places — this is recorded as a known,
+   lower-tier **documentation-alignment residual** that does **not**
+   override current, higher-precedence ADR-045/Chapter 11 governance
+   authority (ADR > Testing Convention, per this repository's own
+   authority-precedence ordering); it is not remediated by this correction
+   (out of scope — no Testing Convention edit performed, per §10's
+   non-goals);
 3. a fresh Chapter 0 §4b ADR Scope Rule re-run against the reviewed
-   boundary's actual final content (not inherited from §12 below);
-4. an explicit Product Owner decision naming the exact candidate figure,
-   boundary, and review dispositions being approved — never inferred or
-   assumed from this candidate document alone;
-5. only then, a Step-9-equivalent atomic activation transaction updating
-   the controlling threshold artifact (this document's own eventual
-   promotion, or a superseding activation record) — mirroring exactly how
-   `feature-engine-mutation-threshold-proposal-001.md` itself was approved
-   and would need to be superseded, not silently edited in place.
+   boundary's actual final content (not inherited from §14 below);
+4. **an explicit Product Owner decision on the numeric threshold
+   specifically** — this reservation is controlling and is **not** waived
+   or narrowed by R1's no-cross-check default. Testing Convention v0.17's
+   own governed 9-step sequence explicitly names "Product Owner decision"
+   as its own distinct step (Step 8), and the currently-effective
+   threshold proposal's own §8 (Product Owner approval record) confirms
+   this class of decision is a named, governing-artifact-reserved Product
+   Owner action. Under ADR-045 `D10(a)` ("a governing artifact explicitly
+   reserves this decision class to Product Owner"), this is exactly such a
+   reservation:
 
-## 12. Rollback / reversal semantics
+   ```text
+   DTR is NOT eligible for the threshold-selection decision.
+   Reason: ADR-045 D10(a) -- a governing artifact (the currently-effective
+     threshold proposal's own §8 Product-Owner-decision precedent, and
+     Testing Convention v0.17's own named Step-8 "Product Owner decision")
+     explicitly reserves the threshold-selection decision to Product
+     Owner. D10 fails closed on EITHER of its two independent conditions
+     alone -- (a) alone is sufficient here, regardless of D1-D9/D11/D12's
+     outcome.
+   ```
+
+   DTR is explicitly **not offered as an alternative approval path** for
+   the numeric threshold decision itself, even if a future Review A on
+   this proposal returns CLEAN and even though R1 requires no cross-check —
+   D10(a)'s governing-artifact reservation is independent of, and controls
+   over, the R1 no-cross-check default. An explicit Product Owner decision
+   naming the exact candidate figure, boundary, and review disposition
+   being approved remains required — never inferred or assumed from this
+   candidate document alone;
+5. only then, a Step-9-equivalent atomic activation transaction performing
+   the exact future SSOT authority transition defined in §12 below.
+
+## 12. Exact future SSOT authority transition — corrected by Review A `MINOR-02`
+
+**`MINOR-02` (Review A, this correction): the prior candidate left future
+activation ambiguous** between "promote this document" and "a superseding
+activation record." Replaced with one exact authority transition,
+**defined only as future activation semantics — not performed now**:
+
+**Before activation (current state, unchanged by this proposal or this
+correction):**
+
+```text
+feature-engine-mutation-threshold-proposal-001.md
+  = APPROVED -- EFFECTIVE
+  = sole current Feature Engine Condition-1 threshold authority
+```
+
+**After a future activation of this recalibration proposal (not performed
+here — requires the full §11 activation sequence, including the
+Product-Owner-reserved threshold decision):**
+
+```text
+feature-engine-mutation-threshold-recalibration-proposal-001.md
+  = APPROVED -- EFFECTIVE
+  = sole current Feature Engine Condition-1 threshold authority
+
+feature-engine-mutation-threshold-proposal-001.md
+  = historical / superseded threshold authority
+  = file remains byte-unchanged (never mutated merely to change its own
+    lifecycle-state label -- its own internal STATUS banner is itself part
+    of the permanent historical record and is not retroactively edited)
+```
+
+A future activation transaction's own `docs/MANIFEST.md` update must
+atomically write a **canonical current-threshold pointer/state** — a single
+unambiguous field naming which artifact is the sole current Condition-1
+threshold authority at that boundary — so that no reader is ever required
+to infer current authority from two documents' independent STATUS banners.
+The superseded document is historical evidence, not a candidate for
+lifecycle-state mutation; only the superseding document's own STATUS
+banner and the MANIFEST pointer change.
+
+## 13. Rollback / reversal semantics
 
 If a future recalibration is activated and later found defective (e.g., a
 Review A finding after activation, or a subsequent materiality-composition
@@ -591,24 +870,27 @@ citing the specific defect, with its own fresh ADR Scope Rule and Risk
 Classification — never a silent in-place edit of an already-activated
 threshold artifact. The currently-effective `87.001959503592%` threshold
 proposal document itself remains the permanent historical record of the
-prior calibration; any future activation would supersede it explicitly
-(mirroring how ADR supersession is recorded elsewhere in this repository),
-never overwrite it.
+prior calibration; any future activation would supersede it explicitly per
+§12's exact transition above (mirroring how ADR supersession is recorded
+elsewhere in this repository), never overwrite it.
 
-## 13. ADR Scope Rule — fresh classification against the actual proposed model (Model A)
+## 14. ADR Scope Rule — fresh classification against the actual corrected proposed model (Model A, now with Condition 1A/1B)
 
-**Not inherited from the original proposal's `ADR_OPTIONAL`** — re-run
-fresh, specifically against Model A (the actual recommended content of this
-transaction), per this task's own explicit instruction.
+**Not inherited from the original proposal's `ADR_OPTIONAL`, and not
+mechanically carried forward from this document's own prior candidate's
+`ADR_OPTIONAL`** — re-run fresh, specifically against Model A's now-
+corrected content (the two-part Condition 1A/1B gate, and the new pinned
+42-identity artifact), per this task's own explicit instruction not to
+force the expected classification.
 
-| §4b trigger | Applies to Model A? | Reasoning |
+| §4b trigger | Applies to corrected Model A? | Reasoning |
 |---|---|---|
 | Platform Invariant change | No | No I-1–I-13 invariant touched. |
 | Event Schema change | No | No event/fact schema, contract, or field touched. |
 | Module Taxonomy/dependency-graph change | No | No `module-registry.yaml`/dependency-edge edit. |
-| Governance/Approval-process change | No | Model A reuses the exact existing formula (Testing Convention item 7, unchanged), the exact existing Step 1–9 sequence, and the exact existing §4.1 per-identity companion-condition pattern. The new §9 trigger candidate reuses the SAME resulting mechanism (§4.3's own "governed re-proposal transaction") as the three existing triggers — no new role, lifecycle stage, or approval-gate structure is invented. |
+| Governance/Approval-process change | **No — re-examined specifically for the `MAJOR-01` correction's added Condition 1B, not merely re-asserted.** Is a companion condition requiring 42 specific, pinned mutant identities to each be individually resolved — via a NEW dedicated identity artifact — a NEW governance mechanism, or an application of an EXISTING one? Condition 1B's own resolution semantics are VERBATIM the currently-effective proposal's own §4.1 pattern: "(a) killed/confirmed_timeout in a fresh formal measurement; OR (b) individually reclassified — a separate, governed decision... never a blanket, unreviewed claim." This is the same conclusion the currently-effective proposal's own §6.1 reached for its own analogous §4.1 addition — a direct, structurally identical reuse of an already-established pattern (also, independently, Testing Convention item 8's equivalent-mutant-adjustment mechanism), applied to a current-boundary identity set instead of a historical one. The pinned-identity artifact itself is inert data (a sorted ID list + hash), not a new review role, lifecycle stage, or approval-gate structure. The §9 trigger candidate similarly reuses the SAME resulting mechanism (§4.3's own "governed re-proposal transaction") as the three existing triggers. Conclusion unchanged: no new governance/approval-process machinery is created. |
 | Decision affecting >1 module | No | Strictly Feature-Engine-only, Tier-1 scope — matches the original proposal's own scope exactly. |
-| Hard-to-reverse decision | No | A `CANDIDATE — NOT EFFECTIVE` document with no lifecycle approval; §12's symmetric re-proposal mechanism preserves full reversibility, identical in kind to the original proposal's own reversibility. |
+| Hard-to-reverse decision | No | A `CANDIDATE — NOT EFFECTIVE` document with no lifecycle approval; §13's symmetric re-proposal mechanism preserves full reversibility, identical in kind to the original proposal's own reversibility. |
 | Locked-ADR modification/supersession | No | No ADR touched. |
 | **Alternative: significant but reversible single-module internal change** | **Yes** | A genuinely significant (will eventually gate a real PASS/FAIL dimension) but single-module, contract-preserving, already-delegated-authority (Chapter 13 §13.14 defers exact threshold detail to Testing-Convention-owned territory), fully-reversible candidate — the same textual fit as the original proposal's own §6.2 finding. |
 
@@ -628,7 +910,7 @@ ADR_SCOPE_DISPOSITION: ADR_OPTIONAL
 instruction, this disposition (not `ADR_REQUIRED`) means the next governed
 action is Step 7 review of this candidate proposal, not ADR authoring.
 
-## 14. Risk Classification — candidate, fresh, not self-finalized
+## 15. Risk Classification — candidate, fresh, not self-finalized
 
 This is a candidate policy/quality-gate recalibration proposal, not mere
 evidence/bookkeeping recording — `R0` is not assumed. It is also not `R2`:
@@ -650,7 +932,7 @@ character (ruling out R2). **This Risk Classification is not self-finalized
 Review A** — it is a candidate classification for the separate ChatGPT
 Review A this transaction explicitly does not perform.
 
-## 15. State preserved, explicitly verified unchanged
+## 16. State preserved, explicitly verified unchanged
 
 ```text
 Condition 1 (raw mutation score):  FAIL — criteria (unchanged; the

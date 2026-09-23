@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.424"
+manifest_version: "10.425"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -29502,6 +29502,94 @@ LIVE:                               NOT_AUTHORIZED.
 **Next governed action:** Step 7 — bounded Review A (ChatGPT) of this candidate recalibration proposal, followed by Independent Review B per Chapter 11 §11.5 (or a Delegated Technical Resolution eligibility determination under ADR-045, reserved for that future transaction), a fresh ADR Scope Rule re-run at that boundary, and only then an explicit Product Owner decision — none performed here.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-recalibration-proposal-001.md` (new, blob `bc7e0c9df45ff8e02451078ca7b74a54bac43ee5`), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — the currently-effective threshold proposal, Testing Convention, Chapter 13, ADR-044/ADR-045, Evidence-005 + correction, the post-E005 assessment artifact, and all source/tests/tooling NOT touched. `manifest_version` `"10.423"` -> `"10.424"`.
+
+## Feature Condition-1 threshold recalibration proposal — bounded correction (`MAJOR-01`/`MAJOR-02`/`MINOR-01`/`MINOR-02`)
+
+**Fresh boundary verification:** starting HEAD `0c9f4ef8eb8d7ad45afb604b3a8e7cfd1883fde9` fresh-verified equal to `origin/main`, no drift. Reviewed proposal fresh-verified at blob `bc7e0c9df45ff8e02451078ca7b74a54bac43ee5` (exact match) before correction.
+
+**Review A input:** `REVISION_REQUIRED — 0 Blocker / 2 Major / 2 Minor`, Risk `R1`, ADR Scope `ADR_OPTIONAL`. Per current ADR-045/Chapter 11 v2.4 governance, R1's default is no independent cross-check — remediated on Review A's own finding, not self-closed, pending a subsequent bounded Review A re-review (not performed by this transaction).
+
+**`MAJOR-01` — REMEDIATED:** the prior candidate's Model A enforced only the aggregate percentage, recreating the exact aggregate-only loophole the currently-effective threshold proposal's own `P3-PY-MUT-THRESH-A-MAJ-01` correction already closed once. Corrected to an explicit two-part gate:
+
+```text
+Condition 1A: raw mutation-effectiveness >= recalibrated numeric threshold
+              (necessary but not sufficient)
+Condition 1B: every one of the 42 exact current-material-gap mutant
+              identities individually resolved -- killed/confirmed_timeout
+              in fresh formal evidence, OR separately governed,
+              individually-pinned semantic reclassification. No blanket
+              classification. No score-offset substitution. Killing
+              unrelated (message-text) mutants never satisfies Condition
+              1B.
+```
+
+Condition 1B reuses the currently-effective proposal's own §4.1 per-identity resolution pattern verbatim, applied to a new, current-boundary 42-identity set — NOT a replacement for, and NOT merged with, Condition 2's independent historical 170-identity obligation (currently `169/170`).
+
+**`MAJOR-02` — REMEDIATED:** reclassified `feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁacquire_and_activate__mutmut_21`/`_23` from `PROVABLY_EQUIVALENT` to **`GENUINE_TEST_GAP`**. The prior conclusion relied on a false premise — that single-threaded, synchronous execution within one method call is the only relevant observability boundary. `owner.handle`/`owner.state` are public properties on a shared, mutable object with no lock/actor-isolation contract; ADR-043 itself treats concurrent acquisition attempts as a real runtime concern. A legitimate deterministic test (described, not implemented, per this transaction's own instruction) can hold execution inside `_catch_up` via a synchronized test-double history-provider seam and observe the intermediate `CATCHING_UP` handle from a second thread — under `mutmut_21`, `feature_subject_id=None`; under `mutmut_23`, `state=None`; both concretely observable through the object's own public interface.
+
+**Settled classification (supersedes both the assessment artifact's `UNCLEAR` label and this proposal's own prior `PROVABLY_EQUIVALENT` conclusion for exactly these two IDs — neither the post-E005 assessment artifact nor any other byte-unchanged file is edited):**
+
+```text
+GENUINE_TEST_GAP:              42  (40 + 2, settled)
+LOW_MATERIALITY_MESSAGE_TEXT: 344  (unchanged)
+PROVABLY_EQUIVALENT:           16  (unchanged)
+STRUCTURALLY_UNREACHABLE:       4  (unchanged)
+UNCLEAR:                        0  (settled)
+```
+
+Total remains `406`. `CALIBRATION_DRIFT_CONFIRMED` preserved unchanged: the 71-mutant robustness scenario's cardinality is unchanged by this reclassification (the 2 formerly-`UNCLEAR` mutants were already counted within it) — numerator `2285` at `total=2629` remains `3` short of the required `2288`.
+
+**New pinned identity artifact:** `docs/governance/mutation-baseline-evidence/feature-engine-condition1-current-material-gap-set-001.json` (blob `6360c8c1ad6e7c21129fa3b75415486d5447bf52`) — the exact 42-ID set (40 from the post-E005 assessment's `GENUINE_TEST_GAP` + the 2 reclassified by `MAJOR-02`). Fresh-verified: `count=42`, `duplicates=0`, sorted-set `sha256=932698b4b312c1a8f70c261426555a5c6f3566579ed0a27102d4a0f0214adedc`. This is the pinned identity source for Condition 1B.
+
+**Corrected Model A candidate, superseding `85.736021300875%`:**
+
+```text
+current confirmed numerator: 2214
+current genuine material gaps: 42
+candidate numerator: 2214 + 42 = 2256
+candidate threshold = 2256 / 2629 x 100 = 85.812095853936858120958539368581...%
+display: 85.812095853937%
+```
+
+`85.736021300875%` (the prior candidate figure, derived from 40 rather than the settled 42) is removed as the recommended figure, retained only as superseded historical candidate-analysis prose within the proposal document itself.
+
+**`MINOR-01` — REMEDIATED:** corrected the review/decision authority citation. Current ADR-045/Chapter 11 v2.4 governance (fresh-read this transaction) controls: `R1 — ... Default: NO CROSS-CHECK -- Review A is sufficient...` (`ADR-045.md`, "Decision — R0/R1/R2 definitions", unchanged). Removed the prior candidate's reliance on "Chapter 11 §11.5's minimum-two-reviewer requirement," which is not current controlling authority for this R1-classified proposal. Testing Convention v0.17's own legacy "Review A + Independent Review B" 9-step wording is recorded as a known, lower-tier documentation-alignment residual — not remediated by this correction (out of scope), not overriding current, higher-precedence ADR-045/Chapter 11 authority. The numeric-threshold decision itself remains explicitly Product-Owner-reserved (Testing Convention's own named Step 8, and the currently-effective proposal's own §8 precedent) — under ADR-045 `D10(a)` ("a governing artifact explicitly reserves this decision class to Product Owner"), **DTR is explicitly NOT eligible for the threshold-selection decision** and is not offered as an alternative approval path, independent of R1's no-cross-check default.
+
+**`MINOR-02` — REMEDIATED:** defined one exact future SSOT (single source of truth) authority transition, replacing the prior ambiguous "promote this document / a superseding activation record" language — **defined only as future activation semantics, not performed now**:
+
+```text
+Before activation: feature-engine-mutation-threshold-proposal-001.md =
+  APPROVED -- EFFECTIVE = sole current threshold authority.
+After a future activation: feature-engine-mutation-threshold-
+  recalibration-proposal-001.md = APPROVED -- EFFECTIVE = sole current
+  authority; the old proposal document = historical/superseded, byte-
+  unchanged (never mutated merely to change its own lifecycle-state
+  label). A future MANIFEST update must atomically carry a canonical
+  current-threshold pointer/state.
+```
+
+**ADR Scope Rule:** freshly re-run against the corrected model (Condition 1A/1B, the new pinned-identity artifact) — not inherited from this proposal's own prior candidate classification: `ADR_OPTIONAL` (Condition 1B verbatim-reuses the currently-effective proposal's own §4.1 pattern; the pinned-identity artifact is inert data, not a new review role/lifecycle stage/approval-gate structure). No ADR authored.
+
+**Risk Classification (candidate, not self-finalized Review A):** `R1` — unchanged; single-module, fully-reversible policy candidate.
+
+**State preserved, explicitly verified unchanged:**
+
+```text
+Condition 1 (raw mutation score):  FAIL -- criteria (the currently-
+                                    effective 87.001959503592% threshold
+                                    remains controlling, unchanged).
+Condition 2 (identity resolution): 169/170 (unchanged, not folded into
+                                    Condition 1B).
+Condition 3 (formal evidence):     SATISFIED -- REVIEW A VALIDATED
+                                    (unchanged).
+P3-FEATURE-QG-EVID-03:              OPEN (unchanged).
+Feature Engine approval:           NOT APPROVED.
+LIVE:                               NOT_AUTHORIZED.
+```
+
+**No scope expansion — explicit verification:** no threshold activated; no Product Owner decision requested; no Review A or Independent Review B self-performed; no test implemented; no ADR authored; no source/test/tooling change; the currently-effective threshold proposal, Testing Convention, Chapter 13, ADR-044/ADR-045, Evidence-005 + correction, the post-E005 assessment artifact, and Candidate-005 all fresh-verified byte-unchanged; `contracts.x__seal_verified_authority__mutmut_33` (`TOOL_IDENTITY_DRIFT`) not touched.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-recalibration-proposal-001.md` (corrected in place), `docs/governance/mutation-baseline-evidence/feature-engine-condition1-current-material-gap-set-001.json` (new, blob `6360c8c1ad6e7c21129fa3b75415486d5447bf52`), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.424"` -> `"10.425"`.
 
 ## Decision Log
 
