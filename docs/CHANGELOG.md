@@ -2,6 +2,24 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-23 — governance: ADR-045 bounded correction — supersession + single routing model (GOV-DELEGATION-MODEL-ADR-045-CORR-001)
+
+Starting HEAD `fee5c582dc89efcd0eec8c537d56cd0151eea673`, verified `main == origin/main`, no drift. Confirmed reviewed blobs exactly: ADR-045 `e5e7357f16220777922b07bd4be29ef0cfe19007`, Chapter 0 v1.5 candidate `169821b2c9d6719956e86dafdc5fb1ca8ff07c37`, Global Execution Rules v0.7 candidate `7bc43913391f3d7b827e8603dbd841525b5ec286`. ChatGPT Review A: `REVISION_REQUIRED -- 0 Blocker / 2 Major / 1 Minor`, Risk R2. Bounded correction only -- no activation, no Candidate-005 resolution, no Product Owner approval requested.
+
+MAJOR-01: ADR-045 v0.1 said it "extends ADR-042 -- does not supersede it," but ADR-042 fixes a single target workflow ADR-045 intentionally changes for eligible R0/R1 decisions -- two Approved ADRs cannot coexist with contradictory routing. Corrected: `supersedes: [ADR-042]` (frontmatter); new "Authority compatibility -- ADR-042 supersession scope" section carries forward every still-valid ADR-042 semantic unchanged (Review A mandatory/independent, R0/R1/R2 definitions, R0/R1 NO CROSS-CHECK, R2 Product-Owner-only with an advisory non-mandatory non-veto non-persisted optional cross-check, peer no-veto, non-retroactivity); intentional delta stated narrowly. ADR-042.md verified byte-unchanged, not modified. Future activation bundle now explicitly marks ADR-042 Superseded in MANIFEST with reverse superseded_by: ADR-045 -- not performed by this correction.
+
+MAJOR-02: Chapter 0 v1.5 left the old unconditional §3 diagram live alongside a separate Route A/Route B addendum -- two apparently-competing normative workflows once activated. Corrected: §3 now contains exactly ONE future controlling branching model (Review A where required -> Risk Classification -> routing to Product Owner Decision or DELEGATED TECHNICAL RESOLUTION, each with its own distinct downstream step -- Delegated Technical Resolution never produces an Approved/Locked/Phase-Approved/Module-Approved/LIVE state); the old single-route diagram preserved as explicit historical text only; v1.4 explicitly remains controlling until activation.
+
+MINOR-01: D10 protected only governing-artifact reservation, not a direct Product Owner call-in. Corrected: D10 and the matching escalation rule (ADR-045), plus G-DELEGATE-001 (Execution Rules), now fail delegation closed to Product Owner on EITHER governing-artifact reservation OR an explicit Product Owner call-in -- no AI may override.
+
+ADR-045 v0.1 -> v0.2, still Draft, no approval metadata fabricated, Risk remains candidate-level R2. Chapter 0 stays v1.5/Draft; Global Execution Rules stays v0.7/CANDIDATE -- both corrected in place, no version bump. Re-verified no genuine contradiction requiring Chapter 11/Chapter 12/ADR-template/team.yaml/Phase-3-Rules changes -- none of these five files modified.
+
+Current Ride state preserved: Condition 1 FAIL -- criteria, Condition 2 167/170, Candidate-005 PAUSED (Review A CLEAN, no credit), Condition 3 SATISFIED -- REVIEW A VALIDATED, P3-FEATURE-QG-EVID-03 OPEN, Feature Engine NOT APPROVED, LIVE NOT_AUTHORIZED.
+
+**Files changed:** `docs/adr/ADR-045.md`, `docs/constitution/00-governance.md`, `docs/governance/execution-rules.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html` only -- ADR-042.md, ADR-031.md, Chapter 11, Chapter 12, ADR template, team.yaml, and Phase-3 Rules NOT touched. `manifest_version` `"10.418"` -> `"10.419"`.
+
+---
+
 ## [Unreleased] — 2026-09-23 — governance: ADR-045 Delegated Technical Resolution candidate authored (GOV-DELEGATION-MODEL-ADR-045-AUTHOR-001)
 
 Starting HEAD `31fc6f5dda1834916f68c55656bd2fa4893bdcb8`, verified `main == origin/main`, no drift. Candidate-authoring transaction only -- no activation, no Candidate-005 resolution. Repository-wide governance-process candidate, not an EVID-03 technical WP.

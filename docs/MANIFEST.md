@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.418"
+manifest_version: "10.419"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -23,7 +23,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 
 | File | Version | Status | Owner | Depends On |
 |---|---|---|---|---|
-| constitution/00-governance.md | **1.4 (controlling)** — v1.5 candidate `Draft` (adds a Route A/Route B addendum to §3 for `ADR-045`'s Delegated Technical Resolution lane; NOT reviewed/approved/activated, NOT controlling; see MANIFEST ADR-045-CANDIDATE section) | Locked (v1.4, activated 2026-09-11T09:30+07:00 — `POST-ADR042-A-MAJ-01` mechanical approval; Review A CLEAN (ChatGPT), Risk Classification R0, NO CROSS-CHECK, per the now-ACTIVE ADR-042 review-gate model; factual/lifecycle-wording correction only, no semantic change from v1.3) | Product Owner | — |
+| constitution/00-governance.md | **1.4 (controlling)** — v1.5 candidate `Draft` (§3 now a single future branching routing model for `ADR-045`'s Delegated Technical Resolution lane, old single-route diagram preserved as explicit historical text only, `POST-ADR045-A-MAJ-02` correction; NOT reviewed/approved/activated, NOT controlling; see MANIFEST ADR-045-CANDIDATE section) | Locked (v1.4, activated 2026-09-11T09:30+07:00 — `POST-ADR042-A-MAJ-01` mechanical approval; Review A CLEAN (ChatGPT), Risk Classification R0, NO CROSS-CHECK, per the now-ACTIVE ADR-042 review-gate model; factual/lifecycle-wording correction only, no semantic change from v1.3) | Product Owner | — |
 | constitution/01-vision.md | 2.3 | **Locked** | Product Owner | 00-governance |
 | constitution/02-platform-invariants.md | 3.1 | **Locked** | Product Owner | 00-governance, 01-vision |
 | constitution/03-engineering-principles.md | 1.4 | **Locked** | Product Owner | 02-platform-invariants |
@@ -29104,6 +29104,56 @@ Global Execution Rules:     v0.6 EFFECTIVE remains controlling; v0.7
 **Next governed step:** ChatGPT Review A of `ADR-045`.
 
 **Files changed:** `docs/adr/ADR-045.md` (new), `docs/constitution/00-governance.md`, `docs/governance/execution-rules.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html` only. `manifest_version` `"10.417"` -> `"10.418"`.
+
+## ADR-045 v0.2 — bounded correction (`GOV-DELEGATION-MODEL-ADR-045-CORR-001`, remediating Review A `REVISION_REQUIRED — 0 Blocker / 2 Major / 1 Minor`, Risk `R2`) — ADR-045-CORR-001
+
+**Governed bounded correction transaction only — no activation, no Candidate-005 resolution, no Product Owner approval requested.**
+
+**Fresh boundary verification:** HEAD confirmed exactly `fee5c582dc89efcd0eec8c537d56cd0151eea673`, identical to `origin/main` — no drift. Confirmed reviewed blobs exactly: `docs/adr/ADR-045.md` `e5e7357f16220777922b07bd4be29ef0cfe19007`; `docs/constitution/00-governance.md` `169821b2c9d6719956e86dafdc5fb1ca8ff07c37`; `docs/governance/execution-rules.md` `7bc43913391f3d7b827e8603dbd841525b5ec286` — all matched ChatGPT's own reviewed identities before this transaction.
+
+**`MAJOR-01` — `ADR-042` authority conflict.** `ADR-045` v0.1 declared it "extends `ADR-042` — does not supersede it," but `ADR-042` (Approved) fixes a single target workflow (`Executor -> Review A -> Risk Classification -> Product Owner Decision -> Execution`) that `ADR-045` intentionally changes for eligible R0/R1 technical resolutions — two current Approved ADRs cannot coexist with contradictory routing semantics for the same decision class. Corrected: fresh-checked repository ADR supersession convention (`ADR-042`'s own precedent: "supersession is a frontmatter/MANIFEST declaration, never a text edit into the superseded ADR's own file," mirroring `ADR-016`→`ADR-015`, `ADR-014`→`ADR-003`, `ADR-041`→`ADR-040`, and `ADR-042`→`ADR-031` itself). `ADR-045` frontmatter: `supersedes: [] -> [ADR-042]` (`depends_on: [ADR-042]` unchanged). "Decision — target principle" rewritten; new "Authority compatibility — `ADR-042` supersession scope" section added, carrying forward every still-valid `ADR-042` semantic unchanged: Review A mandatory where review is required and independent (`G-REV-003`); R0/R1/R2 definitions unchanged; R0/R1 default `NO CROSS-CHECK`; R2 remains Product-Owner-only; the optional R2 cross-check remains advisory-only, non-mandatory, non-veto, non-persisted; peer-reviewer no-veto semantics unchanged; historical decisions non-retroactive. Intentional delta stated narrowly: after Review A + Risk Classification, eligible R0/R1 + `D1`–`D12` -> `DELEGATED TECHNICAL RESOLUTION`; otherwise -> Product Owner Decision. `ADR-042.md` verified byte-unchanged — not modified, not now, not later (Chapter 11 §11.3). Future activation bundle (item 4) now explicitly includes: mark `ADR-042` `Superseded` in MANIFEST; record reverse `superseded_by: ADR-045`; preserve `ADR-042.md` byte-for-byte as historical Approved evidence — **not performed by this correction**.
+
+**`MAJOR-02` — Chapter 0 dual normative workflow.** The v1.5 candidate left the old unconditional §3 diagram live immediately followed by a separate "Route A/Route B" addendum, producing two apparently-competing normative routing descriptions once activated. Corrected: §3 rewritten to contain exactly ONE future controlling routing model — a single branching workflow (`Requirement / governed decision -> Review A where required -> Risk Classification -> routing:` PO-reserved/R2/`ADR_REQUIRED`/non-eligible `-> Product Owner Decision`; R0/R1 + Review A CLEAN + `D1`-`D12` satisfied `-> DELEGATED TECHNICAL RESOLUTION`; each with its own distinct downstream step — the Product Owner Decision route leads to the applicable `Approved`/`Locked`/Phase-Approved/Module-Approved/LIVE-Authorized transition, the Delegated Technical Resolution route leads only to a bounded technical disposition plus deterministic recording/execution, never any Product-Owner-reserved lifecycle state). The previous `ADR-042`/v1.3 single-route workflow is preserved directly below, explicitly relabeled "Historical" — current diagram, not a second live normative workflow. Explicit statements added: `v1.4` remains controlling until `ADR-045` activation; after activation, the new branching workflow is the sole current §3 routing model. `Route gate` bullet list (Review A/Risk-Classification mechanics) preserved unchanged in substance, with one clarifying cross-reference added. §4b (ADR Scope Rule table) re-verified byte-identical, untouched.
+
+**`MINOR-01` — Product Owner call-in / reservation.** `D10` (and the matching escalation-rule bullet) protected only governing-artifact reservation, not a Product Owner's own direct call-in of a specific decision. Corrected in `ADR-045`: `D10` now fails delegation eligibility when EITHER (a) a governing authority explicitly reserves the decision class to Product Owner, OR (b) the Product Owner explicitly calls in/reserves this specific decision — no AI may override an explicit call-in. Escalation-rule bullet updated to match. `G-DELEGATE-001` (Global Execution Rules v0.7 candidate) corrected identically, in place — no version bump (candidate not yet accepted); stale "Route A" cross-reference also corrected to the new branching-workflow terminology.
+
+**ADR-045 frontmatter transition:** `version: "0.1" -> "0.2"`, `status` remains `Draft`, `approved_by`/`approved_at`/`reviewers` remain `null`/`null`/`[]` — no approval metadata fabricated. Risk remains candidate-level `R2` (expected, not self-finalized) — no new Review A result fabricated.
+
+**Chapter 0 / Global Execution Rules:** both corrected in place at their existing candidate versions — `docs/constitution/00-governance.md` remains `version: "1.5"`, `status: Draft`; `docs/governance/execution-rules.md` remains `version: "0.7"`, `operational_state: CANDIDATE`. Neither activated. `G-DELEGATE-001`/`G-DELEGATE-002` updated only as required by `MINOR-01`; no unrelated existing rule altered; `G-AUTH` through `G-ORCH` and Semantic Sufficiency verified byte-unchanged.
+
+**No genuine contradiction requiring further file scope — re-verified:** resolving `MAJOR-01` did not require touching Chapter 11, Chapter 12, the ADR template, `/docs/team/team.yaml`, or `docs/governance/phases/phase-3-rules.md` — none of these five files modified by this correction (confirmed via zero-diff check).
+
+**Current Ride state preserved, unchanged by this transaction:**
+
+```text
+Condition 1:                        FAIL -- criteria
+Condition 2:                        167/170
+Candidate-005:                      PAUSED -- Review A CLEAN, NO credit
+                                     granted (unchanged from prior
+                                     transaction)
+Condition 3:                        SATISFIED -- REVIEW A VALIDATED
+P3-FEATURE-QG-EVID-03:               OPEN
+Feature Engine:                     NOT APPROVED
+LIVE:                               NOT_AUTHORIZED
+```
+
+**Activation state (unchanged, still not activated):**
+
+```text
+ADR-045:                    v0.2, Draft
+Chapter 0:                  v1.4 Locked remains controlling; v1.5
+                             candidate Draft, NOT reviewed, NOT approved,
+                             NOT activated.
+Global Execution Rules:     v0.6 EFFECTIVE remains controlling; v0.7
+                             candidate CANDIDATE, NOT accepted, NOT
+                             effective.
+```
+
+**No scope expansion — explicit verification:** no ADR-045 activation; no Candidate-005 resolution; no Condition-1/2/3 change; no source/test/tooling/evidence mutation; no Chapter 11/12/ADR-template/team.yaml/Phase-3-Rules edit; no ADR-042/ADR-031 modification (both verified byte-unchanged); no Product Owner approval fabricated or requested; no Review A performed by this executor.
+
+**Next governed step:** ChatGPT fresh Review A of the corrected `ADR-045` v0.2 + Chapter 0 v1.5 + Global Execution Rules v0.7 bundle.
+
+**Files changed:** `docs/adr/ADR-045.md`, `docs/constitution/00-governance.md`, `docs/governance/execution-rules.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html` only — `docs/adr/ADR-042.md`, `docs/adr/ADR-031.md`, Chapter 11, Chapter 12, ADR template, `team.yaml`, and Phase-3 Rules NOT touched. `manifest_version` `"10.418"` -> `"10.419"`.
 
 ## Decision Log
 
