@@ -2,6 +2,24 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-23 — governance: ADR-045 v0.3 atomically activated — Delegated Technical Resolution model now EFFECTIVE (GOV-DELEGATION-MODEL-ADR-045-ACTIVATION-001)
+
+Reviewed semantic boundary `e54159aa8355cfd1d3d309d43969007b645246ed`. Reviewed blobs: ADR-045 v0.3 `432562e62c26d2922981a6e3d73885be13d78d20`; Chapter 0 v1.5 `771af07a0d542ba15c6ba223dacc783cbe8be43a`; Chapter 11 v2.4 `7cf72125991627eb6ea64ed629c6c486ffc674f4`; Global Execution Rules v0.7 `8edd299286cca1cb5f5e2b6f3d53102853830184`; MANIFEST (pre-mutation) `ff59358ed1185aaa6b95030360eb5a8cb2a3962b` -- all verified exact before this transaction.
+
+Final Review A (ChatGPT, AI Technical Architect): `CLEAN -- 0 Blocker / 0 Major / 1 Minor`, Risk R2. The residual Minor was non-semantic provenance wording only (stale review-round labeling), folded into this activation as deterministic cleanup. No additional cross-check required or performed.
+
+Product Owner decision (verbatim): "APPROVE ADR-045 v0.3 and its atomic activation. Accept Review A CLEAN -- 0 Blocker / 0 Major / 1 Minor, Risk R2. Fold the non-semantic provenance-wording cleanup into activation. No additional cross-check required." Approval timestamp: 2026-09-23T14:02+07:00.
+
+Atomic activation, one commit, no partial activation: ADR-045 `Draft -> Approved` (version 0.3 unchanged, supersedes: [ADR-042] unchanged); ADR-042 current lifecycle `Approved -> Superseded` (by ADR-045), reverse relation ADR-042 superseded_by: ADR-045 recorded, ADR-042.md byte-immutable/unmodified; Chapter 0 v1.5 `Draft -> Locked` (now controlling, v1.4 historical predecessor); Chapter 11 v2.4 `Draft -> Locked` (now controlling, v2.3 historical predecessor); Global Execution Rules v0.7 `CANDIDATE -> EFFECTIVE` (G-DELEGATE-001/G-DELEGATE-002 now effective, v0.6 historical predecessor). MANIFEST current-authority summary and top-of-file governance review-gate model description updated to reflect the activated branching workflow (Review A -> Risk Classification -> routing: eligible R0/R1 + D1-D12 -> Delegated Technical Resolution; otherwise -> Product Owner Decision) in place of the retired unconditional single-route model.
+
+No Candidate-005 resolution: its pre-activation CLEAN Review A does not, by itself, satisfy D8 for a post-activation Delegated Technical Resolution (X-MIN-02, carried forward from CORR-002) -- its own artifact is untouched, Condition 2 remains 167/170, and its milestone status moves from PAUSED to READY FOR FRESH POST-ACTIVATION DTR ELIGIBILITY REVIEW, requiring a separate, subsequent, bounded transaction. No Feature Engine approval, no LIVE authorization. Condition 1 (FAIL -- criteria), Condition 3 (SATISFIED -- REVIEW A VALIDATED), and P3-FEATURE-QG-EVID-03 (OPEN) all unchanged.
+
+Chapter 12, docs/templates/adr-template.md, docs/team/team.yaml, and docs/governance/phases/phase-3-rules.md all verified unchanged -- the ADR template's before/after-activation bridge wording was already correct by construction and required no edit.
+
+**Files changed:** `docs/adr/ADR-045.md`, `docs/constitution/00-governance.md`, `docs/constitution/11-adr-process.md`, `docs/governance/execution-rules.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html` only -- ADR-042.md, the ADR template, Chapter 12, team.yaml, Phase-3 Rules, and Candidate-005's artifact NOT touched. `manifest_version` `"10.420"` -> `"10.421"`.
+
+---
+
 ## [Unreleased] — 2026-09-23 — governance: ADR-045 consolidated bounded correction — D8 distinct-principal, self-contained R0/R1/R2, Chapter 11 v2.4 (GOV-DELEGATION-MODEL-ADR-045-CORR-002)
 
 Starting HEAD `bced025c6df3ca36f46313862fddac2c5c3dc8c1`, verified `main == origin/main`, no drift. ADR-045 confirmed v0.2/Draft, blob `033c2a95d372c8cb93ef1f3495699dc95e925384`. ChatGPT Review A: `CLEAN -- 0 Blocker / 0 Major / 1 Minor`, Risk R2. Product Owner selected the optional independent cross-check: `DEFECT FOUND -- 0 Blocker / 2 Major / 5 Minor`, ChatGPT-accepted in full. Consolidated bounded correction only -- no activation, no Candidate-005 resolution, no Product Owner approval requested.

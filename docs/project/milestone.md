@@ -6,7 +6,7 @@ status: Active
 owner: Product Owner
 maintainer: "WP executors under Lean Ride Operating Model v1.1"
 visual_companion: docs/project/milestone-dashboard.html
-state_verified_against_head: bced025c6df3ca36f46313862fddac2c5c3dc8c1
+state_verified_against_head: e54159aa8355cfd1d3d309d43969007b645246ed
 state_verified_against_at: "2026-09-23"
 ---
 
@@ -293,19 +293,19 @@ Scope Rule run fresh: `ADR_NOT_REQUIRED`. **Condition 2 remains
 `167 + 2 = 169/170` **NON-CONTROLLING / FUTURE-IF-APPROVED** if both
 rows are later Review-A validated and Product-Owner approved.
 
-**Candidate-005 — `PAUSED — awaiting governance delegation-model
-resolution`** (not rejected, not approved). ChatGPT's Review A on
-Candidate-005 (boundary `31fc6f5dda1834916f68c55656bd2fa4893bdcb8`,
+**Candidate-005 — `READY FOR FRESH POST-ACTIVATION DTR ELIGIBILITY
+REVIEW`** (not rejected, not approved, not resolved). ChatGPT's Review A
+on Candidate-005 (boundary `31fc6f5dda1834916f68c55656bd2fa4893bdcb8`,
 candidate blob `e217bda50f17b71792429e196a81583ae02633e8`) returned
-`CLEAN` — but this does **not** grant §4.1(b) credit by itself; a
-separate Product Owner Decision (or, if `ADR-045` is later activated, a
-qualifying Delegated Technical Resolution) is still required to close it.
-Pending resolution is deliberately paused here rather than forced through
-either route while `ADR-045`'s governance-delegation candidate (below) is
-itself under review — see `ADR-045`'s own "Candidate-005 worked example"
-for the non-normative illustration of how this pending candidate MAY
-later be eligible under the new model, without retroactively rewriting
-its authoring history.
+`CLEAN` — but per `X-MIN-02`, this pre-activation verdict is historical
+input only and does **not**, by itself, satisfy `D8` for a
+post-activation Delegated Technical Resolution. Now that `ADR-045` is
+Approved and active (see below), Candidate-005 MAY become eligible only
+after a fresh, post-activation `D8` (independent CLEAN verdict AND
+distinct-principal Review A) and a full `D1`–`D12` determination are
+performed against its exact subject/evidence at a future resolution
+boundary — a separate, subsequent, bounded transaction, not performed
+by this activation.
 
 **Work Package — governance-improvement candidate authoring
 (`GOV-DELEGATION-MODEL-ADR-045-AUTHOR-001`): COMPLETE.** Authored
@@ -366,23 +366,56 @@ NOT edited. `ADR-045` `v0.2 → v0.3`, still `Draft`. Chapter 0 stays
 `v1.5`/`Draft`; Chapter 11 `v2.4` successor candidate authored (`v2.3`
 remains controlling); Execution Rules stays `v0.7`/`CANDIDATE`; ADR
 template aligned with a before/after-activation bridge reference. This
-correction does **not** activate the new model, does **not** request
-Product Owner approval, and does **not** resolve Candidate-005.
+correction did **not** activate the new model, did **not** request
+Product Owner approval, and did **not** resolve Candidate-005.
+
+**Primary Work Package — atomic activation
+(`GOV-DELEGATION-MODEL-ADR-045-ACTIVATION-001`): COMPLETE — `DONE /
+ACTIVATED`.** Final Review A (ChatGPT) on the v0.3 bundle (boundary
+`e54159aa8355cfd1d3d309d43969007b645246ed`) returned `CLEAN — 0 Blocker
+/ 0 Major / 1 Minor`, Risk `R2` — the residual Minor was non-semantic
+provenance wording only, folded into this activation as deterministic
+cleanup per explicit Product Owner authorization; no additional
+cross-check required. Product Owner decision (verbatim): "APPROVE
+ADR-045 v0.3 and its atomic activation. Accept Review A CLEAN — 0
+Blocker / 0 Major / 1 Minor, Risk R2. Fold the non-semantic
+provenance-wording cleanup into activation. No additional cross-check
+required." (`2026-09-23T14:02+07:00`). Atomically, in one commit:
+`ADR-045` `Draft → Approved` (v0.3 unchanged, `supersedes: [ADR-042]`
+unchanged, now immutable); `ADR-042` current lifecycle `Approved →
+Superseded` (by `ADR-045`, reverse relation recorded, `ADR-042.md`
+byte-immutable/unmodified); Chapter 0 `v1.5` `Draft → Locked` (now
+controlling, `v1.4` historical predecessor); Chapter 11 `v2.4` `Draft →
+Locked` (now controlling, `v2.3` historical predecessor); Global
+Execution Rules `v0.7` `CANDIDATE → EFFECTIVE` (`G-DELEGATE-001`/
+`G-DELEGATE-002` now effective, `v0.6` historical predecessor). The
+**Delegated Technical Resolution model is now binding governance
+authority**: an R0/R1 decision satisfying the closed `D1`–`D12`
+predicate (including the `D8` distinct-principal safeguard) closes as
+`DELEGATED TECHNICAL RESOLUTION` without a Product Owner Decision step;
+R2, `ADR_REQUIRED`, and every other Product-Owner-reserved class
+continue to route to Product Owner Decision exactly as before. This
+activation does **not** resolve Candidate-005, approve Feature Engine,
+or authorize LIVE — Candidate-005's pre-activation `CLEAN` Review A does
+not, by itself, satisfy `D8`; a separate, subsequent, bounded
+transaction is required for its own fresh post-activation `D1`–`D12`
+determination.
 
 **Deferred / blocked item:** `contracts.x__seal_verified_authority__mutmut_33`
 — `TOOL_IDENTITY_DRIFT — NO EXISTING GOVERNED RESOLUTION MECHANISM`.
 
 **PO action required now:** No. Condition 1 and Condition 2 both
-independently fail; EVID-03 remains OPEN; Candidate-005 remains PAUSED.
-Next governed step: ChatGPT fresh Review A of the corrected `ADR-045`
-v0.3 + Chapter 0 v1.5 + Chapter 11 v2.4 + Execution Rules v0.7 bundle.
+independently fail; EVID-03 remains OPEN; Candidate-005 is `READY FOR
+FRESH POST-ACTIVATION DTR ELIGIBILITY REVIEW`, not yet resolved. Next
+governed step: a separate, subsequent, bounded Work Package to perform
+Candidate-005's fresh post-activation `D1`–`D12` determination.
 
 ## 5. Work Package lanes
 
 | Lane | Item | Status |
 |---|---|---|
-| Primary | `GOV-DELEGATION-MODEL-ADR-045-CORR-002` | COMPLETE — `ADR-045` v0.3 `Draft` (D8 distinct-principal, self-contained R0/R1/R2, Chapter 11 v2.4 candidate authored); remediates ChatGPT Review A `CLEAN — 0/0/1` + accepted cross-check `0/2/5`, R2; awaiting ChatGPT fresh Review A |
-| Secondary | `Candidate-005` — `PAUSED` | Review A `CLEAN` at `31fc6f5d...` (historical input only, X-MIN-02), but no credit granted; awaiting governance delegation-model resolution |
+| Primary | *(none currently assigned)* | `ADR-045` activation is COMPLETE. Next primary WP (Candidate-005's fresh post-activation DTR eligibility review) awaits a separate scoping decision. |
+| Secondary | `Candidate-005` — `READY FOR FRESH POST-ACTIVATION DTR ELIGIBILITY REVIEW` | Review A `CLEAN` at `31fc6f5d...` (historical input only, does not satisfy D8); awaiting a fresh post-activation D1-D12 determination |
 | Deferred | `contracts.x__seal_verified_authority__mutmut_33` (TOOL_IDENTITY_DRIFT) | Deferred — no existing governed mechanism |
 | Completed | `RIDE-PROJECT-MILESTONE-DASHBOARD-001` | Tracking infrastructure only |
 | Completed | `FE-EVID03-COND1-STOP-001` | 9/9 mutants `REQUIRES_GOVERNED_PROTOCOL_DECISION`; §13.10 applicability question flagged for ChatGPT review |
@@ -396,6 +429,8 @@ v0.3 + Chapter 0 v1.5 + Chapter 11 v2.4 + Execution Rules v0.7 bundle.
 | Completed | `FE-EVID03-COND2-CANDIDATE-005-AUTHOR-001` | Candidate-005 authored (2 rows); Review A `CLEAN` at `31fc6f5d...`; credit not granted — now `PAUSED`, see Secondary lane |
 | Completed | `GOV-DELEGATION-MODEL-ADR-045-AUTHOR-001` | `ADR-045` v0.1 `Draft` authored (Delegated Technical Resolution lane); Chapter 0 v1.5 + Execution Rules v0.7 candidates authored; Review A returned `REVISION_REQUIRED — 0 Blocker / 2 Major / 1 Minor`, R2 — remediated by the CORR-001 WP |
 | Completed | `GOV-DELEGATION-MODEL-ADR-045-CORR-001` | `ADR-045` v0.2 `Draft` (supersedes ADR-042, single branching workflow, D10 covers PO call-in); Review A `CLEAN — 0/0/1`, R2; optional PO-selected cross-check `DEFECT FOUND — 0/2/5`, accepted — remediated by the CORR-002 WP |
+| Completed | `GOV-DELEGATION-MODEL-ADR-045-CORR-002` | `ADR-045` v0.3 `Draft` (D8 distinct-principal, self-contained R0/R1/R2, Chapter 11 v2.4 candidate authored); Review A `CLEAN — 0/0/1`, R2 — approved/activated by the ACTIVATION-001 WP |
+| Completed | `GOV-DELEGATION-MODEL-ADR-045-ACTIVATION-001` | `DONE / ACTIVATED` — `ADR-045` `Approved`, `ADR-042` `Superseded`, Chapter 0 v1.5 `Locked`, Chapter 11 v2.4 `Locked`, Execution Rules v0.7 `EFFECTIVE`; Delegated Technical Resolution model now binding |
 
 ## 6. PO dashboard snapshot
 
@@ -407,41 +442,40 @@ Primary blocker:          Condition 1 — FAIL — criteria (formally
                            TRIAGE mutants remain individually
                            unresolved). Condition 2 (167/170)
                            independently also blocks.
-Current primary WP:       GOV-DELEGATION-MODEL-ADR-045-CORR-002
-                           (consolidated bounded correction only -- does
-                           not activate the new model, does not resolve
-                           Candidate-005)
-ADR-045:                   v0.3, Draft -- Delegated Technical Resolution
-                           lane, self-contained R0/R1/R2 definitions
-                           (X-MAJ-02), D8 distinct-principal safeguard
-                           (X-MAJ-01), supersedes ADR-042
-Chapter 0 / 11 / Exec:     Chapter 0 v1.5 Draft candidate (v1.4 remains
-                           controlling); Chapter 11 v2.4 Draft candidate
-                           authored, narrow definition-source redirect
-                           (v2.3 remains controlling); Global Execution
-                           Rules v0.7 CANDIDATE (v0.6 remains EFFECTIVE)
-Candidate-005 status:      PAUSED -- awaiting governance delegation-model
-                           resolution (Review A CLEAN at 31fc6f5d...,
-                           historical input only per X-MIN-02, no credit
-                           granted -- not rejected, not approved)
-Condition 2 (current):     167/170 -- UNCHANGED by this transaction
+Current primary WP:       (none currently assigned)
+ADR-045:                   v0.3, Approved / ACTIVE -- Delegated
+                           Technical Resolution lane, self-contained
+                           R0/R1/R2 definitions (X-MAJ-02), D8
+                           distinct-principal safeguard (X-MAJ-01),
+                           supersedes ADR-042 (now Superseded)
+Chapter 0 / 11 / Exec:     Chapter 0 v1.5 Locked/controlling (v1.4
+                           historical); Chapter 11 v2.4 Locked/
+                           controlling (v2.3 historical); Global
+                           Execution Rules v0.7 EFFECTIVE (v0.6
+                           historical) -- all activated
+                           2026-09-23T14:02+07:00
+Candidate-005 status:      READY FOR FRESH POST-ACTIVATION DTR
+                           ELIGIBILITY REVIEW (Review A CLEAN at
+                           31fc6f5d... is historical input only per
+                           X-MIN-02, does NOT satisfy D8 -- not
+                           rejected, not approved, not resolved)
+Condition 2 (current):     167/170 -- UNCHANGED by this activation
 Condition 2 (projection):  167 + 2 = 169/170 -- NON-CONTROLLING /
                            FUTURE-IF-APPROVED (Candidate-005 not yet
-                           reviewed or approved)
+                           granted a Delegated Technical Resolution or
+                           Product Owner approval)
 Last Review A:             CLEAN -- 0 Blocker / 0 Major / 1 Minor, Risk
-                           R2 (on ADR-045 v0.2, boundary bced025c...).
-                           Optional PO-selected cross-check DEFECT FOUND
-                           -- 0/2/5, accepted -- X-MAJ-01/X-MAJ-02/
-                           X-MIN-01..05 all remediated by this
-                           correction; awaiting ChatGPT fresh Review A on
-                           the corrected v0.3 bundle.
+                           R2 (on ADR-045 v0.3, boundary e54159aa...).
+                           Residual Minor was non-semantic provenance
+                           wording, folded into this activation. Product
+                           Owner approved 2026-09-23T14:02+07:00.
 PO decision required now: NO
-                           (ADR-045 v0.3 is corrected but not yet
-                           reviewed or approved; Condition 1 and
+                           (Activation is COMPLETE. Condition 1 and
                            Condition 2 both independently fail; EVID-03
-                           remains OPEN; Candidate-005 remains PAUSED.
-                           Next governed step is ChatGPT fresh Review A
-                           of the corrected bundle.)
+                           remains OPEN; Candidate-005 remains
+                           unresolved. Next governed step is a separate,
+                           bounded Work Package for Candidate-005's
+                           fresh post-activation D1-D12 determination.)
 ```
 
 ## 7. Update rules

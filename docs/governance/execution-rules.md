@@ -2,10 +2,10 @@
 id: execution-rules
 title: "Ride Quant Platform — Global Execution Rules"
 version: "0.7"
-operational_state: CANDIDATE
+operational_state: EFFECTIVE
 owner: Product Owner
-accepted_by: null
-accepted_at: null
+accepted_by: Product Owner
+accepted_at: "2026-09-23T14:02+07:00"
 created_at: "2026-08-09"
 ---
 
@@ -15,9 +15,9 @@ created_at: "2026-08-09"
 
 **Product Owner instruction being formalized (nguyên văn ý, transaction 2026-08-09):** "Every project phase must have explicit phase-specific execution rules used to improve working efficiency and incorporate lessons learned." Global rules áp dụng xuyên suốt mọi phase; per-phase rules CHỈ áp dụng cho đúng phase của nó.
 
-> **v0.6 EFFECTIVE (accepted 2026-09-10, atomic with [ADR-042](../adr/ADR-042.md)'s own approval/activation):** ADR-042 alignment (`ACT-A-MAJ-02`) — `G-REV-002`/`G-REV-003`/Semantic Sufficiency interpretation point 7 updated to reflect Review A as the single mandatory review and an optional Product-Owner-chosen R2 cross-check, replacing the retired mandatory-Independent-Review-B premise, per ADR-042 Migration item 7. Version-identity/provenance correction ONLY — v0.5's every other Global rule (Authority hierarchy, `G-AUTH`/`G-ORCH`/`G-TXN`/`G-VERIFY`/`G-BUDGET`/`G-ID`, and v0.5's own already-accepted Semantic-Sufficiency clarification history) is preserved byte-equivalent, not reopened. **This v0.6 EFFECTIVE entry remains the currently accepted content — the v0.7 candidate below does not change it.**
+> **v0.6 EFFECTIVE (accepted 2026-09-10, atomic with [ADR-042](../adr/ADR-042.md)'s own approval/activation):** ADR-042 alignment (`ACT-A-MAJ-02`) — `G-REV-002`/`G-REV-003`/Semantic Sufficiency interpretation point 7 updated to reflect Review A as the single mandatory review and an optional Product-Owner-chosen R2 cross-check, replacing the retired mandatory-Independent-Review-B premise, per ADR-042 Migration item 7. Version-identity/provenance correction ONLY — v0.5's every other Global rule (Authority hierarchy, `G-AUTH`/`G-ORCH`/`G-TXN`/`G-VERIFY`/`G-BUDGET`/`G-ID`, and v0.5's own already-accepted Semantic-Sufficiency clarification history) is preserved byte-equivalent, not reopened. This v0.6 entry is preserved as accurate history of that acceptance — it no longer describes the currently accepted content as of the v0.7 acceptance below.
 >
-> **v0.7 CANDIDATE (2026-09-23, NOT accepted) — [`ADR-045`](../adr/ADR-045.md) alignment.** Adds a new `G-DELEGATE` section (`G-DELEGATE-001`/`G-DELEGATE-002`) defining the closed Delegated Technical Resolution eligibility predicate and its recording/routing semantics, per `ADR-045`'s own Decision. No existing rule ID's substantive text is changed — `G-AUTH`/`G-VERIFY`/`G-ADR`/`G-TXN`/`G-REV`/`G-BUDGET`/`G-ID`/`G-QG`/`G-PHASE`/`G-ORCH` and the Semantic Sufficiency interpretation remain byte-equivalent to v0.6. `operational_state: EFFECTIVE -> CANDIDATE`, `accepted_by`/`accepted_at` reset to `null` — this exact content has not been reviewed/accepted. Effective only atomically with `ADR-045`'s own Product Owner approval, Chapter 0 v1.5's activation, and the MANIFEST update — see `ADR-045` "Activation." **Bounded correction (2026-09-23, `MINOR-01` remediation, ChatGPT Review A `REVISION_REQUIRED — 0 Blocker / 2 Major / 1 Minor`):** `G-DELEGATE-001`'s `D10`-equivalent clause corrected in place (still `v0.7`, no version bump — candidate not yet accepted) to fail delegation closed to Product Owner when EITHER a governing artifact explicitly reserves the decision class OR the Product Owner explicitly calls in/reserves this specific decision — no AI may override an explicit call-in; matches `ADR-045` v0.2's own `D10` correction. `G-DELEGATE-001`'s Chapter-0 cross-reference updated from "Route A" to the corrected single branching-workflow terminology (Chapter 0 §3 v1.5 candidate, `POST-ADR045-A-MAJ-02`). **Consolidated bounded correction (2026-09-23, CORR-002, remediating ChatGPT Review A `CLEAN — 0/0/1` plus an accepted optional cross-check `DEFECT FOUND — 0/2/5`, effective input `0 Blocker / 2 Major / 5 Minor`):** `G-DELEGATE-001` strengthened with `X-MAJ-01`'s `D8` distinct-principal safeguard (DTR-only, does not restore mandatory Review B) and updated to point R0/R1/R2 definitions at `ADR-045` post-activation (`X-MAJ-02`, self-contained, unchanged in substance). `G-DELEGATE-002` extended with the `X-MIN-01` PO-reserved lifecycle additions (document `Accepted`/`EFFECTIVE`, package/artifact `Consolidated Stable`) and the `X-MIN-05` legacy-schema delegated-closure recording rule (`resolution_authority`/`delegated_resolution_state` fields; never write `APPROVED`; `D12` fails if the schema cannot represent the result unambiguously). Still `v0.7`/`CANDIDATE`, no version bump — candidate not yet accepted. `G-AUTH` through `G-ORCH` (other than the `G-DELEGATE` section itself) and Semantic Sufficiency remain byte-equivalent to v0.6.
+> **v0.7 EFFECTIVE (accepted 2026-09-23T14:02+07:00, atomic with [`ADR-045`](../adr/ADR-045.md)'s own approval/activation) — [`ADR-045`](../adr/ADR-045.md) alignment.** Adds a new `G-DELEGATE` section (`G-DELEGATE-001`/`G-DELEGATE-002`) defining the closed Delegated Technical Resolution eligibility predicate and its recording/routing semantics, per `ADR-045`'s own Decision. No existing rule ID's substantive text is changed — `G-AUTH`/`G-VERIFY`/`G-ADR`/`G-TXN`/`G-REV`/`G-BUDGET`/`G-ID`/`G-QG`/`G-PHASE`/`G-ORCH` and the Semantic Sufficiency interpretation remain byte-equivalent to v0.6. **Bounded correction (2026-09-23, `MINOR-01` remediation, ChatGPT Review A `REVISION_REQUIRED — 0 Blocker / 2 Major / 1 Minor`):** `G-DELEGATE-001`'s `D10`-equivalent clause corrected in place (still `v0.7`, no version bump) to fail delegation closed to Product Owner when EITHER a governing artifact explicitly reserves the decision class OR the Product Owner explicitly calls in/reserves this specific decision — no AI may override an explicit call-in; matches `ADR-045` v0.2's own `D10` correction. `G-DELEGATE-001`'s Chapter-0 cross-reference updated from "Route A" to the corrected single branching-workflow terminology. **Consolidated bounded correction (2026-09-23, CORR-002, remediating ChatGPT Review A `CLEAN — 0/0/1` plus an accepted optional cross-check `DEFECT FOUND — 0/2/5`, effective input `0 Blocker / 2 Major / 5 Minor`):** `G-DELEGATE-001` strengthened with `X-MAJ-01`'s `D8` distinct-principal safeguard (DTR-only, does not restore mandatory Review B) and updated to point R0/R1/R2 definitions at `ADR-045` (`X-MAJ-02`, self-contained, unchanged in substance). `G-DELEGATE-002` extended with the `X-MIN-01` PO-reserved lifecycle additions (document `Accepted`/`EFFECTIVE`, package/artifact `Consolidated Stable`) and the `X-MIN-05` legacy-schema delegated-closure recording rule (`resolution_authority`/`delegated_resolution_state` fields; never write `APPROVED`; `D12` fails if the schema cannot represent the result unambiguously). **Product Owner acceptance — atomic activation (2026-09-23T14:02+07:00):** Product Owner decision (verbatim): "APPROVE ADR-045 v0.3 and its atomic activation. Accept Review A CLEAN — 0 Blocker / 0 Major / 1 Minor, Risk R2. Fold the non-semantic provenance-wording cleanup into activation. No additional cross-check required." Reviewed semantic candidate v0.7 (Review A `CLEAN — 0 Blocker / 0 Major / 1 Minor`, Risk R2, on `ADR-045` v0.3), boundary `e54159aa8355cfd1d3d309d43969007b645246ed`. `operational_state: CANDIDATE -> EFFECTIVE`, `accepted_by: null -> Product Owner`, `accepted_at: null -> "2026-09-23T14:02+07:00"`. `version: "0.7"` KHÔNG đổi (pure mechanical acceptance). `G-DELEGATE-001`/`G-DELEGATE-002` now `EFFECTIVE` — `G-AUTH` through `G-ORCH` (other than the `G-DELEGATE` section itself) and Semantic Sufficiency remain byte-equivalent to v0.6. Effective atomically with `ADR-045`'s own `Approved` transition, Chapter 0 v1.5's and Chapter 11 v2.4's own `Locked` transitions, and `ADR-042`'s MANIFEST `Superseded` record, same activation commit.
 
 ## Authority hierarchy (bắt buộc, KHÔNG redefine higher authority nào)
 
@@ -154,14 +154,16 @@ G-REV-004   Dừng correction churn khi KHÔNG có Major/Blocker mới phát sin
    ở điểm 3.
 ```
 
-## G-DELEGATE — Delegated Technical Resolution (v0.7 CANDIDATE, [`ADR-045`](../adr/ADR-045.md), NOT accepted — effective only atomically with ADR-045's own activation)
+## G-DELEGATE — Delegated Technical Resolution (v0.7 EFFECTIVE, activated 2026-09-23T14:02+07:00, atomic with [`ADR-045`](../adr/ADR-045.md)'s own approval/activation)
 
-**Not yet effective.** These two rules formalize `ADR-045`'s own Decision
-— a Draft candidate. Until `ADR-045` is approved and activated together
-with Chapter 0 v1.5, Chapter 11 v2.4, and this file's own acceptance,
-every decision continues to reach a Product Owner Decision exactly as
-`ADR-042`/v0.6 already require; `G-DELEGATE-001`/`G-DELEGATE-002` below
-describe no currently operative authority.
+**EFFECTIVE.** These two rules formalize `ADR-045`'s own Decision —
+Approved, activated atomically together with Chapter 0 v1.5, Chapter 11
+v2.4, and this file's own acceptance. `G-DELEGATE-001`/`G-DELEGATE-002`
+below are now operative authority: an R0/R1 decision satisfying the
+closed `D1`–`D12` predicate closes as `DELEGATED TECHNICAL RESOLUTION`
+without a Product Owner Decision step; every R2 decision, every
+`ADR_REQUIRED` decision, and every other Product-Owner-reserved class
+still reach a Product Owner Decision exactly as before.
 
 ```text
 G-DELEGATE-001  Delegated Technical Resolution eligibility là một closed,
@@ -200,7 +202,7 @@ G-DELEGATE-001  Delegated Technical Resolution eligibility là một closed,
                 để một reviewer eligible khác áp cùng authority/evidence sẽ
                 ra cùng disposition; VÀ chính eligibility này KHÔNG mơ hồ —
                 nếu KHÔNG chắc chắn, FAIL CLOSED VỀ Product Owner Decision
-                route (Chapter 0 §3 v1.5 candidate's branching workflow).
+                route (Chapter 0 §3 v1.5's active branching workflow).
                 Executor KHÔNG được tự resolve đúng semantic work của
                 chính mình — D8's distinct-principal requirement (trên)
                 LÀ cơ chế thực thi cụ thể cho nguyên tắc này dưới DTR;
@@ -582,4 +584,24 @@ v0.7  2026-09-23  Consolidated bounded correction (CORR-002, still
       (still `"0.7"`/`CANDIDATE`/`null`/`null`). Historical entries above
       NOT rewritten. `docs/adr/ADR-031.md`, `docs/adr/ADR-042.md` byte-
       unchanged.
+v0.7  2026-09-23  Product Owner acceptance — mechanical lifecycle
+      recording, atomic activation, vai trò: `Global Execution Rules
+      ADR-045 Activation Mechanical Acceptance Recorder`. Decision
+      nguyên văn: "APPROVE ADR-045 v0.3 and its atomic activation.
+      Accept Review A CLEAN — 0 Blocker / 0 Major / 1 Minor, Risk R2.
+      Fold the non-semantic provenance-wording cleanup into activation.
+      No additional cross-check required." Reviewed semantic candidate
+      v0.7 (Review A `CLEAN — 0 Blocker / 0 Major / 1 Minor`, Risk R2,
+      on `ADR-045` v0.3), boundary
+      `e54159aa8355cfd1d3d309d43969007b645246ed`. `operational_state:
+      CANDIDATE -> EFFECTIVE`, `accepted_by: null -> Product Owner`,
+      `accepted_at: null -> "2026-09-23T14:02+07:00"`. `version: "0.7"`
+      KHÔNG đổi (pure mechanical acceptance, cùng pattern v0.6's own
+      acceptance entry). `G-DELEGATE-001`/`G-DELEGATE-002` now
+      `EFFECTIVE`; `G-AUTH`/`G-VERIFY`/`G-ADR`/`G-TXN`/`G-REV`/(Semantic
+      Sufficiency)/`G-BUDGET`/`G-ID`/`G-QG`/`G-PHASE`/`G-ORCH` content
+      byte-equivalent, KHÔNG chạm bởi chính acceptance này. Effective
+      atomically with `ADR-045`'s own `Approved` transition, Chapter 0
+      v1.5's and Chapter 11 v2.4's own `Locked` transitions, and
+      `ADR-042`'s MANIFEST `Superseded` record, same activation commit.
 ```
