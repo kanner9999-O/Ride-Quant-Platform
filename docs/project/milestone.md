@@ -6,7 +6,7 @@ status: Active
 owner: Product Owner
 maintainer: "WP executors under Lean Ride Operating Model v1.1"
 visual_companion: docs/project/milestone-dashboard.html
-state_verified_against_head: e54159aa8355cfd1d3d309d43969007b645246ed
+state_verified_against_head: 1e4078c3edba521c7f6f182da09dd8c833b9a734
 state_verified_against_at: "2026-09-23"
 ---
 
@@ -110,7 +110,7 @@ See §4 for full detail.
 | Condition 1 | `FAIL — criteria` — **PRIMARY BLOCKER** (formally governed result, Chapter 13 §13.8.1 Case A) |
 | Condition 1 — unstable cases | 9 `UNSTABLE_TIMEOUT_TRIAGE` mutants (remain individually unresolved) |
 | Condition 1 — current survivor count | 406 |
-| Condition 2 | `167/170` — also independently blocking |
+| Condition 2 | `169/170` — also independently blocking (1 `TOOL_IDENTITY_DRIFT` row unresolved) |
 | Condition 3 | `SATISFIED — REVIEW A VALIDATED` (**DONE — not reopened by this WP**) |
 | `P3-FEATURE-QG-EVID-03` | `OPEN` |
 | Feature Engine approval | `NOT APPROVED` |
@@ -293,19 +293,33 @@ Scope Rule run fresh: `ADR_NOT_REQUIRED`. **Condition 2 remains
 `167 + 2 = 169/170` **NON-CONTROLLING / FUTURE-IF-APPROVED** if both
 rows are later Review-A validated and Product-Owner approved.
 
-**Candidate-005 — `READY FOR FRESH POST-ACTIVATION DTR ELIGIBILITY
-REVIEW`** (not rejected, not approved, not resolved). ChatGPT's Review A
-on Candidate-005 (boundary `31fc6f5dda1834916f68c55656bd2fa4893bdcb8`,
-candidate blob `e217bda50f17b71792429e196a81583ae02633e8`) returned
-`CLEAN` — but per `X-MIN-02`, this pre-activation verdict is historical
-input only and does **not**, by itself, satisfy `D8` for a
-post-activation Delegated Technical Resolution. Now that `ADR-045` is
-Approved and active (see below), Candidate-005 MAY become eligible only
-after a fresh, post-activation `D8` (independent CLEAN verdict AND
-distinct-principal Review A) and a full `D1`–`D12` determination are
-performed against its exact subject/evidence at a future resolution
-boundary — a separate, subsequent, bounded transaction, not performed
-by this activation.
+**Primary Work Package — Delegated Technical Resolution recorded
+(`FE-EVID03-COND2-CANDIDATE-005-DTR-001`): COMPLETE — `RESOLVED —
+DELEGATED TECHNICAL RESOLUTION`.** ChatGPT's earlier `CLEAN` Review A on
+Candidate-005 (boundary `31fc6f5dda1834916f68c55656bd2fa4893bdcb8`) was
+pre-activation and, per `X-MIN-02`, did not by itself satisfy `D8`. A
+fresh, post-activation Review A (ChatGPT, `AI Technical Architect` —
+distinct from Candidate-005's own authoring/executing principal `Claude`,
+satisfying `D8`) independently re-verified Candidate-005's exact
+subject/evidence at boundary `1e4078c3edba521c7f6f182da09dd8c833b9a734`
+and returned `CLEAN — 0 Blocker / 0 Major / 0 Minor`, Risk `R1`, ADR
+Scope `ADR_NOT_REQUIRED`. `D1`–`D12` all independently confirmed `PASS`.
+Both rows resolved via `DELEGATED TECHNICAL RESOLUTION — CLEAN`
+(resolution ID `FE-EVID03-COND2-CANDIDATE-005-DTR-001`) — **this is NOT
+a Product Owner approval**; `product_owner_state` on both rows is
+explicitly `NOT_REQUIRED_DUE_TO_DELEGATED_TECHNICAL_RESOLUTION`, never
+`APPROVED`. Row 1 (`_reevaluate_all_windows__mutmut_32` →
+`_prepare_reevaluate_all_windows__mutmut_32`, `killed`) and Row 2
+(`on_swing_confirmed__mutmut_35` → `prepare_swing_confirmed__mutmut_35`,
+`killed`, message-text-only historical mutation, materiality tag
+unchanged) both closed `RECLASSIFIED_4_1_B — LEGITIMATE REFACTOR /
+SUCCESSOR VERIFIED`. Both statuses independently re-cross-checked
+against `evidence-005.json`'s own `full_current_mutant_mapping` — both
+`killed`, zero discrepancy. No mutation execution performed. **Condition
+2: `167/170` → `169/170`.** Remaining unresolved: exactly 1 row,
+`contracts.x__seal_verified_authority__mutmut_33` —
+`TOOL_IDENTITY_DRIFT — NO EXISTING GOVERNED RESOLUTION MECHANISM` — NOT
+resolved by this transaction, no identity-continuity mechanism invented.
 
 **Work Package — governance-improvement candidate authoring
 (`GOV-DELEGATION-MODEL-ADR-045-AUTHOR-001`): COMPLETE.** Authored
@@ -404,18 +418,26 @@ determination.
 **Deferred / blocked item:** `contracts.x__seal_verified_authority__mutmut_33`
 — `TOOL_IDENTITY_DRIFT — NO EXISTING GOVERNED RESOLUTION MECHANISM`.
 
-**PO action required now:** No. Condition 1 and Condition 2 both
-independently fail; EVID-03 remains OPEN; Candidate-005 is `READY FOR
-FRESH POST-ACTIVATION DTR ELIGIBILITY REVIEW`, not yet resolved. Next
-governed step: a separate, subsequent, bounded Work Package to perform
-Candidate-005's fresh post-activation `D1`–`D12` determination.
+**PO action required now:** No. Candidate-005 has been recorded
+`RESOLVED — DELEGATED TECHNICAL RESOLUTION` (`FE-EVID03-COND2-
+CANDIDATE-005-DTR-001`) — a governed technical resolution under
+`ADR-045` v0.3, **not** a Product Owner approval. Condition 2 is now
+`169/170`; Condition 1 remains `FAIL — criteria`; EVID-03 remains OPEN
+independently on both grounds; Feature Engine remains NOT APPROVED;
+LIVE remains NOT_AUTHORIZED. The sole remaining Condition-2 item,
+`contracts.x__seal_verified_authority__mutmut_33`
+(`TOOL_IDENTITY_DRIFT — NO EXISTING GOVERNED RESOLUTION MECHANISM`),
+was not resolved by this transaction and has no existing governed
+resolution mechanism; no identity-continuity mechanism was invented.
+Next governed step: a separate, subsequent, bounded Work Package would
+be required to define a governed mechanism (if any) for the
+`TOOL_IDENTITY_DRIFT` class, and/or to progress Condition 1.
 
 ## 5. Work Package lanes
 
 | Lane | Item | Status |
 |---|---|---|
-| Primary | *(none currently assigned)* | `ADR-045` activation is COMPLETE. Next primary WP (Candidate-005's fresh post-activation DTR eligibility review) awaits a separate scoping decision. |
-| Secondary | `Candidate-005` — `READY FOR FRESH POST-ACTIVATION DTR ELIGIBILITY REVIEW` | Review A `CLEAN` at `31fc6f5d...` (historical input only, does not satisfy D8); awaiting a fresh post-activation D1-D12 determination |
+| Primary | *(none currently assigned)* | `FE-EVID03-COND2-CANDIDATE-005-DTR-001` is COMPLETE. Next primary WP (a governed mechanism, if any, for `TOOL_IDENTITY_DRIFT`, and/or progressing Condition 1) awaits a separate scoping decision. |
 | Deferred | `contracts.x__seal_verified_authority__mutmut_33` (TOOL_IDENTITY_DRIFT) | Deferred — no existing governed mechanism |
 | Completed | `RIDE-PROJECT-MILESTONE-DASHBOARD-001` | Tracking infrastructure only |
 | Completed | `FE-EVID03-COND1-STOP-001` | 9/9 mutants `REQUIRES_GOVERNED_PROTOCOL_DECISION`; §13.10 applicability question flagged for ChatGPT review |
@@ -431,6 +453,7 @@ Candidate-005's fresh post-activation `D1`–`D12` determination.
 | Completed | `GOV-DELEGATION-MODEL-ADR-045-CORR-001` | `ADR-045` v0.2 `Draft` (supersedes ADR-042, single branching workflow, D10 covers PO call-in); Review A `CLEAN — 0/0/1`, R2; optional PO-selected cross-check `DEFECT FOUND — 0/2/5`, accepted — remediated by the CORR-002 WP |
 | Completed | `GOV-DELEGATION-MODEL-ADR-045-CORR-002` | `ADR-045` v0.3 `Draft` (D8 distinct-principal, self-contained R0/R1/R2, Chapter 11 v2.4 candidate authored); Review A `CLEAN — 0/0/1`, R2 — approved/activated by the ACTIVATION-001 WP |
 | Completed | `GOV-DELEGATION-MODEL-ADR-045-ACTIVATION-001` | `DONE / ACTIVATED` — `ADR-045` `Approved`, `ADR-042` `Superseded`, Chapter 0 v1.5 `Locked`, Chapter 11 v2.4 `Locked`, Execution Rules v0.7 `EFFECTIVE`; Delegated Technical Resolution model now binding |
+| Completed | `FE-EVID03-COND2-CANDIDATE-005-DTR-001` | `RESOLVED — DELEGATED TECHNICAL RESOLUTION` (not a Product Owner approval) — fresh post-activation Review A `CLEAN — 0/0/0`, R1, `ADR_NOT_REQUIRED`, D1-D12 all PASS (D8: reviewer ChatGPT distinct from author/executor Claude); both rows `RECLASSIFIED_4_1_B`; Condition 2 `167/170 → 169/170`; remaining item is the deferred `TOOL_IDENTITY_DRIFT` row |
 
 ## 6. PO dashboard snapshot
 
@@ -440,8 +463,9 @@ Primary blocker:          Condition 1 — FAIL — criteria (formally
                            governed result under Chapter 13 v1.8
                            Section 13.8.1, Case A; 9 UNSTABLE_TIMEOUT_
                            TRIAGE mutants remain individually
-                           unresolved). Condition 2 (167/170)
-                           independently also blocks.
+                           unresolved). Condition 2 (169/170)
+                           independently also blocks (1 TOOL_IDENTITY_
+                           DRIFT row unresolved, no governed mechanism).
 Current primary WP:       (none currently assigned)
 ADR-045:                   v0.3, Approved / ACTIVE -- Delegated
                            Technical Resolution lane, self-contained
@@ -454,28 +478,37 @@ Chapter 0 / 11 / Exec:     Chapter 0 v1.5 Locked/controlling (v1.4
                            Execution Rules v0.7 EFFECTIVE (v0.6
                            historical) -- all activated
                            2026-09-23T14:02+07:00
-Candidate-005 status:      READY FOR FRESH POST-ACTIVATION DTR
-                           ELIGIBILITY REVIEW (Review A CLEAN at
-                           31fc6f5d... is historical input only per
-                           X-MIN-02, does NOT satisfy D8 -- not
-                           rejected, not approved, not resolved)
-Condition 2 (current):     167/170 -- UNCHANGED by this activation
-Condition 2 (projection):  167 + 2 = 169/170 -- NON-CONTROLLING /
-                           FUTURE-IF-APPROVED (Candidate-005 not yet
-                           granted a Delegated Technical Resolution or
-                           Product Owner approval)
-Last Review A:             CLEAN -- 0 Blocker / 0 Major / 1 Minor, Risk
-                           R2 (on ADR-045 v0.3, boundary e54159aa...).
-                           Residual Minor was non-semantic provenance
-                           wording, folded into this activation. Product
-                           Owner approved 2026-09-23T14:02+07:00.
+Candidate-005 status:      RESOLVED -- DELEGATED TECHNICAL RESOLUTION
+                           (`FE-EVID03-COND2-CANDIDATE-005-DTR-001`).
+                           NOT a Product Owner approval. Fresh
+                           post-activation Review A CLEAN -- 0/0/0, R1,
+                           ADR_NOT_REQUIRED, D1-D12 all PASS (D8:
+                           reviewer ChatGPT distinct from author/
+                           executor Claude). Both rows RECLASSIFIED_4_1_B.
+Condition 2 (current):     169/170 -- 2 rows resolved by this DTR
+                           (167 + 2 = 169). 1 row remains:
+                           contracts.x__seal_verified_authority__mutmut_33
+                           (TOOL_IDENTITY_DRIFT -- no existing governed
+                           resolution mechanism; not resolved, no new
+                           mechanism invented).
+Last Review A:             CLEAN -- 0 Blocker / 0 Major / 0 Minor, Risk
+                           R1 (on Candidate-005, boundary
+                           1e4078c3...). Reviewer ChatGPT, AI Technical
+                           Architect, distinct from Candidate-005's
+                           author/executor principal Claude (D8).
+                           Reason deferred (no PO decision here): D1-D12
+                           satisfied -> closes as Delegated Technical
+                           Resolution, not a Product Owner Decision.
 PO decision required now: NO
-                           (Activation is COMPLETE. Condition 1 and
-                           Condition 2 both independently fail; EVID-03
-                           remains OPEN; Candidate-005 remains
-                           unresolved. Next governed step is a separate,
-                           bounded Work Package for Candidate-005's
-                           fresh post-activation D1-D12 determination.)
+                           (This DTR-recording WP is COMPLETE. Condition
+                           1 and Condition 2 both independently still
+                           fail; EVID-03 remains OPEN; Feature Engine
+                           remains NOT APPROVED; LIVE remains NOT_
+                           AUTHORIZED. Next governed decision point: a
+                           separate, subsequent, bounded Work Package to
+                           define a governed mechanism, if any, for the
+                           TOOL_IDENTITY_DRIFT class, and/or to progress
+                           Condition 1.)
 ```
 
 ## 7. Update rules

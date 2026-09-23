@@ -2,6 +2,26 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-23 — feature-engine: Candidate-005 recorded RESOLVED via Delegated Technical Resolution (FE-EVID03-COND2-CANDIDATE-005-DTR-001) — Condition 2 169/170
+
+Starting HEAD `1e4078c3edba521c7f6f182da09dd8c833b9a734`, verified `main == origin/main`, no drift. Confirmed Candidate-005 blob exactly `e217bda50f17b71792429e196a81583ae02633e8`, and ADR-045 v0.3 Approved/ACTIVE, Chapter 0 v1.5 Locked, Global Execution Rules v0.7 EFFECTIVE, G-DELEGATE-001/G-DELEGATE-002 active, before this transaction.
+
+This is a governed recording transaction: it records an already-completed `DELEGATED TECHNICAL RESOLUTION -- CLEAN` under ADR-045 v0.3. This is explicitly NOT a Product Owner approval -- no Product Owner decision text is fabricated or implied anywhere.
+
+Fresh, post-activation Review A (ChatGPT, AI Technical Architect -- distinct principal from Candidate-005's own author/executor principal Claude, satisfying D8) independently re-verified Candidate-005's exact subject/evidence at boundary `1e4078c3edba521c7f6f182da09dd8c833b9a734` and returned `CLEAN -- 0 Blocker / 0 Major / 0 Minor`, Risk R1, ADR Scope ADR_NOT_REQUIRED. D1-D12 all independently confirmed PASS (D3: existing Approved/EFFECTIVE §4.1(b) authority; D8: distinct-principal Review A; D9: fresh-verified evidence; D11: deterministic historical-diff reconstruction, not ordinal inference; D12: legacy `product_owner_state` field mapped to an explicit non-PO value).
+
+Resolution ID `FE-EVID03-COND2-CANDIDATE-005-DTR-001`. Row 1: `_reevaluate_all_windows__mutmut_32` -> `_prepare_reevaluate_all_windows__mutmut_32` (killed) -- `RECLASSIFIED_4_1_B -- LEGITIMATE REFACTOR / SUCCESSOR VERIFIED`. Row 2: `on_swing_confirmed__mutmut_35` -> `prepare_swing_confirmed__mutmut_35` (killed, message-text-only historical mutation, materiality tag unchanged, no new identity-continuity rule) -- `RECLASSIFIED_4_1_B -- LEGITIMATE REFACTOR / SUCCESSOR VERIFIED`. Both statuses independently re-cross-checked against evidence-005.json's own full_current_mutant_mapping, zero discrepancy. No mutation execution performed.
+
+Candidate-005's own artifact updated: new `delegated_technical_resolution` top-level block recording resolution_authority/delegated_resolution_state/delegated_resolution_id/review_a_principal/review_a_role/review_a_boundary/review_a_verdict/risk_classification/adr_scope/delegation_eligibility and the full D1-D12 disposition. Both rows: `product_owner_state: NOT_REQUIRED_DUE_TO_DELEGATED_TECHNICAL_RESOLUTION` (never APPROVED), `lifecycle_state: RESOLVED_BY_DELEGATED_TECHNICAL_RESOLUTION`. Condition-2 accounting updated from a non-controlling projection to the controlling result: 167/170 -> 169/170.
+
+Remaining unresolved: exactly 1 row, `contracts.x__seal_verified_authority__mutmut_33` -- TOOL_IDENTITY_DRIFT -- NO EXISTING GOVERNED RESOLUTION MECHANISM -- explicitly NOT resolved by this transaction, no identity-continuity mechanism invented.
+
+Condition 1 (FAIL -- criteria) and Condition 3 (SATISFIED -- REVIEW A VALIDATED) unchanged, not reopened. P3-FEATURE-QG-EVID-03 remains OPEN -- Condition 1's own FAIL and Condition 2's remaining unresolved row each independently keep EVID-03 open. Feature Engine remains NOT APPROVED; LIVE remains NOT_AUTHORIZED. No source/test/tooling change, no ADR/Constitution/Testing-Convention/threshold-proposal edit, no Evidence-005/reconstruction-artifact edit.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-reclassification-candidate-005.json`, `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only -- ADR-045.md, all Constitution chapters, Testing Convention, the threshold-proposal document, evidence-005.json, the historical-reconstruction artifact, ADR-043.md, and all source/tests/tooling NOT touched. `manifest_version` `"10.421"` -> `"10.422"`.
+
+---
+
 ## [Unreleased] — 2026-09-23 — governance: ADR-045 v0.3 atomically activated — Delegated Technical Resolution model now EFFECTIVE (GOV-DELEGATION-MODEL-ADR-045-ACTIVATION-001)
 
 Reviewed semantic boundary `e54159aa8355cfd1d3d309d43969007b645246ed`. Reviewed blobs: ADR-045 v0.3 `432562e62c26d2922981a6e3d73885be13d78d20`; Chapter 0 v1.5 `771af07a0d542ba15c6ba223dacc783cbe8be43a`; Chapter 11 v2.4 `7cf72125991627eb6ea64ed629c6c486ffc674f4`; Global Execution Rules v0.7 `8edd299286cca1cb5f5e2b6f3d53102853830184`; MANIFEST (pre-mutation) `ff59358ed1185aaa6b95030360eb5a8cb2a3962b` -- all verified exact before this transaction.

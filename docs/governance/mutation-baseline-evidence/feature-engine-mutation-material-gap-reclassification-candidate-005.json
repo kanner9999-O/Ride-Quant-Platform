@@ -1,14 +1,45 @@
 {
   "artifact_id": "feature-engine-mutation-material-gap-reclassification-candidate-005",
   "wp_id": "FE-EVID03-COND2-CANDIDATE-005-AUTHOR-001",
-  "schema_note": "Additive §4.1(b) 'Individually reclassified' RECLASSIFICATION CANDIDATE artifact for EXACTLY the 2 historical identities uniquely resolved (via direct historical reconstruction, not ordinal inference) by feature-engine-condition2-remaining-ambiguity-historical-reconstruction-001.json. This is the candidate-authoring step only — it does NOT self-grant the governed §4.1(b) decision. No earlier evidence artifact is modified; the reconstruction's semantic content is preserved unchanged.",
+  "schema_note": "Additive §4.1(b) 'Individually reclassified' RECLASSIFICATION artifact for EXACTLY the 2 historical identities uniquely resolved (via direct historical reconstruction, not ordinal inference) by feature-engine-condition2-remaining-ambiguity-historical-reconstruction-001.json. Originally authored as a candidate only (review_a_state/product_owner_state PENDING, no credit granted). Both rows are now RESOLVED via a governed Delegated Technical Resolution under ADR-045 v0.3 (Approved, ACTIVE) — see `delegated_technical_resolution` below. This is NOT a Product Owner approval. No earlier evidence artifact is modified; the reconstruction's semantic content is preserved unchanged.",
+
+  "delegated_technical_resolution": {
+    "resolution_authority": "DELEGATED_TECHNICAL_RESOLUTION",
+    "delegated_resolution_state": "RESOLVED",
+    "delegated_resolution_id": "FE-EVID03-COND2-CANDIDATE-005-DTR-001",
+    "not_an_approval": "This is a governed Delegated Technical Resolution under ADR-045 v0.3 (Approved, ACTIVE) — it is explicitly NOT a Product Owner approval and NOT an Approved/Locked/Phase-Approved/Module-Approved/LIVE-Authorized transition. No Product Owner decision text is fabricated or implied anywhere in this artifact.",
+    "governing_authority": "ADR-045 v0.3 (Approved, ACTIVE) — G-DELEGATE-001/G-DELEGATE-002 (Global Execution Rules v0.7, EFFECTIVE); applies the pre-existing, already-Approved §4.1(b) mechanism (feature-engine-mutation-threshold-proposal-001.md, blob f4a3ca0c37aeb4684409a7344141103e64051e04, APPROVED — EFFECTIVE) to this bounded 2-row case.",
+    "resolution_boundary": "1e4078c3edba521c7f6f182da09dd8c833b9a734",
+    "review_a_principal": "ChatGPT",
+    "review_a_role": "AI Technical Architect",
+    "review_a_boundary": "1e4078c3edba521c7f6f182da09dd8c833b9a734",
+    "review_a_verdict": "CLEAN — 0 Blocker / 0 Major / 0 Minor",
+    "risk_classification": "R1",
+    "adr_scope": "ADR_NOT_REQUIRED",
+    "candidate_author_executor_principal": "Claude — distinct from the Review A principal (ChatGPT), satisfying D8's distinct-principal safeguard",
+    "delegation_eligibility": "D1-D12 SATISFIED",
+    "delegation_eligibility_disposition": {
+      "D1": "PASS — ADR_NOT_REQUIRED.",
+      "D2": "PASS — R1.",
+      "D3": "PASS — existing Approved/EFFECTIVE §4.1(b) authority.",
+      "D4": "PASS — bounded 2-row individually-verifiable case.",
+      "D5": "PASS — no new product/architecture/governance/contract semantics.",
+      "D6": "PASS — no product scope/priority/value-tradeoff change.",
+      "D7": "PASS — no residual risk accepted on behalf of PO.",
+      "D8": "PASS — post-activation Review A CLEAN; ChatGPT distinct from Candidate-005 author/executor principal Claude.",
+      "D9": "PASS — candidate/evidence/authority/source fresh-verified.",
+      "D10": "PASS — no PO-reserved authority and no PO call-in.",
+      "D11": "PASS — deterministic structural/textual successor reconstruction.",
+      "D12": "PASS — delegated closure is unambiguous and legacy schema has an explicit non-PO mapping."
+    }
+  },
 
   "governing_rule": {
     "source": "docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-proposal-001.md §4.1",
     "blob": "f4a3ca0c37aeb4684409a7344141103e64051e04",
     "section_4_1_a_applicability": "DOES NOT APPLY to either row — §4.1(a) requires the EXACT historical mutant ID itself to show killed/confirmed_timeout. Both rows here have a different current successor mutant ID (the underlying function was renamed under the ADR-043 prepare-seam split).",
     "section_4_1_b_requirements": "A SEPARATE, governed decision — mirroring Testing Convention v0.16 item 8's individually-pinned equivalent-mutant adjustment mechanism exactly: exact mutant identity + specific semantic justification + a separate reviewed/recorded decision — determines the mutant's underlying behavior has legitimately changed. Never satisfied merely by 'the mutant no longer appears because the function was rewritten' without an accompanying, independently-justified reason the rewrite is legitimate engineering, not gap-avoidance.",
-    "this_transaction_role": "CANDIDATE AUTHORING ONLY. Each row below answers the §4.1(b) reclassification question with exact, independently re-verified evidence; review_a_state and product_owner_state are PENDING for both candidates. Neither row is self-declared resolved — that disposition is the outcome of a subsequent, separate Review A + Product Owner Decision, never this executor's own determination."
+    "this_transaction_role": "DELEGATED TECHNICAL RESOLUTION RECORDING. Each row below answers the §4.1(b) reclassification question with exact, independently re-verified evidence. Originally authored as a candidate only (review_a_state/product_owner_state PENDING). A fresh, post-ADR-045-activation Review A (ChatGPT, distinct-principal per D8) independently re-verified both rows and returned CLEAN — 0 Blocker / 0 Major / 0 Minor, Risk R1, ADR Scope ADR_NOT_REQUIRED; D1-D12 all satisfied. Both rows are now RESOLVED via DELEGATED TECHNICAL RESOLUTION (ADR-045 v0.3) — this is NOT a Product Owner approval and no Product Owner decision is fabricated or implied."
   },
 
   "input_cohort": {
@@ -42,10 +73,11 @@
       "source_reconstruction_field": "ambiguous_A_reconstruction",
       "source_evidence_005_artifact": "docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-005.json",
       "source_evidence_005_blob": "f7a6ab715155ad166808e0e9d9a7474196d9b69d",
-      "proposed_4_1_b_disposition": "CANDIDATE_RECLASSIFY_4_1_B — LEGITIMATE REFACTOR / SUCCESSOR VERIFIED",
-      "review_a_state": "PENDING",
-      "product_owner_state": "PENDING",
-      "lifecycle_state": "CANDIDATE_AUTHORED — AWAITING REVIEW A"
+      "resolved_4_1_b_disposition": "RECLASSIFIED_4_1_B — LEGITIMATE REFACTOR / SUCCESSOR VERIFIED",
+      "review_a_state": "REVIEW A VALIDATED — POST-ADR045 DTR REVIEW",
+      "product_owner_state": "NOT_REQUIRED_DUE_TO_DELEGATED_TECHNICAL_RESOLUTION",
+      "lifecycle_state": "RESOLVED_BY_DELEGATED_TECHNICAL_RESOLUTION",
+      "delegated_resolution_id": "FE-EVID03-COND2-CANDIDATE-005-DTR-001"
     },
     {
       "row": 2,
@@ -65,10 +97,11 @@
       "source_reconstruction_field": "ambiguous_B_reconstruction",
       "source_evidence_005_artifact": "docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-005.json",
       "source_evidence_005_blob": "f7a6ab715155ad166808e0e9d9a7474196d9b69d",
-      "proposed_4_1_b_disposition": "CANDIDATE_RECLASSIFY_4_1_B — LEGITIMATE REFACTOR / SUCCESSOR VERIFIED (message-text-only historical mutation noted as materiality context, not as the basis for identity continuity)",
-      "review_a_state": "PENDING",
-      "product_owner_state": "PENDING",
-      "lifecycle_state": "CANDIDATE_AUTHORED — AWAITING REVIEW A"
+      "resolved_4_1_b_disposition": "RECLASSIFIED_4_1_B — LEGITIMATE REFACTOR / SUCCESSOR VERIFIED (message-text-only historical mutation noted as materiality context, not as the basis for identity continuity)",
+      "review_a_state": "REVIEW A VALIDATED — POST-ADR045 DTR REVIEW",
+      "product_owner_state": "NOT_REQUIRED_DUE_TO_DELEGATED_TECHNICAL_RESOLUTION",
+      "lifecycle_state": "RESOLVED_BY_DELEGATED_TECHNICAL_RESOLUTION",
+      "delegated_resolution_id": "FE-EVID03-COND2-CANDIDATE-005-DTR-001"
     }
   ],
 
@@ -92,19 +125,22 @@
   },
 
   "governed_condition_2_accounting": {
-    "rows_permitted_to_alter_governed_count_this_transaction": 0,
-    "reason": "This is a candidate-authoring transaction only. §4.1(b) requires a SEPARATE, governed, reviewed decision followed by a Product Owner Decision (per the precedent established for the 69-row, 53-row, and 45-row candidate-002/003/004 lifecycles) before any identity may be credited. This executor does not self-grant that decision for either of the 2 candidates.",
+    "rows_permitted_to_alter_governed_count_this_transaction": 2,
+    "reason": "§4.1(b) requires a SEPARATE, governed, reviewed decision before any identity may be credited (per the precedent established for the 69-row, 53-row, and 45-row candidate-002/003/004 lifecycles). That governed decision has now been rendered — a Delegated Technical Resolution under ADR-045 v0.3 (Approved, ACTIVE), satisfying D1-D12, in place of a Product Owner Decision, exactly as ADR-045 authorizes for an eligible R0/R1 case. Both of this cohort's 2 rows are credited by this transaction.",
+    "delegated_resolution_id": "FE-EVID03-COND2-CANDIDATE-005-DTR-001",
     "controlling_condition_2_count_before_this_transaction": "167/170",
-    "controlling_condition_2_count_after_this_transaction": "167/170 — UNCHANGED"
+    "controlling_condition_2_count_after_this_transaction": "169/170 — RESOLVED BY DELEGATED TECHNICAL RESOLUTION"
   },
 
-  "non_controlling_projected_state_if_approved": {
-    "label": "NON-CONTROLLING / FUTURE-IF-APPROVED — not current state, planning arithmetic only",
-    "if_both_rows_later_review_a_plus_product_owner_approved": "167 + 2 = 169/170",
-    "remaining_unresolved_if_that_occurs": "1/170",
+  "governed_condition_2_result": {
+    "label": "CONTROLLING — resolved by Delegated Technical Resolution, not a projection",
+    "rows_resolved_by_this_DTR": 2,
+    "resulting_condition_2_count": "167 + 2 = 169/170",
+    "remaining_unresolved": 1,
     "remaining_unresolved_breakdown": {
       "tool_identity_drift_no_existing_mechanism": 1
-    }
+    },
+    "remaining_unresolved_identity": "contracts.x__seal_verified_authority__mutmut_33 — TOOL_IDENTITY_DRIFT — NO EXISTING GOVERNED RESOLUTION MECHANISM. NOT resolved by this transaction; no identity-continuity mechanism invented here."
   },
 
   "confirmation_untouched": {
@@ -137,9 +173,9 @@
     "No Quality-Gate redesign.",
     "No Chapter 13 edit.",
     "No ADR authoring, no ADR-043 modification.",
-    "No self-granted §4.1(b) governed decision — review_a_state and product_owner_state are PENDING for both candidates.",
-    "No governed Condition-2 count change (remains 167/170).",
-    "No Product Owner decision fabricated or requested.",
+    "No self-granted §4.1(b) decision by an ineligible party — the governed decision recorded here is an independent, distinct-principal, post-activation Review A under ADR-045's own Delegated Technical Resolution model (D1-D12 satisfied), never this artifact's own original candidate-authoring executor's determination.",
+    "The Condition-2 count change (167/170 -> 169/170) recorded in this transaction is the direct, intended, governed result of the Delegated Technical Resolution above — not an incidental bookkeeping side effect, and not a Product Owner decision.",
+    "No Product Owner decision fabricated, implied, or requested — this resolution is explicitly NOT a Product Owner approval (ADR-045).",
     "No Feature Engine approval.",
     "No LIVE authorization.",
     "feature-engine-condition2-remaining-ambiguity-historical-reconstruction-001.json's semantic content unchanged.",

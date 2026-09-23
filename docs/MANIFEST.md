@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.421"
+manifest_version: "10.422"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -29303,6 +29303,97 @@ LIVE:                              NOT_AUTHORIZED.
 **Next governed action:** a separate, subsequent, bounded Work Package to perform `Candidate-005`'s fresh post-activation `D1`–`D12` (including `D8` distinct-principal) determination — not initiated by this transaction.
 
 **Files changed:** `docs/adr/ADR-045.md`, `docs/constitution/00-governance.md`, `docs/constitution/11-adr-process.md`, `docs/governance/execution-rules.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html` only — `docs/adr/ADR-042.md`, `docs/templates/adr-template.md`, `docs/constitution/12-approval-gates.md`, `docs/team/team.yaml`, `docs/governance/phases/phase-3-rules.md`, and `Candidate-005`'s artifact NOT touched. `manifest_version` `"10.420"` -> `"10.421"`.
+
+## Feature Condition-2 Candidate-005 — Delegated Technical Resolution recorded (`FE-EVID03-COND2-CANDIDATE-005-DTR-001`) — not a Product Owner approval
+
+**Governed recording transaction — records an already-completed `DELEGATED TECHNICAL RESOLUTION — CLEAN` under `ADR-045` v0.3 (Approved, ACTIVE). This is explicitly NOT a Product Owner approval — no Product Owner decision text is fabricated or implied.**
+
+**Fresh boundary verification:** HEAD confirmed exactly `1e4078c3edba521c7f6f182da09dd8c833b9a734`, identical to `origin/main` — no drift. Confirmed `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-reclassification-candidate-005.json` blob exactly `e217bda50f17b71792429e196a81583ae02633e8` before this transaction. Confirmed `ADR-045` v0.3 `Approved`, Chapter 0 v1.5 `Locked`, Global Execution Rules v0.7 `EFFECTIVE`, `G-DELEGATE-001`/`G-DELEGATE-002` active — all governing authority for this DTR.
+
+**Reviewed subject and resolution:** Candidate `feature-engine-mutation-material-gap-reclassification-candidate-005.json`. Fresh Review A / DTR resolution boundary `1e4078c3edba521c7f6f182da09dd8c833b9a734`. Principal `ChatGPT`, role `AI Technical Architect` — distinct from Candidate-005's own authoring/executing principal `Claude` (`D8` satisfied). Review A: `CLEAN — 0 Blocker / 0 Major / 0 Minor`. Risk: `R1`. ADR Scope: `ADR_NOT_REQUIRED`. Resolution: `DELEGATED TECHNICAL RESOLUTION — CLEAN`. Resolution ID: `FE-EVID03-COND2-CANDIDATE-005-DTR-001`.
+
+**D1–D12 disposition — all PASS:**
+
+```text
+D1  PASS -- ADR_NOT_REQUIRED.
+D2  PASS -- R1.
+D3  PASS -- existing Approved/EFFECTIVE §4.1(b) authority
+            (feature-engine-mutation-threshold-proposal-001.md,
+            blob f4a3ca0c37aeb4684409a7344141103e64051e04).
+D4  PASS -- bounded 2-row individually-verifiable case.
+D5  PASS -- no new product/architecture/governance/contract semantics.
+D6  PASS -- no product scope/priority/value-tradeoff change.
+D7  PASS -- no residual risk accepted on behalf of PO.
+D8  PASS -- post-activation Review A CLEAN; ChatGPT distinct from
+            Candidate-005 author/executor principal Claude.
+D9  PASS -- candidate/evidence/authority/source fresh-verified this
+            transaction (see identities below).
+D10 PASS -- no PO-reserved authority and no PO call-in.
+D11 PASS -- deterministic structural/textual successor reconstruction
+            (historical-diff reconstruction, not ordinal inference).
+D12 PASS -- delegated closure unambiguous; legacy `product_owner_state`
+            field mapped to an explicit non-PO value.
+```
+
+**Exact evidence identities fresh-verified, all byte-unchanged:**
+
+```text
+Candidate-005:              e217bda50f17b71792429e196a81583ae02633e8
+Threshold proposal / §4.1:  f4a3ca0c37aeb4684409a7344141103e64051e04
+                             (APPROVED -- EFFECTIVE)
+Historical reconstruction:  72d44cd467ca2edeaf1d7e7bdd924bff57955915
+Evidence-005:                f7a6ab715155ad166808e0e9d9a7474196d9b69d
+ADR-043:                    e7ebc2093768b164b91b496d932d2f9feb6c659a
+swing_distance.py:          7078b6792caa90895584fbb426d356c4fc9ef1a4
+```
+
+No mutation execution performed. Both current successor statuses independently re-cross-checked directly against `evidence-005.json`'s own `full_current_mutant_mapping` — both confirmed `killed`, zero discrepancy.
+
+**Row 1 resolved:** `swing_distance.xǁSwingDistanceFeatureEngineǁ_reevaluate_all_windows__mutmut_32` -> exact current successor `feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_reevaluate_all_windows__mutmut_32`, status `killed`. Disposition: `RECLASSIFIED_4_1_B — LEGITIMATE REFACTOR / SUCCESSOR VERIFIED`. Basis unchanged from authoring: exact historical `continue -> break` reconstruction; exact same structural site after the `ADR-043` prepare-seam relocation; no ordinal inference; no favorable-status selection; `ADR-043` independently motivated by I-13 ownership/concurrency.
+
+**Row 2 resolved:** `swing_distance.xǁSwingDistanceFeatureEngineǁon_swing_confirmed__mutmut_35` -> exact current successor `feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁprepare_swing_confirmed__mutmut_35`, status `killed`. Disposition: `RECLASSIFIED_4_1_B — LEGITIMATE REFACTOR / SUCCESSOR VERIFIED`. Preserved explicitly: historical mutation is message-text literal only; the validation condition itself was never mutated; message-text materiality is context only; identity continuity rests entirely on the `ADR-043` function relocation; the row's historical materiality tag is unchanged; no message-text-specific identity rule was created.
+
+**Candidate-005 artifact updated (only file with semantic content change among the six):** new top-level `delegated_technical_resolution` block added (`resolution_authority: DELEGATED_TECHNICAL_RESOLUTION`, `delegated_resolution_state: RESOLVED`, `delegated_resolution_id: FE-EVID03-COND2-CANDIDATE-005-DTR-001`, `review_a_principal: ChatGPT`, `review_a_role: AI Technical Architect`, `review_a_boundary: 1e4078c3edba521c7f6f182da09dd8c833b9a734`, `review_a_verdict: CLEAN — 0 Blocker / 0 Major / 0 Minor`, `risk_classification: R1`, `adr_scope: ADR_NOT_REQUIRED`, `delegation_eligibility: D1-D12 SATISFIED`, full per-D disposition). Both rows: `review_a_state: "REVIEW A VALIDATED — POST-ADR045 DTR REVIEW"`, `product_owner_state: "NOT_REQUIRED_DUE_TO_DELEGATED_TECHNICAL_RESOLUTION"` (never `APPROVED`), `lifecycle_state: "RESOLVED_BY_DELEGATED_TECHNICAL_RESOLUTION"`. `governed_condition_2_accounting` and a new `governed_condition_2_result` block updated to record `169/170` as the controlling result (not a projection). Historical authoring/projection prose preserved, made unambiguously historical (e.g. former "PENDING"/"NON-CONTROLLING / FUTURE-IF-APPROVED" framing corrected to reflect the now-resolved, controlling state). `feature-engine-condition2-remaining-ambiguity-historical-reconstruction-001.json`, `feature-engine-mutation-step9-formal-evidence-005.json`, `feature-engine-mutation-threshold-proposal-001.md`, `ADR-043.md`, and `swing_distance.py` all verified byte-unchanged (read-only source).
+
+**Governed Condition-2 accounting:**
+
+```text
+Condition 2 before this transaction:  167/170
+Condition 2 after this transaction:   169/170
+rows_resolved_by_this_DTR:            2
+remaining_unresolved:                 1
+remaining_unresolved_identity:        contracts.x__seal_verified_authority__mutmut_33
+remaining_unresolved_classification:  TOOL_IDENTITY_DRIFT -- NO EXISTING
+                                       GOVERNED RESOLUTION MECHANISM
+                                       (NOT resolved by this transaction;
+                                       no identity-continuity mechanism
+                                       invented)
+```
+
+**State summary:**
+
+```text
+Condition 1 (raw mutation score):  FAIL -- criteria (unchanged, not
+                                    reopened).
+Condition 2 (identity resolution): 169/170 (improved from 167/170 by
+                                    this DTR -- still independently
+                                    fails closure, 1/170 remains
+                                    unresolved).
+Condition 3 (formal evidence):     SATISFIED -- REVIEW A VALIDATED
+                                    (unchanged, not reopened).
+P3-FEATURE-QG-EVID-03:              OPEN (Condition 1's own FAIL and
+                                    Condition 2's remaining unresolved
+                                    row each independently keep EVID-03
+                                    open).
+Feature Engine approval:           NOT APPROVED.
+LIVE:                               NOT_AUTHORIZED.
+```
+
+**No scope expansion — explicit verification:** no resolution of the remaining `TOOL_IDENTITY_DRIFT` row; no new identity-continuity rule authored; no Feature Engine approval; no LIVE authorization; no Condition-1/3 change; no mutation execution; no source/test/tooling change; no ADR authored or modified; no Constitution edit; no Testing Convention edit; no threshold-proposal edit; no Evidence-005/reconstruction-artifact edit (all verified byte-unchanged); no Product Owner decision fabricated or requested — this is a governed Delegated Technical Resolution under `ADR-045`, never a Product Owner approval.
+
+**Next governed action:** a separate, subsequent, bounded transaction to resolve the remaining `TOOL_IDENTITY_DRIFT` row, if/when a governed identity-continuity mechanism is established — not initiated here.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-reclassification-candidate-005.json`, `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — `docs/adr/ADR-045.md`, all Constitution chapters, `docs/engineering/testing.md`, the threshold-proposal document, `feature-engine-mutation-step9-formal-evidence-005.json`, the historical-reconstruction artifact, `docs/adr/ADR-043.md`, and all source/tests/tooling NOT touched. `manifest_version` `"10.421"` -> `"10.422"`.
 
 ## Decision Log
 

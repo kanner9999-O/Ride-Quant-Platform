@@ -235,7 +235,7 @@
   <div class="wrap">
     <h1>Ride Quant Platform — Milestone Dashboard</h1>
     <div class="top-meta">
-      <span>Milestone state verified against: <code id="head-sha">e54159aa8355cfd1d3d309d43969007b645246ed</code></span>
+      <span>Milestone state verified against: <code id="head-sha">1e4078c3edba521c7f6f182da09dd8c833b9a734</code></span>
       <span>Lean Ride Operating Model v1.1: <span class="pill pill-done">Active — ADOPTED</span></span>
       <span>Current milestone: <span class="pill pill-active">M1 — Feature Engine EVID-03 Closure</span></span>
     </div>
@@ -348,7 +348,7 @@
         <div class="lbl">Current survivor count</div>
       </div>
       <div class="metric">
-        <div class="num" style="color:var(--active)">167 / 170</div>
+        <div class="num" style="color:var(--active)">169 / 170</div>
         <div class="lbl">Condition-2 identities resolved</div>
       </div>
       <div class="metric">
@@ -365,14 +365,7 @@
         <h4>Primary</h4>
         <div class="wp-item">
           <code>(none currently assigned)</code>
-          <div class="desc"><code>ADR-045</code> activation is COMPLETE. Next primary WP (Candidate-005's fresh post-activation DTR eligibility review) awaits a separate scoping decision.</div>
-        </div>
-      </div>
-      <div class="lane">
-        <h4>Secondary</h4>
-        <div class="wp-item">
-          <code>Candidate-005 — READY FOR FRESH POST-ACTIVATION DTR ELIGIBILITY REVIEW</code>
-          <div class="desc">Review A <code>CLEAN</code> at <code>31fc6f5dda1834916f68c55656bd2fa4893bdcb8</code> (candidate blob <code>e217bda50f17b71792429e196a81583ae02633e8</code>) — per <code>X-MIN-02</code>, this pre-activation verdict is historical input only and does NOT by itself satisfy D8 for a Delegated Technical Resolution. Now that <code>ADR-045</code> is Approved/ACTIVE, this candidate MAY become eligible only after a fresh, post-activation D8 + full D1-D12 determination at a future resolution boundary — a separate, subsequent, bounded transaction. No §4.1(b) credit granted. Not rejected, not approved, not resolved. Condition 2 remains 167/170.</div>
+          <div class="desc"><code>FE-EVID03-COND2-CANDIDATE-005-DTR-001</code> is COMPLETE. Next primary WP (a governed mechanism, if any, for <code>TOOL_IDENTITY_DRIFT</code>, and/or progressing Condition 1) awaits a separate scoping decision.</div>
         </div>
         <div class="wp-item">
           <code>Condition-1 remediation</code>
@@ -426,7 +419,7 @@
         </div>
         <div class="wp-item">
           <code>FE-EVID03-COND2-CANDIDATE-005-AUTHOR-001</code>
-          <div class="desc">Candidate-005 authored (2 rows): <code>_reevaluate_all_windows__mutmut_32</code> → <code>_prepare_reevaluate_all_windows__mutmut_32</code> (killed) and <code>on_swing_confirmed__mutmut_35</code> → <code>prepare_swing_confirmed__mutmut_35</code> (killed, message-text-only historical mutation). Review A <code>CLEAN</code> at <code>31fc6f5d...</code> — credit not granted. Now <code>PAUSED</code>, see Secondary lane above.</div>
+          <div class="desc">Candidate-005 authored (2 rows): <code>_reevaluate_all_windows__mutmut_32</code> → <code>_prepare_reevaluate_all_windows__mutmut_32</code> (killed) and <code>on_swing_confirmed__mutmut_35</code> → <code>prepare_swing_confirmed__mutmut_35</code> (killed, message-text-only historical mutation). Review A <code>CLEAN</code> at <code>31fc6f5d...</code> — credit not granted at that boundary. Later resolved by the <code>DTR-001</code> WP below.</div>
         </div>
         <div class="wp-item">
           <code>GOV-DELEGATION-MODEL-ADR-045-AUTHOR-001</code>
@@ -444,6 +437,10 @@
           <code>GOV-DELEGATION-MODEL-ADR-045-ACTIVATION-001</code>
           <div class="desc"><strong>DONE / ACTIVATED (2026-09-23T14:02+07:00).</strong> Product Owner approved <code>ADR-045</code> v0.3 and its atomic activation: <code>ADR-045</code> <code>Approved</code> (supersedes ADR-042, now immutable); <code>ADR-042</code> <code>Superseded</code>; Chapter 0 v1.5 <code>Locked</code>/controlling; Chapter 11 v2.4 <code>Locked</code>/controlling; Global Execution Rules v0.7 <code>EFFECTIVE</code> (<code>G-DELEGATE-001</code>/<code>G-DELEGATE-002</code> now effective). The residual provenance-wording Minor was folded into this activation per explicit Product Owner authorization; no additional cross-check. Delegated Technical Resolution is now binding governance authority. Candidate-005 NOT resolved — its pre-activation CLEAN Review A does not satisfy D8.</div>
         </div>
+        <div class="wp-item">
+          <code>FE-EVID03-COND2-CANDIDATE-005-DTR-001</code>
+          <div class="desc"><strong>RESOLVED — DELEGATED TECHNICAL RESOLUTION</strong> (not a Product Owner approval). Fresh post-activation Review A by ChatGPT (AI Technical Architect, distinct from Candidate-005's author/executor principal Claude — D8) returned <code>CLEAN — 0 Blocker / 0 Major / 0 Minor</code>, Risk <code>R1</code>, ADR Scope <code>ADR_NOT_REQUIRED</code>; all D1–D12 PASS. Both rows closed <code>RECLASSIFIED_4_1_B — LEGITIMATE REFACTOR / SUCCESSOR VERIFIED</code>. Candidate-005's legacy <code>product_owner_state</code> mapped to <code>NOT_REQUIRED_DUE_TO_DELEGATED_TECHNICAL_RESOLUTION</code> (never <code>APPROVED</code>). Condition 2: <code>167/170 → 169/170</code>. Remaining item: <code>contracts.x__seal_verified_authority__mutmut_33</code> (<code>TOOL_IDENTITY_DRIFT</code>) — not resolved, no new mechanism invented. Condition 1 unchanged (<code>FAIL — criteria</code>); EVID-03 remains OPEN; Feature Engine remains NOT APPROVED; LIVE remains NOT_AUTHORIZED.</div>
+        </div>
       </div>
     </div>
   </section>
@@ -452,17 +449,17 @@
     <h2>PO Snapshot</h2>
     <div class="po-snapshot">
       <div class="kv"><span class="k">Current milestone</span><span class="v">M1 — Feature Engine EVID-03 Closure (ACTIVE, AT RISK)</span></div>
-      <div class="kv"><span class="k">Primary blocker</span><span class="v">Condition 1 — FAIL — criteria (formally governed, Chapter 13 v1.8 §13.8.1 Case A; 9 unstable timeout-triage mutants remain individually unresolved). Condition 2 (167/170) independently also blocks.</span></div>
-      <div class="kv"><span class="k">Current WP</span><span class="v">(none currently assigned) — <code>ADR-045</code> activation COMPLETE</span></div>
+      <div class="kv"><span class="k">Primary blocker</span><span class="v">Condition 1 — FAIL — criteria (formally governed, Chapter 13 v1.8 §13.8.1 Case A; 9 unstable timeout-triage mutants remain individually unresolved). Condition 2 (169/170) independently also blocks (1 <code>TOOL_IDENTITY_DRIFT</code> row unresolved, no governed mechanism).</span></div>
+      <div class="kv"><span class="k">Current WP</span><span class="v">(none currently assigned) — <code>FE-EVID03-COND2-CANDIDATE-005-DTR-001</code> COMPLETE</span></div>
       <div class="kv"><span class="k">ADR-045</span><span class="v">v0.3, <strong>Approved / ACTIVE</strong> — Delegated Technical Resolution lane, self-contained R0/R1/R2 (X-MAJ-02), D8 distinct-principal safeguard (X-MAJ-01), supersedes ADR-042 (now Superseded)</span></div>
       <div class="kv"><span class="k">Chapter 0 / 11 / Exec Rules</span><span class="v">Chapter 0 v1.5 <strong>Locked</strong>/controlling (v1.4 historical); Chapter 11 v2.4 <strong>Locked</strong>/controlling (v2.3 historical); Global Execution Rules v0.7 <strong>EFFECTIVE</strong> (v0.6 historical) — all activated 2026-09-23T14:02+07:00</span></div>
-      <div class="kv"><span class="k">Candidate-005 status</span><span class="v">READY FOR FRESH POST-ACTIVATION DTR ELIGIBILITY REVIEW (Review A CLEAN at 31fc6f5d... is historical input only per X-MIN-02, does NOT satisfy D8 — not rejected, not approved, not resolved)</span></div>
-      <div class="kv"><span class="k">Condition 2 (current)</span><span class="v">167 / 170 — UNCHANGED by this activation</span></div>
-      <div class="kv"><span class="k">Condition 2 (projection)</span><span class="v">167 + 2 = 169/170 — NON-CONTROLLING / FUTURE-IF-APPROVED (Candidate-005 not yet granted a Delegated Technical Resolution or Product Owner approval)</span></div>
-      <div class="kv"><span class="k">Last Review A</span><span class="v">CLEAN — 0 Blocker / 0 Major / 1 Minor, Risk R2 (on ADR-045 v0.3, boundary e54159aa...). Residual Minor was non-semantic provenance wording, folded into this activation. Product Owner approved 2026-09-23T14:02+07:00.</span></div>
+      <div class="kv"><span class="k">Candidate-005 status</span><span class="v"><strong>RESOLVED — DELEGATED TECHNICAL RESOLUTION</strong> (<code>FE-EVID03-COND2-CANDIDATE-005-DTR-001</code>). NOT a Product Owner approval. Fresh post-activation Review A by ChatGPT (distinct from author/executor Claude — D8): <code>CLEAN — 0/0/0</code>, Risk R1, <code>ADR_NOT_REQUIRED</code>, D1-D12 all PASS. Both rows <code>RECLASSIFIED_4_1_B</code>.</span></div>
+      <div class="kv"><span class="k">Condition 2 (current)</span><span class="v">169 / 170 — 2 rows resolved by this DTR (167 + 2 = 169)</span></div>
+      <div class="kv"><span class="k">Condition 2 (remaining)</span><span class="v"><code>contracts.x__seal_verified_authority__mutmut_33</code> — <code>TOOL_IDENTITY_DRIFT — NO EXISTING GOVERNED RESOLUTION MECHANISM</code>. Not resolved by this transaction; no new mechanism invented.</span></div>
+      <div class="kv"><span class="k">Last Review A</span><span class="v">CLEAN — 0 Blocker / 0 Major / 0 Minor, Risk R1 (on Candidate-005, boundary 1e4078c3...). Reviewer ChatGPT, AI Technical Architect, distinct from Candidate-005's author/executor principal Claude (D8).</span></div>
       <div class="kv"><span class="k">PO decision required</span><span class="v pill pill-no">NO</span></div>
-      <div class="kv"><span class="k">Reason deferred</span><span class="v">Activation is COMPLETE. Condition 1 and Condition 2 both independently fail; EVID-03 remains OPEN; Candidate-005 remains unresolved</span></div>
-      <div class="kv"><span class="k">Next PO decision point</span><span class="v">A separate, bounded Work Package for Candidate-005's fresh post-activation D1-D12 determination</span></div>
+      <div class="kv"><span class="k">Reason deferred</span><span class="v">D1-D12 satisfied → closes as Delegated Technical Resolution, not a Product Owner Decision. Condition 1 and Condition 2 both independently still fail; EVID-03 remains OPEN; Feature Engine remains NOT APPROVED; LIVE remains NOT_AUTHORIZED.</span></div>
+      <div class="kv"><span class="k">Next PO decision point</span><span class="v">A separate, subsequent, bounded Work Package to define a governed mechanism, if any, for the <code>TOOL_IDENTITY_DRIFT</code> class, and/or to progress Condition 1</span></div>
     </div>
   </section>
 
