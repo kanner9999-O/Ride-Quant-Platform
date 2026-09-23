@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.425"
+manifest_version: "10.426"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -29590,6 +29590,91 @@ LIVE:                               NOT_AUTHORIZED.
 **No scope expansion — explicit verification:** no threshold activated; no Product Owner decision requested; no Review A or Independent Review B self-performed; no test implemented; no ADR authored; no source/test/tooling change; the currently-effective threshold proposal, Testing Convention, Chapter 13, ADR-044/ADR-045, Evidence-005 + correction, the post-E005 assessment artifact, and Candidate-005 all fresh-verified byte-unchanged; `contracts.x__seal_verified_authority__mutmut_33` (`TOOL_IDENTITY_DRIFT`) not touched.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-recalibration-proposal-001.md` (corrected in place), `docs/governance/mutation-baseline-evidence/feature-engine-condition1-current-material-gap-set-001.json` (new, blob `6360c8c1ad6e7c21129fa3b75415486d5447bf52`), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.424"` -> `"10.425"`.
+
+## Feature Engine Condition-1 — CANONICAL CURRENT THRESHOLD AUTHORITY (atomic activation, `FE-EVID03-COND1-THRESHOLD-RECAL-001-ACTIVATION-001`)
+
+**This is the single, canonical pointer for Feature Engine Condition-1's current threshold authority. Do not infer current authority from any document's own internal STATUS banner in isolation — read it from here.**
+
+```text
+Feature Engine Condition-1 current threshold authority:
+  docs/governance/mutation-baseline-evidence/
+  feature-engine-mutation-threshold-recalibration-proposal-001.md
+
+status:                    APPROVED -- EFFECTIVE
+activated_at:               2026-09-23T20:01+07:00
+approved_by:                Product Owner
+
+Condition 1A (numeric):
+  raw mutation-effectiveness >= 85.812095853937%
+  full precision: 85.812095853936858120958539368581209585393685812096...%
+  required numerator: 2256, at reviewed calibration population total 2629
+  formula (unchanged): (killed + confirmed_timeout) / (total - skipped) x 100
+
+Condition 1B (current-material companion gate, necessary, non-optional):
+  ALL 42 exact identities in
+  docs/governance/mutation-baseline-evidence/
+  feature-engine-condition1-current-material-gap-set-001.json
+  individually resolved (killed/confirmed_timeout in fresh formal
+  evidence, OR separately governed exact-ID semantic reclassification).
+  Killing unrelated (message-text) mutants never substitutes. No blanket
+  reclassification. No score-offset mechanism.
+
+42-ID artifact (activated/lifecycle-record blob):
+  49c30b439eb84db95c55dc4a86de22e2b491dbb5
+  (reviewed blob was 6360c8c1ad6e7c21129fa3b75415486d5447bf52; the
+  difference is exactly the authorized, non-semantic 2-field provenance
+  correction below -- 42-identity set, count, sorted order, and
+  sorted-set sha256 932698b4b312c1a8f70c261426555a5c6f3566579ed0a27102d4a0f0214adedc
+  are all unchanged)
+
+Old / historical threshold authority:
+  docs/governance/mutation-baseline-evidence/
+  feature-engine-mutation-threshold-proposal-001.md
+  status:  historical / superseded (its own internal APPROVED --
+           EFFECTIVE banner describes its own historical lifecycle only
+           and is NOT current authority)
+  blob:    f4a3ca0c37aeb4684409a7344141103e64051e04 (byte-unchanged,
+           never mutated merely to change its own lifecycle-state label)
+```
+
+**Product Owner decision (verbatim):** "APPROVE the Feature Engine Condition-1 threshold recalibration at boundary b16f57e06be265125123cc3c7eb0b2d2bdc75c17. Replace the current 87.001959503592% Condition-1 threshold with Model A: Condition 1A: raw mutation-effectiveness >= 85.812095853937% (2256/2629 at the reviewed calibration boundary); AND Condition 1B: all 42 exact current-material-gap identities in feature-engine-condition1-current-material-gap-set-001.json must be individually resolved under the governed per-identity mechanism. Preserve Condition 2 and Condition 3 as independent requirements. Accept Review A CLEAN — 0 Blocker / 0 Major / 1 Minor, Risk R1, ADR_OPTIONAL. Fold the non-semantic two-row provenance-source correction into the atomic activation. No independent cross-check required." Decision time `2026-09-23T20:01+07:00`.
+
+**Reviewed semantic boundary:** `b16f57e06be265125123cc3c7eb0b2d2bdc75c17`. **Reviewed recalibration proposal blob:** `b7c9f0ec9661298a89567c4808e7e2721873ac80` (resulting/lifecycle-record blob after this activation's own edits: `12040044578d57d15e699a327a5a8ae39c1e9ea3`). **Reviewed 42-ID artifact blob:** `6360c8c1ad6e7c21129fa3b75415486d5447bf52` (resulting/activated blob after the authorized provenance cleanup: `49c30b439eb84db95c55dc4a86de22e2b491dbb5`). Review A (ChatGPT, AI Technical Architect): `CLEAN — 0 Blocker / 0 Major / 1 Minor` — the sole Minor: the 42-ID artifact's `per_id.source` field for exactly `acquire_and_activate__mutmut_21`/`_23` claimed `"post-E005 assessment (GENUINE_TEST_GAP)"`, factually inaccurate since the immutable post-E005 assessment classified both `UNCLEAR` — corrected to `"Review-A MAJOR-02 correction: post-E005 assessment UNCLEAR -> GENUINE_TEST_GAP"`, folded into this atomic activation per the Product Owner's explicit instruction. Non-semantic: no change to the 42-identity set, count (`42`), duplicates (`0`), sorted order, or sorted-set sha256 (`932698b4b312c1a8f70c261426555a5c6f3566579ed0a27102d4a0f0214adedc`, unchanged). Risk `R1` — R1 default is no independent cross-check; Product Owner explicitly selected no cross-check. No Independent Review B fabricated. ADR Scope `ADR_OPTIONAL`, freshly re-confirmed — no ADR authored.
+
+**Current Condition-1 status after activation:**
+
+```text
+Condition 1:   FAIL -- criteria (under the NEW gate)
+Condition 1A:  FAIL -- criteria (current raw score
+               84.21453023963484%-84.55686572841384% < required
+               85.812095853937%)
+Condition 1B:  FAIL -- criteria (42 pinned current-material identities
+               not all individually resolved)
+```
+
+No fresh formal mutation measurement was performed by this activation — it changes the governing threshold only, not source/test/tooling state.
+
+**Condition 2 and Condition 3 preserved as independent requirements, NOT merged with Condition 1B:**
+
+```text
+Condition 2:                169/170 (unchanged)
+  remaining unresolved:     contracts.x__seal_verified_authority__mutmut_33
+  classification:           TOOL_IDENTITY_DRIFT -- NO EXISTING GOVERNED
+                             RESOLUTION MECHANISM (not touched)
+Condition 3:                SATISFIED -- REVIEW A VALIDATED (unchanged,
+                             not reopened)
+P3-FEATURE-QG-EVID-03:       OPEN (unchanged)
+Feature Engine approval:    NOT APPROVED (threshold activation is not
+                             module approval)
+Phase-3 module approval:    NOT GRANTED
+LIVE:                        NOT_AUTHORIZED
+```
+
+**No scope expansion — explicit verification:** no fresh mutation measurement performed; none of the 42 Condition-1B identities resolved; `contracts.x__seal_verified_authority__mutmut_33` (`TOOL_IDENTITY_DRIFT`) not touched; no test implemented; no ADR authored; `feature-engine-mutation-threshold-proposal-001.md` byte-unchanged; post-E005 assessment, Evidence-005 + correction, Testing Convention, Chapter 13, ADR-044/ADR-045, Candidate-005, and all source/tests/tooling fresh-verified byte-unchanged; no Independent Review B fabricated; DTR not used for the threshold-selection decision (ADR-045 `D10(a)` reserves it to Product Owner — satisfied by the explicit PO decision above); Feature Engine not approved; LIVE not authorized.
+
+**Next governed action:** a separate, subsequent, bounded Work Package would be required to resolve the 42 Condition-1B identities (genuine test-effectiveness work, targeting the current material behavioral gaps) and/or to define a governed mechanism for the remaining `TOOL_IDENTITY_DRIFT` row — neither initiated here.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-recalibration-proposal-001.md` (activated, resulting blob `12040044578d57d15e699a327a5a8ae39c1e9ea3`), `docs/governance/mutation-baseline-evidence/feature-engine-condition1-current-material-gap-set-001.json` (authorized provenance cleanup, resulting blob `49c30b439eb84db95c55dc4a86de22e2b491dbb5`), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — `feature-engine-mutation-threshold-proposal-001.md`, the post-E005 assessment artifact, Evidence-005 + correction, Testing Convention, Chapter 13, ADR-044/ADR-045, Candidate-005, and all source/tests/tooling NOT touched. `manifest_version` `"10.425"` -> `"10.426"`.
 
 ## Decision Log
 

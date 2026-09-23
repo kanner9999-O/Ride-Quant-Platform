@@ -1,53 +1,178 @@
 # Feature Engine Condition-1 Threshold — Recalibration Proposal 001
 
-**STATUS: CANDIDATE — NOT EFFECTIVE / AWAITING REVIEW A RE-REVIEW**
+**STATUS: APPROVED — EFFECTIVE**
 
-This document is a **proposal only**. It does not activate, apply, or
-change the currently-effective threshold. The existing
-`feature-engine-mutation-threshold-proposal-001.md` (blob
-`f4a3ca0c37aeb4684409a7344141103e64051e04`, status `APPROVED — EFFECTIVE`)
-remains byte-unchanged and remains the sole controlling Condition-1
-threshold: `87.001959503592%`, two-part gate (aggregate raw score **and**
-§4.1's per-identity resolution condition). No Product Owner decision is
-requested by this transaction.
+**Product Owner APPROVAL — atomic activation (2026-09-23T20:01+07:00),
+vai trò: `Feature Engine Condition-1 Recalibration Product Owner Decision
+Recorder`.** Product Owner decision (verbatim):
 
-**Bounded correction (this transaction), remediating Review A findings on
-the prior candidate (reviewed boundary `bc7e0c9df45ff8e02451078ca7b74a54bac43ee5`):**
-Review A returned `REVISION_REQUIRED — 0 Blocker / 2 Major / 2 Minor`, Risk
-`R1`, ADR Scope `ADR_OPTIONAL`. Per current ADR-045/Chapter 11 governance,
-R1 requires no independent cross-check by default — this correction is
-remediated on Review A's own finding, not self-closed.
+> "APPROVE the Feature Engine Condition-1 threshold recalibration at
+> boundary b16f57e06be265125123cc3c7eb0b2d2bdc75c17. Replace the current
+> 87.001959503592% Condition-1 threshold with Model A: Condition 1A: raw
+> mutation-effectiveness >= 85.812095853937% (2256/2629 at the reviewed
+> calibration boundary); AND Condition 1B: all 42 exact
+> current-material-gap identities in
+> feature-engine-condition1-current-material-gap-set-001.json must be
+> individually resolved under the governed per-identity mechanism.
+> Preserve Condition 2 and Condition 3 as independent requirements. Accept
+> Review A CLEAN — 0 Blocker / 0 Major / 1 Minor, Risk R1, ADR_OPTIONAL.
+> Fold the non-semantic two-row provenance-source correction into the
+> atomic activation. No independent cross-check required."
 
-- `MAJOR-01`: **REMEDIATED — PENDING REVIEW A RE-REVIEW.** Model A lacked a
-  current-material-identity companion condition, recreating the exact
-  aggregate-only loophole the original threshold proposal's own
-  `P3-PY-MUT-THRESH-A-MAJ-01` correction already closed once. §5 below now
-  defines an explicit two-part gate: Condition 1A (aggregate raw score) AND
-  Condition 1B (all 42 pinned current-material identities individually
-  resolved), reusing the existing §4.1 per-identity pattern.
-- `MAJOR-02`: **REMEDIATED — PENDING REVIEW A RE-REVIEW.** §3 below
-  corrects the classification of `ownership.acquire_and_activate
-  __mutmut_21`/`_23` from `PROVABLY_EQUIVALENT` to `GENUINE_TEST_GAP` — the
-  prior equivalence conclusion relied on a false single-thread-only
-  observability assumption; `owner.handle`/`owner.state` are public
-  properties with no lock/actor-isolation contract preventing a concurrent
-  reader from observing the intermediate `CATCHING_UP` handle.
-- `MINOR-01`: **REMEDIATED — PENDING REVIEW A RE-REVIEW.** §11 below
-  corrects the review/decision authority to current ADR-045/Chapter 11
-  semantics (Review A only at R1, no Independent Review B) and explicitly
-  states DTR's ineligibility for the threshold-selection decision itself
-  (ADR-045 D10).
-- `MINOR-02`: **REMEDIATED — PENDING REVIEW A RE-REVIEW.** §12 below
-  replaces the prior ambiguous activation language with one exact future
-  SSOT (single source of truth) authority transition.
+Decision date: `2026-09-23T20:01+07:00`.
 
-This document's content is corrected directly (not preserved-verbatim-and-
-annotated), consistent with how the currently-effective threshold
-proposal's own analogous bounded correction was recorded — it is
-analysis/proposal output, not a historical transaction log; the correction
-narrative itself is recorded in `docs/MANIFEST.md`/`docs/CHANGELOG.md`.
-**Not self-closed** — remediated pending a subsequent bounded Review A
-re-review, not performed by this transaction.
+**Reviewed semantic boundary:** `b16f57e06be265125123cc3c7eb0b2d2bdc75c17`
+(the bounded-correction commit — the actual, immutable proposal content
+this approval covers). **Reviewed subject blob:**
+`b7c9f0ec9661298a89567c4808e7e2721873ac80` (this file, at that boundary).
+**Reviewed 42-ID artifact blob:** `6360c8c1ad6e7c21129fa3b75415486d5447bf52`
+(the exact set Review A evaluated). This activation performs one
+Review-A-authorized, non-semantic provenance cleanup on the 42-ID artifact
+(§"Authorized provenance cleanup" below), which changes that artifact's own
+Git blob — the **resulting, activated/lifecycle-record 42-ID blob** is
+`49c30b439eb84db95c55dc4a86de22e2b491dbb5`. Both blobs are recorded
+explicitly and distinctly throughout this document and never conflated:
+the reviewed blob identifies exactly what Review A evaluated; the resulting
+blob identifies the byte-identity of the artifact as it stands after this
+authorized, non-semantic cleanup, and is the blob the activated Condition
+1B gate now pins.
+
+**Review evidence at this approval (already completed, recorded — not
+recorder self-closure):**
+
+```text
+Review A -- ChatGPT / AI Technical Architect, reviewed boundary
+b16f57e06be265125123cc3c7eb0b2d2bdc75c17, reviewed proposal blob
+b7c9f0ec9661298a89567c4808e7e2721873ac80:
+  MAJOR-01: CLOSED -- REVIEW A (Condition 1A/1B two-part gate confirmed
+    correctly closes the aggregate-only loophole).
+  MAJOR-02: CLOSED -- REVIEW A (acquire_and_activate__mutmut_21/_23
+    reclassification to GENUINE_TEST_GAP confirmed correct).
+  MINOR-01: CLOSED -- REVIEW A (review/decision authority correction
+    confirmed correct).
+  MINOR-02: CLOSED -- REVIEW A (future SSOT transition definition
+    confirmed correct).
+  New Minor: the 42-ID artifact's per-ID "source" field for exactly the
+    two reclassified mutants (mutmut_21/mutmut_23) claimed "post-E005
+    assessment (GENUINE_TEST_GAP)" -- factually inaccurate, since the
+    immutable post-E005 assessment classified both UNCLEAR, not
+    GENUINE_TEST_GAP. Non-semantic (provenance/audit-trail text only --
+    no effect on set membership, count, sorted order, or resolution
+    semantics).
+  Blocker 0 / Major 0 / Minor 1.
+  CLEAN -- 0 Blocker / 0 Major / 1 Minor.
+Risk: R1. ADR Scope: ADR_OPTIONAL.
+R1 default: NO CROSS-CHECK. Product Owner explicitly selected: no
+  independent cross-check required. No Independent Review B performed or
+  fabricated.
+```
+
+**Authorized non-semantic provenance cleanup (folded into this atomic
+activation, per the Product Owner decision above):** in
+`feature-engine-condition1-current-material-gap-set-001.json`, the two
+`per_id` entries for `acquire_and_activate__mutmut_21`/`_23` had their
+`"source"` field corrected from the inaccurate `"post-E005 assessment
+(GENUINE_TEST_GAP)"` to `"Review-A MAJOR-02 correction: post-E005
+assessment UNCLEAR -> GENUINE_TEST_GAP"` — an accurate statement of that
+artifact's own recorded provenance narrative (§"Fresh resolution of the 2
+UNCLEAR survivors" below). Nothing else in the artifact was touched:
+**verified unchanged** — exact 42-identity membership, `count = 42`,
+`duplicates = 0`, sorted order, semantic classification, and resolution
+requirement; sorted-set identity `sha256 =
+932698b4b312c1a8f70c261426555a5c6f3566579ed0a27102d4a0f0214adedc`
+**unchanged** (the hash is computed over the sorted ID list only, which
+this cleanup never touched). This two-field text correction is exactly
+why the artifact's own Git blob changed from the reviewed
+`6360c8c1ad6e7c21129fa3b75415486d5447bf52` to the resulting
+`49c30b439eb84db95c55dc4a86de22e2b491dbb5`.
+
+**State after this approval:**
+
+```text
+Feature Engine Condition-1 Threshold Recalibration Proposal 001: APPROVED
+  -- Product Owner, EFFECTIVE. This is now the SOLE current Feature
+  Engine Condition-1 threshold authority.
+Condition 1A: raw mutation-effectiveness >= 85.812095853937% (exact-count
+  basis 2256/2629 at the reviewed calibration boundary) -- necessary but
+  not sufficient.
+Condition 1B: all 42 exact identities in the corrected
+  feature-engine-condition1-current-material-gap-set-001.json (blob
+  49c30b439eb84db95c55dc4a86de22e2b491dbb5) individually resolved --
+  necessary. Killing unrelated (message-text) mutants never substitutes.
+  No blanket reclassification. No score-offset mechanism.
+Condition 2 and Condition 3 preserved as independent requirements,
+  UNCHANGED and NOT merged with Condition 1B.
+Old threshold (feature-engine-mutation-threshold-proposal-001.md,
+  87.001959503592%, blob f4a3ca0c37aeb4684409a7344141103e64051e04):
+  historical / superseded threshold authority. File remains
+  byte-unchanged -- its own internal historical APPROVED -- EFFECTIVE
+  banner describes its own historical lifecycle and is not retroactively
+  edited; current authority must be read from THIS document and from
+  MANIFEST's canonical current-threshold pointer, never inferred from
+  that old banner.
+Current Condition 1 status: FAIL -- criteria (Condition 1A: FAIL --
+  criteria, current raw score 84.21453023963484%-84.55686572841384% <
+  85.812095853937%; Condition 1B: FAIL -- criteria, the 42 pinned
+  identities are not all individually resolved). This activation changes
+  the governing threshold only -- no fresh mutation measurement was
+  performed by this transaction.
+Condition 2: 169/170, unchanged, independent.
+Condition 3: SATISFIED -- REVIEW A VALIDATED, unchanged.
+P3-FEATURE-QG-EVID-03: OPEN. Feature Engine: NOT APPROVED. Phase-3 module
+  approval: NOT GRANTED. LIVE: NOT_AUTHORIZED.
+```
+
+**Approval này KHÔNG:** perform a fresh 2629-mutant (or any) formal
+mutation measurement; resolve any of the 42 Condition-1B identities;
+resolve `contracts.x__seal_verified_authority__mutmut_33`
+(`TOOL_IDENTITY_DRIFT`); implement any test; mutate
+`feature-engine-mutation-threshold-proposal-001.md` (remains byte-unchanged
+at `f4a3ca0c37aeb4684409a7344141103e64051e04`); mutate the post-E005
+survivor assessment, Evidence-005, its correction, Testing Convention,
+Chapter 13, ADR-044, or ADR-045; touch any source/test/tooling; fabricate
+Independent Review B evidence; use Delegated Technical Resolution for the
+threshold-selection decision (ADR-045 `D10(a)` reserves it to Product
+Owner); mark Condition 1 PASS; approve Feature Engine; or authorize LIVE.
+
+---
+
+**Correction history (prior to this activation), preserved as historical
+narrative:** this document was originally authored as
+`CANDIDATE — NOT EFFECTIVE / AWAITING REVIEW A`, then bounded-corrected
+once (reviewed boundary `bc7e0c9df45ff8e02451078ca7b74a54bac43ee5`,
+remediating ChatGPT Review A `REVISION_REQUIRED — 0 Blocker / 2 Major / 2
+Minor`, Risk `R1`, ADR Scope `ADR_OPTIONAL`) before reaching the
+`CLEAN — 0/0/1` verdict activated above:
+
+- `MAJOR-01`: **CLOSED.** Model A lacked a current-material-identity
+  companion condition, recreating the exact aggregate-only loophole the
+  original threshold proposal's own `P3-PY-MUT-THRESH-A-MAJ-01` correction
+  already closed once. §5 below defines an explicit two-part gate:
+  Condition 1A (aggregate raw score) AND Condition 1B (all 42 pinned
+  current-material identities individually resolved), reusing the existing
+  §4.1 per-identity pattern.
+- `MAJOR-02`: **CLOSED.** §3 below corrects the classification of
+  `ownership.acquire_and_activate__mutmut_21`/`_23` from
+  `PROVABLY_EQUIVALENT` to `GENUINE_TEST_GAP` — the prior equivalence
+  conclusion relied on a false single-thread-only observability
+  assumption; `owner.handle`/`owner.state` are public properties with no
+  lock/actor-isolation contract preventing a concurrent reader from
+  observing the intermediate `CATCHING_UP` handle.
+- `MINOR-01`: **CLOSED.** §11 below corrects the review/decision authority
+  to current ADR-045/Chapter 11 semantics (Review A only at R1, no
+  Independent Review B) and explicitly states DTR's ineligibility for the
+  threshold-selection decision itself (ADR-045 D10).
+- `MINOR-02`: **CLOSED.** §12 below replaces the prior ambiguous
+  activation language with one exact future SSOT (single source of truth)
+  authority transition — now itself superseded/executed by this
+  activation's own "State after this approval" block above.
+
+This document's content was corrected directly (not preserved-verbatim-
+and-annotated), consistent with how the currently-effective (now
+historical) threshold proposal's own analogous bounded correction was
+recorded — it is analysis/proposal output, not a historical transaction
+log; the correction narrative itself is recorded in
+`docs/MANIFEST.md`/`docs/CHANGELOG.md`.
 
 ## 0. Authority resolved directly (fresh-read, not restated from memory)
 
@@ -60,7 +185,7 @@ re-review, not performed by this transaction.
 | ADR-045 | `docs/adr/ADR-045.md` | `ac13ece16ff644d0d88ddf982d83bfb0e8d5ad16` | Yes — `version: "0.3"`, `status: Approved` |
 | Evidence-005 (formal) | `docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-005.json` | `f7a6ab715155ad166808e0e9d9a7474196d9b69d` | Yes |
 | Post-E005 survivor assessment | `docs/governance/mutation-baseline-evidence/feature-engine-condition1-post-e005-survivor-assessment-001.json` | `5d7d626cfd1b500a3751c90613bd041cec50a792` | Yes — matches expected exactly |
-| Current-material gap set (this correction, new) | `docs/governance/mutation-baseline-evidence/feature-engine-condition1-current-material-gap-set-001.json` | `6360c8c1ad6e7c21129fa3b75415486d5447bf52` | Created this transaction |
+| Current-material gap set (activated Condition 1B pin) | `docs/governance/mutation-baseline-evidence/feature-engine-condition1-current-material-gap-set-001.json` | `49c30b439eb84db95c55dc4a86de22e2b491dbb5` (resulting, post-provenance-cleanup; reviewed blob was `6360c8c1ad6e7c21129fa3b75415486d5447bf52`) | Yes — 42-identity set/hash verified unchanged by the cleanup |
 
 **Post-E005 assessment identity, fresh-verified (exact match, no drift).
 The assessment artifact itself remains byte-immutable — it is NOT edited by
@@ -328,12 +453,16 @@ corrected Model A derivation in §5 below.
 ### Current-material gap set (new pinned identity artifact, this correction)
 
 `docs/governance/mutation-baseline-evidence/feature-engine-condition1-current-material-gap-set-001.json`
-(blob `6360c8c1ad6e7c21129fa3b75415486d5447bf52`) pins the exact 42-ID set
-this settled classification defines — the 40 `GENUINE_TEST_GAP` identities
-from the post-E005 assessment plus the 2 identities reclassified above.
-Fresh-verified: `count = 42`, `duplicates = 0`, sorted-set
-`sha256 = 932698b4b312c1a8f70c261426555a5c6f3566579ed0a27102d4a0f0214adedc`.
-This artifact is the pinned identity source for Condition 1B (§5 below) —
+(reviewed blob `6360c8c1ad6e7c21129fa3b75415486d5447bf52`; activated/
+lifecycle-record blob `49c30b439eb84db95c55dc4a86de22e2b491dbb5` after this
+activation's authorized, non-semantic provenance-only cleanup — see the top
+banner) pins the exact 42-ID set this settled classification defines — the
+40 `GENUINE_TEST_GAP` identities from the post-E005 assessment plus the 2
+identities reclassified above. Fresh-verified: `count = 42`, `duplicates =
+0`, sorted-set `sha256 =
+932698b4b312c1a8f70c261426555a5c6f3566579ed0a27102d4a0f0214adedc`
+(unchanged by the cleanup — computed over the sorted ID list only). This
+artifact is the pinned identity source for Condition 1B (§5 below) —
 it is a **new, current-boundary obligation, entirely separate from and not
 a replacement for** Condition 2's independent, historical 170-identity
 obligation (§4.1 of the currently-effective threshold proposal).
@@ -400,7 +529,7 @@ AND
 Condition 1B: every one of the 42 exact current-material-gap mutant
               identities pinned in
               feature-engine-condition1-current-material-gap-set-001.json
-              (blob 6360c8c1ad6e7c21129fa3b75415486d5447bf52) is
+              (activated blob 49c30b439eb84db95c55dc4a86de22e2b491dbb5) is
               individually resolved via exactly one of:
                 (a) Killed / confirmed_timeout in a fresh, formal mutation
                     measurement; OR
@@ -599,14 +728,14 @@ partly in place), unchanged.
 
 ## 8. Recommendation — corrected by Review A `MAJOR-01`/`MAJOR-02`
 
-**Recommended: Model A**, corrected two-part gate — **Condition 1A**
-(candidate numeric threshold `85.812095853937%`, full precision
-`85.812095853936858120958539368581209585393685812096...%`, required
-numerator `2256` at `total = 2629`) **AND Condition 1B** (all 42 exact
-current-material-gap identities in
+**Recommended and, as of this activation, ADOPTED: Model A**, corrected
+two-part gate — **Condition 1A** (numeric threshold `85.812095853937%`,
+full precision `85.812095853936858120958539368581209585393685812096...%`,
+required numerator `2256` at `total = 2629`) **AND Condition 1B** (all 42
+exact current-material-gap identities in
 `feature-engine-condition1-current-material-gap-set-001.json` individually
-resolved) — as a **candidate for a future governed Step 1–9-equivalent
-recalibration** — not activated here.
+resolved) — now the sole current Feature Engine Condition-1 threshold
+authority (see top banner).
 
 **Against the seven criteria:**
 
@@ -744,7 +873,13 @@ This transaction does **not**:
   artifact after this transaction creates it — it is a pinned identity
   snapshot, not a living document.
 
-## 11. Activation requirements (future, not performed here) — corrected by Review A `MINOR-01`
+## 11. Activation requirements — corrected by Review A `MINOR-01`, now SATISFIED (this transaction)
+
+**Update: all five requirements below are now satisfied — this document is
+`APPROVED — EFFECTIVE` (see top banner).** The requirements themselves, and
+the `MINOR-01` correction that fixed their stale review-authority citation,
+are preserved below as the historical record of what activation required
+and why.
 
 **`MINOR-01` (Review A, this correction): the prior candidate's review/
 decision authority citations were stale.** The prior text cited "Chapter 11
@@ -764,13 +899,18 @@ R1 — Bounded semantic / normal implementation risk... Default: NO
 (`ADR-045.md`, "Decision — R0/R1/R2 definitions", R1 entry, fresh-read this
 transaction, blob `ac13ece16ff644d0d88ddf982d83bfb0e8d5ad16`, unchanged.)
 
-**Corrected activation requirements** — a future transaction may activate a
-recalibrated Condition-1 threshold only after ALL of:
+**Corrected activation requirements (historical record — all now
+satisfied, see status per item below)** — a recalibrated Condition-1
+threshold could be activated only after ALL of:
 
-1. Step 7 — bounded Review A (ChatGPT) of this candidate proposal (this
-   correction's own reviewed subject), independently re-verifying §1's
-   arithmetic, §3's corrected classification/observability trace, the
-   corrected Model A two-part gate, and the Model A/B/C comparison;
+1. **SATISFIED.** Step 7 — bounded Review A (ChatGPT) of this candidate
+   proposal (this correction's own reviewed subject, boundary
+   `b16f57e06be265125123cc3c7eb0b2d2bdc75c17`), independently re-verifying
+   §1's arithmetic, §3's corrected classification/observability trace, the
+   corrected Model A two-part gate, and the Model A/B/C comparison —
+   returned `CLEAN — 0 Blocker / 0 Major / 1 Minor` (the Minor being the
+   non-semantic provenance-source finding, folded into this activation per
+   the Product Owner decision);
 2. **No Independent Review B is required at R1** under current ADR-045/
    Chapter 11 v2.4 governance — R1's default is Review A alone, no
    cross-check, unless Review A or the Product Owner itself escalates this
@@ -784,10 +924,11 @@ recalibrated Condition-1 threshold only after ALL of:
    authority-precedence ordering); it is not remediated by this correction
    (out of scope — no Testing Convention edit performed, per §10's
    non-goals);
-3. a fresh Chapter 0 §4b ADR Scope Rule re-run against the reviewed
-   boundary's actual final content (not inherited from §14 below);
-4. **an explicit Product Owner decision on the numeric threshold
-   specifically** — this reservation is controlling and is **not** waived
+3. **SATISFIED.** A fresh Chapter 0 §4b ADR Scope Rule re-run against the
+   reviewed boundary's actual final content (not inherited from §14 below)
+   — see §14, `ADR_OPTIONAL`, freshly re-confirmed;
+4. **SATISFIED.** an explicit Product Owner decision on the numeric
+   threshold specifically — this reservation is controlling and is **not** waived
    or narrowed by R1's no-cross-check default. Testing Convention v0.17's
    own governed 9-step sequence explicitly names "Product Owner decision"
    as its own distinct step (Step 8), and the currently-effective
@@ -815,19 +956,21 @@ recalibrated Condition-1 threshold only after ALL of:
    over, the R1 no-cross-check default. An explicit Product Owner decision
    naming the exact candidate figure, boundary, and review disposition
    being approved remains required — never inferred or assumed from this
-   candidate document alone;
-5. only then, a Step-9-equivalent atomic activation transaction performing
-   the exact future SSOT authority transition defined in §12 below.
+   candidate document alone — see the top banner's quoted verbatim
+   decision;
+5. **SATISFIED.** A Step-9-equivalent atomic activation transaction (this
+   transaction) performing the exact SSOT authority transition defined in
+   §12 below.
 
-## 12. Exact future SSOT authority transition — corrected by Review A `MINOR-02`
+## 12. Exact SSOT authority transition — corrected by Review A `MINOR-02`, EXECUTED this transaction
 
-**`MINOR-02` (Review A, this correction): the prior candidate left future
-activation ambiguous** between "promote this document" and "a superseding
-activation record." Replaced with one exact authority transition,
-**defined only as future activation semantics — not performed now**:
+**`MINOR-02` (Review A, prior correction): the earlier candidate left
+future activation ambiguous** between "promote this document" and "a
+superseding activation record." Replaced with one exact authority
+transition — **now executed by this atomic activation transaction**:
 
-**Before activation (current state, unchanged by this proposal or this
-correction):**
+**Before this activation (the state immediately prior to this
+transaction):**
 
 ```text
 feature-engine-mutation-threshold-proposal-001.md
@@ -835,9 +978,7 @@ feature-engine-mutation-threshold-proposal-001.md
   = sole current Feature Engine Condition-1 threshold authority
 ```
 
-**After a future activation of this recalibration proposal (not performed
-here — requires the full §11 activation sequence, including the
-Product-Owner-reserved threshold decision):**
+**After this activation (the resulting, current state):**
 
 ```text
 feature-engine-mutation-threshold-recalibration-proposal-001.md
@@ -847,18 +988,19 @@ feature-engine-mutation-threshold-recalibration-proposal-001.md
 feature-engine-mutation-threshold-proposal-001.md
   = historical / superseded threshold authority
   = file remains byte-unchanged (never mutated merely to change its own
-    lifecycle-state label -- its own internal STATUS banner is itself part
-    of the permanent historical record and is not retroactively edited)
+    lifecycle-state label -- its own internal historical APPROVED --
+    EFFECTIVE banner is itself part of the permanent historical record
+    and is NOT retroactively edited by this activation)
 ```
 
-A future activation transaction's own `docs/MANIFEST.md` update must
-atomically write a **canonical current-threshold pointer/state** — a single
-unambiguous field naming which artifact is the sole current Condition-1
-threshold authority at that boundary — so that no reader is ever required
-to infer current authority from two documents' independent STATUS banners.
-The superseded document is historical evidence, not a candidate for
-lifecycle-state mutation; only the superseding document's own STATUS
-banner and the MANIFEST pointer change.
+This activation's own `docs/MANIFEST.md` update atomically writes a
+**canonical current-threshold pointer/state** — a single unambiguous field
+naming this document as the sole current Condition-1 threshold authority —
+so that no reader is required to infer current authority from either
+document's own independent STATUS banner. The superseded document is
+historical evidence, not a candidate for lifecycle-state mutation; only
+this document's own STATUS banner (now `APPROVED — EFFECTIVE`, updated
+above) and the MANIFEST pointer changed.
 
 ## 13. Rollback / reversal semantics
 
@@ -890,7 +1032,7 @@ force the expected classification.
 | Module Taxonomy/dependency-graph change | No | No `module-registry.yaml`/dependency-edge edit. |
 | Governance/Approval-process change | **No — re-examined specifically for the `MAJOR-01` correction's added Condition 1B, not merely re-asserted.** Is a companion condition requiring 42 specific, pinned mutant identities to each be individually resolved — via a NEW dedicated identity artifact — a NEW governance mechanism, or an application of an EXISTING one? Condition 1B's own resolution semantics are VERBATIM the currently-effective proposal's own §4.1 pattern: "(a) killed/confirmed_timeout in a fresh formal measurement; OR (b) individually reclassified — a separate, governed decision... never a blanket, unreviewed claim." This is the same conclusion the currently-effective proposal's own §6.1 reached for its own analogous §4.1 addition — a direct, structurally identical reuse of an already-established pattern (also, independently, Testing Convention item 8's equivalent-mutant-adjustment mechanism), applied to a current-boundary identity set instead of a historical one. The pinned-identity artifact itself is inert data (a sorted ID list + hash), not a new review role, lifecycle stage, or approval-gate structure. The §9 trigger candidate similarly reuses the SAME resulting mechanism (§4.3's own "governed re-proposal transaction") as the three existing triggers. Conclusion unchanged: no new governance/approval-process machinery is created. |
 | Decision affecting >1 module | No | Strictly Feature-Engine-only, Tier-1 scope — matches the original proposal's own scope exactly. |
-| Hard-to-reverse decision | No | A `CANDIDATE — NOT EFFECTIVE` document with no lifecycle approval; §13's symmetric re-proposal mechanism preserves full reversibility, identical in kind to the original proposal's own reversibility. |
+| Hard-to-reverse decision | No | §13's symmetric re-proposal mechanism preserves full reversibility even after activation, identical in kind to the original (now historical) proposal's own reversibility — activation itself does not make this a hard-to-reverse decision. |
 | Locked-ADR modification/supersession | No | No ADR touched. |
 | **Alternative: significant but reversible single-module internal change** | **Yes** | A genuinely significant (will eventually gate a real PASS/FAIL dimension) but single-module, contract-preserving, already-delegated-authority (Chapter 13 §13.14 defers exact threshold detail to Testing-Convention-owned territory), fully-reversible candidate — the same textual fit as the original proposal's own §6.2 finding. |
 
@@ -907,55 +1049,76 @@ ADR_SCOPE_DISPOSITION: ADR_OPTIONAL
 ```
 
 **No ADR is authored by this transaction.** Per this task's explicit
-instruction, this disposition (not `ADR_REQUIRED`) means the next governed
-action is Step 7 review of this candidate proposal, not ADR authoring.
+instruction, this disposition (not `ADR_REQUIRED`) means Step 7 review
+(now complete, `CLEAN — 0/0/1`) and Product Owner decision (now recorded,
+top banner) were the correct next governed actions, not ADR authoring —
+confirmed, not merely assumed, by this activation's own fresh re-run.
 
-## 15. Risk Classification — candidate, fresh, not self-finalized
+## 15. Risk Classification — confirmed at activation, not self-finalized Review A
 
-This is a candidate policy/quality-gate recalibration proposal, not mere
-evidence/bookkeeping recording — `R0` is not assumed. It is also not `R2`:
+This is a substantive policy/quality-gate recalibration, not mere
+evidence/bookkeeping recording — `R0` was not assumed. It is also not `R2`:
 it carries no Platform Invariant, Event Schema, cross-module, or Locked-ADR
 effect, and remains fully reversible via the same symmetric mechanism used
-to produce it.
+to produce it (§13).
 
 ```text
-Risk candidate: R1
+Risk: R1 (confirmed by Review A, this activation's reviewed disposition)
 ```
 
 **Rationale:** a significant, single-module (Feature-Engine-only, Tier-1),
-fully-reversible policy candidate that will eventually — if and when
-separately activated through its own governed decision — gate a real
-Quality Gate PASS/FAIL dimension. This is a genuine, substantive proposal
+fully-reversible policy change that now gates a real Quality Gate PASS/FAIL
+dimension (Condition 1A/1B). This was a genuine, substantive proposal
 requiring independent review, not a mechanical recording action (ruling out
 R0); it has no cross-module, Platform-Invariant, or hard-to-reverse
-character (ruling out R2). **This Risk Classification is not self-finalized
-Review A** — it is a candidate classification for the separate ChatGPT
-Review A this transaction explicitly does not perform.
+character (ruling out R2). **This Risk Classification was independently
+confirmed by ChatGPT's own Review A** (top banner) — not self-finalized by
+the executor who authored the candidate.
 
-## 16. State preserved, explicitly verified unchanged
+## 16. State after activation, explicitly verified
 
 ```text
-Condition 1 (raw mutation score):  FAIL — criteria (unchanged; the
-                                    currently-effective 87.001959503592%
-                                    threshold remains controlling; this
-                                    proposal changes nothing about it).
+Condition 1 (raw mutation score):  FAIL -- criteria under the NEW,
+                                    now-controlling gate (Condition 1A:
+                                    raw score 84.21453023963484%-
+                                    84.55686572841384% < required
+                                    85.812095853937%, FAIL; Condition 1B:
+                                    42 pinned current-material identities
+                                    not all individually resolved, FAIL).
+                                    The prior 87.001959503592% threshold
+                                    is now historical/superseded (see
+                                    top banner) -- this proposal changed
+                                    the governing threshold, not the
+                                    formal evidence measurement, which
+                                    was not re-run by this transaction.
 Condition 2 (identity resolution): 169/170 (unchanged; remaining item
                                     contracts.x__seal_verified_authority
-                                    __mutmut_33, TOOL_IDENTITY_DRIFT — not
-                                    touched, not folded into Condition 1).
-Condition 3 (formal evidence):     SATISFIED — REVIEW A VALIDATED
+                                    __mutmut_33, TOOL_IDENTITY_DRIFT --
+                                    not touched, not folded into
+                                    Condition 1B -- these are
+                                    independent, separate obligations).
+Condition 3 (formal evidence):     SATISFIED -- REVIEW A VALIDATED
                                     (unchanged, not reopened).
 P3-FEATURE-QG-EVID-03:              OPEN (unchanged).
-Feature Engine approval:           NOT APPROVED.
+Feature Engine approval:           NOT APPROVED (threshold activation is
+                                    not module approval).
+Phase-3 module approval:           NOT GRANTED.
 LIVE:                               NOT_AUTHORIZED.
 ```
 
-**Explicitly confirmed byte-unchanged (git diff --stat empty):**
-`feature-engine-mutation-threshold-proposal-001.md`,
+**Explicitly confirmed byte-unchanged (git diff --stat empty) by this
+activation:** `feature-engine-mutation-threshold-proposal-001.md` (now
+historical/superseded, but byte-identical at
+`f4a3ca0c37aeb4684409a7344141103e64051e04`),
 `feature-engine-mutation-step9-formal-evidence-005.json`,
 `feature-engine-mutation-step9-formal-evidence-005-correction-001.json`,
 `feature-engine-condition1-post-e005-survivor-assessment-001.json`,
 `docs/engineering/testing.md`, `docs/constitution/13-quality-gates.md` (and
 all other Constitution chapters), `docs/adr/ADR-044.md`,
 `docs/adr/ADR-045.md`, and all `python/feature-engine/src`,
-`python/feature-engine/tests`, `python/feature-engine/tooling` files.
+`python/feature-engine/tests`, `python/feature-engine/tooling` files. The
+only file this activation intentionally changed besides this document is
+`feature-engine-condition1-current-material-gap-set-001.json` (the
+authorized, non-semantic provenance cleanup — blob
+`6360c8c1ad6e7c21129fa3b75415486d5447bf52` →
+`49c30b439eb84db95c55dc4a86de22e2b491dbb5`).

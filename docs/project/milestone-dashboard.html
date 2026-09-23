@@ -235,7 +235,7 @@
   <div class="wrap">
     <h1>Ride Quant Platform — Milestone Dashboard</h1>
     <div class="top-meta">
-      <span>Milestone state verified against: <code id="head-sha">0c9f4ef8eb8d7ad45afb604b3a8e7cfd1883fde9</code></span>
+      <span>Milestone state verified against: <code id="head-sha">b16f57e06be265125123cc3c7eb0b2d2bdc75c17</code></span>
       <span>Lean Ride Operating Model v1.1: <span class="pill pill-done">Active — ADOPTED</span></span>
       <span>Current milestone: <span class="pill pill-active">M1 — Feature Engine EVID-03 Closure</span></span>
     </div>
@@ -320,7 +320,8 @@
         <div class="kv"><span class="k">Unstable timeout-triage cases</span><span class="v">9 (remain individually unresolved)</span></div>
         <div class="kv"><span class="k">Current survivor count</span><span class="v">406</span></div>
         <div class="kv"><span class="k">Bounded measurement</span><span class="v">84.21453023963484% – 84.55686572841384%</span></div>
-        <div class="kv"><span class="k">Required threshold</span><span class="v">87.001959503592%</span></div>
+        <div class="kv"><span class="k">Condition 1A threshold (ACTIVATED)</span><span class="v"><strong>85.812095853937%</strong> (was 87.001959503592%, now historical/superseded)</span></div>
+        <div class="kv"><span class="k">Condition 1B (ACTIVATED)</span><span class="v">42/42 current-material identities unresolved — <code>feature-engine-condition1-current-material-gap-set-001.json</code></span></div>
         <div class="note">
           As of <code>FE-EVID03-COND1-APPLY-001</code>, Chapter 13 v1.8 §13.8.1 is
           controlling authority and has been formally applied to the existing,
@@ -350,6 +351,29 @@
           result or the approved threshold. Full record:
           <code>feature-engine-condition1-post-e005-survivor-assessment-001.json</code>.
         </div>
+        <div class="note">
+          <strong>ATOMIC PRODUCT OWNER ACTIVATION (2026-09-23T20:01+07:00,
+          <code>FE-EVID03-COND1-THRESHOLD-RECAL-001-ACTIVATION-001</code>):</strong>
+          Final Review A <code>CLEAN — 0/0/1</code>, R1, <code>ADR_OPTIONAL</code>,
+          no cross-check. Product Owner approved replacing the
+          <code>87.001959503592%</code> threshold with Model A:
+          <strong>Condition 1A</strong> (raw score ≥ <code>85.812095853937%</code>,
+          required numerator <code>2256/2629</code>) <strong>AND Condition
+          1B</strong> (all 42 exact current-material identities in
+          <code>feature-engine-condition1-current-material-gap-set-001.json</code>
+          individually resolved). Authorized non-semantic provenance
+          cleanup folded in (42-ID artifact blob
+          <code>6360c8c1...</code> → <code>49c30b439e...</code>, set/
+          count/hash unchanged). <code>feature-engine-mutation-threshold-
+          recalibration-proposal-001.md</code> is now the SOLE current
+          Condition-1 threshold authority (resulting blob
+          <code>12040044578d...</code>); the old proposal is historical/
+          superseded, byte-unchanged. No fresh mutation measurement was
+          performed — Condition 1 remains <strong>FAIL — criteria</strong>
+          (1A FAIL: current raw score below the new threshold; 1B FAIL:
+          42 identities not yet resolved). Condition 2/3 preserved as
+          independent requirements.
+        </div>
       </div>
     </div>
   </section>
@@ -370,6 +394,10 @@
         <div class="lbl">Condition-2 identities resolved</div>
       </div>
       <div class="metric">
+        <div class="num" style="color:var(--blocked)">0 / 42</div>
+        <div class="lbl">Condition-1B current-material identities resolved</div>
+      </div>
+      <div class="metric">
         <div class="num pill pill-no" style="font-size:1.1rem;">NO</div>
         <div class="lbl">PO action required now</div>
       </div>
@@ -383,11 +411,11 @@
         <h4>Primary</h4>
         <div class="wp-item">
           <code>(none currently assigned)</code>
-          <div class="desc"><code>FE-EVID03-COND1-THRESHOLD-RECAL-001-CORR-001</code> (bounded correction of the recalibration proposal) is COMPLETE. Next primary WP is a bounded Review A re-review (no Independent Review B required at R1) — awaits a separate scoping decision.</div>
+          <div class="desc"><code>FE-EVID03-COND1-THRESHOLD-RECAL-001-ACTIVATION-001</code> is <strong>DONE / ACTIVATED</strong>. Next primary WP (resolving the 42 pinned Condition-1B current-material identities) awaits a separate scoping decision.</div>
         </div>
         <div class="wp-item">
           <code>Condition-1 remediation</code>
-          <div class="desc">Awaits a separate Product Owner scoping decision — not initiated by this transaction. CALIBRATION_DRIFT_CONFIRMED: even the recalibration candidate figures remain above the current actual raw score.</div>
+          <div class="desc">Awaits a separate Product Owner scoping decision — not initiated by this transaction. The 42 Condition-1B identities in <code>feature-engine-condition1-current-material-gap-set-001.json</code> are the current pinned target population for any future test-effectiveness wave.</div>
         </div>
       </div>
       <div class="lane">
@@ -471,6 +499,10 @@
           <code>FE-EVID03-COND1-THRESHOLD-RECAL-001-CORR-001</code>
           <div class="desc"><strong>Bounded correction of the recalibration proposal</strong>, remediating ChatGPT Review A <code>REVISION_REQUIRED — 0 Blocker / 2 Major / 2 Minor</code>, Risk <code>R1</code>, ADR Scope <code>ADR_OPTIONAL</code> (R1 default: no independent cross-check). <code>MAJOR-01</code>: Model A corrected from an aggregate-only gate to an explicit two-part gate — Condition 1A (raw score ≥ recalibrated threshold) AND Condition 1B (all 42 pinned current-material identities individually resolved, reusing the currently-effective proposal's own §4.1 pattern verbatim) — a NEW, current-boundary obligation, explicitly separate from Condition 2's independent historical 170-identity obligation. <code>MAJOR-02</code>: reclassified <code>ownership.acquire_and_activate__mutmut_21</code>/<code>_23</code> from <code>PROVABLY_EQUIVALENT</code> to <strong>GENUINE_TEST_GAP</strong> — the prior conclusion wrongly assumed single-thread-only observability; <code>owner.handle</code>/<code>owner.state</code> are public properties observable by a concurrent reader while <code>acquire_and_activate</code> is blocked mid-flight inside <code>_catch_up</code>, and ADR-043 itself treats concurrent access as a real runtime concern. Settled classification: <code>GENUINE_TEST_GAP=42</code>, <code>LOW_MATERIALITY_MESSAGE_TEXT=344</code>, <code>PROVABLY_EQUIVALENT=16</code>, <code>STRUCTURALLY_UNREACHABLE=4</code>, <code>UNCLEAR=0</code> (406 total). <strong>CALIBRATION_DRIFT_CONFIRMED</strong> preserved unchanged (robustness numerator <code>2285</code> still <code>3</code> short of <code>2288</code>, cardinality unchanged by the reclassification). New pinned identity artifact: <code>feature-engine-condition1-current-material-gap-set-001.json</code> (42 IDs, 0 duplicates). Corrected Model A candidate: <code>85.812095853937%</code> (= (2214+42)/2629, required numerator <code>2256</code>), superseding <code>85.736021300875%</code>. <code>MINOR-01</code>: corrected review/decision authority to current ADR-045/Chapter 11 v2.4 (R1 = Review A only, no Independent Review B); the numeric-threshold decision itself remains explicitly Product-Owner-reserved (ADR-045 <code>D10(a)</code>) — DTR is explicitly NOT eligible for the threshold-selection decision. <code>MINOR-02</code>: defined one exact future SSOT authority transition (old threshold document → historical/superseded, byte-unchanged; new document → sole current authority if/when activated) — future activation semantics only, not performed now. ADR Scope Rule freshly re-run against the corrected model: <code>ADR_OPTIONAL</code>. Risk candidate: <code>R1</code>. No ADR authored; no threshold activated; no Product Owner decision requested.</div>
         </div>
+        <div class="wp-item">
+          <code>FE-EVID03-COND1-THRESHOLD-RECAL-001-ACTIVATION-001</code>
+          <div class="desc"><strong>DONE / ACTIVATED (2026-09-23T20:01+07:00).</strong> Final Review A (ChatGPT) returned <code>CLEAN — 0 Blocker / 0 Major / 1 Minor</code>, Risk <code>R1</code>, ADR Scope <code>ADR_OPTIONAL</code>; R1 default no independent cross-check, none performed. Product Owner approved (verbatim): "APPROVE the Feature Engine Condition-1 threshold recalibration at boundary b16f57e06be265125123cc3c7eb0b2d2bdc75c17. Replace the current 87.001959503592% Condition-1 threshold with Model A: Condition 1A: raw mutation-effectiveness &gt;= 85.812095853937% (2256/2629 at the reviewed calibration boundary); AND Condition 1B: all 42 exact current-material-gap identities in feature-engine-condition1-current-material-gap-set-001.json must be individually resolved under the governed per-identity mechanism. Preserve Condition 2 and Condition 3 as independent requirements. Accept Review A CLEAN — 0 Blocker / 0 Major / 1 Minor, Risk R1, ADR_OPTIONAL. Fold the non-semantic two-row provenance-source correction into the atomic activation. No independent cross-check required." Authorized non-semantic provenance cleanup folded in: the 42-ID artifact's two <code>acquire_and_activate__mutmut_21</code>/<code>_23</code> <code>source</code> fields corrected from an inaccurate <code>"post-E005 assessment (GENUINE_TEST_GAP)"</code> to <code>"Review-A MAJOR-02 correction: post-E005 assessment UNCLEAR -&gt; GENUINE_TEST_GAP"</code> — 42-identity set/count/duplicates/order/sorted-set sha256 all verified unchanged; artifact blob <code>6360c8c1ad6e7c21129fa3b75415486d5447bf52</code> → <code>49c30b439eb84db95c55dc4a86de22e2b491dbb5</code>. <code>feature-engine-mutation-threshold-recalibration-proposal-001.md</code> transitions <code>CANDIDATE → APPROVED — EFFECTIVE</code> (resulting blob <code>12040044578d57d15e699a327a5a8ae39c1e9ea3</code>) and becomes the <strong>sole current Feature Engine Condition-1 threshold authority</strong>. <code>feature-engine-mutation-threshold-proposal-001.md</code> (old <code>87.001959503592%</code> threshold) becomes historical/superseded, byte-unchanged at <code>f4a3ca0c37aeb4684409a7344141103e64051e04</code>. MANIFEST now carries one canonical current-threshold pointer. Condition 2 (<code>169/170</code>) and Condition 3 (<code>SATISFIED</code>) preserved as independent requirements, not merged with Condition 1B. No fresh mutation measurement performed — <strong>Condition 1 remains FAIL — criteria</strong> (Condition 1A FAIL: current raw score below the new threshold; Condition 1B FAIL: 42 identities not yet individually resolved). EVID-03 remains OPEN; Feature Engine remains NOT APPROVED; Phase-3 module approval remains NOT GRANTED; LIVE remains NOT_AUTHORIZED.</div>
+        </div>
       </div>
     </div>
   </section>
@@ -479,19 +511,19 @@
     <h2>PO Snapshot</h2>
     <div class="po-snapshot">
       <div class="kv"><span class="k">Current milestone</span><span class="v">M1 — Feature Engine EVID-03 Closure (ACTIVE, AT RISK)</span></div>
-      <div class="kv"><span class="k">Primary blocker</span><span class="v">Condition 1 — FAIL — criteria (formally governed, Chapter 13 v1.8 §13.8.1 Case A; 9 unstable timeout-triage mutants remain individually unresolved). Condition 2 (169/170) independently also blocks (1 <code>TOOL_IDENTITY_DRIFT</code> row unresolved, no governed mechanism).</span></div>
-      <div class="kv"><span class="k">Current WP</span><span class="v">(none currently assigned) — <code>FE-EVID03-COND1-THRESHOLD-RECAL-001-CORR-001</code> COMPLETE</span></div>
+      <div class="kv"><span class="k">Primary blocker</span><span class="v">Condition 1 — FAIL — criteria under the ACTIVATED gate (Condition 1A: raw score 84.21%–84.56% &lt; required 85.812095853937%; Condition 1B: 42 pinned current-material identities not all resolved). Condition 2 (169/170) independently also blocks (1 <code>TOOL_IDENTITY_DRIFT</code> row unresolved, no governed mechanism).</span></div>
+      <div class="kv"><span class="k">Current WP</span><span class="v">(none currently assigned) — <code>FE-EVID03-COND1-THRESHOLD-RECAL-001-ACTIVATION-001</code> DONE / ACTIVATED</span></div>
       <div class="kv"><span class="k">ADR-045</span><span class="v">v0.3, <strong>Approved / ACTIVE</strong> — Delegated Technical Resolution lane, self-contained R0/R1/R2 (X-MAJ-02), D8 distinct-principal safeguard (X-MAJ-01), supersedes ADR-042 (now Superseded)</span></div>
       <div class="kv"><span class="k">Chapter 0 / 11 / Exec Rules</span><span class="v">Chapter 0 v1.5 <strong>Locked</strong>/controlling (v1.4 historical); Chapter 11 v2.4 <strong>Locked</strong>/controlling (v2.3 historical); Global Execution Rules v0.7 <strong>EFFECTIVE</strong> (v0.6 historical) — all activated 2026-09-23T14:02+07:00</span></div>
       <div class="kv"><span class="k">Candidate-005 status</span><span class="v"><strong>RESOLVED — DELEGATED TECHNICAL RESOLUTION</strong> (<code>FE-EVID03-COND2-CANDIDATE-005-DTR-001</code>). NOT a Product Owner approval. Fresh post-activation Review A by ChatGPT (distinct from author/executor Claude — D8): <code>CLEAN — 0/0/0</code>, Risk R1, <code>ADR_NOT_REQUIRED</code>, D1-D12 all PASS. Both rows <code>RECLASSIFIED_4_1_B</code>.</span></div>
       <div class="kv"><span class="k">Condition 2 (current)</span><span class="v">169 / 170 — 2 rows resolved by this DTR (167 + 2 = 169)</span></div>
       <div class="kv"><span class="k">Condition 2 (remaining)</span><span class="v"><code>contracts.x__seal_verified_authority__mutmut_33</code> — <code>TOOL_IDENTITY_DRIFT — NO EXISTING GOVERNED RESOLUTION MECHANISM</code>. Not resolved by this transaction; no new mechanism invented.</span></div>
       <div class="kv"><span class="k">Last Review A</span><span class="v">CLEAN — 0 Blocker / 0 Major / 0 Minor, Risk R1 (on Candidate-005, boundary 1e4078c3...). Reviewer ChatGPT, AI Technical Architect, distinct from Candidate-005's author/executor principal Claude (D8).</span></div>
-      <div class="kv"><span class="k">Condition-1 recalibration</span><span class="v">Bounded recalibration PROPOSAL, <strong>CORRECTED this transaction</strong> (Review A <code>REVISION_REQUIRED — 0/2/2</code>, Risk R1, ADR Scope <code>ADR_OPTIONAL</code>, no independent cross-check required at R1), <strong>CANDIDATE — NOT EFFECTIVE / AWAITING REVIEW A RE-REVIEW</strong>. <code>MAJOR-01</code>: Model A now an explicit Condition 1A/1B two-part gate — 42 pinned current-material identities individually required (reusing the §4.1 pattern; unrelated kills never substitute) — a NEW obligation, separate from Condition 2. <code>MAJOR-02</code>: <code>acquire_and_activate__mutmut_21</code>/<code>_23</code> reclassified <code>PROVABLY_EQUIVALENT</code> → <strong>GENUINE_TEST_GAP</strong> (public-property concurrent observability, not single-thread-only). Settled: <code>GENUINE_TEST_GAP=42</code>, <code>PROVABLY_EQUIVALENT=16</code>, <code>UNCLEAR=0</code>. <strong>CALIBRATION_DRIFT_CONFIRMED</strong> preserved (robustness numerator <code>2285</code> still <code>3</code> short of <code>2288</code>, cardinality unchanged). Corrected candidate: <code>85.812095853937%</code> (numerator <code>2256</code>), supersedes <code>85.736021300875%</code>. <code>MINOR-01</code>: review authority corrected to current ADR-045/Chapter 11 v2.4 (R1 = Review A only, no Independent Review B); numeric-threshold decision remains Product-Owner-reserved (D10(a)) — DTR NOT eligible for it. <code>MINOR-02</code>: exact future SSOT transition defined (not performed now). New artifact: <code>feature-engine-condition1-current-material-gap-set-001.json</code> (42 IDs). <code>ADR_OPTIONAL</code>; Risk <code>R1</code>. Currently-effective <code>87.001959503592%</code> threshold NOT changed. Full record: <code>feature-engine-mutation-threshold-recalibration-proposal-001.md</code>.</span></div>
+      <div class="kv"><span class="k">Condition-1 recalibration</span><span class="v"><strong>ACTIVATED (2026-09-23T20:01+07:00)</strong>. Final Review A <code>CLEAN — 0/0/1</code>, R1, <code>ADR_OPTIONAL</code>; R1 default no cross-check, none performed. Sole Minor: authorized non-semantic provenance cleanup (42-ID artifact's two <code>acquire_and_activate__mutmut_21</code>/<code>_23</code> <code>source</code> fields corrected from an inaccurate <code>"post-E005 assessment (GENUINE_TEST_GAP)"</code> to <code>"Review-A MAJOR-02 correction: post-E005 assessment UNCLEAR -&gt; GENUINE_TEST_GAP"</code> — set/count(42)/duplicates(0)/order/hash all verified unchanged; blob <code>6360c8c1...</code> → <code>49c30b439e...</code>), folded into this atomic activation. <code>feature-engine-mutation-threshold-recalibration-proposal-001.md</code> <code>CANDIDATE → APPROVED — EFFECTIVE</code> (resulting blob <code>12040044578d...</code>) and is now the <strong>SOLE current Feature Engine Condition-1 threshold authority</strong>: <strong>Condition 1A</strong> (raw score ≥ <code>85.812095853937%</code>, required numerator <code>2256/2629</code>) <strong>AND Condition 1B</strong> (all 42 exact current-material identities individually resolved — unrelated kills never substitute, no blanket reclassification, no score-offset mechanism). <code>feature-engine-mutation-threshold-proposal-001.md</code> (old <code>87.001959503592%</code>) becomes historical/superseded, byte-unchanged. MANIFEST carries one canonical current-threshold pointer. No fresh mutation measurement performed by this activation.</span></div>
       <div class="kv"><span class="k">Condition-1 assessment</span><span class="v">Post-Evidence-005 406-survivor classification (EVIDENCE/DIAGNOSTIC only, boundary <code>2ca64a46...</code>): <code>GENUINE_TEST_GAP=40</code>, <code>LOW_MATERIALITY_MESSAGE_TEXT=344</code>, <code>PROVABLY_EQUIVALENT=16</code>, <code>STRUCTURALLY_UNREACHABLE=4</code>, <code>UNCLEAR=2</code>. <strong>Case C — CURRENT TEST-ONLY PATH APPEARS INSUFFICIENT</strong> (best-case combined numerator <code>2265</code>, still <code>23</code> short of required <code>2288</code>). Does not change Condition 1's formal result or the approved threshold.</span></div>
       <div class="kv"><span class="k">PO decision required</span><span class="v pill pill-no">NO</span></div>
-      <div class="kv"><span class="k">Reason deferred</span><span class="v">The DTR-recording WP, the diagnostic WP, the candidate-authoring WP, and this correction WP are all COMPLETE. Condition 1 and Condition 2 both independently still fail under the currently-effective (unchanged) threshold; EVID-03 remains OPEN; Feature Engine remains NOT APPROVED; LIVE remains NOT_AUTHORIZED.</span></div>
-      <div class="kv"><span class="k">Next PO decision point</span><span class="v">A bounded Review A re-review of this corrected proposal (no Independent Review B required at R1), then a fresh ADR Scope Rule re-run, then — only if the Product Owner separately elects to activate a recalibrated threshold — an explicit Product Owner decision naming the exact figure/boundary/dispositions approved</span></div>
+      <div class="kv"><span class="k">Reason deferred</span><span class="v">Activation is COMPLETE. Condition 1 remains FAIL — criteria under the new gate (1A FAIL: raw score below 85.812095853937%; 1B FAIL: 42 identities not all resolved). Condition 2 (169/170) and Condition 3 (SATISFIED) preserved as independent requirements. EVID-03 remains OPEN; Feature Engine remains NOT APPROVED; Phase-3 module approval remains NOT GRANTED; LIVE remains NOT_AUTHORIZED — threshold activation is not module approval.</span></div>
+      <div class="kv"><span class="k">Next PO decision point</span><span class="v">A separate, subsequent, bounded Work Package to resolve the 42 Condition-1B identities and/or define a governed mechanism for the remaining TOOL_IDENTITY_DRIFT row — neither initiated here</span></div>
     </div>
   </section>
 

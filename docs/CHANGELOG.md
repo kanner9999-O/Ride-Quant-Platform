@@ -2,6 +2,31 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-23 — feature-engine: Condition-1 threshold recalibration ACTIVATED — 85.812095853937% + 42-ID Condition 1B, supersedes 87.001959503592%
+
+Starting HEAD `b16f57e06be265125123cc3c7eb0b2d2bdc75c17`, verified `main == origin/main`, no drift. Reviewed semantic boundary pinned and fresh-verified exact: recalibration proposal blob `b7c9f0ec9661298a89567c4808e7e2721873ac80`, current-material 42-ID artifact blob `6360c8c1ad6e7c21129fa3b75415486d5447bf52`, old/current threshold proposal blob `f4a3ca0c37aeb4684409a7344141103e64051e04` — all three matched exactly.
+
+Product Owner decision (verbatim): "APPROVE the Feature Engine Condition-1 threshold recalibration at boundary b16f57e06be265125123cc3c7eb0b2d2bdc75c17. Replace the current 87.001959503592% Condition-1 threshold with Model A: Condition 1A: raw mutation-effectiveness >= 85.812095853937% (2256/2629 at the reviewed calibration boundary); AND Condition 1B: all 42 exact current-material-gap identities in feature-engine-condition1-current-material-gap-set-001.json must be individually resolved under the governed per-identity mechanism. Preserve Condition 2 and Condition 3 as independent requirements. Accept Review A CLEAN — 0 Blocker / 0 Major / 1 Minor, Risk R1, ADR_OPTIONAL. Fold the non-semantic two-row provenance-source correction into the atomic activation. No independent cross-check required." Decision time `2026-09-23T20:01+07:00`.
+
+Final Review A (ChatGPT, AI Technical Architect, boundary `b16f57e06be265125123cc3c7eb0b2d2bdc75c17`): `CLEAN — 0 Blocker / 0 Major / 1 Minor`, Risk `R1`, ADR Scope `ADR_OPTIONAL`. R1 default: no independent cross-check — Product Owner explicitly selected none; no Independent Review B fabricated.
+
+Authorized non-semantic provenance cleanup, folded into this atomic activation: the 42-ID artifact's `per_id.source` field for exactly `acquire_and_activate__mutmut_21`/`_23` incorrectly claimed `"post-E005 assessment (GENUINE_TEST_GAP)"` — the immutable post-E005 assessment actually classified both `UNCLEAR`. Corrected to `"Review-A MAJOR-02 correction: post-E005 assessment UNCLEAR -> GENUINE_TEST_GAP"`. Nothing else changed: exact 42-identity set, `count=42`, `duplicates=0`, sorted order, and sorted-set sha256 `932698b4b312c1a8f70c261426555a5c6f3566579ed0a27102d4a0f0214adedc` all verified unchanged. This text-only correction is exactly why the artifact's own blob changed: reviewed `6360c8c1ad6e7c21129fa3b75415486d5447bf52` → resulting/activated `49c30b439eb84db95c55dc4a86de22e2b491dbb5`. The recalibration proposal document's own references were updated to pin this resulting blob (never the reviewed pre-cleanup blob); its own resulting blob after activation is `12040044578d57d15e699a327a5a8ae39c1e9ea3`.
+
+**`docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-recalibration-proposal-001.md` transitions `CANDIDATE — NOT EFFECTIVE / AWAITING REVIEW A RE-REVIEW` → `APPROVED — EFFECTIVE`** and becomes the **sole current Feature Engine Condition-1 threshold authority**:
+
+- Condition 1A: raw mutation-effectiveness ≥ `85.812095853937%` (full precision `85.812095853936858120958539368581209585393685812096...%`, required numerator `2256` at `total=2629`) — necessary but not sufficient.
+- Condition 1B: all 42 exact identities in the corrected `feature-engine-condition1-current-material-gap-set-001.json` (blob `49c30b439eb84db95c55dc4a86de22e2b491dbb5`) individually resolved — killed/confirmed_timeout in fresh formal evidence, or separately governed exact-ID semantic reclassification. Killing unrelated message-text mutants never substitutes; no blanket reclassification; no score-offset mechanism. Raw formula and denominator semantics unchanged.
+
+`docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-proposal-001.md` (the old `87.001959503592%` threshold) becomes **historical / superseded threshold authority** — remains byte-unchanged at `f4a3ca0c37aeb4684409a7344141103e64051e04`; its own internal historical `APPROVED — EFFECTIVE` banner is not retroactively edited and must not be read as current authority. `docs/MANIFEST.md` now carries one canonical current-threshold pointer naming the recalibration proposal as sole current authority.
+
+Condition 2 and Condition 3 preserved as independent requirements, not merged with Condition 1B: Condition 2 remains `169/170` (remaining item `contracts.x__seal_verified_authority__mutmut_33`, `TOOL_IDENTITY_DRIFT`, not touched); Condition 3 remains `SATISFIED — REVIEW A VALIDATED`, not reopened.
+
+No fresh formal mutation measurement was performed — this activation changes the governing threshold only. Current formal evidence (raw score `84.21453023963484%–84.55686572841384%`) remains below the new `85.812095853937%` gate, and none of the 42 Condition-1B identities are yet individually resolved, so **Condition 1 remains `FAIL — criteria`** (Condition 1A `FAIL`, Condition 1B `FAIL`). `P3-FEATURE-QG-EVID-03` remains `OPEN`; Feature Engine remains `NOT APPROVED`; Phase-3 module approval remains `NOT GRANTED`; LIVE remains `NOT_AUTHORIZED` — threshold activation is not module approval.
+
+Files changed: `feature-engine-mutation-threshold-recalibration-proposal-001.md` (activated in place), `feature-engine-condition1-current-material-gap-set-001.json` (provenance cleanup), `feature-engine-chapter13-remediation-plan-001.md`, `milestone.md`, `milestone-dashboard.html`, `MANIFEST.md` (`manifest_version` `"10.425"` -> `"10.426"`), `CHANGELOG.md`.
+
+---
+
 ## [Unreleased] — 2026-09-23 — feature-engine: Condition-1 threshold recalibration proposal — bounded correction (MAJOR-01/MAJOR-02/MINOR-01/MINOR-02) — Model A now 85.812095853937% with Condition 1A/1B two-part gate
 
 Starting HEAD `0c9f4ef8eb8d7ad45afb604b3a8e7cfd1883fde9`, verified `main == origin/main`, no drift. Reviewed proposal fresh-verified at blob `bc7e0c9df45ff8e02451078ca7b74a54bac43ee5` before correction.

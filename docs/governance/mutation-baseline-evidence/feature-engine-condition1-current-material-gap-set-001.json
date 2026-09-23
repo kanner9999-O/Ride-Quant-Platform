@@ -235,14 +235,14 @@
       "class_name": "AuthoritativeSubjectOwner",
       "function_name": "acquire_and_activate",
       "mutmut_index": 21,
-      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+      "source": "Review-A MAJOR-02 correction: post-E005 assessment UNCLEAR -> GENUINE_TEST_GAP"
     },
     "feature_engine.ownership.x\u01c1AuthoritativeSubjectOwner\u01c1acquire_and_activate__mutmut_23": {
       "module": "src/feature_engine/ownership.py",
       "class_name": "AuthoritativeSubjectOwner",
       "function_name": "acquire_and_activate",
       "mutmut_index": 23,
-      "source": "post-E005 assessment (GENUINE_TEST_GAP)"
+      "source": "Review-A MAJOR-02 correction: post-E005 assessment UNCLEAR -> GENUINE_TEST_GAP"
     },
     "feature_engine.ownership.x\u01c1AuthoritativeSubjectOwner\u01c1process_certified_frontier__mutmut_10": {
       "module": "src/feature_engine/ownership.py",
