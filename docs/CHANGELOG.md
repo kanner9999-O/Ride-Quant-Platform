@@ -2,6 +2,22 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-23 — feature-engine: Feature Condition-2 §4.1(b) reclassification Candidate-005 authored (FE-EVID03-COND2-CANDIDATE-005-AUTHOR-001)
+
+Starting HEAD `04cac699d17aea15fc2836a6e822ecf2ebae9bbc`, verified `main == origin/main`, no drift. Confirmed Condition 1 `FAIL — criteria` (not reopened), Condition 2 `167/170`, Condition 3 `SATISFIED — REVIEW A VALIDATED`, before this transaction. Candidate authoring only -- no §4.1(b) credit granted, no Condition-2 count change.
+
+Fresh-verified `feature-engine-condition2-remaining-ambiguity-historical-reconstruction-001.json`'s current blob/content: it uniquely resolves exactly 2 previously ambiguous historical identities via direct historical-diff reconstruction, never ordinal inference. Row 1: `_reevaluate_all_windows__mutmut_32` (historical `continue -> break`, the 3rd of 4 continue statements, positionally reconstructed) -> current successor `_prepare_reevaluate_all_windows__mutmut_32`, killed. Row 2: `on_swing_confirmed__mutmut_35` (historical mutation is message-text only -- a numeric literal inside `InvalidSwingEligibilityInputError`'s f-string, never the validation condition itself) -> current successor `prepare_swing_confirmed__mutmut_35`, killed. Both statuses independently cross-checked against evidence-005.json's own full_current_mutant_mapping (zero discrepancy); both successors independently source-verified as the exact ADR-043 prepare-seam family already used for the 167 previously-approved rows.
+
+Authored `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-reclassification-candidate-005.json` (new) with exactly these 2 rows, `review_a_state: PENDING` and `product_owner_state: PENDING` for both -- neither self-declared resolved. Row 2's message-text-only nature assessed explicitly: §4.1(b) applies because the identity discontinuity is the ADR-043 prepare-seam function relocation itself, not anything about where inside the function the historical mutant sat -- recorded as materiality context only, historical materiality tag unchanged, no new identity-continuity rule introduced.
+
+`contracts.x__seal_verified_authority__mutmut_33` remains explicitly excluded (`TOOL_IDENTITY_DRIFT -- NO EXISTING GOVERNED RESOLUTION MECHANISM`), untouched -- no identity-continuity mechanism invented or proposed. ADR Scope Rule run fresh: `ADR_NOT_REQUIRED`.
+
+Condition 2 remains 167/170 -- UNCHANGED. Non-controlling projection recorded only: 167 + 2 = 169/170, labeled NON-CONTROLLING / FUTURE-IF-APPROVED, if both rows are later Review-A validated and Product-Owner approved (1/170 -- the tool-identity-drift row -- would still remain). Condition 1 and Condition 3 unchanged, not reopened. P3-FEATURE-QG-EVID-03 remains OPEN. Feature Engine remains NOT APPROVED; LIVE remains NOT_AUTHORIZED. No mutation execution, no source/test/tooling change, no ADR authored or modified, no Chapter 13 edit, no Product Owner approval requested. Milestone tracking updated in the same transaction.
+
+**Files changed:** `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md`, `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-reclassification-candidate-005.json` (new) only -- ADR-043.md, ADR-044.md, and Chapter 13 NOT touched. `manifest_version` `"10.416"` -> `"10.417"`.
+
+---
+
 ## [Unreleased] — 2026-09-23 — feature-engine: first formally governed Condition-1 evaluation under Chapter 13 v1.8 §13.8.1 (FE-EVID03-COND1-APPLY-001)
 
 Starting HEAD `38da0a8b698202f85472d8a7ab397f4f7b640386`, verified `main == origin/main`, no drift. ADR-044 confirmed v0.5/Approved, Chapter 13 confirmed v1.8/Locked (controlling), before this transaction.

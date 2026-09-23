@@ -6,7 +6,7 @@ status: Active
 owner: Product Owner
 maintainer: "WP executors under Lean Ride Operating Model v1.1"
 visual_companion: docs/project/milestone-dashboard.html
-state_verified_against_head: 38da0a8b698202f85472d8a7ab397f4f7b640386
+state_verified_against_head: 04cac699d17aea15fc2836a6e822ecf2ebae9bbc
 state_verified_against_at: "2026-09-23"
 ---
 
@@ -261,25 +261,51 @@ change, no Condition-2/Condition-3 work. Full record:
 `docs/governance/mutation-baseline-evidence/feature-engine-condition1-
 bounded-reevaluation-001.json`.
 
-**Secondary queue:** `Candidate-005` — govern the 2 historically
-reconstructed Condition-2 identities, when doing so does not disrupt the
-primary critical path.
+**Primary Work Package — `FE-EVID03-COND2-CANDIDATE-005-AUTHOR-001`:
+COMPLETE (candidate authoring only — no credit granted).** Fresh-verified
+`feature-engine-condition2-remaining-ambiguity-historical-reconstruction-
+001.json`'s current blob/content: it uniquely resolves exactly 2
+previously ambiguous historical identities via direct historical-diff
+reconstruction (not ordinal inference). Row 1 —
+`_reevaluate_all_windows__mutmut_32` (historical `continue -> break`, the
+3rd of 4 continue statements, positionally reconstructed) → current
+successor `_prepare_reevaluate_all_windows__mutmut_32`, `killed`. Row 2 —
+`on_swing_confirmed__mutmut_35` (historical mutation is **message-text
+only** — a numeric literal inside `InvalidSwingEligibilityInputError`'s
+f-string, never the validation condition itself) → current successor
+`prepare_swing_confirmed__mutmut_35`, `killed`. Both statuses
+independently cross-checked against `evidence-005.json`'s own
+`full_current_mutant_mapping`; both successors independently
+source-verified as the exact ADR-043 prepare-seam family already used
+for the 167 previously-approved rows. Authored
+`docs/governance/mutation-baseline-evidence/feature-engine-mutation-
+material-gap-reclassification-candidate-005.json` (new) with exactly
+these 2 rows, `review_a_state: PENDING`/`product_owner_state: PENDING`
+for both. Row 2's message-text-only nature assessed explicitly: §4.1(b)
+applies because the identity discontinuity is the ADR-043 prepare-seam
+function relocation itself, not anything about where inside the
+function the historical mutant sat — recorded as materiality context
+only, historical materiality tag unchanged, no new identity-continuity
+rule introduced. `contracts.x__seal_verified_authority__mutmut_33`
+remains explicitly excluded (`TOOL_IDENTITY_DRIFT`), untouched. ADR
+Scope Rule run fresh: `ADR_NOT_REQUIRED`. **Condition 2 remains
+`167/170` — UNCHANGED.** Non-controlling projection recorded only:
+`167 + 2 = 169/170` **NON-CONTROLLING / FUTURE-IF-APPROVED** if both
+rows are later Review-A validated and Product-Owner approved.
 
 **Deferred / blocked item:** `contracts.x__seal_verified_authority__mutmut_33`
 — `TOOL_IDENTITY_DRIFT — NO EXISTING GOVERNED RESOLUTION MECHANISM`.
 
 **PO action required now:** No. Condition 1 and Condition 2 both
-independently fail; EVID-03 remains OPEN. Next governed step: a
-separately routed, separately scoped Work Package to address the
-remaining EVID-03 obligations (Condition 2 completion and/or further
-Feature Engine work) — not initiated by this transaction.
+independently fail; EVID-03 remains OPEN. Next governed step: ChatGPT
+Review A of Candidate-005.
 
 ## 5. Work Package lanes
 
 | Lane | Item | Status |
 |---|---|---|
-| Primary | *(none currently assigned)* | Condition 1 is now a formal `FAIL — criteria`; Condition 2 independently remains `167/170`. Next primary WP awaits a separate Product Owner scoping decision. |
-| Secondary | `Candidate-005` (2 Condition-2 identities) | Queued, non-blocking |
+| Primary | `FE-EVID03-COND2-CANDIDATE-005-AUTHOR-001` | COMPLETE — Candidate-005 authored (2 rows, `review_a_state`/`product_owner_state` PENDING for both, no credit granted); awaiting ChatGPT Review A |
+| Secondary | Condition-1 remediation | Awaits a separate Product Owner scoping decision — not initiated by this transaction |
 | Deferred | `contracts.x__seal_verified_authority__mutmut_33` (TOOL_IDENTITY_DRIFT) | Deferred — no existing governed mechanism |
 | Completed | `RIDE-PROJECT-MILESTONE-DASHBOARD-001` | Tracking infrastructure only |
 | Completed | `FE-EVID03-COND1-STOP-001` | 9/9 mutants `REQUIRES_GOVERNED_PROTOCOL_DECISION`; §13.10 applicability question flagged for ChatGPT review |
@@ -301,27 +327,26 @@ Primary blocker:          Condition 1 — FAIL — criteria (formally
                            TRIAGE mutants remain individually
                            unresolved). Condition 2 (167/170)
                            independently also blocks.
-Current primary WP:       (none currently assigned)
-Last completed WP:        FE-EVID03-COND1-APPLY-001 — first formally
-                           governed Condition-1 evaluation under
-                           controlling Section 13.8.1. Bounds
-                           84.21453023963484%-84.55686572841384%,
-                           both < required 87.001959503592% -> Case A
-                           -> FAIL — criteria. Prior STOPPED /
-                           UNRESOLVED evaluation remains immutable
-                           historical evidence at its own boundary.
+Current primary WP:       FE-EVID03-COND2-CANDIDATE-005-AUTHOR-001
+                           (candidate authoring only, no credit granted)
+Candidate-005 rows:       2 — both review_a_state PENDING,
+                           product_owner_state PENDING
+Condition 2 (current):    167/170 -- UNCHANGED by this transaction
+Condition 2 (projection):  167 + 2 = 169/170 -- NON-CONTROLLING /
+                           FUTURE-IF-APPROVED (Candidate-005 not yet
+                           reviewed or approved)
 Last Review A:             CLEAN — 0 Blocker / 0 Major / 2 Minor (on
                            v0.5/v1.8, Risk R2, ADR-044/Chapter-13
-                           activation). This Condition-1 application is
-                           a mechanical application of already-approved
-                           authority to already-recorded evidence — no
-                           new Review A/Product Owner decision required.
+                           activation). This Candidate-005 authoring is
+                           candidate authoring only -- no new Review A
+                           performed by this transaction; Candidate-005
+                           itself awaits its own future Review A.
 PO decision required now: NO
-                           (Condition 1 and Condition 2 both
-                           independently fail; EVID-03 remains OPEN.
-                           Next governed step is a separately routed,
-                           separately scoped Work Package to address
-                           remaining EVID-03 obligations.)
+                           (Candidate-005 is authored but not yet
+                           reviewed or approved; Condition 1 and
+                           Condition 2 both independently fail; EVID-03
+                           remains OPEN. Next governed step is ChatGPT
+                           Review A of Candidate-005.)
 ```
 
 ## 7. Update rules

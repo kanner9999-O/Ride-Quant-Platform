@@ -1,0 +1,148 @@
+{
+  "artifact_id": "feature-engine-mutation-material-gap-reclassification-candidate-005",
+  "wp_id": "FE-EVID03-COND2-CANDIDATE-005-AUTHOR-001",
+  "schema_note": "Additive §4.1(b) 'Individually reclassified' RECLASSIFICATION CANDIDATE artifact for EXACTLY the 2 historical identities uniquely resolved (via direct historical reconstruction, not ordinal inference) by feature-engine-condition2-remaining-ambiguity-historical-reconstruction-001.json. This is the candidate-authoring step only — it does NOT self-grant the governed §4.1(b) decision. No earlier evidence artifact is modified; the reconstruction's semantic content is preserved unchanged.",
+
+  "governing_rule": {
+    "source": "docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-proposal-001.md §4.1",
+    "blob": "f4a3ca0c37aeb4684409a7344141103e64051e04",
+    "section_4_1_a_applicability": "DOES NOT APPLY to either row — §4.1(a) requires the EXACT historical mutant ID itself to show killed/confirmed_timeout. Both rows here have a different current successor mutant ID (the underlying function was renamed under the ADR-043 prepare-seam split).",
+    "section_4_1_b_requirements": "A SEPARATE, governed decision — mirroring Testing Convention v0.16 item 8's individually-pinned equivalent-mutant adjustment mechanism exactly: exact mutant identity + specific semantic justification + a separate reviewed/recorded decision — determines the mutant's underlying behavior has legitimately changed. Never satisfied merely by 'the mutant no longer appears because the function was rewritten' without an accompanying, independently-justified reason the rewrite is legitimate engineering, not gap-avoidance.",
+    "this_transaction_role": "CANDIDATE AUTHORING ONLY. Each row below answers the §4.1(b) reclassification question with exact, independently re-verified evidence; review_a_state and product_owner_state are PENDING for both candidates. Neither row is self-declared resolved — that disposition is the outcome of a subsequent, separate Review A + Product Owner Decision, never this executor's own determination."
+  },
+
+  "input_cohort": {
+    "source": "docs/governance/mutation-baseline-evidence/feature-engine-condition2-remaining-ambiguity-historical-reconstruction-001.json",
+    "blob": "72d44cd467ca2edeaf1d7e7bdd924bff57955915",
+    "filter": "ambiguous_A_reconstruction and ambiguous_B_reconstruction, both resulting_evidence_classification == 'SUCCESSOR_MATCH — CURRENT KILLED'",
+    "count": 2,
+    "excluded_from_this_cohort": [
+      "contracts.x__seal_verified_authority__mutmut_33 — remains TOOL_IDENTITY_DRIFT — NO EXISTING GOVERNED RESOLUTION MECHANISM. Untouched, not re-evaluated, not included; no identity-continuity governance rule authored or proposed here."
+    ]
+  },
+
+  "fresh_verification_this_transaction": "Fresh-verified the reconstruction artifact's current blob (72d44cd467ca2edeaf1d7e7bdd924bff57955915) before use. Independently cross-checked both exact current successor IDs and their 'killed' status directly against feature-engine-mutation-step9-formal-evidence-005.json's own full_current_mutant_mapping.sorted_mutant_id_to_status (not merely trusting the reconstruction artifact's own citation) — both independently reconfirmed killed, zero discrepancy. Independently read current source: python/feature-engine/src/feature_engine/swing_distance.py confirms `prepare_swing_confirmed` (line 539) carries the docstring 'ADR-043 prepare seam: identical validation/candidate-computation logic as `on_swing_confirmed` used to perform inline...'; `on_swing_confirmed` (line 487) directly calls `self.prepare_swing_confirmed(fact, cursor=cursor)` then commits live (line 509) — the exact prepare-then-immediately-live-commit pattern. `_prepare_reevaluate_all_windows` (line 1093) is called from `prepare_swing_confirmed` itself (line 620), confirming it is part of the identical ADR-043 prepare-seam family as row 2, not a separately-justified relocation. python/feature-engine/README.md line 580 independently confirms the general pattern for regime_passthrough.py/swing_distance.py: 'existing _emit_* logic split into prepare_* ..., the existing on_* methods now prepare-then-immediately-live-commit (byte-identical behavior/output, all pre-existing tests pass unchanged)'.",
+
+  "per_row_candidates": [
+    {
+      "row": 1,
+      "historical_mutant_id": "swing_distance.xǁSwingDistanceFeatureEngineǁ_reevaluate_all_windows__mutmut_32",
+      "historical_semantic_obligation": "The 3rd of 4 continue statements in _reevaluate_all_windows, positioned immediately after events.extend(self._emit_replacement_only(...)) inside the 'if lineage.invalidated:' branch — i.e. the loop-continuation that follows successfully emitting a replacement-only event for a window that was PENDING_CORRECTION and has now found an eligible Swing. Mutating this to 'break' would incorrectly abort the entire re-evaluation loop after handling the FIRST such window, silently skipping re-evaluation of every subsequent window with a lineage entry in the same call.",
+      "exact_reconstructed_historical_mutation_diff": "--- +++ @@ -31,7 +31,7 @@\n                        cursor,\n                    )\n                )\n-                continue\n+                break\n\n            if winner is None or winner[1].ref == lineage.used_swing_ref:\n                continue  # still the best available (or nothing better) — no repaint\n",
+      "historical_recorded_mutation_label": "continue -> break",
+      "exact_current_successor_mutant_id": "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_reevaluate_all_windows__mutmut_32",
+      "exact_current_mutation_diff": "--- +++ @@ -31,7 +31,7 @@\n                        cursor=cursor,\n                    )\n                )\n-                continue\n+                break\n\n            if winner is None or winner[1].ref == lineage.used_swing_ref:\n                continue  # still the best available (or nothing better) — no repaint\n",
+      "evidence_005_status": "killed",
+      "engineering_change_authority": "ADR-043 (Approved v0.2, blob e7ebc2093768b164b91b496d932d2f9feb6c659a) — per-subject fenced ownership prepare/commit seam; implementation Review A CLEAN (ADR043-IMPLDESIGN-A-MAJ-01..04, ADR043-IMPL-A-MAJ-01..07, all CLOSED — REVIEW A VALIDATED)",
+      "section_4_1_b_rationale": "ADR-043 (Approved) 'Feature Engine Per-Subject Single-Owner Serialization for I-13' mandated an exclusive fenced per-subject ownership architecture, for reasons entirely independent of EVID-03 Condition-2 gate remediation (I-13 concurrency/ownership integrity). Its Review-A-validated implementation split `_reevaluate_all_windows`'s inline logic into `_prepare_reevaluate_all_windows` (candidate-construction phase, no ref/no `_lineage` mutation) — the historically-mutated `continue` statement was relocated verbatim, byte-position-identical, into the successor: same 4-continue structure (candle-is-None guard, PENDING_CORRECTION guard, replacement-only-emit-then-continue, final no-repaint guard), same enclosing `if lineage.invalidated:` branch, same immediately-preceding `events.extend(self._emit_replacement_only(...))` statement, same immediately-following sibling continue. This is a documented, Review-A-validated ADR-043 relocation of the exact same historical code path — not a new or convenience-driven identity-continuity claim.",
+      "why_alternatives_excluded": "Reconstruction performed an exhaustive current scan of every mutant of _prepare_reevaluate_all_windows (51 total) for continue->break transformations and found EXACTLY 4: mutmut_6 (candle-is-None guard — a DIFFERENT, structurally distinct site, current status survived — excluded on structural grounds, never considered merely because it is a less-favorable status), mutmut_13 and mutmut_37 (already claimed by other, already-Review-A-validated sibling historical rows in candidate-002/003 — not this row), and mutmut_32 (the exact structural, positional, and textual match to this historical row's reconstructed diff). This determination is a direct historical-diff reconstruction (exact position, exact enclosing branch, exact preceding/following statements), NOT an ordinal-number inference — the previously-considered current mutmut_6 remains excluded as a different continue site.",
+      "gap_avoidance_evidence": "README.md's own implementation record asserts 'byte-identical behavior/output, all pre-existing tests pass unchanged' as the refactor's own acceptance criterion — behavioral equivalence, not test-gap avoidance. The successor mutant being killed in Evidence-005 is independent corroborating evidence only (the same pre-existing tests still exercise the relocated code, not new tests added to game this EVID-03 campaign) — never cited as the sole justification for reclassification.",
+      "source_reconstruction_artifact": "docs/governance/mutation-baseline-evidence/feature-engine-condition2-remaining-ambiguity-historical-reconstruction-001.json",
+      "source_reconstruction_artifact_blob": "72d44cd467ca2edeaf1d7e7bdd924bff57955915",
+      "source_reconstruction_field": "ambiguous_A_reconstruction",
+      "source_evidence_005_artifact": "docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-005.json",
+      "source_evidence_005_blob": "f7a6ab715155ad166808e0e9d9a7474196d9b69d",
+      "proposed_4_1_b_disposition": "CANDIDATE_RECLASSIFY_4_1_B — LEGITIMATE REFACTOR / SUCCESSOR VERIFIED",
+      "review_a_state": "PENDING",
+      "product_owner_state": "PENDING",
+      "lifecycle_state": "CANDIDATE_AUTHORED — AWAITING REVIEW A"
+    },
+    {
+      "row": 2,
+      "historical_mutant_id": "swing_distance.xǁSwingDistanceFeatureEngineǁon_swing_confirmed__mutmut_35",
+      "historical_semantic_obligation": "IMPORTANT: the exact historical mutation is NOT to the validation condition 'fact.swing_revision != existing.revision + 1' (left completely unchanged) — it is to the numeric literal INSIDE the f-string constructing the exception MESSAGE TEXT reported when that condition fires ('{existing.revision + 1!r}' -> '{existing.revision + 2!r}'), i.e. what value the raised InvalidSwingEligibilityInputError's message CLAIMS was expected. The actual pass/fail behavior of the validation is unaffected by this mutation — only the displayed expected-value text in the error message changes. This is a message-text-only mutation, structurally the same category used elsewhere for other low_materiality_message_text survivors — though this specific historical row was tagged actionable_test_gap_candidate in the historical baseline analysis. This candidate does NOT alter that historical materiality tag — it is reported here as a factual observation for Review A, not adjudicated by this executor.",
+      "exact_reconstructed_historical_mutation_diff": "--- +++ @@ -62,7 +62,7 @@\n            if fact.swing_revision != existing.revision + 1:\n                raise InvalidSwingEligibilityInputError(\n                    f\"swing_id {fact.swing_id!r} revision must advance by exactly one: expected \"\n-                    f\"{existing.revision + 1!r}, got {fact.swing_revision!r}\"\n+                    f\"{existing.revision + 2!r}, got {fact.swing_revision!r}\"\n                )\n",
+      "historical_recorded_mutation_label": "1 -> 2 (message-text literal only, not the validation condition)",
+      "exact_current_successor_mutant_id": "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁprepare_swing_confirmed__mutmut_35",
+      "exact_current_mutation_diff": "--- +++ @@ -58,7 +58,7 @@\n                    f\"swing_id {fact.swing_id!r} revision {fact.swing_revision!r} received before revision \"\n                    f\"{existing.revision!r} was explicitly invalidated\"\n                )\n            if fact.swing_revision != existing.revision + 1:\n                raise InvalidSwingEligibilityInputError(\n                    f\"swing_id {fact.swing_id!r} revision must advance by exactly one: expected \"\n-                    f\"{existing.revision + 1!r}, got {fact.swing_revision!r}\"\n+                    f\"{existing.revision + 2!r}, got {fact.swing_revision!r}\"\n                )\n",
+      "evidence_005_status": "killed",
+      "engineering_change_authority": "ADR-043 (Approved v0.2, blob e7ebc2093768b164b91b496d932d2f9feb6c659a) — per-subject fenced ownership prepare/commit seam; implementation Review A CLEAN (ADR043-IMPLDESIGN-A-MAJ-01..04, ADR043-IMPL-A-MAJ-01..07, all CLOSED — REVIEW A VALIDATED)",
+      "section_4_1_b_rationale": "The same ADR-043 architecture split `on_swing_confirmed`'s inline validation/candidate-computation logic into `prepare_swing_confirmed` (docstring, source-verified: 'ADR-043 prepare seam: identical validation/candidate-computation logic as on_swing_confirmed used to perform inline'). `on_swing_confirmed` now directly calls `self.prepare_swing_confirmed(fact, cursor=cursor)` (source-verified, line 509) then commits live — the documented prepare-then-immediately-live-commit pattern. The revision-advance-by-one validation condition and its message-text construction are otherwise byte-identical between historical and current. §4.1(b) applies because the function itself was renamed/relocated through the ADR-043 prepare seam — this is a genuine ID discontinuity caused by legitimate, independently-motivated engineering (I-13 ownership/concurrency), not a rewrite invented to dodge this mutant. The message-text-only nature of the historical mutation is materiality CONTEXT for the next reviewer's own judgment — it is not, and is not used here as, an identity-continuity mechanism; identity continuity rests entirely on the ADR-043 prepare-seam relocation, independent of whether the mutated literal sits in a condition or a message string.",
+      "why_alternatives_excluded": "The two candidates previously considered by an earlier current-side-only assessment (current mutmut_26 and mutmut_32 of prepare_swing_confirmed) are BOTH excluded on structural grounds, not chosen among: both mutate an actual validation CONDITION (a boolean comparison controlling whether an exception is raised at all), while the reconstructed historical diff shows the historical mutation targets only the MESSAGE-TEXT f-string of an exception raised (or not) by an entirely unmutated condition. Neither was ever the correct successor. An exhaustive current scan of every 'revision'-family mutant of prepare_swing_confirmed (53 total) found exactly one message-literal-only '1 -> 2' match: mutmut_35 — the exact structural and textual match to this historical row. This determination is a direct historical-diff reconstruction (exact enclosing branch, exact preceding/following lines, exact literal position), NOT an ordinal-number inference.",
+      "gap_avoidance_evidence": "README.md's own implementation record asserts 'byte-identical behavior/output, all pre-existing tests pass unchanged' as the refactor's own acceptance criterion — behavioral equivalence, not test-gap avoidance. The successor mutant being killed in Evidence-005 is independent corroborating evidence only (the same pre-existing tests still exercise the relocated code) — never cited as the sole justification for reclassification. The message-text-only observation above is disclosed transparently, not concealed or used to argue for a more favorable materiality tag.",
+      "source_reconstruction_artifact": "docs/governance/mutation-baseline-evidence/feature-engine-condition2-remaining-ambiguity-historical-reconstruction-001.json",
+      "source_reconstruction_artifact_blob": "72d44cd467ca2edeaf1d7e7bdd924bff57955915",
+      "source_reconstruction_field": "ambiguous_B_reconstruction",
+      "source_evidence_005_artifact": "docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-005.json",
+      "source_evidence_005_blob": "f7a6ab715155ad166808e0e9d9a7474196d9b69d",
+      "proposed_4_1_b_disposition": "CANDIDATE_RECLASSIFY_4_1_B — LEGITIMATE REFACTOR / SUCCESSOR VERIFIED (message-text-only historical mutation noted as materiality context, not as the basis for identity continuity)",
+      "review_a_state": "PENDING",
+      "product_owner_state": "PENDING",
+      "lifecycle_state": "CANDIDATE_AUTHORED — AWAITING REVIEW A"
+    }
+  ],
+
+  "summary_counts": {
+    "input_cohort": 2,
+    "positive_candidates_CANDIDATE_RECLASSIFY_4_1_B": 2,
+    "NOT_READY_FOR_4_1_B_RECLASSIFICATION": 0,
+    "AMBIGUOUS": 0
+  },
+
+  "engineering_authority_summary": "Both rows draw their engineering authority from the SAME already-Approved, already-implementation-Review-A-validated ADR-043 architecture (motivated by I-13 per-subject ownership/concurrency integrity, entirely independent of EVID-03 Condition-2 remediation), specifically the documented '_emit_*'/'on_*' -> 'prepare_*' method-shape split within swing_distance.py's SwingDistanceFeatureEngine. This is the identical authority already Product-Owner-approved for 167 prior rows across candidate-002/003/004 — not a new or different justification invented for this cohort.",
+
+  "gap_avoidance_summary": "The README's own implementation record asserts 'byte-identical behavior/output, all pre-existing tests pass unchanged' as the refactor's own acceptance criterion — behavioral equivalence, not test-gap avoidance. Each successor mutant's killed status in Evidence-005 is independent corroborating evidence only (the same pre-existing tests still exercise the relocated code), never cited as the sole justification for reclassification. Favorable current 'killed' status was NOT used as the reclassification justification — only the ADR-043 engineering-change authority plus the exact historical reconstruction were used.",
+
+  "message_text_only_assessment": {
+    "row_affected": 2,
+    "historical_mutation_nature": "Message-text-only (numeric literal inside an f-string constructing an exception's displayed expected-value text), not a mutation of the validation condition itself.",
+    "materiality_tag_change": "NONE — the historical materiality tag recorded elsewhere for this identity is left byte-unchanged by this candidate. This candidate does not read, cite, alter, or reinterpret any materiality-tag field.",
+    "applicability_determination": "§4.1(b) applies notwithstanding the message-text-only nature of the historical mutation, because the applicable engineering-change trigger is the ADR-043 prepare-seam relocation of the enclosing function (on_swing_confirmed -> prepare_swing_confirmed) — an ID discontinuity caused by legitimate, independently-motivated engineering — not any property of where inside that function the historical mutant happened to sit. The message-text observation is recorded as materiality context for the next Review A, not as an identity-continuity mechanism and not as a basis for changing §4.1(b) applicability.",
+    "no_new_rule_introduced": "This candidate does not propose, imply, or rely on any new identity-continuity rule keyed on message-text-only mutations. Identity continuity for this row rests entirely on the same governed ADR-043 prepare-seam mechanism already used for the 167 prior rows."
+  },
+
+  "governed_condition_2_accounting": {
+    "rows_permitted_to_alter_governed_count_this_transaction": 0,
+    "reason": "This is a candidate-authoring transaction only. §4.1(b) requires a SEPARATE, governed, reviewed decision followed by a Product Owner Decision (per the precedent established for the 69-row, 53-row, and 45-row candidate-002/003/004 lifecycles) before any identity may be credited. This executor does not self-grant that decision for either of the 2 candidates.",
+    "controlling_condition_2_count_before_this_transaction": "167/170",
+    "controlling_condition_2_count_after_this_transaction": "167/170 — UNCHANGED"
+  },
+
+  "non_controlling_projected_state_if_approved": {
+    "label": "NON-CONTROLLING / FUTURE-IF-APPROVED — not current state, planning arithmetic only",
+    "if_both_rows_later_review_a_plus_product_owner_approved": "167 + 2 = 169/170",
+    "remaining_unresolved_if_that_occurs": "1/170",
+    "remaining_unresolved_breakdown": {
+      "tool_identity_drift_no_existing_mechanism": 1
+    }
+  },
+
+  "confirmation_untouched": {
+    "2_source_rows": "Fully consumed as read-only source (feature-engine-condition2-remaining-ambiguity-historical-reconstruction-001.json) — that artifact itself is byte-unchanged by this transaction.",
+    "1_tool_identity_drift_row": "contracts.x__seal_verified_authority__mutmut_33 — untouched, not re-evaluated, not included; no identity-continuity governance rule authored or amended in this transaction.",
+    "167_previously_resolved_rows": "Untouched, not re-submitted — already effective per the completed candidate-002/003/004 Review A -> Risk Classification -> Product Owner Decision chains.",
+    "condition_1_and_3": "Condition 1 (FAIL — criteria, freshly Review-A validated at 04cac699d17aea15fc2836a6e822ecf2ebae9bbc) and Condition 3 (SATISFIED — REVIEW A VALIDATED) are both untouched and not reopened by this transaction."
+  },
+
+  "adr_scope_rule_fresh": {
+    "assessment": "This transaction applies an already-governed §4.1(b) mechanism (established by the Testing Convention proposal's own bounded correction, already exercised for the 69-row, 53-row, and 45-row prior cohorts) within Feature Engine — it authors reclassification candidates for a new, disjoint 2-row population, it does not alter the §4.1(b) mechanism itself, does not add a Platform Invariant, Event Schema, Module Taxonomy, or Governance/Approval-process change, and does not itself decide any reclassification (that remains a separate Review A + Product Owner determination).",
+    "result": "ADR_NOT_REQUIRED"
+  },
+
+  "review_risk_classification": "R1",
+
+  "deferred_tool_identity_drift_note": "contracts.x__seal_verified_authority__mutmut_33 remains TOOL_IDENTITY_DRIFT — NO EXISTING GOVERNED RESOLUTION MECHANISM. The technical reconstruction already identifies current mutmut_36 as the same semantic mutation under a changed tool ordinal, but current governance does NOT authorize crediting that fact. No identity-continuity rule is invented or proposed inside this candidate. Future work resolving it would require a separate identity-continuity/evidence-contract decision package — NOT authored, designed, or scoped in this transaction.",
+
+  "not_performed_by_this_transaction": [
+    "No production src/** change.",
+    "No test change.",
+    "No tooling change.",
+    "No dependency change.",
+    "No mutation test execution or rerun.",
+    "No timeout work.",
+    "No Condition-1 work (FAIL — criteria preserved, not reopened).",
+    "No Condition-3 work (SATISFIED preserved, not reopened).",
+    "No work on the tool-identity-drift row — no identity-continuity rule authored.",
+    "No threshold redesign.",
+    "No Quality-Gate redesign.",
+    "No Chapter 13 edit.",
+    "No ADR authoring, no ADR-043 modification.",
+    "No self-granted §4.1(b) governed decision — review_a_state and product_owner_state are PENDING for both candidates.",
+    "No governed Condition-2 count change (remains 167/170).",
+    "No Product Owner decision fabricated or requested.",
+    "No Feature Engine approval.",
+    "No LIVE authorization.",
+    "feature-engine-condition2-remaining-ambiguity-historical-reconstruction-001.json's semantic content unchanged.",
+    "evidence-005.json, evidence-005-correction-001.json, reclassification-candidate-002/003/004.json all byte-unchanged."
+  ]
+}

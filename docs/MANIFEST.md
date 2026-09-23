@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.416"
+manifest_version: "10.417"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -28991,6 +28991,66 @@ LIVE:                              NOT_AUTHORIZED.
 **Next governed step:** a separately routed, separately scoped Work Package to address remaining EVID-03 obligations (Condition 2 completion and/or further Feature Engine work) — not initiated by this transaction.
 
 **Files changed:** `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md`, `docs/governance/mutation-baseline-evidence/feature-engine-condition1-bounded-reevaluation-001.json` (new) only — `docs/adr/ADR-044.md` and `docs/constitution/13-quality-gates.md` NOT touched. `manifest_version` `"10.415"` -> `"10.416"`.
+
+## Feature Condition-2 §4.1(b) reclassification Candidate-005 — bounded candidate authoring (`FE-EVID03-COND2-CANDIDATE-005-AUTHOR-001`)
+
+**Candidate authoring transaction only — no §4.1(b) credit granted, no Condition-2 count change.** Not another semantic correction, not mutation testing, not a governed reclassification decision.
+
+**Fresh boundary verification:** HEAD confirmed exactly `04cac699d17aea15fc2836a6e822ecf2ebae9bbc`, identical to `origin/main` — no drift. Confirmed Condition 1 `FAIL — criteria` (freshly Review-A validated at this exact boundary, not reopened), Condition 2 `167/170`, Condition 3 `SATISFIED — REVIEW A VALIDATED` — before this transaction.
+
+**Source reconstruction authority — fresh-verified:** `docs/governance/mutation-baseline-evidence/feature-engine-condition2-remaining-ambiguity-historical-reconstruction-001.json` (blob `72d44cd467ca2edeaf1d7e7bdd924bff57955915`, byte-unchanged, verified fresh) uniquely resolves exactly 2 previously ambiguous historical identities via direct historical-diff reconstruction — never ordinal inference.
+
+**Row 1:** `swing_distance.xǁSwingDistanceFeatureEngineǁ_reevaluate_all_windows__mutmut_32` (historical `continue -> break`, the 3rd of 4 continue statements, positioned immediately after the replacement-only emit path inside `if lineage.invalidated:`) -> exact current successor `feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_reevaluate_all_windows__mutmut_32`, Evidence-005 status `killed`. The previously-considered current `mutmut_6` is a structurally different `continue` site (candle-is-None guard, current status `survived`) and remains excluded.
+
+**Row 2:** `swing_distance.xǁSwingDistanceFeatureEngineǁon_swing_confirmed__mutmut_35` (historical mutation is **message-text only** — the numeric literal inside `InvalidSwingEligibilityInputError`'s f-string, `{existing.revision + 1!r}` -> `{existing.revision + 2!r}`; the validation condition `fact.swing_revision != existing.revision + 1` itself is byte-unchanged) -> exact current successor `feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁprepare_swing_confirmed__mutmut_35`, Evidence-005 status `killed`. Previously-considered current `mutmut_26` and `mutmut_32` mutate validation conditions and remain structurally excluded.
+
+**Independent cross-verification (this transaction):** Both current successor statuses independently re-checked directly against `feature-engine-mutation-step9-formal-evidence-005.json`'s own `full_current_mutant_mapping.sorted_mutant_id_to_status` (blob `f7a6ab715155ad166808e0e9d9a7474196d9b69d`) — zero discrepancy, both `killed`. Both successors independently source-verified fresh against `python/feature-engine/src/feature_engine/swing_distance.py`: `prepare_swing_confirmed` (line 539) docstring cites "ADR-043 prepare seam"; `on_swing_confirmed` (line 487) calls it directly (line 509) then commits live — the documented prepare-then-immediately-live-commit pattern; `_prepare_reevaluate_all_windows` (line 1093) is itself called from within `prepare_swing_confirmed` (line 620), confirming the identical ADR-043 prepare-seam family as row 2.
+
+**Governing mechanism:** the same already-governed §4.1(b) path (`docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-proposal-001.md` §4.1, blob `f4a3ca0c37aeb4684409a7344141103e64051e04`) already used for candidate-002/003/004's 167 approved rows, under the same ADR-043 (Approved v0.2, blob `e7ebc2093768b164b91b496d932d2f9feb6c659a`) engineering-change authority. No mutant-ordinal similarity, favorable-status-alone justification, retrospective convenience, or new identity-continuity rule used.
+
+**Row 2 message-text-only assessment:** independently assessed and recorded explicitly, without changing the row's historical materiality tag. Conclusion: §4.1(b) applies because the identity discontinuity is caused by the ADR-043 prepare-seam function relocation itself (`on_swing_confirmed -> prepare_swing_confirmed`) — an ID discontinuity from legitimate, independently-motivated engineering (I-13 ownership/concurrency) — not by anything specific to where inside the function the historical mutant sat. The message-text observation is recorded as materiality context for the next Review A only, never as an identity-continuity mechanism.
+
+**Candidate artifact authored:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-reclassification-candidate-005.json` (new), verified non-colliding before creation. Contains exactly 2 rows, each with historical identity, historical semantic obligation, exact reconstructed historical diff, exact current successor identity, exact current mutation diff, Evidence-005 status, engineering-change authority, §4.1(b) rationale, exclusion rationale for alternatives, gap-avoidance evidence, source reconstruction artifact/blob, source Evidence-005 blob, `review_a_state: PENDING`, `product_owner_state: PENDING`, `lifecycle_state: CANDIDATE_AUTHORED — AWAITING REVIEW A`. Neither row marked resolved or effective.
+
+**Tool-identity-drift row — explicitly excluded, untouched:** `contracts.x__seal_verified_authority__mutmut_33` remains `TOOL_IDENTITY_DRIFT — NO EXISTING GOVERNED RESOLUTION MECHANISM`. No identity-continuity rule invented or proposed; no ADR authored for it in this transaction.
+
+**ADR Scope Rule — run fresh:** `ADR_NOT_REQUIRED` — this transaction applies the existing, already-governed §4.1(b) mechanism to a new bounded 2-row cohort; it does not modify that mechanism, ADR-043, or Chapter 13.
+
+**Governed accounting — Condition 2 preserved:**
+
+```text
+Controlling Condition 2 before this transaction: 167/170
+Controlling Condition 2 after this transaction:  167/170 -- UNCHANGED
+                                                  (candidate authoring
+                                                  only; no self-granted
+                                                  credit)
+Non-controlling projection (NOT current state):
+  If both Candidate-005 rows are later Review-A validated AND
+  Product-Owner approved: 167 + 2 = 169/170
+  Label: NON-CONTROLLING / FUTURE-IF-APPROVED
+  Remaining unresolved if that occurs: 1/170 (tool-identity-drift row)
+```
+
+**State summary (Condition 1/3 preserved, EVID-03 remains OPEN):**
+
+```text
+Condition 1 (raw mutation score):  FAIL -- criteria (unchanged, not
+                                    reopened).
+Condition 2 (identity resolution): 167/170 (unchanged -- Candidate-005
+                                    is authored only, not yet reviewed
+                                    or approved).
+Condition 3 (formal evidence):     SATISFIED -- REVIEW A VALIDATED
+                                    (unchanged, not reopened).
+P3-FEATURE-QG-EVID-03:             OPEN.
+Feature Engine approval:           NOT APPROVED.
+LIVE:                              NOT_AUTHORIZED.
+```
+
+**No scope expansion — explicit verification:** no §4.1(b) credit granted; no Condition-2 count change; no touch to the tool-identity-drift row; no identity-continuity rule authored; no new ADR; no ADR-043 modification; no Chapter 13 edit; no Condition-1/Condition-3 reopening; no mutation execution; no historical-evidence modification; no source/test/tooling change; no EVID-03 closure; no Feature Engine approval; no LIVE authorization; no Product Owner approval requested.
+
+**Next governed step:** ChatGPT Review A of Candidate-005.
+
+**Files changed:** `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md`, `docs/governance/mutation-baseline-evidence/feature-engine-mutation-material-gap-reclassification-candidate-005.json` (new) only — `docs/adr/ADR-043.md`, `docs/adr/ADR-044.md`, and `docs/constitution/13-quality-gates.md` NOT touched. `manifest_version` `"10.416"` -> `"10.417"`.
 
 ## Decision Log
 
