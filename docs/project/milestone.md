@@ -6,7 +6,7 @@ status: Active
 owner: Product Owner
 maintainer: "WP executors under Lean Ride Operating Model v1.1"
 visual_companion: docs/project/milestone-dashboard.html
-state_verified_against_head: 704e492f83af1d463117f002c9f319ebcadd8099
+state_verified_against_head: 38da0a8b698202f85472d8a7ab397f4f7b640386
 state_verified_against_at: "2026-09-23"
 ---
 
@@ -107,22 +107,30 @@ See §4 for full detail.
 | Item | Current state |
 |---|---|
 | Overall | `AT RISK` |
-| Condition 1 | `STOPPED / UNRESOLVED` — **PRIMARY BLOCKER** |
-| Condition 1 — unstable cases | 9 `UNSTABLE_TIMEOUT_TRIAGE` mutants |
+| Condition 1 | `FAIL — criteria` — **PRIMARY BLOCKER** (formally governed result, Chapter 13 §13.8.1 Case A) |
+| Condition 1 — unstable cases | 9 `UNSTABLE_TIMEOUT_TRIAGE` mutants (remain individually unresolved) |
 | Condition 1 — current survivor count | 406 |
-| Condition 2 | `167/170` |
+| Condition 2 | `167/170` — also independently blocking |
 | Condition 3 | `SATISFIED — REVIEW A VALIDATED` (**DONE — not reopened by this WP**) |
 | `P3-FEATURE-QG-EVID-03` | `OPEN` |
 | Feature Engine approval | `NOT APPROVED` |
 | LIVE | `NOT AUTHORIZED` |
 
-**Condition 1 — formal vs. diagnostic:** the locked timeout-triage
-protocol's disagreement clause triggered on the 9 unstable mutants, so
-Condition 1's formal verdict is `STOPPED / UNRESOLVED` — neither PASS nor
-FAIL. Diagnostic-only bounds of approximately **84.21%–84.56%** exist
-(both below the required **87.001959503592%** threshold) — these numeric
-bounds are **planning evidence only** and do **not** replace or substitute
-for the formal `STOPPED / UNRESOLVED` verdict.
+**Condition 1 — now a formal governed result.** As of
+`FE-EVID03-COND1-APPLY-001` (this transaction), Chapter 13 v1.8 §13.8.1
+is controlling authority and has been formally applied to the existing,
+byte-unchanged `evidence-005.json`/`evidence-005-correction-001.json`
+measurement: bounds **84.21453023963484%–84.55686572841384%**, both below
+the required **87.001959503592%** threshold → Case A → **`FAIL —
+criteria`**. This supersedes the prior formal `STOPPED / UNRESOLVED`
+verdict *prospectively* (the prior evaluation remains correct, immutable
+historical evidence at its own boundary — Chapter 13 v1.7, without
+§13.8.1, offered no governed rule to interpret unresolved timeout-triage
+mutants). The 9 `UNSTABLE_TIMEOUT_TRIAGE` mutants remain individually
+unresolved — this result concerns only the gate-level bounded measurement,
+never any individual mutant's own classification. Full record:
+`docs/governance/mutation-baseline-evidence/feature-engine-condition1-
+bounded-reevaluation-001.json`.
 
 **Primary Work Package — `FE-EVID03-COND1-STOP-001`: COMPLETE.** Bounded
 investigation of the 9 unstable timeout-triage mutants. Result: all 9
@@ -225,11 +233,33 @@ non-blocking, residual findings). **`ADR-044` v0.5 is now `Approved`;
 Chapter 13 `v1.8` is now `Locked` and controlling** (`v1.7` is its
 historical predecessor). §13.8.1's own reviewed semantic body was
 verified byte-identical before and after. The bounded-uncertainty rule
-is now effective prospectively for new evaluations. **This activation
-did not apply the rule to EVID-03 and did not re-evaluate Condition
-1 — Condition 1 remains `STOPPED / UNRESOLVED` now**, until a separate,
-subsequent, bounded application/re-evaluation transaction formally
-applies the now-controlling rule and records a new verdict.
+is now effective prospectively for new evaluations. This activation did
+not, by itself, apply the rule to EVID-03 or re-evaluate Condition 1.
+
+**`FE-EVID03-COND1-APPLY-001`: COMPLETE (first formally governed
+Condition-1 evaluation under controlling §13.8.1).** Applied §13.8.1
+mechanically to the existing, byte-unchanged evidence-005.json/
+-005-correction-001.json measurement. All 6 Applicability-predicate
+conditions independently re-verified satisfied; executable-boundary
+compatibility confirmed (all 5 pinned tree/blob hashes byte-identical
+to the current boundary — no rerun performed or needed); Mixed-population
+rule analyzed and found **not triggered** (Condition 2's residual
+`TOOL_IDENTITY_DRIFT`/ambiguity gap is a separate historical-identity
+criterion, not a status present in the current raw-run population —
+Condition 2 remains independently unresolved, never masked). Arithmetic
+independently recomputed, matching evidence-005.json exactly: bounds
+**84.21453023963484%–84.55686572841384%**, both `< T` (87.001959503592%)
+→ **Case A → `FAIL — criteria`**. **Condition 1: `STOPPED / UNRESOLVED`
+→ `FAIL — criteria`**, recorded prospectively — the prior evaluation
+remains immutable historical evidence, correct at its own boundary. All
+9 `UNSTABLE_TIMEOUT_TRIAGE` mutants remain individually unresolved — none
+reclassified. Condition 2 (`167/170`) and Condition 3 (`SATISFIED —
+REVIEW A VALIDATED`) unchanged. `P3-FEATURE-QG-EVID-03` remains `OPEN` —
+Condition 1 now fails on criteria and Condition 2 independently fails;
+EVID-03 is not closed. No mutation execution, no source/test/tooling
+change, no Condition-2/Condition-3 work. Full record:
+`docs/governance/mutation-baseline-evidence/feature-engine-condition1-
+bounded-reevaluation-001.json`.
 
 **Secondary queue:** `Candidate-005` — govern the 2 historically
 reconstructed Condition-2 identities, when doing so does not disrupt the
@@ -238,15 +268,17 @@ primary critical path.
 **Deferred / blocked item:** `contracts.x__seal_verified_authority__mutmut_33`
 — `TOOL_IDENTITY_DRIFT — NO EXISTING GOVERNED RESOLUTION MECHANISM`.
 
-**PO action required now:** No. Next governed step: ChatGPT
-fresh-verifies this atomic activation; only after that may a separate,
-bounded Condition-1 application/re-evaluation WP be routed.
+**PO action required now:** No. Condition 1 and Condition 2 both
+independently fail; EVID-03 remains OPEN. Next governed step: a
+separately routed, separately scoped Work Package to address the
+remaining EVID-03 obligations (Condition 2 completion and/or further
+Feature Engine work) — not initiated by this transaction.
 
 ## 5. Work Package lanes
 
 | Lane | Item | Status |
 |---|---|---|
-| Primary | `FE-EVID03-COND1-PROTOCOL-ACTIVATION-001` | COMPLETE — ADR-044 v0.5 Approved + Chapter 13 v1.8 Locked/controlling, atomic Product Owner activation; awaiting ChatGPT fresh-verification, then a separate Condition-1 application WP |
+| Primary | *(none currently assigned)* | Condition 1 is now a formal `FAIL — criteria`; Condition 2 independently remains `167/170`. Next primary WP awaits a separate Product Owner scoping decision. |
 | Secondary | `Candidate-005` (2 Condition-2 identities) | Queued, non-blocking |
 | Deferred | `contracts.x__seal_verified_authority__mutmut_33` (TOOL_IDENTITY_DRIFT) | Deferred — no existing governed mechanism |
 | Completed | `RIDE-PROJECT-MILESTONE-DASHBOARD-001` | Tracking infrastructure only |
@@ -256,35 +288,40 @@ bounded Condition-1 application/re-evaluation WP be routed.
 | Completed | `FE-EVID03-COND1-PROTOCOL-DECISION-001-CORR-002` | ADR-044 v0.3 + Chapter 13 v1.8 corrected (round-2 findings CLOSED); Review A `CLEAN — 0/0/0`, R2; optional PO-selected cross-check returned `DEFECT FOUND — 0/1/4`, accepted as `0/2/3` |
 | Completed | `FE-EVID03-COND1-PROTOCOL-DECISION-001-CORR-003` | ADR-044 v0.4 + Chapter 13 v1.8 corrected (round-3 findings CLOSED); Review A `CLEAN — 0/0/0`, R2; second optional PO-selected cross-check returned `DEFECT FOUND — 0/1/3`, accepted as `REVISION_REQUIRED — 0/1/3` (Major = regression) — `P3-CORRECTION-CHAIN-001` triggered, narrow loop STOPPED |
 | Completed | `FE-EVID03-COND1-PROTOCOL-CONSOLIDATION-001` | ROOT-CAUSE CONSOLIDATION — ADR-044 v0.5 + Chapter 13 v1.8 consolidated to a single normative source; Review A `CLEAN — 0/0/2`, R2; optional PO-selected cross-check `0/0/5`, all accepted non-blocking |
+| Completed | `FE-EVID03-COND1-PROTOCOL-ACTIVATION-001` | ATOMIC PRODUCT OWNER ACTIVATION — ADR-044 v0.5 `Approved`, Chapter 13 v1.8 `Locked`/controlling, Risk R2, all 5 cross-check Minors accepted non-blocking |
+| Completed | `FE-EVID03-COND1-APPLY-001` | First formally governed Condition-1 evaluation under §13.8.1 — Case A, Condition 1 `STOPPED / UNRESOLVED` → `FAIL — criteria`; Condition 2/3 unchanged; EVID-03 remains OPEN |
 
 ## 6. PO dashboard snapshot
 
 ```text
 Current milestone:        M1 — Feature Engine EVID-03 Closure (ACTIVE, AT RISK)
-Primary blocker:          Condition 1 — STOPPED / UNRESOLVED
-                           (9 UNSTABLE_TIMEOUT_TRIAGE mutants)
-Current primary WP:       FE-EVID03-COND1-PROTOCOL-ACTIVATION-001
-                           (ATOMIC PRODUCT OWNER ACTIVATION — ADR-044
-                           v0.5 Approved + Chapter 13 v1.8 Locked/
-                           controlling; rule now effective prospectively)
-Root cause (prior WP):     dual normative authorship / semantic drift
-                           (ADR-044 and Chapter 13 §13.8.1 carried
-                           parallel copies of normative gate semantics,
-                           which had already drifted in both directions
-                           across 3 correction rounds) — remediated by
-                           FE-EVID03-COND1-PROTOCOL-CONSOLIDATION-001
+Primary blocker:          Condition 1 — FAIL — criteria (formally
+                           governed result under Chapter 13 v1.8
+                           Section 13.8.1, Case A; 9 UNSTABLE_TIMEOUT_
+                           TRIAGE mutants remain individually
+                           unresolved). Condition 2 (167/170)
+                           independently also blocks.
+Current primary WP:       (none currently assigned)
+Last completed WP:        FE-EVID03-COND1-APPLY-001 — first formally
+                           governed Condition-1 evaluation under
+                           controlling Section 13.8.1. Bounds
+                           84.21453023963484%-84.55686572841384%,
+                           both < required 87.001959503592% -> Case A
+                           -> FAIL — criteria. Prior STOPPED /
+                           UNRESOLVED evaluation remains immutable
+                           historical evidence at its own boundary.
 Last Review A:             CLEAN — 0 Blocker / 0 Major / 2 Minor (on
-                           v0.5/v1.8, Risk R2). Optional Product-Owner-
-                           selected R2 advisory cross-check returned
-                           0 Blocker / 0 Major / 5 Minor, all accepted
-                           by ChatGPT as non-blocking. Product Owner
-                           approved the bundle 2026-09-23T09:34:00+07:00.
+                           v0.5/v1.8, Risk R2, ADR-044/Chapter-13
+                           activation). This Condition-1 application is
+                           a mechanical application of already-approved
+                           authority to already-recorded evidence — no
+                           new Review A/Product Owner decision required.
 PO decision required now: NO
-                           (activation is COMPLETE; Condition 1 remains
-                           STOPPED / UNRESOLVED until a separate, bounded
-                           application/re-evaluation transaction applies
-                           the now-controlling rule; next governed step
-                           is ChatGPT fresh-verifying this activation)
+                           (Condition 1 and Condition 2 both
+                           independently fail; EVID-03 remains OPEN.
+                           Next governed step is a separately routed,
+                           separately scoped Work Package to address
+                           remaining EVID-03 obligations.)
 ```
 
 ## 7. Update rules

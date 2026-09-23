@@ -235,7 +235,7 @@
   <div class="wrap">
     <h1>Ride Quant Platform — Milestone Dashboard</h1>
     <div class="top-meta">
-      <span>Milestone state verified against: <code id="head-sha">704e492f83af1d463117f002c9f319ebcadd8099</code></span>
+      <span>Milestone state verified against: <code id="head-sha">38da0a8b698202f85472d8a7ab397f4f7b640386</code></span>
       <span>Lean Ride Operating Model v1.1: <span class="pill pill-done">Active — ADOPTED</span></span>
       <span>Current milestone: <span class="pill pill-active">M1 — Feature Engine EVID-03 Closure</span></span>
     </div>
@@ -306,7 +306,7 @@
       <div class="panel">
         <h3>Quality-Gate state</h3>
         <div class="kv"><span class="k">Overall</span><span class="v pill pill-atrisk">AT RISK</span></div>
-        <div class="kv"><span class="k">Condition 1</span><span class="v" style="color:var(--blocked)">STOPPED / UNRESOLVED</span></div>
+        <div class="kv"><span class="k">Condition 1</span><span class="v" style="color:var(--blocked)">FAIL — criteria</span></div>
         <div class="kv"><span class="k">Condition 2</span><span class="v">167 / 170</span></div>
         <div class="kv"><span class="k">Condition 3</span><span class="v" style="color:var(--done)">SATISFIED — REVIEW A VALIDATED</span></div>
         <div class="kv"><span class="k">P3-FEATURE-QG-EVID-03</span><span class="v">OPEN</span></div>
@@ -315,16 +315,22 @@
       </div>
       <div class="panel">
         <h3>Condition 1 — formal blocker</h3>
-        <div class="kv"><span class="k">Formal verdict</span><span class="v" style="color:var(--blocked)">STOPPED / UNRESOLVED</span></div>
-        <div class="kv"><span class="k">Unstable timeout-triage cases</span><span class="v">9</span></div>
+        <div class="kv"><span class="k">Formal verdict</span><span class="v" style="color:var(--blocked)">FAIL — criteria</span></div>
+        <div class="kv"><span class="k">Governing authority</span><span class="v">Chapter 13 v1.8 §13.8.1, Case A</span></div>
+        <div class="kv"><span class="k">Unstable timeout-triage cases</span><span class="v">9 (remain individually unresolved)</span></div>
         <div class="kv"><span class="k">Current survivor count</span><span class="v">406</span></div>
-        <div class="kv"><span class="k">Diagnostic-only bounds</span><span class="v">≈ 84.21% – 84.56%</span></div>
+        <div class="kv"><span class="k">Bounded measurement</span><span class="v">84.21453023963484% – 84.55686572841384%</span></div>
         <div class="kv"><span class="k">Required threshold</span><span class="v">87.001959503592%</span></div>
         <div class="note">
-          The 84.21%–84.56% figures are <strong>diagnostic / planning evidence only</strong>.
-          They do <strong>not</strong> replace or substitute for the formal
-          <code>STOPPED / UNRESOLVED</code> Condition-1 verdict, which is triggered by the
-          locked timeout-triage protocol's disagreement clause on the 9 unstable mutants.
+          As of <code>FE-EVID03-COND1-APPLY-001</code>, Chapter 13 v1.8 §13.8.1 is
+          controlling authority and has been formally applied to the existing,
+          byte-unchanged evidence-005.json measurement: both bounds fall below
+          threshold → Case A → <strong>FAIL — criteria</strong>. This supersedes the
+          prior formal <code>STOPPED / UNRESOLVED</code> verdict <em>prospectively</em>
+          — that evaluation remains immutable historical evidence, correct at its own
+          boundary (Chapter 13 v1.7, without §13.8.1, offered no governed rule for
+          unresolved timeout-triage mutants). The 9 unstable mutants remain
+          individually unresolved; none were reclassified.
         </div>
       </div>
     </div>
@@ -358,8 +364,8 @@
       <div class="lane">
         <h4>Primary</h4>
         <div class="wp-item">
-          <code>FE-EVID03-COND1-PROTOCOL-ACTIVATION-001</code>
-          <div class="desc"><strong>ATOMIC PRODUCT OWNER ACTIVATION — COMPLETE.</strong> Review A on the consolidated v0.5/v1.8 bundle (boundary <code>704e492...</code>) returned <code>CLEAN — 0 Blocker / 0 Major / 2 Minor</code>, R2; an optional Product-Owner-selected R2 advisory cross-check (Claude) returned <code>0 Blocker / 0 Major / 5 Minor</code>, all accepted by ChatGPT as non-blocking. Product Owner approved the bundle (2026-09-23T09:34:00+07:00), accepting Risk R2 and all 5 Minors as non-blocking residual findings, authorizing deterministic non-normative cleanup of X3-MIN-01/02/03 (ADR-044 wording only) in this same transaction, while explicitly declining to touch Chapter 13 §13.8.1's normative semantics for X3-MIN-04/05 (both remain accepted, non-blocking). <strong>ADR-044 v0.5 is now Approved; Chapter 13 v1.8 is now Locked and controlling</strong> (v1.7 is its historical predecessor). §13.8.1's own semantic body verified byte-identical before/after. The rule is now effective prospectively. This activation did not apply the rule to EVID-03: Condition 1 remains <code>STOPPED / UNRESOLVED</code> until a separate, bounded application transaction. Next: ChatGPT fresh-verifies this activation.</div>
+          <code>(none currently assigned)</code>
+          <div class="desc">Condition 1 is now a formal <code>FAIL — criteria</code>; Condition 2 independently remains <code>167 / 170</code>. Next primary WP awaits a separate Product Owner scoping decision.</div>
         </div>
       </div>
       <div class="lane">
@@ -404,7 +410,15 @@
         </div>
         <div class="wp-item">
           <code>FE-EVID03-COND1-PROTOCOL-CONSOLIDATION-001</code>
-          <div class="desc"><strong>ROOT-CAUSE CONSOLIDATION</strong> (P3-CORRECTION-CHAIN-001 — not CORR-004). Consolidated Chapter 13 §13.8.1 as the sole, self-contained normative source (reproducibility reconciliation restored, item-8 precedence unambiguous, structural protocol provenance); ADR-044 (v0.4 → v0.5) restructured to rationale-only with no second executable gate specification, plus a new clause-trace table. Case A/B/C truth table and activation model unchanged. Review A <code>CLEAN — 0 Blocker / 0 Major / 2 Minor</code>, R2; optional cross-check <code>0 Blocker / 0 Major / 5 Minor</code>, all accepted non-blocking — remediated/approved by the ACTIVATION WP above.</div>
+          <div class="desc"><strong>ROOT-CAUSE CONSOLIDATION</strong> (P3-CORRECTION-CHAIN-001 — not CORR-004). Consolidated Chapter 13 §13.8.1 as the sole, self-contained normative source (reproducibility reconciliation restored, item-8 precedence unambiguous, structural protocol provenance); ADR-044 (v0.4 → v0.5) restructured to rationale-only with no second executable gate specification, plus a new clause-trace table. Case A/B/C truth table and activation model unchanged. Review A <code>CLEAN — 0 Blocker / 0 Major / 2 Minor</code>, R2; optional cross-check <code>0 Blocker / 0 Major / 5 Minor</code>, all accepted non-blocking — remediated/approved by the ACTIVATION WP below.</div>
+        </div>
+        <div class="wp-item">
+          <code>FE-EVID03-COND1-PROTOCOL-ACTIVATION-001</code>
+          <div class="desc"><strong>ATOMIC PRODUCT OWNER ACTIVATION.</strong> Product Owner approved the reviewed v0.5/v1.8 bundle (2026-09-23T09:34:00+07:00), accepting Risk R2 and all 5 cross-check Minors as non-blocking residual findings, authorizing deterministic non-normative cleanup of X3-MIN-01/02/03 (ADR-044 wording only), while explicitly declining to touch Chapter 13 §13.8.1's normative semantics for X3-MIN-04/05. <strong>ADR-044 v0.5 Approved; Chapter 13 v1.8 Locked and controlling</strong> (v1.7 is its historical predecessor). §13.8.1's own semantic body verified byte-identical before/after. Rule effective prospectively — remediated/applied by the APPLY WP below.</div>
+        </div>
+        <div class="wp-item">
+          <code>FE-EVID03-COND1-APPLY-001</code>
+          <div class="desc"><strong>First formally governed Condition-1 evaluation under controlling §13.8.1.</strong> Applied §13.8.1 mechanically to the existing, byte-unchanged evidence-005.json/-005-correction-001.json measurement. All 6 Applicability-predicate conditions independently re-verified satisfied; executable-boundary compatibility confirmed (all 5 pinned tree/blob hashes byte-identical — no rerun needed); Mixed-population rule analyzed and found not triggered (Condition 2's residual TOOL_IDENTITY_DRIFT/ambiguity gap is a separate historical-identity criterion, not present in the current raw-run population). Arithmetic independently recomputed, matching evidence-005.json exactly: bounds 84.21453023963484%–84.55686572841384%, both &lt; T (87.001959503592%) → <strong>Case A → FAIL — criteria</strong>. <strong>Condition 1: STOPPED / UNRESOLVED → FAIL — criteria</strong>, recorded prospectively; the prior evaluation remains immutable historical evidence at its own boundary. All 9 unstable mutants remain individually unresolved. Condition 2 (167/170) and Condition 3 unchanged. <code>P3-FEATURE-QG-EVID-03</code> remains OPEN.</div>
         </div>
       </div>
     </div>
@@ -414,13 +428,13 @@
     <h2>PO Snapshot</h2>
     <div class="po-snapshot">
       <div class="kv"><span class="k">Current milestone</span><span class="v">M1 — Feature Engine EVID-03 Closure (ACTIVE, AT RISK)</span></div>
-      <div class="kv"><span class="k">Primary blocker</span><span class="v">Condition 1 — STOPPED / UNRESOLVED (9 unstable timeout-triage mutants)</span></div>
-      <div class="kv"><span class="k">Current WP</span><span class="v"><code>FE-EVID03-COND1-PROTOCOL-ACTIVATION-001</code> — ADR-044 v0.5 Approved + Chapter 13 v1.8 Locked/controlling, atomic activation COMPLETE</span></div>
-      <div class="kv"><span class="k">Root cause (prior WP)</span><span class="v">Dual normative authorship / semantic drift — ADR-044 and Chapter 13 §13.8.1 carried parallel copies of normative gate semantics, drifted in both directions across 3 correction rounds — remediated by the CONSOLIDATION WP</span></div>
-      <div class="kv"><span class="k">Last Review A</span><span class="v">CLEAN — 0 Blocker / 0 Major / 2 Minor, Risk R2 (on v0.5/v1.8). Optional PO-selected R2 advisory cross-check (Claude) returned 0 Blocker / 0 Major / 5 Minor, all accepted by ChatGPT as non-blocking. Product Owner approved 2026-09-23T09:34:00+07:00</span></div>
+      <div class="kv"><span class="k">Primary blocker</span><span class="v">Condition 1 — FAIL — criteria (formally governed, Chapter 13 v1.8 §13.8.1 Case A; 9 unstable timeout-triage mutants remain individually unresolved). Condition 2 (167/170) independently also blocks.</span></div>
+      <div class="kv"><span class="k">Current WP</span><span class="v">(none currently assigned)</span></div>
+      <div class="kv"><span class="k">Last completed WP</span><span class="v"><code>FE-EVID03-COND1-APPLY-001</code> — first formally governed Condition-1 evaluation under controlling §13.8.1. Bounds 84.21453023963484%–84.55686572841384%, both &lt; required 87.001959503592% → Case A → FAIL — criteria. Prior STOPPED / UNRESOLVED evaluation remains immutable historical evidence at its own boundary.</span></div>
+      <div class="kv"><span class="k">Last Review A</span><span class="v">CLEAN — 0 Blocker / 0 Major / 2 Minor, Risk R2 (on v0.5/v1.8, ADR-044/Chapter-13 activation). This Condition-1 application is a mechanical application of already-approved authority to already-recorded evidence — no new Review A/Product Owner decision required.</span></div>
       <div class="kv"><span class="k">PO decision required</span><span class="v pill pill-no">NO</span></div>
-      <div class="kv"><span class="k">Reason deferred</span><span class="v">Activation is COMPLETE; Condition 1 stays STOPPED / UNRESOLVED until a separate, bounded application/re-evaluation transaction applies the now-controlling rule — not because activation itself is pending</span></div>
-      <div class="kv"><span class="k">Next PO decision point</span><span class="v">After ChatGPT fresh-verifies this atomic activation and a separate bounded Condition-1 application/re-evaluation WP is routed and reviewed</span></div>
+      <div class="kv"><span class="k">Reason deferred</span><span class="v">Condition 1 and Condition 2 both independently fail; EVID-03 remains OPEN</span></div>
+      <div class="kv"><span class="k">Next PO decision point</span><span class="v">A separately routed, separately scoped Work Package to address remaining EVID-03 obligations (Condition 2 completion and/or further Feature Engine work) — not initiated by this transaction</span></div>
     </div>
   </section>
 

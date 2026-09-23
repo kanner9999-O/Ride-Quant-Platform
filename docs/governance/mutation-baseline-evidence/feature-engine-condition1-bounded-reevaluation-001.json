@@ -1,0 +1,217 @@
+{
+  "artifact_id": "feature-engine-condition1-bounded-reevaluation-001",
+  "wp_id": "FE-EVID03-COND1-APPLY-001",
+  "schema_note": "First formally governed Condition-1 evaluation performed under Chapter 13 v1.8 Section 13.8.1 (bounded-measurement reproducibility for UNSTABLE_TIMEOUT_TRIAGE populations), now the chapter's controlling version. This is a NEW additive Quality-Gate evaluation, not a rewrite or retroactive reinterpretation of any prior evaluation. It consumes, byte-unchanged, the same source measurement already recorded in feature-engine-mutation-step9-formal-evidence-005.json / -005-correction-001.json -- it applies newly-controlling governed authority to that existing measurement; it does not remeasure, rerun, or reclassify anything.",
+
+  "governance_evaluation_boundary": {
+    "repository_head": "38da0a8b698202f85472d8a7ab397f4f7b640386",
+    "verified_main_equals_origin_main": true,
+    "note": "This is the boundary at which this evaluation transaction was performed -- the governance/documentation boundary, distinct from the subject executable boundary below (which is evidence-005.json's own pinned measurement boundary)."
+  },
+
+  "controlling_authority": {
+    "chapter_13": {
+      "file": "docs/constitution/13-quality-gates.md",
+      "version": "1.8",
+      "status": "Locked",
+      "blob": "acf4ab75eda1ea0613250ce3159669ea727e28ec",
+      "activated_at": "2026-09-23T09:34:00+07:00",
+      "activation_wp": "FE-EVID03-COND1-PROTOCOL-ACTIVATION-001",
+      "normative_section": "13.8.1 (sole normative source for this rule, per its own text and Section 13.13)"
+    },
+    "adr_044": {
+      "file": "docs/adr/ADR-044.md",
+      "id": "ADR-044",
+      "version": "0.5",
+      "status": "Approved",
+      "blob": "82f07b523ff30b08d17b39a9beaf2d6d1c369179",
+      "role": "Architecture rationale only -- carries no independently executable copy of the gate rule applied below (Section 13.8.1 alone is normative)."
+    }
+  },
+
+  "source_evidence_consumed": {
+    "primary": {
+      "file": "docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-005.json",
+      "blob": "f7a6ab715155ad166808e0e9d9a7474196d9b69d",
+      "artifact_id": "feature-engine-mutation-step9-formal-evidence-005"
+    },
+    "correction": {
+      "file": "docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-005-correction-001.json",
+      "blob": "02a350e88dba0aad2592487454e7a802128bcc84"
+    },
+    "consumption_note": "Both files are used as read-only, immutable source evidence. Neither is modified, rewritten, rebased, or reinterpreted by this artifact. This artifact is purely additive.",
+    "verified_fresh_this_transaction": true
+  },
+
+  "subject_executable_boundary": {
+    "repository_head_at_measurement": "662ed13e68838c17b290754047adb3c0cbf98f62",
+    "src_tree": "1029a9fef083b0902d6d00a2e96cfde14213324c",
+    "tests_tree": "e82cb7a491789d8cd0a005afaefbc1ce76163e84",
+    "tooling_tree": "508e681133a7d95488318dd1c966cae582a27360",
+    "pyproject_toml_blob": "6fa4b74582dea5dd023f216f7fa10a9efdcc16db",
+    "requirements_dev_lock_txt_blob": "a1481d6f7912a034a2a416227496ea47198671be"
+  },
+
+  "executable_boundary_compatibility_result": {
+    "method": "Fresh git rev-parse of HEAD:python/feature-engine/{src,tests,tooling,pyproject.toml,requirements-dev.lock.txt} at this evaluation's governance_evaluation_boundary (38da0a8b698202f85472d8a7ab397f4f7b640386), compared directly against evidence-005.json's own pinned subject_executable_boundary values above.",
+    "src_tree_match": true,
+    "tests_tree_match": true,
+    "tooling_tree_match": true,
+    "pyproject_toml_blob_match": true,
+    "requirements_dev_lock_txt_blob_match": true,
+    "result": "COMPATIBLE -- all five hashes are byte-identical between evidence-005.json's pinned executable boundary and the current governance boundary. No intervening commit in this repository's history between 662ed13e... and 38da0a8b... touched python/feature-engine/src, python/feature-engine/tests, python/feature-engine/tooling, python/feature-engine/pyproject.toml, or python/feature-engine/requirements-dev.lock.txt -- every intervening commit was governance/documentation-only (the ADR-044 / Chapter 13 Section 13.8.1 correction and activation chain). evidence-005.json remains valid, current-boundary measurement for this evaluation; no rerun is required or authorized."
+  },
+
+  "authoritative_metric_identity": {
+    "testing_convention_file": "docs/engineering/testing.md",
+    "version": "0.17",
+    "status": "Approved",
+    "blob": "de17690733b2b3c75345e867a8c442a39911e5da",
+    "item": "item 7 -- Ride-owned mutation-effectiveness metric contract",
+    "formula": "(killed + confirmed_timeout) / (total - skipped) * 100",
+    "note": "Pinned per Chapter 13 Section 13.8.1 Applicability condition 1 -- this subsection depends on whichever Testing Convention version/item is actually pinned by the gate's own Quality-Gate evidence, never a hard-coded item number. Testing Convention v0.17 item 7 is the version/item actually pinned by evidence-005.json's own raw_mutation_effectiveness_metric.formula field (verified fresh, identical string)."
+  },
+
+  "threshold_and_denominator": {
+    "threshold_T_percent": 87.001959503592,
+    "denominator_total": 2629,
+    "skipped": 0,
+    "effective_denominator": 2629,
+    "required_numerator_ceiling": 2288,
+    "required_numerator_exact": 2287.281515349434,
+    "source": "evidence-005.json condition_1_evaluation.required (87.001959503592%) and .required_numerator (2288) -- independently recomputed this transaction (T/100 * total = 2287.281515349434, ceiling 2288), verified identical."
+  },
+
+  "u_membership": {
+    "count": 9,
+    "classification": "UNSTABLE_TIMEOUT_TRIAGE",
+    "members": [
+      "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_37",
+      "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_38",
+      "feature_engine.authority_resolver.x__extract_registry_stream_ids__mutmut_3",
+      "feature_engine.authority_resolver.x__extract_registry_stream_ids__mutmut_4",
+      "feature_engine.authority_resolver.x__extract_registry_stream_ids__mutmut_5",
+      "feature_engine.authority_resolver.x__extract_registry_stream_ids__mutmut_7",
+      "feature_engine.authority_resolver.x_resolve_input_contract_authority_from_repository__mutmut_101",
+      "feature_engine.authority_resolver.x_resolve_input_contract_authority_from_repository__mutmut_102",
+      "feature_engine.authority_resolver.x_resolve_input_contract_authority_from_repository__mutmut_103"
+    ],
+    "provenance_verification": {
+      "source": "evidence-005.json timeout_triage.records, filtered fresh this transaction for final_disposition == 'UNSTABLE_TIMEOUT_TRIAGE' -- 9 records found, matching evidence-005.json's own timeout_triage.final_disposition_summary.UNSTABLE_TIMEOUT_TRIAGE (9) and ten_status_counts_post_triage_formal.unstable_timeout_triage (9).",
+      "each_member_has_two_independent_fresh_isolated_reproductions": true,
+      "each_member_outcomes_individually_recorded": true,
+      "each_member_shows_disagreement_between_the_two_runs": true,
+      "no_reused_workspace_result_used_for_credit_or_resolution": "Confirmed -- each record's diagnostic_only_reused_workspace_result field is explicitly labeled diagnostic-only and its resolved_status is never propagated to the record's own resolved_status (null) or credited_to_condition_1_numerator (false) fields.",
+      "no_majority_vote_n_of_m_third_run_tie_break_or_retry_until_green": true
+    }
+  },
+
+  "applicability_predicate_result": {
+    "condition_1_authoritative_metric_denominator_threshold_pinned_per_13_9": {
+      "satisfied": true,
+      "evidence": "Testing Convention v0.17 item 7 (Approved), pinned by evidence-005.json's own raw_mutation_effectiveness_metric field -- verified fresh this transaction (see authoritative_metric_identity above)."
+    },
+    "condition_2_every_u_member_carries_exact_governed_classification": {
+      "satisfied": true,
+      "evidence": "All 9 u_membership entries carry final_disposition == UNSTABLE_TIMEOUT_TRIAGE, no other status admitted -- verified fresh by direct filter over all 88 timeout_triage.records this transaction."
+    },
+    "condition_3_classification_produced_by_procedure_satisfying_protocol_provenance": {
+      "satisfied": true,
+      "evidence": "evidence-005.json timeout_triage.protocol matches Section 13.8.1's Protocol provenance structural requirements exactly: fresh workspace regeneration before each of two independent isolated (--max-children 1) reproductions, individually recorded outcomes, disagreement produces UNSTABLE_TIMEOUT_TRIAGE, explicit 'no majority vote, no guess' -- verified fresh this transaction against the pinned procedure text in timeout_triage.protocol and each of the 9 records."
+    },
+    "condition_4_every_u_member_remains_in_denominator": {
+      "satisfied": true,
+      "evidence": "ten_status_counts_post_triage_formal.total = 2629, sum_equals_total = true, and unstable_timeout_triage (9) is one of the summed categories -- no silent exclusion."
+    },
+    "condition_5_u_disjoint_from_confirmed_favorable_numerator": {
+      "satisfied": true,
+      "evidence": "evidence-005.json's own timeout_triage note states none of the 9 are among the 69 credited-ledger IDs or the evidence-004.json 474-baseline-survivor set; ten_status_counts_post_triage_formal lists killed (2209), confirmed_timeout (5), and unstable_timeout_triage (9) as mutually exclusive summed categories."
+    },
+    "condition_6_no_other_unresolved_ambiguous_or_evidence_integrity_status_folded_into_u": {
+      "satisfied": true,
+      "evidence": "ten_status_counts_post_triage_formal shows no_tests=0, not_checked=0, skipped=0, suspicious=0, caught_by_type_check=0, segfault=0, check_was_interrupted_by_user=0 -- the current-boundary 2629-mutant population contains no unresolved/ambiguous/evidence-integrity status of any kind other than the 9 UNSTABLE_TIMEOUT_TRIAGE members admitted to U."
+    },
+    "overall_applicability_result": "ALL 6 CONDITIONS SATISFIED -- Section 13.8.1 applies to this evaluation."
+  },
+
+  "mixed_population_rule_analysis": {
+    "question": "Does Condition-2's own identity-resolution gap (167/170 resolved, 3 unresolved including contracts.x__seal_verified_authority__mutmut_33 TOOL_IDENTITY_DRIFT and Condition-2's AMBIGUOUS-class historical-identity rows) constitute a non-scoped defect co-resident in the SAME mutant population as U, triggering the Mixed-population rule's 'disposition before emission' requirement?",
+    "determination": "NO -- the Mixed-population rule is not triggered for this evaluation.",
+    "reasoning": "Section 13.8.1's Applicability predicate and this evaluation's U are drawn exclusively from the current-boundary, full 2629-mutant raw-run population (ten_status_counts_post_triage_formal / timeout_triage), which is fully and exhaustively classified: every one of the 2629 mutants carries exactly one of killed / survived / confirmed_timeout / unstable_timeout_triage, with all other ten-status categories (no_tests, not_checked, skipped, suspicious, caught_by_type_check, segfault, check_was_interrupted_by_user) at zero (condition_6 above). Condition 2 is a categorically separate EVID-03 criterion: a historical 170-identity semantic-continuity mapping exercise (see condition_2_formal_result in evidence-005.json and the later, separately governed candidate-series identity-resolution transactions culminating in 167/170), layered on top of the already-fully-classified current population -- it asks whether a historical mutant identity can be traced to a specific current mutant, not what that current mutant's own ten-status classification is. TOOL_IDENTITY_DRIFT and Condition-2's residual AMBIGUOUS rows are not statuses appearing anywhere in ten_status_counts_post_triage_formal; they do not co-reside inside the population U is drawn from. Section 13.8.1's own Applicability condition 6 and the exclusion list ('AMBIGUOUS -- EVIDENCE INSUFFICIENT, TOOL_IDENTITY_DRIFT, not_checked ... remain governed solely by ordinary Section 13.8/13.9') confirm these categories are explicitly and separately excluded from U -- and fresh verification finds none of them present in the current raw-run population in the first place. Condition 2 therefore remains independently governed, independently unresolved, and is not folded into, dispositioned by, or masked by this Condition-1 evaluation's Case A/B/C outcome -- consistent with the Mixed-population rule's own purpose (preventing a Case B PASS from masking a separate FAIL -- evidence), which is moot here since this evaluation's own result is FAIL, not PASS, and Condition 2 independently and separately keeps EVID-03 OPEN regardless."
+  },
+
+  "bound_arithmetic": {
+    "formula_source": "Chapter 13 v1.8 Section 13.8.1, subsection D (Formal bound definitions)",
+    "lower_numerator": 2214,
+    "lower_numerator_derivation": "killed (2209) + confirmed_timeout (5) = 2214",
+    "upper_numerator": 2223,
+    "upper_numerator_derivation": "lower_numerator (2214) + U (9) = 2223",
+    "denominator": 2629,
+    "lower_score_percent": 84.21453023963484,
+    "lower_score_derivation": "2214 / 2629 * 100",
+    "upper_score_percent": 84.55686572841384,
+    "upper_score_derivation": "2223 / 2629 * 100",
+    "threshold_T_percent": 87.001959503592,
+    "independently_recomputed_this_transaction": true,
+    "recomputation_matches_evidence_005_json_exactly": true
+  },
+
+  "case_selected": {
+    "case": "Case A",
+    "rule": "upper_score < T -> FINAL RESULT: FAIL -- criteria",
+    "check": "84.55686572841384 < 87.001959503592 == true",
+    "interpretation": "Authoritative bounded measurement proves that even the best-case resolution of all 9 unresolved UNSTABLE_TIMEOUT_TRIAGE mutants (crediting every one of them as favorable) cannot meet T -- the upper bound itself (84.56%) remains below threshold (87.00%) by 65 in the numerator (2288 - 2223 = 65). This is genuine Section 13.8-style fail-closed criteria-failure, established with certainty despite per-mutant uncertainty in the 9 unresolved mutants' own classifications -- not a guess, per Section 13.8.1 subsection E's required interpretation of Case A."
+  },
+
+  "condition_1_result": {
+    "prior_state": "STOPPED / UNRESOLVED (formal state as of Chapter 13 v1.7, before Section 13.8.1 existed as controlling authority -- no governed rule existed to interpret a population containing unresolved UNSTABLE_TIMEOUT_TRIAGE members)",
+    "new_state": "FAIL — criteria",
+    "authority": "Chapter 13 v1.8 Section 13.8.1 (Locked, controlling as of 2026-09-23T09:34:00+07:00, FE-EVID03-COND1-PROTOCOL-ACTIVATION-001), Case A",
+    "this_evaluation_is_prospective_not_retroactive": true,
+    "note": "This is the FIRST formally governed Condition-1 evaluation performed under Section 13.8.1. It is a new Quality-Gate evaluation at a governance boundary where the bounded-uncertainty rule is now controlling authority -- it does not retroactively reinterpret, supersede, or invalidate the prior STOPPED / UNRESOLVED evaluation, which was the correct and only defensible formal disposition under the authority controlling at ITS OWN boundary (Chapter 13 v1.7, without Section 13.8.1)."
+  },
+
+  "u_members_remain_unresolved_confirmation": {
+    "statement": "This evaluation does NOT resolve, reclassify, infer, or credit any of the 9 UNSTABLE_TIMEOUT_TRIAGE mutants' own individual classifications. Each remains exactly as unresolved as the governing per-mutant timeout-triage protocol left it. Per Chapter 13 v1.8 Section 13.8.1 subsection B (Reproducibility reconciliation) and subsection E's closing statement, this holds identically for Case A, B, or C alike -- this evaluation's Case A result concerns only the gate-level bounded measurement, never any individual U member's own status.",
+    "no_majority_vote_no_third_run_no_retry_performed_by_this_transaction": true,
+    "no_mutation_execution_performed_by_this_transaction": true
+  },
+
+  "historical_evidence_immutability_confirmation": {
+    "statement": "The prior Condition-1 evaluation recorded as STOPPED / UNRESOLVED (and every other historical evidence artifact -- feature-engine-mutation-step9-formal-evidence-001/-002/-003/-003-correction-001/-004/-005/-005-correction-001.json, feature-engine-condition1-unstable-timeout-investigation-001.json, feature-engine-condition2-remaining-ambiguity-historical-reconstruction-001.json, and all other prior formal evidence artifacts) remains immutable historical evidence, byte-unchanged by this transaction. This artifact is purely additive -- it creates one new file and does not modify, rewrite, delete, or reinterpret any prior evidence artifact's own recorded content.",
+    "verified_byte_unchanged_this_transaction": [
+      "feature-engine-mutation-step9-formal-evidence-005.json",
+      "feature-engine-mutation-step9-formal-evidence-005-correction-001.json"
+    ]
+  },
+
+  "condition_2_state_preserved": {
+    "result": "167/170 resolved (unchanged, not reopened, not recomputed by this transaction)",
+    "note": "See docs/project/milestone.md for the current authoritative Condition-2 figure and its own governance history (Candidate-004 approval, historical-baseline-ambiguity-reconstruction). This artifact does not touch Condition 2."
+  },
+
+  "condition_3_state_preserved": {
+    "result": "SATISFIED -- REVIEW A VALIDATED (unchanged, not reopened by this transaction)"
+  },
+
+  "evid_03_result": {
+    "condition_1": "FAIL -- criteria (this artifact's own result, above)",
+    "condition_2": "FAIL / PARTIALLY SATISFIED -- 167/170 resolved (preserved, unchanged)",
+    "condition_3": "SATISFIED -- REVIEW A VALIDATED (preserved, unchanged)",
+    "overall": "OPEN / FAIL -- both Condition 1 and Condition 2 independently fail; EVID-03 is not, and cannot be, closed by this transaction. A satisfied Condition 3 alone never closes EVID-03."
+  },
+
+  "not_performed_by_this_transaction": [
+    "No mutation execution -- no mutmut invocation, no test run of any kind.",
+    "No source/test/tooling change of any kind.",
+    "No dependency change.",
+    "No resolution, reclassification, or third-run tie-break of any of the 9 UNSTABLE_TIMEOUT_TRIAGE mutants.",
+    "No Condition-2 work -- Candidate-005, the remaining Condition-2 identities, and TOOL_IDENTITY_DRIFT are untouched.",
+    "No Condition-3 reopening.",
+    "No new ADR, no Chapter 13 edit, no Constitution edit.",
+    "No EVID-03 closure.",
+    "No Feature Engine module approval.",
+    "No LIVE authorization.",
+    "No Product Owner decision -- this is a mechanical application of already-approved, already-controlling authority to already-recorded, immutable evidence; no new governance judgment is exercised by this artifact."
+  ]
+}

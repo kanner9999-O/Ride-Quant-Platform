@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.415"
+manifest_version: "10.416"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -28939,6 +28939,58 @@ LIVE:                              NOT_AUTHORIZED.
 **Next governed step:** ChatGPT fresh-verifies this atomic activation; only after that may a separate, bounded application/re-evaluation WP formally apply the now-effective rule to current EVID-03 evidence and record a new controlling Condition-1 verdict.
 
 **Files changed:** `docs/adr/ADR-044.md`, `docs/constitution/13-quality-gates.md`, `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.414"` -> `"10.415"`.
+
+## Feature Condition 1 — first formally governed evaluation under Chapter 13 v1.8 §13.8.1 (`FE-EVID03-COND1-APPLY-001`)
+
+**Governed Quality-Gate evaluation transaction** — a NEW evaluation performed after activation, not a retroactive reinterpretation of the prior `STOPPED / UNRESOLVED` result, which remains immutable historical evidence at its own boundary. Not a mutation rerun, not a source/test/tooling change, not Condition-2/Condition-3 work, not a new ADR or Constitution change, not a Product Owner decision (mechanical application of already-approved authority to already-recorded evidence).
+
+**Fresh boundary verification:** HEAD confirmed exactly `38da0a8b698202f85472d8a7ab397f4f7b640386`, identical to `origin/main` — no drift. `docs/adr/ADR-044.md` confirmed `version: "0.5"`, `status: Approved`; `docs/constitution/13-quality-gates.md` confirmed `version: "1.8"`, `status: Locked`, controlling — before this transaction.
+
+**Source evidence consumed (read-only, byte-unchanged):** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-005.json` (blob `f7a6ab715155ad166808e0e9d9a7474196d9b69d`) and `...-005-correction-001.json` (blob `02a350e88dba0aad2592487454e7a802128bcc84`) — verified byte-identical before and after this transaction.
+
+**Executable-boundary compatibility:** evidence-005.json's own pinned `executable_boundary` (`src_tree` `1029a9f...`, `tests_tree` `e82cb7a...`, `tooling_tree` `508e681...`, `pyproject.toml` blob `6fa4b74...`, `requirements-dev.lock.txt` blob `a1481d6...`) independently re-verified against fresh `git rev-parse HEAD:python/feature-engine/{src,tests,tooling,pyproject.toml,requirements-dev.lock.txt}` at the current boundary — **all 5 byte-identical**. No intervening commit between evidence-005.json's own measurement boundary (`662ed13e...`) and this transaction's boundary touched `python/feature-engine/**` — every intervening commit was governance/documentation-only. Evidence-005.json remains valid, current-boundary measurement; no rerun performed or needed.
+
+**Applicability predicate (Chapter 13 §13.8.1, subsection A) — all 6 conditions independently re-verified `satisfied`:** (1) metric/denominator/threshold pinned to Testing Convention v0.17 item 7 (Approved, blob `de17690...`), matching evidence-005.json's own `raw_mutation_effectiveness_metric.formula` string exactly; (2) all 9 `U` members carry exact `UNSTABLE_TIMEOUT_TRIAGE` `final_disposition`, verified by direct filter over all 88 `timeout_triage.records`; (3) Protocol-provenance structural properties confirmed per-record (fresh workspace regeneration before each of two independent isolated reproductions, individually recorded outcomes, disagreement, explicit "no majority vote, no guess" — the `diagnostic_only_reused_workspace_result` field on each record is explicitly non-credited); (4) `total` (2629) includes all 9, `sum_equals_total: true`, no silent exclusion; (5) `U` disjoint from `confirmed_favorable` (killed/confirmed_timeout counts mutually exclusive from `unstable_timeout_triage`, and evidence-005.json's own note confirms none of the 9 overlap the 69 credited-ledger IDs or the evidence-004.json 474-survivor set); (6) `ten_status_counts_post_triage_formal` shows `no_tests=0`, `not_checked=0`, `skipped=0`, `suspicious=0`, `caught_by_type_check=0`, `segfault=0`, `check_was_interrupted_by_user=0` — no other unresolved/ambiguous/evidence-integrity status exists in the current 2629-mutant population.
+
+**Mixed-population rule — determined NOT triggered.** Condition 2's residual `TOOL_IDENTITY_DRIFT`/ambiguity gap (3/170 unresolved) is a categorically separate EVID-03 criterion — a historical 170-identity semantic-continuity mapping exercise layered on top of an already fully-classified current population — not a status present anywhere in `ten_status_counts_post_triage_formal`. §13.8.1's own exclusion list (`AMBIGUOUS`, `TOOL_IDENTITY_DRIFT`, `not_checked`, ...) and Applicability condition 6 both confirm these categories are explicitly excluded from `U`, and fresh verification confirms none are present in the current raw-run population in the first place. Condition 2 therefore remains independently governed and independently unresolved — not folded into, dispositioned by, or masked by this Condition-1 evaluation.
+
+**Bound arithmetic (Chapter 13 §13.8.1, subsection D) — independently recomputed, matching evidence-005.json exactly:**
+
+```text
+lower_numerator = 2209 (killed) + 5 (confirmed_timeout)      = 2214
+upper_numerator = 2214 + 9 (U)                                = 2223
+lower_score     = 2214 / 2629 x 100                           = 84.21453023963484%
+upper_score     = 2223 / 2629 x 100                           = 84.55686572841384%
+T (required)                                                  = 87.001959503592%
+required_numerator (ceiling)                                  = 2288
+
+upper_score (84.55686572841384%) < T (87.001959503592%)  ->  Case A
+```
+
+**Case A selected — FINAL RESULT: `FAIL — criteria`** (Chapter 13 §13.8.1, subsection E). Even the best-case resolution of all 9 unresolved mutants (crediting every one favorably) cannot meet `T` — the upper bound remains 65 short of the required numerator. Genuine fail-closed criteria-failure, established with certainty despite per-mutant uncertainty.
+
+**Condition 1 state transition:** `STOPPED / UNRESOLVED` -> `FAIL — criteria`, recorded **prospectively** in the new additive evidence artifact `docs/governance/mutation-baseline-evidence/feature-engine-condition1-bounded-reevaluation-001.json`. The prior `STOPPED / UNRESOLVED` evaluation remains immutable historical evidence, correct at its own boundary (Chapter 13 v1.7, without §13.8.1, offered no governed rule to interpret a population containing unresolved `UNSTABLE_TIMEOUT_TRIAGE` classifications). All 9 `U` members remain individually unresolved — none reclassified, no majority vote/third-run/retry-until-green performed. No mutation execution performed by this transaction.
+
+**State summary (Condition 2/3 preserved, EVID-03 remains OPEN):**
+
+```text
+Condition 1 (raw mutation score):  FAIL -- criteria (NEW, this transaction --
+                                    Chapter 13 v1.8 Section 13.8.1, Case A).
+Condition 2 (identity resolution): 167/170 (unchanged, not touched).
+Condition 3 (formal evidence):     SATISFIED -- REVIEW A VALIDATED
+                                    (unchanged, not reopened).
+P3-FEATURE-QG-EVID-03:             OPEN -- Condition 1 now fails on
+                                    criteria and Condition 2 independently
+                                    fails; EVID-03 is not closed.
+Feature Engine approval:           NOT APPROVED.
+LIVE:                              NOT_AUTHORIZED.
+```
+
+**No scope expansion — explicit verification:** no mutation execution; no source/test/tooling change; no dependency change; no resolution/reclassification/third-run tie-break of any of the 9 `UNSTABLE_TIMEOUT_TRIAGE` mutants; no Condition-2 work (`Candidate-005`, `TOOL_IDENTITY_DRIFT` untouched); no Condition-3 reopening; no new ADR; no Chapter 13 edit; no Constitution edit; no EVID-03 closure; no Feature Engine approval; no LIVE authorization; no Product Owner decision.
+
+**Next governed step:** a separately routed, separately scoped Work Package to address remaining EVID-03 obligations (Condition 2 completion and/or further Feature Engine work) — not initiated by this transaction.
+
+**Files changed:** `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md`, `docs/governance/mutation-baseline-evidence/feature-engine-condition1-bounded-reevaluation-001.json` (new) only — `docs/adr/ADR-044.md` and `docs/constitution/13-quality-gates.md` NOT touched. `manifest_version` `"10.415"` -> `"10.416"`.
 
 ## Decision Log
 

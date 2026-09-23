@@ -2,6 +2,26 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-23 — feature-engine: first formally governed Condition-1 evaluation under Chapter 13 v1.8 §13.8.1 (FE-EVID03-COND1-APPLY-001)
+
+Starting HEAD `38da0a8b698202f85472d8a7ab397f4f7b640386`, verified `main == origin/main`, no drift. ADR-044 confirmed v0.5/Approved, Chapter 13 confirmed v1.8/Locked (controlling), before this transaction.
+
+Applied Chapter 13 §13.8.1 mechanically to the existing, byte-unchanged `feature-engine-mutation-step9-formal-evidence-005.json` / `-005-correction-001.json` measurement -- no mutation execution, no source/test/tooling change. Executable-boundary compatibility confirmed: all 5 pinned tree/blob hashes (src/tests/tooling/pyproject.toml/requirements-dev.lock.txt) byte-identical between evidence-005.json's own boundary and the current boundary -- no rerun needed.
+
+All 6 Applicability-predicate conditions (§13.8.1 subsection A) independently re-verified satisfied: metric/denominator/threshold pinned to Testing Convention v0.17 item 7; all 9 U members carry exact UNSTABLE_TIMEOUT_TRIAGE classification; Protocol-provenance structural properties confirmed per-record (two independent fresh-isolated reproductions, disagreement, no reused-workspace credit, no majority vote/retry); U stays in the denominator; U disjoint from confirmed-favorable; no other unresolved/ambiguous/evidence-integrity status exists in the current 2629-mutant population.
+
+Mixed-population rule analyzed and found NOT triggered: Condition 2's residual TOOL_IDENTITY_DRIFT/ambiguity gap is a separate historical-identity-continuity criterion, not a status present in the current raw-run population -- Condition 2 remains independently unresolved, never folded into or masked by this evaluation.
+
+Bound arithmetic independently recomputed, matching evidence-005.json exactly: lower_numerator=2214 (84.21453023963484%), upper_numerator=2223 (84.55686572841384%), both < T (87.001959503592%) -> Case A -> FINAL RESULT: FAIL -- criteria.
+
+Condition 1: STOPPED/UNRESOLVED -> FAIL -- criteria, recorded prospectively in a new additive evidence artifact, `docs/governance/mutation-baseline-evidence/feature-engine-condition1-bounded-reevaluation-001.json`. The prior STOPPED/UNRESOLVED evaluation remains immutable historical evidence, correct at its own boundary (Chapter 13 v1.7, without §13.8.1, offered no governed rule for unresolved timeout-triage mutants). All 9 UNSTABLE_TIMEOUT_TRIAGE mutants remain individually unresolved -- none reclassified.
+
+Condition 2 (167/170) and Condition 3 (SATISFIED -- REVIEW A VALIDATED) unchanged. P3-FEATURE-QG-EVID-03 remains OPEN -- Condition 1 now fails on criteria and Condition 2 independently fails; EVID-03 is not closed. Feature Engine remains NOT APPROVED; LIVE remains NOT_AUTHORIZED. No Condition-2/Candidate-005 work, no TOOL_IDENTITY_DRIFT resolution, no Condition-3 reopening, no new ADR, no Constitution change, no Product Owner decision. Milestone tracking updated in the same transaction.
+
+**Files changed:** `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md`, `docs/governance/mutation-baseline-evidence/feature-engine-condition1-bounded-reevaluation-001.json` (new) only -- ADR-044.md and Chapter 13 NOT touched. `manifest_version` `"10.415"` -> `"10.416"`.
+
+---
+
 ## [Unreleased] — 2026-09-23 — governance: ADR-044 v0.5 Approved + Chapter 13 v1.8 Locked — ATOMIC ACTIVATION (FE-EVID03-COND1-PROTOCOL-ACTIVATION-001)
 
 Starting reviewed semantic boundary `704e492f83af1d463117f002c9f319ebcadd8099`, verified `main == origin/main`, no drift. ADR-044 confirmed v0.5/Draft, Chapter 13 confirmed v1.8/Draft, MANIFEST confirmed still pinning v1.7 as controlling, before this transaction.
