@@ -2,6 +2,26 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-24 — feature-engine: Condition-1 material-set Delegated Technical Resolution — 18/42 reclassified, 24/42 still require resolution
+
+Starting HEAD `f103aabb1ea3b725642841c204b79a66353e42ee`, verified `main == origin/main`, no drift. Reviewed root-cause audit artifact blob `aaece3895c3c66e05aba3a421f7b045db94e8bbb` fresh-verified exact match.
+
+Recorded the already-issued Delegated Technical Resolution `FE-EVID03-COND1-MATERIAL-SET-DTR-001` — `DELEGATED TECHNICAL RESOLUTION — CLEAN`. Review A: ChatGPT (AI Technical Architect), distinct from the audit's author/executor (Claude) — D8 `PASS`. Verdict: **CLEAN — 0 Blocker / 0 Major / 1 Minor**, Risk `R1`, ADR Scope `ADR_NOT_REQUIRED`. D1-D12 all `PASS`.
+
+Review-A Minor (non-semantic wording issue, corrected in this recording artifact only — the audit artifact remains immutable, NOT rewritten): the audit's attribution of deferral to "ADR-045/D8/D10(a)" is clarified — D10(a) reserves only the numeric threshold selection decision to the Product Owner, not individually-pinned semantic reclassification already permitted by the currently-approved Condition-1B mechanism.
+
+Governed disposition: the audit's 18 non-material/disputed identities are RECLASSIFIED via the individually-governed exact-ID reclassification path — 9 `LOW_MATERIALITY_MESSAGE_TEXT`, 6 `STRUCTURALLY_UNREACHABLE`, 1 `LOW_MATERIALITY_IMPLEMENTATION_DETAIL`, 2 `NON_MATERIAL_TRANSIENT_IN_FLIGHT_STATE` (`acquire_and_activate__mutmut_21`/`_23` — Review A confirms `AuthoritativeSubjectOwner` establishes no concurrent-observation contract for an in-flight owner, and neither mutated intermediate field affects the eventual ACTIVE/REVOKED handle or any authoritative outcome). Final materiality: `GENUINE_TEST_GAP: 24`, `NON_MATERIAL: 18`, `UNCLEAR: 0`.
+
+Condition 1B accounting: `18/42 RESOLVED_BY_DELEGATED_TECHNICAL_RECLASSIFICATION`, `24/42 still require resolution` (11 with Wave-5 targeted-kill implementation evidence, formal credit NOT claimed; 13 unremediated). Candidate recalibration math unchanged from the audit (`M=24` → `85.12742487637885%`), still NOT activated — the active Condition 1A threshold (`85.812095853937%`) and the unmodified 42-ID artifact remain fully controlling.
+
+No threshold change. No formal kill credit granted. No `TOOL_IDENTITY_DRIFT` resolution. No Feature Engine approval. No `LIVE` authorization. Root-cause audit artifact, activated 42-ID artifact, recalibration proposal, and Wave-5 evidence all fresh-verified byte-unchanged. Wave 6 remains PAUSED pending a next, separately-scoped technical WP.
+
+New recording artifact: `docs/governance/mutation-baseline-evidence/feature-engine-condition1-material-gap-dtr-001.json`. ADR Scope: `ADR_NOT_REQUIRED`. Risk: `R1`. `manifest_version` `"10.428"` -> `"10.429"`.
+
+**Files changed (6):** `docs/governance/mutation-baseline-evidence/feature-engine-condition1-material-gap-dtr-001.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md`.
+
+---
+
 ## [Unreleased] — 2026-09-23 — feature-engine: Condition-1 material-gap root-cause audit — 24/42 confirmed material, 2/42 disputed, evidence only
 
 Starting HEAD `908ef6dd0b3f3c0f43fc5ed0520f1832fa9edee3`, verified `main == origin/main`, no drift. Governing authority fresh-verified exact: activated recalibration proposal blob `12040044578d57d15e699a327a5a8ae39c1e9ea3` (unchanged), 42-ID artifact blob `49c30b439eb84db95c55dc4a86de22e2b491dbb5` (unchanged), sorted-set sha256 `932698b4b312c1a8f70c261426555a5c6f3566579ed0a27102d4a0f0214adedc`, Wave-5 evidence blob `6fd2f3a9aebe7df8035c0b64dac46de3fa707a26` (unchanged).

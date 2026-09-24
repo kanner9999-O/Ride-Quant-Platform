@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.428"
+manifest_version: "10.429"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -29745,6 +29745,28 @@ LIVE:                               NOT_AUTHORIZED.
 **ADR Scope / Risk:** `ADR_NOT_REQUIRED` (governance evidence/audit-only transaction, no Platform Invariant/Event Schema/Module Taxonomy/Governance-process/Locked-ADR trigger, freshly re-run, not assumed). Risk: `R1`.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-condition1-material-gap-root-cause-audit-001.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — exactly 6 files. No `src/`, `tooling/`, test, dependency, Constitution, ADR, Testing Convention, threshold-artifact, or 42-ID-artifact file touched. `manifest_version` `"10.427"` -> `"10.428"`.
+
+## Feature Condition-1 material-set Delegated Technical Resolution (`feature-engine-condition1-material-gap-dtr-001.json`) — 18/42 reclassified, 24/42 still require resolution
+
+**Fresh boundary verification:** starting HEAD `f103aabb1ea3b725642841c204b79a66353e42ee` fresh-verified equal to `origin/main`, no drift. Reviewed root-cause audit artifact blob `aaece3895c3c66e05aba3a421f7b045db94e8bbb` fresh-verified exact match.
+
+**Resolution:** `FE-EVID03-COND1-MATERIAL-SET-DTR-001` — `DELEGATED TECHNICAL RESOLUTION — CLEAN`. Review A: ChatGPT (AI Technical Architect), distinct from the audit's author/executor (Claude) — D8 `PASS`. Verdict: **CLEAN — 0 Blocker / 0 Major / 1 Minor**, Risk `R1`, ADR Scope `ADR_NOT_REQUIRED`. D1-D12 all `PASS` — notably D10: no governing authority reserves individually-pinned semantic reclassification to the Product Owner; only the numeric threshold selection is D10(a)-reserved.
+
+**Review-A Minor (non-semantic, corrected here only — the audit artifact remains immutable, NOT rewritten):** the audit's loose attribution of deferral to "ADR-045/D8/D10(a)" is clarified — D8 is the satisfied distinct-principal requirement; D10(a) reserves only the numeric threshold decision, never individually-governed exact-ID semantic reclassification already permitted by the current Condition-1B mechanism.
+
+**Governed disposition — 18 identities RECLASSIFIED:** 9 `LOW_MATERIALITY_MESSAGE_TEXT` (Cluster A `type(X)`→`type(None)`), 6 `STRUCTURALLY_UNREACHABLE` (contract-id binding precheck, `_finalize_prepared_batch` zip-strict trio, and — newly confirmed by Review A — the 2 deep swing-ordering tie-break positions), 1 `LOW_MATERIALITY_IMPLEMENTATION_DETAIL` (`identity.x_deterministic_id__mutmut_3`), 2 `NON_MATERIAL_TRANSIENT_IN_FLIGHT_STATE` (`ownership.xǁAuthoritativeSubjectOwnerǁacquire_and_activate__mutmut_21`/`_23` — Review A confirms `AuthoritativeSubjectOwner` establishes no concurrent-observation contract for an in-flight owner, and neither mutated intermediate `OwnerHandle` field affects the eventual ACTIVE/REVOKED handle or any authoritative outcome; the audit's provisional `UNCLEAR` status is now resolved). **Final materiality: `GENUINE_TEST_GAP: 24`, `NON_MATERIAL: 18`, `UNCLEAR: 0`.**
+
+**Condition 1B accounting:** the active mechanism (all 42 exact identities individually resolved) now stands at **`18/42 RESOLVED_BY_DELEGATED_TECHNICAL_RECLASSIFICATION`**, **`24/42 still require resolution`** (of which 11 already carry Wave-5 targeted-kill implementation evidence — formal gate credit explicitly NOT claimed in this transaction — and 13 remain unremediated/untested).
+
+**Candidate recalibration math (informational only, unchanged from the audit, NOT activated):** `M=24` → `(2214+24)/2629*100 = 85.12742487637885%`. The active Condition 1A threshold (`85.812095853937%`) and the unmodified 42-ID artifact (blob `49c30b439eb84db95c55dc4a86de22e2b491dbb5`) remain fully controlling.
+
+**Artifacts unchanged — explicit verification:** the root-cause audit artifact (blob `aaece3895c3c66e05aba3a421f7b045db94e8bbb`), the activated 42-ID artifact, the recalibration proposal (blob `12040044578d57d15e699a327a5a8ae39c1e9ea3`), and the Wave-5 evidence artifact are all fresh-verified byte-unchanged by this transaction. No threshold change. No formal kill credit granted. No `TOOL_IDENTITY_DRIFT` resolution. No Feature Engine approval. No `LIVE` authorization.
+
+**Wave 6 remains PAUSED** pending a next, separately-scoped technical WP (13 of its 17 identities pre-confirmed `GENUINE_TEST_GAP`).
+
+**ADR Scope / Risk:** `ADR_NOT_REQUIRED` (governance DTR-recording transaction, no Platform Invariant/Event Schema/Module Taxonomy/Governance-process/Locked-ADR trigger). Risk: `R1`.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-condition1-material-gap-dtr-001.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — exactly 6 files. No `src/`, `tooling/`, test, dependency, Constitution, ADR, Testing Convention, root-cause-audit-artifact, threshold-artifact, or 42-ID-artifact file touched. `manifest_version` `"10.428"` -> `"10.429"`.
 
 ## Decision Log
 

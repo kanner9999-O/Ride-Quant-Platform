@@ -6,8 +6,8 @@ status: Active
 owner: Product Owner
 maintainer: "WP executors under Lean Ride Operating Model v1.1"
 visual_companion: docs/project/milestone-dashboard.html
-state_verified_against_head: 908ef6dd0b3f3c0f43fc5ed0520f1832fa9edee3
-state_verified_against_at: "2026-09-23"
+state_verified_against_head: f103aabb1ea3b725642841c204b79a66353e42ee
+state_verified_against_at: "2026-09-24"
 ---
 
 # Ride Quant Platform — Milestone Register
@@ -110,7 +110,7 @@ See §4 for full detail.
 | Condition 1 | `FAIL — criteria` — **PRIMARY BLOCKER**, now gated by the ACTIVATED recalibrated threshold: Condition 1A (raw score ≥ `85.812095853937%`, currently `84.21%–84.56%`, FAIL) AND Condition 1B (42 pinned current-material identities individually resolved, FAIL) |
 | Condition 1 — unstable cases | 9 `UNSTABLE_TIMEOUT_TRIAGE` mutants (remain individually unresolved) |
 | Condition 1 — current survivor count | 406 |
-| Condition 1 — current-material companion gate | 42/42 unresolved — `docs/governance/mutation-baseline-evidence/feature-engine-condition1-current-material-gap-set-001.json` |
+| Condition 1 — current-material companion gate | 24/42 still require resolution (18/42 RESOLVED_BY_DELEGATED_TECHNICAL_RECLASSIFICATION, `FE-EVID03-COND1-MATERIAL-SET-DTR-001`) — `docs/governance/mutation-baseline-evidence/feature-engine-condition1-current-material-gap-set-001.json` (unchanged; delegated-reclassification recorded separately in `feature-engine-condition1-material-gap-dtr-001.json`) |
 | Condition 2 | `169/170` — also independently blocking (1 `TOOL_IDENTITY_DRIFT` row unresolved) |
 | Condition 3 | `SATISFIED — REVIEW A VALIDATED` (**DONE — not reopened by this WP**) |
 | `P3-FEATURE-QG-EVID-03` | `OPEN` |
@@ -621,7 +621,7 @@ credit — neither initiated here.
 
 | Lane | Item | Status |
 |---|---|---|
-| Primary | *(none currently assigned)* | `FE-EVID03-COND1-WAVE5-001` (Wave-5 test remediation, 25 identities, 12/25 targeted kills verified) and `FE-EVID03-COND1-AUDIT-001` (consolidated 42-ID material-gap root-cause audit) are both COMPLETE. Wave-6 implementation is PAUSED pending a separate, distinct-principal Review A to adjudicate 2 disputed + 1 reclassified identity surfaced by the audit; next primary WP awaits a separate scoping decision. |
+| Primary | *(none currently assigned)* | `FE-EVID03-COND1-WAVE5-001`, `FE-EVID03-COND1-AUDIT-001`, and `FE-EVID03-COND1-MATERIAL-SET-DTR-001` (Delegated Technical Resolution, ChatGPT Review A CLEAN 0/0/1, 18/42 identities reclassified) are all COMPLETE. Wave-6 implementation remains PAUSED pending a next, separately-scoped technical WP (13 of its 17 identities pre-confirmed GENUINE_TEST_GAP); next primary WP awaits a separate scoping decision. |
 | Deferred | `contracts.x__seal_verified_authority__mutmut_33` (TOOL_IDENTITY_DRIFT) | Deferred — no existing governed mechanism |
 | Completed | `RIDE-PROJECT-MILESTONE-DASHBOARD-001` | Tracking infrastructure only |
 | Completed | `FE-EVID03-COND1-STOP-001` | 9/9 mutants `REQUIRES_GOVERNED_PROTOCOL_DECISION`; §13.10 applicability question flagged for ChatGPT review |
@@ -644,6 +644,7 @@ credit — neither initiated here.
 | Completed | `FE-EVID03-COND1-THRESHOLD-RECAL-001-ACTIVATION-001` | `DONE / ACTIVATED` — Final Review A `CLEAN — 0/0/1`, R1, `ADR_OPTIONAL`, no cross-check. Product Owner approved the recalibration at boundary `b16f57e06be265125123cc3c7eb0b2d2bdc75c17`, folding the authorized non-semantic 2-row provenance cleanup (42-ID artifact `6360c8c1...` → `49c30b439e...`, set/count/hash unchanged) into the atomic activation. `feature-engine-mutation-threshold-recalibration-proposal-001.md` `CANDIDATE → APPROVED — EFFECTIVE` (resulting blob `12040044578d...`), now sole current Condition-1 threshold authority: Condition 1A (raw score ≥ `85.812095853937%`) AND Condition 1B (42 current-material identities individually resolved). Old `87.001959503592%` threshold now historical/superseded, byte-unchanged. Condition 2/3 preserved independent. Condition 1 remains `FAIL — criteria` (no fresh measurement performed) |
 | Completed | `FE-EVID03-COND1-WAVE5-001` | Wave-5 test remediation of 25 low-complexity/high-yield Condition-1B identities — 20 new tests across 7 files (`test_identity.py` new), ordinary suite `434/434 passed` (was 414), `ruff`/`mypy` clean. Bounded targeted mutation verification (25 named IDs only): **`12/25` targeted kills verified** (Cluster A `0/9`, B `4/5`, C `3/6`, D `4/4`, E `1/1`). 13 survivors honestly reported: Cluster A (9) message-text-only (`type(X)`→`type(None)`, no crash, corrects a prior inherited assumption); 4 more `STRUCTURALLY_UNREACHABLE` given an earlier unconditional guard already in the same function — none gamed. **Implementation evidence only — formal Condition 1B credit NOT claimed.** New artifact `feature-engine-condition1-wave5-test-remediation-001.json`; exact 17-ID Wave-6 complement persisted. `ADR_NOT_REQUIRED`; Risk `R1`. No `src/`/`tooling/` change; Condition 1 remains `FAIL — criteria` |
 | Completed | `FE-EVID03-COND1-AUDIT-001` | Consolidated root-cause audit of all 42 activated Condition-1B identities, triggered by Wave-5's own 13 honestly-reported false positives. Fresh-re-extracted all 42 diffs (2629/2629 self-verified); independently re-classified every identity from first principles. 17-ID Wave-6 complement analyzed for the first time: 13 `GENUINE_TEST_GAP`, 2 `STRUCTURALLY_UNREACHABLE`, 2 `UNCLEAR/DISPUTED` (`acquire_and_activate__mutmut_21`/`_23` — stricter re-check cannot confirm Task C's MAJOR-02 concurrent-observability argument; deferred to a separate Review A). All 12 Wave-5-killed identities re-audited: 11 confirmed, 1 reclassified (`identity.x_deterministic_id__mutmut_3` tests an implementation detail, not a documented contract). Final: `GENUINE_TEST_GAP 24 / LOW_MATERIALITY_MESSAGE_TEXT 9 / LOW_MATERIALITY_IMPLEMENTATION_DETAIL 1 / STRUCTURALLY_UNREACHABLE 6 / UNCLEAR 2`. Candidate math (informational, same `2214`/`2629` boundary): `M=24` → `85.12742487637885%`; `M=26` (incl. disputed) → `85.20349942944085%` — **neither activated**. Active threshold/42-ID gate remain fully controlling, now noted conservative/over-strict, not permissive. No threshold change, no DTR (deferred to a separate distinct-principal Review A), activated artifacts byte-unchanged. New artifact `feature-engine-condition1-material-gap-root-cause-audit-001.json`. **Wave 6 implementation PAUSED pending material-set audit.** `ADR_NOT_REQUIRED`; Risk `R1`. No `src/`/`test`/`tooling` change; Condition 1 remains `FAIL — criteria` |
+| Completed | `FE-EVID03-COND1-MATERIAL-SET-DTR-001` | Delegated Technical Resolution recording the already-issued ChatGPT Review A adjudication of the root-cause audit's 18 non-material/disputed identities. Verdict: `CLEAN — 0 Blocker / 0 Major / 1 Minor`, Risk `R1`, `ADR_NOT_REQUIRED`; D1-D12 all `PASS`; D8 distinct-principal (ChatGPT vs. audit author/executor Claude) satisfied. Minor (non-semantic, corrected here — audit artifact immutable): D10(a) reserves only the numeric threshold decision, not individually-governed exact-ID reclassification. Governed disposition: 9 `LOW_MATERIALITY_MESSAGE_TEXT`, 6 `STRUCTURALLY_UNREACHABLE`, 1 `LOW_MATERIALITY_IMPLEMENTATION_DETAIL`, 2 `NON_MATERIAL_TRANSIENT_IN_FLIGHT_STATE` (`acquire_and_activate__mutmut_21`/`_23` now confirmed non-material — no concurrent-observation contract, no effect on any authoritative outcome) all `RECLASSIFIED`. Final: `GENUINE_TEST_GAP 24 / NON_MATERIAL 18 / UNCLEAR 0`. Condition 1B accounting: `18/42 RESOLVED_BY_DELEGATED_TECHNICAL_RECLASSIFICATION`, `24/42 still require resolution` (11 with Wave-5 targeted-kill evidence, formal credit NOT claimed; 13 unremediated). Candidate math unchanged (`M=24` → `85.12742487637885%`), still NOT activated. No threshold change; no formal kill credit; root-cause audit artifact, 42-ID artifact, recalibration proposal, and Wave-5 evidence all byte-unchanged. New artifact `feature-engine-condition1-material-gap-dtr-001.json`. Wave 6 remains PAUSED. `ADR_NOT_REQUIRED`; Risk `R1`. No `src/`/`test`/`tooling` change; Condition 1 remains `FAIL — criteria` |
 
 ## 6. PO dashboard snapshot
 
@@ -803,32 +804,71 @@ audit:                     activated Condition-1B identities
                            audit-001.json. WAVE 6 IMPLEMENTATION
                            PAUSED PENDING MATERIAL-SET AUDIT.
                            ADR_NOT_REQUIRED; Risk R1.
+Condition-1 material-set   FE-EVID03-COND1-MATERIAL-SET-DTR-001 --
+DTR:                       DELEGATED TECHNICAL RESOLUTION -- CLEAN.
+                           Review A: ChatGPT (distinct principal from
+                           audit author/executor Claude, D8 PASS).
+                           Verdict: CLEAN -- 0 Blocker / 0 Major / 1
+                           Minor, Risk R1, ADR_NOT_REQUIRED. D1-D12 all
+                           PASS. Minor (non-semantic wording, corrected
+                           here only -- audit artifact immutable, NOT
+                           rewritten): D10(a) reserves only the numeric
+                           threshold decision to PO, not individually-
+                           governed exact-ID semantic reclassification
+                           already permitted by the current Condition-
+                           1B mechanism. Governed disposition: the
+                           audit's 18 non-material/disputed identities
+                           RECLASSIFIED (9 LOW_MATERIALITY_MESSAGE_TEXT,
+                           6 STRUCTURALLY_UNREACHABLE, 1 LOW_MATERIALITY
+                           _IMPLEMENTATION_DETAIL, 2 NON_MATERIAL_
+                           TRANSIENT_IN_FLIGHT_STATE --
+                           acquire_and_activate mutmut_21/_23 now
+                           confirmed non-material: AuthoritativeSubject
+                           Owner establishes no concurrent-observation
+                           contract for an in-flight owner, neither
+                           mutated field affects the eventual ACTIVE/
+                           REVOKED handle or any authoritative outcome).
+                           Final: GENUINE_TEST_GAP 24, NON_MATERIAL 18,
+                           UNCLEAR 0. Condition 1B accounting: 18/42
+                           RESOLVED_BY_DELEGATED_TECHNICAL_
+                           RECLASSIFICATION, 24/42 still require
+                           resolution (11 with Wave-5 targeted-kill
+                           evidence, formal credit NOT claimed; 13
+                           unremediated). Candidate math unchanged
+                           (M=24 -> 85.12742487637885%), still NOT
+                           ACTIVATED -- active threshold/42-ID gate
+                           remain fully controlling. No threshold
+                           change, no formal kill credit, activated
+                           artifacts byte-unchanged. New artifact:
+                           feature-engine-condition1-material-gap-dtr-
+                           001.json. Wave 6 remains PAUSED. ADR_NOT_
+                           REQUIRED; Risk R1.
 PO decision required now: NO
-                           (Wave-5 is COMPLETE. Condition 1 remains
-                           FAIL -- criteria under the activated gate
-                           (1A FAIL: raw score 84.21%-84.56% <
-                           85.812095853937%; 1B FAIL: 42 identities not
-                           all resolved) -- no fresh formal mutation
-                           measurement was performed, and formal
-                           Condition 1B credit is NOT claimed for any
-                           of the 12 targeted-killed identities.
-                           Condition 2 (169/170) and Condition 3
-                           (SATISFIED) preserved as independent
-                           requirements, not merged with Condition 1B.
-                           EVID-03 remains OPEN; Feature Engine remains
-                           NOT APPROVED; Phase-3 module approval remains
-                           NOT GRANTED; LIVE remains NOT_AUTHORIZED.
-                           Next governed decision point: (1) a
-                           separate, distinct-principal Review A to
-                           adjudicate the 2 disputed identities and the
-                           1 reclassified identity surfaced by this
-                           audit; (2) a subsequent, bounded Work
-                           Package for Wave-6 implementation (now
-                           PAUSED pending this audit, 13 of its 17
-                           identities confirmed GENUINE_TEST_GAP); and
-                           (3), independently, a future formal
+                           (Wave-5, the material-gap audit, and the
+                           audit's DTR are all COMPLETE. Condition 1
+                           remains FAIL -- criteria under the activated
+                           gate (1A FAIL: raw score 84.21%-84.56% <
+                           85.812095853937%; 1B FAIL: 24/42 identities
+                           still require resolution after 18/42
+                           delegated-reclassification) -- no fresh
+                           formal mutation measurement was performed,
+                           and formal Condition 1B credit is NOT
+                           claimed for any of the 11 targeted-killed
+                           material identities. Condition 2 (169/170)
+                           and Condition 3 (SATISFIED) preserved as
+                           independent requirements, not merged with
+                           Condition 1B. EVID-03 remains OPEN; Feature
+                           Engine remains NOT APPROVED; Phase-3 module
+                           approval remains NOT GRANTED; LIVE remains
+                           NOT_AUTHORIZED. Next governed decision point:
+                           (1) a subsequent, bounded Work Package for
+                           Wave-6 implementation (now PAUSED, 13 of its
+                           17 identities confirmed GENUINE_TEST_GAP);
+                           and (2), independently, a future formal
                            measurement transaction to determine actual
-                           Condition-1B credit -- none initiated here.)
+                           Condition-1B credit for the 24 remaining
+                           material identities -- neither initiated
+                           here.)
 ```
 
 ## 7. Update rules

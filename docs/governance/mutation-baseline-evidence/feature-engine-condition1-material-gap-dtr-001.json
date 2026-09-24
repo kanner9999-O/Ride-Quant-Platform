@@ -1,0 +1,228 @@
+{
+ "artifact_id": "feature-engine-condition1-material-gap-dtr-001",
+ "schema_note": "Delegated Technical Resolution recording artifact for the Condition-1 material-gap root-cause audit. Records the already-issued DTR (ChatGPT Review A, distinct-principal from the audit's author/executor, Claude) that adjudicated the audit's 18 non-material/ disputed identities and confirmed them RECLASSIFIED under the currently-approved Condition-1B mechanism's individually-governed exact-ID semantic-reclassification path. This artifact does NOT modify the root-cause audit artifact, the activated 42-ID artifact, the recalibration proposal, or the Wave-5 evidence artifact — all four remain byte-unchanged and are pinned below.",
+ "resolution_id": "FE-EVID03-COND1-MATERIAL-SET-DTR-001",
+ "resolution": "DELEGATED TECHNICAL RESOLUTION — CLEAN",
+ "review_boundary": {
+  "starting_head": "f103aabb1ea3b725642841c204b79a66353e42ee",
+  "fresh_verified": "main == origin/main == f103aabb1ea3b725642841c204b79a66353e42ee, no drift"
+ },
+ "review_a": {
+  "principal": "ChatGPT",
+  "role": "AI Technical Architect",
+  "boundary": "f103aabb1ea3b725642841c204b79a66353e42ee",
+  "reviewed_artifact": {
+   "path": "docs/governance/mutation-baseline-evidence/feature-engine-condition1-material-gap-root-cause-audit-001.json",
+   "blob": "aaece3895c3c66e05aba3a421f7b045db94e8bbb"
+  },
+  "verdict": "CLEAN — 0 Blocker / 0 Major / 1 Minor",
+  "risk": "R1",
+  "adr_scope": "ADR_NOT_REQUIRED"
+ },
+ "distinct_principal": {
+  "audit_author_executor": "Claude",
+  "review_a_principal": "ChatGPT",
+  "d8": "PASS"
+ },
+ "review_a_minor_finding": {
+  "finding": "The audit loosely attributes the deferral of all governed reclassification to ADR-045/D8/D10(a) without distinguishing the two clauses' actual scope.",
+  "correct_interpretation": {
+   "D8": "required distinct principal — satisfied by ChatGPT reviewing Claude's audit.",
+   "D10(a)": "reserves the NUMERIC THRESHOLD SELECTION decision to Product Owner. D10(a) does NOT reserve individually-pinned semantic reclassification decisions already allowed by the currently-approved Condition-1B mechanism."
+  },
+  "disposition": "Non-semantic wording issue, corrected in this DTR recording artifact/tracking only. The immutable root-cause audit artifact is NOT rewritten."
+ },
+ "d1_d12": {
+  "D1": "PASS — ADR_NOT_REQUIRED.",
+  "D2": "PASS — R1.",
+  "D3": "PASS — active Condition-1B authority already permits individually governed exact-ID semantic reclassification.",
+  "D4": "PASS — bounded exact 18-ID disposition.",
+  "D5": "PASS — no new architecture/governance/contract semantics.",
+  "D6": "PASS — no product scope/priority/value decision.",
+  "D7": "PASS — no Product Owner risk acceptance.",
+  "D8": "PASS — ChatGPT distinct from audit author/executor Claude.",
+  "D9": "PASS — audit/source/ADR-043/ADR-045/current gate fresh-verified.",
+  "D10": "PASS — no governing authority reserves per-ID reclassification to PO; no PO call-in. Numeric threshold change remains separately PO-only.",
+  "D11": "PASS — classifications are exact-diff/control-flow/contract based and independently reproducible.",
+  "D12": "PASS — exact 18/24 partition is unambiguous after Review A."
+ },
+ "final_review_a_materiality_disposition": {
+  "GENUINE_TEST_GAP": 24,
+  "NON_MATERIAL": 18,
+  "UNCLEAR": 0
+ },
+ "reclassified_18_by_category": {
+  "LOW_MATERIALITY_MESSAGE_TEXT": [
+   "feature_engine.contracts.x__seal_verified_authority__mutmut_35",
+   "feature_engine.regime_passthrough.xǁRegimePassthroughFeatureEngineǁ__init____mutmut_21",
+   "feature_engine.regime_passthrough.xǁRegimePassthroughFeatureEngineǁ__init____mutmut_31",
+   "feature_engine.regime_passthrough.xǁRegimePassthroughFeatureEngineǁprepare_upstream_event__mutmut_18",
+   "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ__init____mutmut_40",
+   "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ__init____mutmut_50",
+   "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁprepare_upstream_event__mutmut_6",
+   "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁprepare_upstream_event__mutmut_18",
+   "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁprepare_upstream_event__mutmut_28"
+  ],
+  "STRUCTURALLY_UNREACHABLE": [
+   "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_23",
+   "feature_engine.contracts.x__finalize_prepared_batch__mutmut_8",
+   "feature_engine.contracts.x__finalize_prepared_batch__mutmut_11",
+   "feature_engine.contracts.x__finalize_prepared_batch__mutmut_12",
+   "feature_engine.swing_distance.x__total_order_key__mutmut_3",
+   "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_select_eligible_swing__mutmut_18"
+  ],
+  "LOW_MATERIALITY_IMPLEMENTATION_DETAIL": [
+   "feature_engine.identity.x_deterministic_id__mutmut_3"
+  ],
+  "NON_MATERIAL_TRANSIENT_IN_FLIGHT_STATE": [
+   "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁacquire_and_activate__mutmut_21",
+   "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁacquire_and_activate__mutmut_23"
+  ]
+ },
+ "reclassified_18_sorted": [
+  "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_23",
+  "feature_engine.contracts.x__finalize_prepared_batch__mutmut_11",
+  "feature_engine.contracts.x__finalize_prepared_batch__mutmut_12",
+  "feature_engine.contracts.x__finalize_prepared_batch__mutmut_8",
+  "feature_engine.contracts.x__seal_verified_authority__mutmut_35",
+  "feature_engine.identity.x_deterministic_id__mutmut_3",
+  "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁacquire_and_activate__mutmut_21",
+  "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁacquire_and_activate__mutmut_23",
+  "feature_engine.regime_passthrough.xǁRegimePassthroughFeatureEngineǁ__init____mutmut_21",
+  "feature_engine.regime_passthrough.xǁRegimePassthroughFeatureEngineǁ__init____mutmut_31",
+  "feature_engine.regime_passthrough.xǁRegimePassthroughFeatureEngineǁprepare_upstream_event__mutmut_18",
+  "feature_engine.swing_distance.x__total_order_key__mutmut_3",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ__init____mutmut_40",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ__init____mutmut_50",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_select_eligible_swing__mutmut_18",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁprepare_upstream_event__mutmut_18",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁprepare_upstream_event__mutmut_28",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁprepare_upstream_event__mutmut_6"
+ ],
+ "remaining_material_24_sorted": [
+  "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_18",
+  "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_33",
+  "feature_engine.authority_resolver.x__extract_scalar__mutmut_5",
+  "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_100",
+  "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_101",
+  "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_30",
+  "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_40",
+  "feature_engine.contracts.x__finalize_prepared_batch__mutmut_3",
+  "feature_engine.contracts.x__finalize_prepared_batch__mutmut_4",
+  "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_1",
+  "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_4",
+  "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_7",
+  "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_8",
+  "feature_engine.output_contract_resolver.x__extract_scalar__mutmut_5",
+  "feature_engine.ownership.x__tie_break_key__mutmut_9",
+  "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_catch_up__mutmut_18",
+  "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_catch_up__mutmut_7",
+  "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁprocess_certified_frontier__mutmut_10",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_original__mutmut_13",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_preempt_settled_window__mutmut_20",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_recompute__mutmut_23",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_reevaluate_all_windows__mutmut_6",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_replacement_only__mutmut_14",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_select_eligible_swing__mutmut_22"
+ ],
+ "remaining_material_24_sha256": {
+  "method": "sha256 of the 24 confirmed-material IDs, newline-joined, lexicographically sorted",
+  "sha256": "6c8181f7665a63494632ef89514ea7efdf9948c544c9a9a8094e87c17c3d2543"
+ },
+ "partition_verification": {
+  "reclassified_count": 18,
+  "material_count": 24,
+  "sum": 42,
+  "overlap": 0,
+  "duplicates_in_reclassified_18": false,
+  "duplicates_in_material_24": false,
+  "matches_full_42_id_artifact": true
+ },
+ "condition_1b_accounting": {
+  "mechanism": "all 42 exact identities individually resolved",
+  "resolved_by_delegated_technical_reclassification": 18,
+  "still_require_resolution": 24,
+  "of_the_24_remaining_material": {
+   "wave5_targeted_kill_implementation_evidence_exists_no_formal_credit_claimed": 11,
+   "not_yet_remediated_or_tested": 13,
+   "wave5_killed_with_evidence_ids": [
+    "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_18",
+    "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_33",
+    "feature_engine.authority_resolver.x__extract_scalar__mutmut_5",
+    "feature_engine.output_contract_resolver.x__extract_scalar__mutmut_5",
+    "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_30",
+    "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_40",
+    "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_100",
+    "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_101",
+    "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_4",
+    "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_7",
+    "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_8"
+   ],
+   "not_yet_remediated_13_ids": [
+    "feature_engine.contracts.x__finalize_prepared_batch__mutmut_3",
+    "feature_engine.contracts.x__finalize_prepared_batch__mutmut_4",
+    "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_1",
+    "feature_engine.ownership.x__tie_break_key__mutmut_9",
+    "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_catch_up__mutmut_18",
+    "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_catch_up__mutmut_7",
+    "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁprocess_certified_frontier__mutmut_10",
+    "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_original__mutmut_13",
+    "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_preempt_settled_window__mutmut_20",
+    "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_recompute__mutmut_23",
+    "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_reevaluate_all_windows__mutmut_6",
+    "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_replacement_only__mutmut_14",
+    "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_select_eligible_swing__mutmut_22"
+   ]
+  },
+  "formal_gate_credit_status": "NOT CLAIMED for any of the 11 Wave-5 targeted kills in this transaction — awaits a future, separately-governed formal mutation measurement."
+ },
+ "candidate_numeric_recalibration_math": {
+  "status": "EVIDENCE ONLY — NOT ACTIVATED. For the future Product-Owner-reserved threshold decision.",
+  "M": 24,
+  "base_numerator": 2214,
+  "total": 2629,
+  "candidate_numerator": 2238,
+  "candidate_percentage": 85.12742487637885
+ },
+ "active_threshold_state": {
+  "condition_1a": "85.812095853937% — UNCHANGED, still controlling",
+  "condition_1b_artifact": {
+   "path": "docs/governance/mutation-baseline-evidence/feature-engine-condition1-current-material-gap-set-001.json",
+   "blob": "49c30b439eb84db95c55dc4a86de22e2b491dbb5",
+   "status": "UNCHANGED by this transaction"
+  },
+  "recalibration_proposal": {
+   "path": "docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-recalibration-proposal-001.md",
+   "blob": "12040044578d57d15e699a327a5a8ae39c1e9ea3",
+   "status": "APPROVED — EFFECTIVE, UNCHANGED by this transaction"
+  },
+  "root_cause_audit_artifact": {
+   "path": "docs/governance/mutation-baseline-evidence/feature-engine-condition1-material-gap-root-cause-audit-001.json",
+   "blob": "aaece3895c3c66e05aba3a421f7b045db94e8bbb",
+   "status": "IMMUTABLE, UNCHANGED by this transaction (Review-A Minor wording issue corrected here, not in the audit)"
+  },
+  "wave5_evidence": {
+   "path": "docs/governance/mutation-baseline-evidence/feature-engine-condition1-wave5-test-remediation-001.json",
+   "blob": "6fd2f3a9aebe7df8035c0b64dac46de3fa707a26",
+   "status": "UNCHANGED by this transaction"
+  }
+ },
+ "current_project_state": {
+  "condition_1": "FAIL — criteria",
+  "condition_2": "169/170",
+  "condition_3": "SATISFIED — REVIEW A VALIDATED",
+  "p3_feature_qg_evid_03": "OPEN",
+  "feature_engine": "NOT APPROVED",
+  "live": "NOT_AUTHORIZED",
+  "wave_6": "PAUSED — awaits a next, separately-scoped technical WP (13 of its 17 identities pre-confirmed GENUINE_TEST_GAP by the audit)"
+ },
+ "not_performed_by_this_transaction": [
+  "No numeric threshold change.",
+  "No Wave 6 implementation.",
+  "No formal kill credit granted for any identity.",
+  "No TOOL_IDENTITY_DRIFT resolution.",
+  "No Feature Engine approval.",
+  "No LIVE authorization.",
+  "No modification to the root-cause audit artifact, the activated 42-ID artifact, the recalibration proposal, the Wave-5 evidence artifact, source, tests, tooling, ADRs, the Constitution, the Testing Convention, or Condition-2 evidence."
+ ]
+}
