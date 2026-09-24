@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.437"
+manifest_version: "10.438"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -30111,6 +30111,28 @@ LIVE:                        NOT_AUTHORIZED
 **Resulting project state:** Condition 1 `PASS — REVIEW A VALIDATED` (unaffected). Condition 2 `169/170 — BLOCKING`, unchanged (candidate mechanism `AUTHORED — NOT EFFECTIVE / AWAITING REVIEW A`, no credit granted). Condition 3 `SATISFIED — REVIEW A VALIDATED` (unaffected). `P3-FEATURE-QG-EVID-03` remains `OPEN`. Feature Engine remains `NOT APPROVED`. `LIVE` remains `NOT_AUTHORIZED`. Primary lane becomes: a distinct-principal ChatGPT Review A of the tool-identity-continuity candidate. No further Condition-1 work; no Condition-2 credit; no Condition-3 work performed.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-condition2-tool-identity-continuity-proposal-001.md` (new), `docs/governance/mutation-baseline-evidence/feature-engine-condition2-tool-identity-continuity-technical-evidence-001.json` (new), `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — exactly 6 files. No `src/`, `tests/`, `tooling/`, dependency, Evidence-005, Evidence-006, proposal-001/002/003, set-002/set-003, Testing Convention, ADR, Constitution, or Condition-2 evidence file touched. No Condition-1/3 work. No Condition-2 credit granted. `manifest_version` `"10.436"` -> `"10.437"`.
+
+## Feature Engine Condition-2 tool-identity-continuity candidate — bounded correction (`FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001-CORR-001`), remediating Review A round-1 `MAJOR-01` — CANDIDATE — NOT EFFECTIVE / AWAITING REVIEW A, NO CREDIT GRANTED
+
+**Boundary:** starting `main == origin/main == 5b91253e7b4f42e05353ac61938a73483552aeee`, fresh-verified, working tree clean, no drift. Reviewed proposal blob `14f83e9c0edfdff503df867222d68f19d31b540e`; reviewed technical-evidence blob `a4f5ceb646e39a931a532af5fd324775a38c3bc5`, fresh-verified byte-unchanged throughout this transaction.
+
+**Review A (round 1):** Principal ChatGPT, AI Technical Architect. Verdict `REVISION_REQUIRED — 0 Blocker / 1 Major / 0 Minor`, Risk `R2`, ADR Scope `ADR_OPTIONAL, conditional on correcting the Major`. Technical findings C1–C12 and the historical-33 → current-36 reconstruction were NOT challenged.
+
+**`MAJOR-01` — approval-routing contradiction:** the reviewed candidate's §10.1 correctly argued that branch (c) reuses the existing reviewed/recorded-decision process and introduces no new Governance/Approval workflow, but §11 then stated `DTR is NOT ELIGIBLE for this candidate's own activation decision, nor for any future per-identity credit decision made under it`, hard-coding Product Owner approval for every future per-identity application — a new mandatory routing rule that directly contradicted §10.1's own `Governance/Approval-process change = No` finding.
+
+**Correction applied:** §5 (`C10`) and §11 now distinguish two decisions. **Mechanism activation** (a one-time decision to activate branch (c) as a general mechanism) remains Product-Owner-reserved — ADR-045's own R2/`D10(a)` rule, `R2` never delegated, applies because activation itself establishes new R2 evidence-policy semantics. **Per-identity application** (crediting one specific historical identity under an already-effective mechanism) now routes through the existing, unmodified ADR-045 model: Review A → Risk Classification (fresh, for that specific application) → `R0`/`R1` with `D1`–`D12` all `PASS` → Delegated Technical Resolution eligible; `R2`, or `ADR_REQUIRED` for that application, or a governing artifact reserving the decision, or an explicit Product Owner call-in → Product Owner Decision. No branch-(c)-specific carve-out is created. `C10`'s semantic safeguard is unchanged: credit remains per-historical-identity-only, individually reviewed and recorded, never a blanket mapping, never heuristic/bulk credit, never self-granted.
+
+**ADR Scope re-confirmed fresh (not inherited):** §10.1's Governance/Approval-process row and §10.2's classification were re-examined against the corrected text. Removing the undeclared routing rule strengthens, not weakens, the finding — application routing now provably reuses ADR-045's own R0/R1/R2 + D1–D12 model verbatim. Result: `ADR_SCOPE_DISPOSITION: ADR_OPTIONAL`, re-confirmed. No ADR authored. Risk `R2` unchanged for mechanism activation (per `P3-REVIEW-001`, new architecture/authority/contract semantics).
+
+**Technical reconstruction/evidence NOT altered:** `feature-engine-condition2-tool-identity-continuity-technical-evidence-001.json` fresh-verified byte-unchanged (blob `a4f5ceb646e39a931a532af5fd324775a38c3bc5`). C1–C9/C11/C12, the historical-33 → current-36 unique mapping, the current-mutmut_33 collision, mutmut `3.7.0` provenance, and both isolated `killed`+`killed` verification runs are not re-litigated or re-run.
+
+**Resulting proposal state:** `feature-engine-condition2-tool-identity-continuity-proposal-001.md` resulting blob `799d7f805387f09c846eebfbe87298fded338f75`, status remains `CANDIDATE — NOT EFFECTIVE / AWAITING REVIEW A` (this correction is not self-approved; a bounded Review A re-review of specifically this correction is the next governed action).
+
+**No Condition-2 credit granted.** Condition 1 `PASS — REVIEW A VALIDATED` (unaffected). Condition 2 `169/170 — BLOCKING` (unaffected). Condition 3 `SATISFIED — REVIEW A VALIDATED` (unaffected). `P3-FEATURE-QG-EVID-03` remains `OPEN`. Feature Engine remains `NOT APPROVED`. `LIVE` remains `NOT_AUTHORIZED`.
+
+**ADR Scope / Risk:** `ADR_OPTIONAL` (re-confirmed). Risk: `R2` (mechanism activation, unchanged).
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-condition2-tool-identity-continuity-proposal-001.md` (corrected in place — pre-approval CANDIDATE document, living-document §5.1 editable-in-place rule applies), `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — exactly 5 files. `feature-engine-condition2-tool-identity-continuity-technical-evidence-001.json` explicitly NOT touched (fresh-verified byte-unchanged). No `src/`, `tests/`, `tooling/`, dependency, Evidence-005, Evidence-006, proposal-001/002/003, set-002/set-003, Testing Convention, ADR, or Constitution file touched. No Condition-1/2/3 work. `manifest_version` `"10.437"` -> `"10.438"`.
 
 ## Decision Log
 

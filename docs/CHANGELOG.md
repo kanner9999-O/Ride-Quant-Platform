@@ -2,6 +2,30 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-24 — feature-engine: Condition-2 tool-identity-continuity candidate — bounded correction (MAJOR-01) — CANDIDATE, NOT EFFECTIVE, NO CREDIT GRANTED
+
+Starting `main == origin/main == 5b91253e7b4f42e05353ac61938a73483552aeee`, fresh-verified, working tree clean, no drift. Reviewed proposal blob `14f83e9c0edfdff503df867222d68f19d31b540e`; reviewed technical-evidence blob `a4f5ceb646e39a931a532af5fd324775a38c3bc5`, fresh-verified byte-unchanged throughout.
+
+Review A round 1 (ChatGPT, AI Technical Architect): `REVISION_REQUIRED — 0 Blocker / 1 Major / 0 Minor`, Risk `R2`, ADR Scope `ADR_OPTIONAL, conditional on correcting the Major`. Technical findings C1-C12 and the historical-33 -> current-36 reconstruction NOT challenged.
+
+`MAJOR-01` -- approval-routing contradiction: the candidate's §10.1 correctly found branch (c) introduces no new Governance/Approval-process, but §11 then hard-coded Product Owner approval for EVERY future per-identity application -- a new mandatory routing rule contradicting that finding.
+
+**Corrected:** §5 (`C10`) and §11 now distinguish two decisions. Mechanism ACTIVATION (one-time, Product-Owner-reserved -- ADR-045 R2 never delegated, since activation itself establishes new R2 evidence-policy semantics) vs. per-identity APPLICATION (crediting one specific historical identity under an already-effective mechanism, now routed through the existing, unmodified ADR-045 model: Review A -> Risk Classification -> R0/R1 + D1-D12 all PASS -> Delegated Technical Resolution eligible; R2/ADR_REQUIRED/governing-artifact reservation/explicit Product Owner call-in -> Product Owner Decision). No branch-(c)-specific carve-out. `C10`'s semantic safeguard unchanged: per-historical-identity-only credit, individually reviewed/recorded, never blanket/heuristic/bulk, never self-granted.
+
+Fresh Chapter 0 §4b re-confirmed (not inherited): removing the undeclared routing rule strengthens the finding -- application routing now provably reuses ADR-045's own R0/R1/R2 + D1-D12 model verbatim. `ADR_SCOPE_DISPOSITION: ADR_OPTIONAL`, re-confirmed; no ADR authored. Risk `R2` unchanged for mechanism activation.
+
+**Technical reconstruction/evidence NOT altered.** `feature-engine-condition2-tool-identity-continuity-technical-evidence-001.json` fresh-verified byte-unchanged (blob `a4f5ceb646e39a931a532af5fd324775a38c3bc5`); C1-C9/C11/C12, the unique historical-33 -> current-36 mapping, the current-mutmut_33 collision, mutmut `3.7.0` provenance, and both isolated `killed`+`killed` verification runs not re-litigated.
+
+Resulting proposal blob `799d7f805387f09c846eebfbe87298fded338f75`, status remains `CANDIDATE — NOT EFFECTIVE / AWAITING REVIEW A` (not self-approved). **No Condition-2 credit granted.**
+
+Condition 1 (`PASS — REVIEW A VALIDATED`) and Condition 3 (`SATISFIED — REVIEW A VALIDATED`) unaffected. Condition 2 remains `169/170`. `P3-FEATURE-QG-EVID-03` remains `OPEN`. Feature Engine remains `NOT APPROVED`. `LIVE` remains `NOT_AUTHORIZED`.
+
+`manifest_version` `"10.437"` -> `"10.438"`.
+
+**Files changed (5):** `feature-engine-condition2-tool-identity-continuity-proposal-001.md` (corrected in place), `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md`. `feature-engine-condition2-tool-identity-continuity-technical-evidence-001.json` explicitly NOT touched.
+
+---
+
 ## [Unreleased] — 2026-09-24 — feature-engine: Condition-2 tool-identity-continuity candidate authored — CANDIDATE, NOT EFFECTIVE, NO CREDIT GRANTED
 
 Starting `main == origin/main == e9873e17170ada23da98be9c7dd3820045d64cde`, fresh-verified, working tree clean, no drift. Authors the governed candidate mechanism needed to resolve the final Feature Engine Condition-2 identity, `contracts.x__seal_verified_authority__mutmut_33` (`TOOL_IDENTITY_DRIFT — NO EXISTING GOVERNED RESOLUTION MECHANISM`), WITHOUT granting Condition-2 credit.

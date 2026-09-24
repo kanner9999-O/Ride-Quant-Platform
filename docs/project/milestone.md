@@ -651,7 +651,7 @@ credit — neither initiated here.
 
 | Lane | Item | Status |
 |---|---|---|
-| Primary | *(none currently assigned)* | `FE-EVID03-COND1-WAVE5-001`, `FE-EVID03-COND1-AUDIT-001`, `FE-EVID03-COND1-MATERIAL-SET-DTR-001`, `FE-EVID03-COND1-THRESHOLD-RECAL-V2-001`, `FE-EVID03-COND1-WAVE6-001`, `FE-EVID03-COND1-WAVE6-CLASSIFICATION-DTR-001`, `FE-EVID03-COND1-THRESHOLD-RECAL-V3-001`, `FE-EVID03-COND1-FORMAL-EVID-006-001`, `FE-EVID03-COND1-FORMAL-006-DTR-001`, and `FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001` (authored a candidate Condition-2 identity-continuity resolution mechanism, `CANDIDATE — NOT EFFECTIVE / AWAITING REVIEW A`, no credit granted) are all COMPLETE. Condition 1: `PASS — REVIEW A VALIDATED`. Condition 2 remains `169/170`. Next primary WP: a distinct-principal ChatGPT Review A of the tool-identity-continuity candidate — awaits a separate scoping decision. |
+| Primary | *(none currently assigned)* | `FE-EVID03-COND1-WAVE5-001`, `FE-EVID03-COND1-AUDIT-001`, `FE-EVID03-COND1-MATERIAL-SET-DTR-001`, `FE-EVID03-COND1-THRESHOLD-RECAL-V2-001`, `FE-EVID03-COND1-WAVE6-001`, `FE-EVID03-COND1-WAVE6-CLASSIFICATION-DTR-001`, `FE-EVID03-COND1-THRESHOLD-RECAL-V3-001`, `FE-EVID03-COND1-FORMAL-EVID-006-001`, `FE-EVID03-COND1-FORMAL-006-DTR-001`, `FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001`, and `FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001-CORR-001` (bounded correction remediating Review A round-1 `MAJOR-01` — approval-routing contradiction between §10.1 and §11, corrected; no credit granted) are all COMPLETE. Condition 1: `PASS — REVIEW A VALIDATED`. Condition 2 remains `169/170`. Next primary WP: a bounded ChatGPT Review A re-review of the corrected tool-identity-continuity candidate — awaits a separate scoping decision. |
 | Deferred | `contracts.x__seal_verified_authority__mutmut_33` (TOOL_IDENTITY_DRIFT) | Deferred — no existing governed mechanism |
 | Completed | `RIDE-PROJECT-MILESTONE-DASHBOARD-001` | Tracking infrastructure only |
 | Completed | `FE-EVID03-COND1-STOP-001` | 9/9 mutants `REQUIRES_GOVERNED_PROTOCOL_DECISION`; §13.10 applicability question flagged for ChatGPT review |
@@ -683,6 +683,7 @@ credit — neither initiated here.
 | Completed | `FE-EVID03-COND1-FORMAL-EVID-006-001` | Executed a fresh, full, formal Condition-1 mutation measurement against the active proposal-003/set-003 gate at executable boundary `dd05c963397bbb8c9b8bd30f6a88c913baf3f153`. Fresh disposable venv, all tool versions matched the lock exactly. Ordinary verification: `443 passed`, `5 passed` (tooling), mypy clean, ruff unchanged. Full single-worker run (`python -m tooling run --max-children 1`) reached natural completion: `2629/2629` mutants; raw `killed=2243 / survived=384 / timeout=2`. One anomaly investigated and recorded, not hidden (a first interrupted attempt, confirmed genuine mutation-induced conftest.py collection failures, not an infrastructure defect — restarted cleanly). Strict twice-independent isolated timeout triage: `p_run_sort__mutmut_82` → `CONFIRMED_TIMEOUT`; `resolve_input_contract_authority_from_repository__mutmut_109` → resolved KILLED. Final formal: `killed=2244 / confirmed_timeout=1 / survived=384`. **Formal numerator `2245` (≥ `2232`); formal percentage `85.393685812096%` (≥ `84.899201217193%`) — `Condition 1A: PASS`.** All 18 exact Set-003 identities queried by exact mutmut identity — **`18/18 KILLED`** — **`Condition 1B: PASS`.** **`FORMAL MEASUREMENT RESULT: PASS — PENDING REVIEW A VALIDATION`** (not self-issued). New additive artifact `feature-engine-mutation-step9-formal-evidence-006.json` (does NOT overwrite Evidence-005). No threshold/calibration change; proposal-003/set-003 fresh-verified byte-unchanged. No `src/`/`test`/`tooling` change; Condition 2/3 unchanged; EVID-03 remains OPEN; Feature Engine remains NOT APPROVED; LIVE remains NOT_AUTHORIZED |
 | Completed | `FE-EVID03-COND1-FORMAL-006-DTR-001` | Recorded the already-issued distinct-principal ChatGPT Review A validation of evidence-006 (reviewed boundary `bb00e28056679852f2ccc6b1659e6ef026907f0c`, evidence subject blob `460cf678a2c682c26540719da78ff798ce88705d`). Verdict: **`CLEAN — 0 Blocker / 0 Major / 2 Minor`**, Risk `R1`, ADR Scope `ADR_NOT_REQUIRED`, independent cross-check NOT REQUIRED; D1-D12 all `PASS` (D8: reviewer ChatGPT distinct from Evidence-006's author/executor Claude). Disposition: `DELEGATED TECHNICAL RESOLUTION — CLEAN` — bounded application of the existing Approved gate (proposal-003/set-003) to an already-complete, objectively-passing measurement; no new semantics, no product decision, no residual-risk acceptance, no PO reservation/call-in triggered; deterministic outcome. **Governed transition: Condition 1 `FORMAL MEASUREMENT PASS — PENDING REVIEW A VALIDATION` → `PASS — REVIEW A VALIDATED`.** This is NOT Product Owner approval. Both Minors reconciled in the same transaction (deterministic bookkeeping, folded rather than split into a separate WP): (1) current-state tracking in this document and the dashboard corrected wherever it still presented Evidence-005 figures (`406` survivors, `9` unstable-timeout-triage mutants) as current — replaced with evidence-006's own current figures (`384` survivors, `0` unstable); old 42-ID set-001 no longer presented as the current Condition-1B target anywhere current-state; (2) provenance wording corrected — Evidence-006's executable boundary has `src`/`tooling`/`pyproject.toml`/`requirements-dev.lock.txt` trees byte-identical to Evidence-005's own boundary, but the `tests` tree legitimately DIFFERS (Wave-5/6 test remediation) — this document and MANIFEST already recorded this correctly; the correction applies to completion-report wording only. New additive artifact `feature-engine-condition1-formal-measurement-006-review-a-dtr-001.json`. Evidence-006 NOT modified (remains immutable, blob unchanged). No threshold/calibration change; no new measurement performed. Condition 2 (`169/170`, `TOOL_IDENTITY_DRIFT`) and Condition 3 (`SATISFIED`) preserved independent, not reopened; no Condition-2 work performed. `P3-FEATURE-QG-EVID-03` remains `OPEN`; Feature Engine remains `NOT APPROVED`; LIVE remains `NOT_AUTHORIZED`. No `src/`/`test`/`tooling`/dependency change |
 | Completed | `FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001` | Authored a candidate Feature Engine Condition-2 identity-continuity resolution mechanism (branch (c) `VERIFIED_TOOL_IDENTITY_CONTINUITY`, companion to — not an edit of — `feature-engine-mutation-threshold-proposal-001.md` §4.1's existing (a)/(b) branches) for the final unresolved row `contracts.x__seal_verified_authority__mutmut_33` (`TOOL_IDENTITY_DRIFT — NO EXISTING GOVERNED RESOLUTION MECHANISM`). Fresh technical reconstruction (isolated disposable worktrees, zero test execution, exact pinned historical boundary `8d6293aca773757bc3b62cc0d3b80cba9e243954` + mutmut `3.7.0`, current boundary `e9873e17170ada23da98be9c7dd3820045d64cde`) independently re-verified all 5 required facts: (1) `_seal_verified_authority`'s semantic code path not refactored (one honest correction of a prior 6-vs-7-kwarg imprecision, substantive conclusion unchanged); (2) historical mutation site and current `mutmut_36` byte-identical; (3) current `mutmut_33` confirmed a different, unrelated mutation (negates the new ADR-043 `merge_policy` guard); (4) historical-33 → current-36 mapping confirmed unique via exhaustive 49-mutant scan; (5) drift explained by additive ordinal growth (44→49 mutants), not a behavior change. Bounded isolated current-boundary verification of `mutmut_36` (fresh workspace, two independent runs via `python -m tooling run --max-children 1`): `killed` + `killed`, no disagreement — no full 2629-mutant rerun performed. Candidate rule requires ALL of C1–C12 (exact reconstruction, unique mapping, no refactor, tool-provenance pinned to mutmut `3.7.0`, per-identity-only credit via a SEPARATE future governed decision, no raw-score denominator/numerator adjustment) — fails closed on any unresolved criterion; explicitly not a bulk table, heuristic, or ordinal-only rule. **No Condition-2 credit granted by this transaction — remains `169/170`.** Fresh Chapter 0 §4b analysis (not inherited): `ADR_SCOPE_DISPOSITION: ADR_OPTIONAL` — reasoned directly on whether the new evidentiary branch constitutes a Governance/Approval-process change (concluded: no new review role/lifecycle stage/approval-gate structure is created; reuses Testing Convention v0.16 item 8's already-established identity-pin + justification + governed-decision shape) versus the prior final-six-assessment's own deferred concern about an in-place Testing Convention edit (this document deliberately avoids that path via the companion-document pattern already used for proposal-002/003). Risk `R2` (new architecture/authority/contract semantics per `P3-REVIEW-001`, not a bounded correction). New artifacts: `feature-engine-condition2-tool-identity-continuity-proposal-001.md` (`CANDIDATE — NOT EFFECTIVE / AWAITING REVIEW A`) and `feature-engine-condition2-tool-identity-continuity-technical-evidence-001.json`. DTR NOT ELIGIBLE for this mechanism's own eventual activation or any future per-identity credit decision (ADR-045 `D10(a)`, PO-reserved). No `src/`/`test`/`tooling`/dependency change; no Condition-1/3 work; Condition 1 remains `PASS — REVIEW A VALIDATED`; Condition 3 remains `SATISFIED — REVIEW A VALIDATED`; EVID-03 remains `OPEN`; Feature Engine remains `NOT APPROVED`; LIVE remains `NOT_AUTHORIZED` |
+| Completed | `FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001-CORR-001` | Bounded correction remediating Review A round-1 finding on `feature-engine-condition2-tool-identity-continuity-proposal-001.md` (principal ChatGPT, reviewed blob `14f83e9c0edfdff503df867222d68f19d31b540e`, technical-evidence blob `a4f5ceb646e39a931a532af5fd324775a38c3bc5`): `REVISION_REQUIRED — 0 Blocker / 1 Major / 0 Minor`, Risk `R2`, ADR Scope `ADR_OPTIONAL, conditional on correcting the Major`. **`MAJOR-01` — approval-routing contradiction:** §10.1 correctly found branch (c) introduces no new Governance/Approval-process, but §11 then hard-coded Product Owner approval for every future per-identity application, an undeclared new mandatory routing rule contradicting that finding. **Corrected:** §5 (`C10`) and §11 now distinguish two decisions — mechanism **activation** (remains Product-Owner-reserved; establishes new R2 evidence-policy semantics; ADR-045 R2 is never delegated) from per-identity **application** of an already-effective mechanism (now routed through the existing, unmodified ADR-045 model: Review A → Risk Classification → `R0`/`R1` + `D1`–`D12` all `PASS` → Delegated Technical Resolution eligible; `R2`/`ADR_REQUIRED`/governing-artifact reservation/explicit Product Owner call-in → Product Owner Decision) — no branch-(c)-specific carve-out. `C10`'s semantic safeguard preserved unchanged: credit remains per-historical-identity-only, individually reviewed/recorded, never blanket/heuristic/bulk. Fresh Chapter 0 §4b re-confirmed against the corrected text: `ADR_SCOPE_DISPOSITION: ADR_OPTIONAL` (strengthened, not weakened, by removing the undeclared routing rule); Risk `R2` unchanged for mechanism activation. **Technical reconstruction/evidence NOT altered** — `feature-engine-condition2-tool-identity-continuity-technical-evidence-001.json` fresh-verified byte-unchanged (blob `a4f5ceb646e39a931a532af5fd324775a38c3bc5`); C1–C9/C11/C12 untouched; historical-33 → current-36 mapping, uniqueness, current-33 collision, and both isolated `killed`+`killed` verification runs not re-litigated. **No Condition-2 credit granted.** Resulting proposal blob `799d7f805387f09c846eebfbe87298fded338f75`, status remains `CANDIDATE — NOT EFFECTIVE / AWAITING REVIEW A` (bounded re-review of this correction, not self-approved). No `src/`/`test`/`tooling`/dependency change; no Condition-1/3 work; Condition 1 remains `PASS — REVIEW A VALIDATED`; Condition 3 remains `SATISFIED — REVIEW A VALIDATED`; EVID-03 remains `OPEN`; Feature Engine remains `NOT APPROVED`; LIVE remains `NOT_AUTHORIZED` |
 
 ## 6. PO dashboard snapshot
 
@@ -737,7 +738,9 @@ Condition 2 (current):     169/170 -- 2 rows resolved by this DTR
                            169/170.
 Condition-2 continuity     FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001
 candidate:                 -- CANDIDATE -- NOT EFFECTIVE / AWAITING
-                           REVIEW A. Proposes one new, disjoint
+                           REVIEW A (resulting blob
+                           799d7f805387f09c846eebfbe87298fded338f75,
+                           post-correction). Proposes one new, disjoint
                            Condition-2 resolution branch (c) for the
                            narrow case of tool-generated mutant-ID
                            ordinal drift with the underlying code path
@@ -765,31 +768,55 @@ candidate:                 -- CANDIDATE -- NOT EFFECTIVE / AWAITING
                            3.7.0 only, per-identity-only credit via a
                            SEPARATE future governed decision, no raw-
                            score adjustment) -- fails closed, no bulk
-                           table/heuristic/ordinal-only rule. Fresh
-                           Chapter 0 SS4b (not inherited):
-                           ADR_SCOPE_DISPOSITION: ADR_OPTIONAL --
-                           reasoned directly: no new review role/
-                           lifecycle stage/approval-gate structure is
-                           created (reuses Testing Convention v0.16
-                           item 8's identity-pin + justification +
-                           governed-decision shape); distinguished
-                           from the prior final-six-assessment's own
-                           deferred concern about an in-place Testing
-                           Convention edit, which this document avoids
-                           via the same companion-document pattern
-                           already used for proposal-002/003. Risk R2
-                           (new architecture/authority/contract
-                           semantics per P3-REVIEW-001, not a bounded
-                           correction). New artifacts: feature-engine-
-                           condition2-tool-identity-continuity-
-                           proposal-001.md and feature-engine-
-                           condition2-tool-identity-continuity-
-                           technical-evidence-001.json. DTR NOT
-                           ELIGIBLE for this mechanism's own activation
-                           or any future per-identity credit decision
-                           (ADR-045 D10(a), PO-reserved). NO Condition-
-                           2 credit granted -- 169/170 unchanged. No
-                           src/test/tooling/dependency change.
+                           table/heuristic/ordinal-only rule. New
+                           artifacts: feature-engine-condition2-tool-
+                           identity-continuity-proposal-001.md and
+                           feature-engine-condition2-tool-identity-
+                           continuity-technical-evidence-001.json. NO
+                           Condition-2 credit granted -- 169/170
+                           unchanged. No src/test/tooling/dependency
+                           change.
+Continuity candidate       Review A round 1 (ChatGPT, reviewed blob
+correction (CORR-001):     14f83e9c0edfdff503df867222d68f19d31b540e):
+                           REVISION_REQUIRED -- 0 Blocker / 1 Major / 0
+                           Minor, Risk R2, ADR_OPTIONAL conditional on
+                           correcting the Major. MAJOR-01 -- approval-
+                           routing contradiction: SS10.1 correctly
+                           found branch (c) introduces no new
+                           Governance/Approval-process, but SS11 then
+                           hard-coded Product Owner approval for every
+                           future per-identity application -- an
+                           undeclared new mandatory routing rule.
+                           CORRECTED: SS5 (C10) and SS11 now distinguish
+                           mechanism ACTIVATION (remains Product-Owner-
+                           reserved; R2 never delegated under ADR-045)
+                           from per-identity APPLICATION of an already-
+                           effective mechanism (now routed through the
+                           existing, unmodified ADR-045 model: Review A
+                           -> Risk Classification -> R0/R1 + D1-D12 all
+                           PASS -> Delegated Technical Resolution
+                           eligible; R2/ADR_REQUIRED/governing-artifact
+                           reservation/explicit Product Owner call-in
+                           -> Product Owner Decision) -- no branch-(c)-
+                           specific carve-out. C10's semantic safeguard
+                           unchanged: per-historical-identity-only
+                           credit, individually reviewed/recorded,
+                           never blanket/heuristic/bulk. Fresh Chapter
+                           0 SS4b re-confirmed against the corrected
+                           text: ADR_SCOPE_DISPOSITION: ADR_OPTIONAL
+                           (strengthened by removing the undeclared
+                           routing rule). Risk R2 unchanged for
+                           mechanism activation. Technical
+                           reconstruction/evidence NOT altered --
+                           feature-engine-condition2-tool-identity-
+                           continuity-technical-evidence-001.json
+                           fresh-verified byte-unchanged (blob
+                           a4f5ceb646e39a931a532af5fd324775a38c3bc5).
+                           NO Condition-2 credit granted. Status
+                           remains CANDIDATE -- NOT EFFECTIVE / AWAITING
+                           REVIEW A (bounded re-review of this
+                           correction, not self-approved). No src/test/
+                           tooling/dependency change.
 Last Review A:             CLEAN -- 0 Blocker / 0 Major / 0 Minor, Risk
                            R1 (on Candidate-005, boundary
                            1e4078c3...). Reviewer ChatGPT, AI Technical
@@ -1070,11 +1097,13 @@ PO decision required now: NO
                            Engine remains NOT APPROVED; Phase-3 module
                            approval remains NOT GRANTED; LIVE remains
                            NOT_AUTHORIZED. Next governed decision
-                           point: a distinct-principal ChatGPT Review A
-                           of the tool-identity-continuity candidate --
-                           not initiated here. This executor does not
-                           self-issue that Review A, and a separate,
-                           subsequent governed decision would still be
+                           point: a bounded, distinct-principal ChatGPT
+                           Review A re-review of the corrected tool-
+                           identity-continuity candidate (MAJOR-01
+                           remediated) -- not initiated here. This
+                           executor does not self-issue that Review A,
+                           and a separate, subsequent governed decision
+                           would still be
                            required to apply the mechanism to
                            contracts.x__seal_verified_authority__
                            mutmut_33 specifically, even after a CLEAN

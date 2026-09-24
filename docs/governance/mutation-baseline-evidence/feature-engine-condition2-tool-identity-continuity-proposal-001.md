@@ -2,6 +2,34 @@
 
 **STATUS: CANDIDATE — NOT EFFECTIVE / AWAITING REVIEW A**
 
+**Bounded correction (this revision), remediating Review A round 1
+finding `MAJOR-01`** (principal ChatGPT, AI Technical Architect,
+reviewed boundary blob `14f83e9c0edfdff503df867222d68f19d31b540e`,
+`REVISION_REQUIRED — 0 Blocker / 1 Major / 0 Minor`, Risk `R2`, ADR
+Scope `ADR_OPTIONAL, conditional on correcting the Major`): §10.1
+correctly argued that branch (c) reuses the existing reviewed/recorded-
+decision process and creates no new Governance/Approval workflow, but
+§11 then contradicted that by hard-coding Product Owner approval for
+*every* future per-identity application — a new mandatory routing rule
+the rest of the document never argued for. Corrected in §5 (`C10`) and
+§11 below: the mechanism's own **activation** remains Product-Owner-
+reserved (it establishes new R2 evidence-policy semantics); each future
+**application** of an already-effective mechanism to one historical
+identity now routes through the existing ADR-045 model (Review A → Risk
+Classification → R0/R1 + D1–D12 all PASS → Delegated Technical
+Resolution eligible; R2, `ADR_REQUIRED`, a governing-artifact
+reservation, or an explicit Product Owner call-in → Product Owner
+Decision) — not a hard-coded Product Owner step. `C10`'s semantic
+safeguard (per-identity-only credit, individually reviewed/recorded,
+no blanket mapping, no heuristic/bulk credit) is unchanged. No
+technical reconstruction/evidence, and no C1–C9/C11/C12 criterion, is
+altered by this correction. `feature-engine-condition2-tool-identity-
+continuity-technical-evidence-001.json` is unmodified (fresh-verified
+byte-unchanged, blob `a4f5ceb646e39a931a532af5fd324775a38c3bc5`). This
+document is not self-approved by this correction — it remains
+`CANDIDATE — NOT EFFECTIVE`, now awaiting a bounded Review A re-review
+of this specific correction.
+
 This document is not yet reviewed, not yet approved, and confers no
 Condition-2 credit to any identity. It proposes one additional,
 narrowly-scoped resolution mechanism for the Feature Engine Condition-2
@@ -188,7 +216,14 @@ contract** (companion to, not an edit of, §4.1 of
 >   this initial case, agreeing bounded isolated-verification evidence
 >   per §4 above);
 > - **C10** — credit is granted **per historical identity only**, and
->   requires its own separate, reviewed/recorded governed decision — this
+>   requires its own separate, reviewed and recorded governed decision,
+>   routed exactly as the existing ADR-045 model already routes any
+>   other technical decision — Review A, then Risk Classification, then:
+>   `R0`/`R1` with `D1`–`D12` all `PASS` → Delegated Technical
+>   Resolution eligible; `R2`, or `ADR_REQUIRED`, or a governing
+>   artifact reserving the decision, or an explicit Product Owner
+>   call-in → Product Owner Decision. This is never a blanket mapping,
+>   never a heuristic/bulk credit, and never self-granted — this
 >   document, by itself, grants none;
 > - **C11** — no unrelated mutant kill may ever substitute for the
 >   historical identity's own resolution;
@@ -214,10 +249,11 @@ proximity, or count is permitted by the mechanism's own text.
 is fully assembled in §3–§4 above and would, on the fresh technical
 record, appear to satisfy all twelve criteria. **This document
 nonetheless grants no credit** — per C10, crediting a specific historical
-identity under branch (c) requires its own separate, reviewed/recorded
-governed decision, distinct from the act of authoring the mechanism
-itself. That decision is explicitly **not requested by this document**
-(§9).
+identity under branch (c) requires its own separate, reviewed and
+recorded governed decision (routed per §11's existing ADR-045 model —
+not self-issued, not assumed), distinct from the act of authoring the
+mechanism itself. That decision is explicitly **not requested by this
+document** (§9).
 
 ## 7. Preserve Condition 1 and Condition 3
 
@@ -286,7 +322,7 @@ scenario that prior note flagged.
 | Platform Invariant change | No | No I-1–I-13 invariant (`docs/constitution/02-platform-invariants.md`) is touched. |
 | Event Schema change | No | No event/fact schema, contract, or field is added, removed, or reinterpreted. |
 | Module Taxonomy/dependency-graph change | No | No `module-registry.yaml`/dependency-edge edit. |
-| Governance/Approval-process change | **No — examined directly, not merely re-asserted.** The question is whether adding a third, disjoint per-identity evidentiary branch (c) — under the same identity-pin + individually-recorded-justification + separate-governed-decision shape Testing Convention v0.16 item 8 and §4.1(b) already both use — creates a NEW review workflow, role, lifecycle stage, or approval-gate structure, or merely applies that SAME already-established evidentiary shape to a new substantive category (tool-renumbering continuity, as opposed to behavior-equivalence or legitimate refactor). Reviewed directly against item 8's own text (§8 of `docs/engineering/testing.md`): item 8 already requires, for ANY mutant-identity-level adjustment claim, "a deterministic, reproducible, exactly-pinned mutant identity... an individually-recorded semantic justification... and a governed adjustment mechanism (a reviewed, recorded decision)" — this is the identical procedural shape C1–C12 impose. No new reviewer role is created (Review A remains the reviewing principal); no new lifecycle stage is created (Draft/Candidate → Review A → Product Owner decision, unchanged); no new approval-gate structure is created (this document routes through the same Chapter-13-delegated, Testing-Convention-owned evidentiary framework §4.1(a)/(b) already occupy). The genuine novelty is in the SUBSTANCE of what may qualify as evidence (a new fact pattern, not previously addressed), not in the PROCESS by which it is reviewed and decided — the Constitution's own §4b table asks specifically about process/contract/invariant/schema change, not about the breadth of evidentiary categories a delegated, already-Testing-Convention-owned mechanism may recognize. |
+| Governance/Approval-process change | **No — examined directly, not merely re-asserted.** The question is whether adding a third, disjoint per-identity evidentiary branch (c) — under the same identity-pin + individually-recorded-justification + separate-governed-decision shape Testing Convention v0.16 item 8 and §4.1(b) already both use — creates a NEW review workflow, role, lifecycle stage, or approval-gate structure, or merely applies that SAME already-established evidentiary shape to a new substantive category (tool-renumbering continuity, as opposed to behavior-equivalence or legitimate refactor). Reviewed directly against item 8's own text (§8 of `docs/engineering/testing.md`): item 8 already requires, for ANY mutant-identity-level adjustment claim, "a deterministic, reproducible, exactly-pinned mutant identity... an individually-recorded semantic justification... and a governed adjustment mechanism (a reviewed, recorded decision)" — this is the identical procedural shape C1–C12 impose. No new reviewer role is created (Review A remains the reviewing principal); no new lifecycle stage is created (Draft/Candidate → Review A → Product Owner decision, unchanged); no new approval-gate structure is created (this document routes through the same Chapter-13-delegated, Testing-Convention-owned evidentiary framework §4.1(a)/(b) already occupy). **`MAJOR-01` correction (this revision):** the routing text (§11) was corrected to confirm this "No" holds for future per-identity *applications* of branch (c) too — application routing now follows the SAME existing ADR-045 Review A → Risk Classification → R0/R1+D1–D12/DTR-or-Product-Owner model every other technical decision in this repository already uses, not a new, hard-coded, branch-(c)-specific Product Owner step. Only the mechanism's own one-time *activation* (§11) remains Product-Owner-reserved, because activation itself establishes new R2 evidence-policy semantics — that reservation is an application of ADR-045's own existing R2/D10 rule, not a new rule. The genuine novelty is in the SUBSTANCE of what may qualify as evidence (a new fact pattern, not previously addressed), not in the PROCESS by which it is reviewed and decided, activated, or later applied — the Constitution's own §4b table asks specifically about process/contract/invariant/schema change, not about the breadth of evidentiary categories a delegated, already-Testing-Convention-owned mechanism may recognize. |
 | Decision affecting >1 module | No | Strictly Feature-Engine-only; explicitly bounded in scope (§1, §5's C8). |
 | Hard-to-reverse decision | No | This document, and any future per-identity decision under it, can be revised or withdrawn by a future governed decision exactly as proposal-002/003 could revise proposal-001's own numeric figure — no structural lock-in is created. |
 | Locked-ADR modification/supersession | No | No ADR is touched. Testing Convention is a living document (Constitution §5.1), not an ADR (§5.2) — this document is a new, separate companion candidate, not an in-place edit of any living document or ADR. |
@@ -310,6 +346,15 @@ Review A or the eventual decision point, that an ADR would nonetheless
 be worthwhile for a mechanism of this kind — that discretionary option
 is preserved, not exercised, here.
 
+**Re-confirmed after `MAJOR-01` correction:** the corrected §11 removes
+the hard-coded, branch-(c)-specific Product-Owner-for-every-application
+rule that Review A round 1 correctly flagged as an undeclared new
+routing rule. Removing it strengthens, not weakens, this classification
+— application routing now provably reuses ADR-045's own existing
+R0/R1/R2 + D1–D12 model verbatim, with no branch-(c)-specific carve-out
+of any kind. `ADR_SCOPE_DISPOSITION: ADR_OPTIONAL` is re-confirmed
+fresh against the corrected text, not merely re-asserted.
+
 ### 10.3 Risk Classification
 
 Per `P3-REVIEW-001` (`docs/governance/phases/phase-3-rules.md` §8):
@@ -331,6 +376,17 @@ Risk: R2 -- Review A + mandatory Risk Classification. Review A may
 
 ## 11. Review and decision path
 
+**`MAJOR-01` correction (this revision):** this section previously
+hard-coded Product Owner approval for every future per-identity
+application of branch (c), which contradicted §10.1's own finding that
+branch (c) introduces no new Governance/Approval-process. Corrected
+below: the mechanism's one-time **activation** and each future
+**application** to a specific historical identity are two distinct
+decisions, routed differently, and neither is performed or requested by
+this document.
+
+### 11.1 This candidate's own review
+
 ```text
 Review A: mandatory.
 R2: mandatory Risk Classification (this section). Optional advisory
@@ -338,14 +394,15 @@ R2: mandatory Risk Classification (this section). Optional advisory
     whether to use it.
 ```
 
-**This mechanism's own eventual activation is explicitly
-Product-Owner-reserved** (ADR-045 `D10(a)` — a quality/evidence-policy
-decision of this kind is not a bounded, mechanical application of
-already-settled criteria; it establishes new criteria). Therefore:
+### 11.2 Decision 1 — mechanism activation (Product-Owner-reserved)
+
+**Activating branch (c) as a general mechanism is explicitly
+Product-Owner-reserved** (ADR-045 `D10(a)` and the R2 rule — a
+quality/evidence-policy decision of this kind establishes new criteria;
+under ADR-045, `R2` is *never* delegated, with no exception). Therefore:
 
 ```text
-DTR is NOT ELIGIBLE for this candidate's own activation decision, nor
-for any future per-identity credit decision made under it (C10).
+DTR is NOT ELIGIBLE for this candidate's own activation decision.
 ```
 
 **Proposed path (not performed by this document):** after this candidate
@@ -353,9 +410,34 @@ receives a `CLEAN` (or remediated-to-`CLEAN`) Review A and any
 Product-Owner-selected advisory cross-check, route exactly one narrow
 Product Owner decision naming: the exact mechanism text (§5), the exact
 Review A disposition, and whether to activate branch (c) as a general
-mechanism. A SEPARATE subsequent decision (§6, §10.1) would then be
-required to apply it to `contracts.x__seal_verified_authority__mutmut_33`
-specifically. **Neither decision is requested by this document.**
+mechanism. **Not requested by this document.**
+
+### 11.3 Decision 2 — per-identity application (existing ADR-045 routing)
+
+Once (and only if) branch (c) is activated by Decision 1, applying it to
+credit one specific historical identity is a SEPARATE, later decision
+(§6, §10.1) — never bundled with activation, never self-granted by the
+executor who assembled that identity's C1–C12 evidence. This decision
+does **not** carry a branch-(c)-specific Product Owner requirement; it
+is routed exactly as ADR-045 already routes any other bounded technical
+decision:
+
+```text
+Review A on the specific identity's C1-C12 evidence
+  -> Risk Classification (fresh, for that specific application)
+  -> R0 or R1, and D1-D12 (ADR-045) all PASS
+       -> Delegated Technical Resolution eligible
+  -> R2, or ADR Scope Rule resolves ADR_REQUIRED for that application,
+     or a governing artifact reserves the decision, or the Product
+     Owner explicitly calls in/reserves that specific decision
+       -> Product Owner Decision
+```
+
+`C10` (§5) requires this exact routing for every application — never a
+blanket mapping, never a heuristic/bulk credit, never self-granted.
+**No per-identity application decision is performed or requested by
+this document** — including for `contracts.x__seal_verified_authority
+__mutmut_33` (§6).
 
 ## 12. Non-goals
 
@@ -384,4 +466,31 @@ feature-engine-condition2-tool-identity-continuity-technical-evidence
   -001.json -- fresh technical evidence, this transaction (new).
 feature-engine-condition2-tool-identity-continuity-proposal-001.md --
   THIS document -- CANDIDATE -- NOT EFFECTIVE / AWAITING REVIEW A.
+```
+
+## 14. Correction history
+
+```text
+Round 1 Review A (principal ChatGPT, AI Technical Architect, reviewed
+  boundary blob 14f83e9c0edfdff503df867222d68f19d31b540e, reviewed
+  technical-evidence blob a4f5ceb646e39a931a532af5fd324775a38c3bc5):
+  REVISION_REQUIRED -- 0 Blocker / 1 Major / 0 Minor, Risk R2, ADR
+  Scope ADR_OPTIONAL (conditional on correcting the Major).
+
+MAJOR-01 (this revision): SS11 hard-coded Product Owner approval for
+  every future per-identity application of branch (c), contradicting
+  SS10.1's own Governance/Approval-process = No finding. Corrected:
+  SS5 (C10) and SS11 now distinguish mechanism ACTIVATION
+  (Product-Owner-reserved, R2 never delegated) from per-identity
+  APPLICATION (existing ADR-045 Review A -> Risk Classification ->
+  R0/R1+D1-D12/DTR-or-Product-Owner routing, no branch-(c)-specific
+  carve-out). SS10.1's Governance/Approval-process row and SS10.2's
+  classification re-confirmed fresh against the corrected text.
+  Technical reconstruction/evidence (SS3-SS4, C1-C9/C11/C12) NOT
+  altered. feature-engine-condition2-tool-identity-continuity-
+  technical-evidence-001.json NOT modified (byte-unchanged).
+
+Status after correction: CANDIDATE -- NOT EFFECTIVE / AWAITING REVIEW A
+  (bounded re-review of this correction, not a restart). No Condition-2
+  credit granted. No mechanism activation performed.
 ```
