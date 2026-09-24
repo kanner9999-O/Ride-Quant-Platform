@@ -1,7 +1,19 @@
 {
  "artifact_id": "feature-engine-condition1-current-material-gap-set-002",
- "status": "CANDIDATE — NOT EFFECTIVE",
- "schema_note": "Candidate replacement for the active Condition-1B companion artifact (feature-engine-condition1-current-material-gap-set-001.json, 42 IDs, currently APPROVED — EFFECTIVE authority). This candidate's exact 24 identities are the Review-A-validated, DTR-adjudicated 'confirmed material' subset of the active 42-ID set — the other 18 were RECLASSIFIED (non-material/disputed-resolved-non-material) by FE-EVID03-COND1-MATERIAL-SET-DTR-001 and are deliberately NOT carried into this candidate. This artifact does not itself activate anything: it becomes the controlling Condition-1B identity authority only if/when feature-engine-mutation-threshold-recalibration-proposal-002.md is separately reviewed, decided by the Product Owner, and activated.",
+ "status": "APPROVED — EFFECTIVE",
+ "schema_note": "The controlling Condition-1B companion artifact, activated atomically alongside feature-engine-mutation-threshold-recalibration-proposal-002.md by Product Owner decision (see \"activation\" below). This artifact's exact 24 identities are the Review-A-validated, DTR-adjudicated 'confirmed material' subset of the prior 42-ID set (feature-engine-condition1-current-material-gap-set-001.json, now historical/superseded, remains byte-unchanged) — the other 18 were RECLASSIFIED (non-material/disputed-resolved-non-material) by FE-EVID03-COND1-MATERIAL-SET-DTR-001 and are deliberately not carried here.",
+ "activation": {
+  "approved_by": "Product Owner",
+  "approved_at": "2026-09-24T10:08+07:00",
+  "review_a_principal": "ChatGPT",
+  "review_a_boundary": "f99f75973049e71b7e3f1876ba0683a7d8434d48",
+  "review_a_verdict": "CLEAN — 0 Blocker / 0 Major / 0 Minor",
+  "risk": "R1",
+  "adr_scope": "ADR_OPTIONAL",
+  "independent_cross_check": "NOT REQUIRED / NOT PERFORMED",
+  "reviewed_blob": "d4558f37c8c9084bf8f404309c342126733eeebc",
+  "note": "This is the resulting/lifecycle-record blob after this activation's status-field and activation-metadata edit — distinct from the reviewed_blob above, which identifies exactly what Review A evaluated (the byte-identical CANDIDATE-status content). Exact 24-ID membership, count, duplicates, sorted order, and sorted_set_identity.sha256 are unchanged by this activation."
+ },
  "source_dtr": {
   "path": "docs/governance/mutation-baseline-evidence/feature-engine-condition1-material-gap-dtr-001.json",
   "blob": "fe43ffe2ac460fc42551617d9bb7781e52a07f26",

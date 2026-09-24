@@ -1,13 +1,124 @@
 # Feature Engine Condition-1 Threshold — Recalibration Proposal 002
 
-**STATUS: CANDIDATE — NOT EFFECTIVE / AWAITING REVIEW A**
+**STATUS: APPROVED — EFFECTIVE**
 
-This document proposes a **second** Condition-1 threshold correction,
-built on the Review-A-validated, DTR-adjudicated 24-material/18-non-
-material population established by the consolidated root-cause audit and
-its Delegated Technical Resolution. It does **not** change the currently-
-effective threshold. It does **not** request a Product Owner decision. It
-is authored candidate content only, pending its own Review A.
+**Product Owner APPROVAL — atomic activation (2026-09-24T10:08+07:00),
+vai trò: `Feature Engine Condition-1 Threshold Recalibration Proposal 002
+Product Owner Decision Recorder`.** Product Owner decision (verbatim):
+
+> "APPROVE Feature Engine Condition-1 Threshold Recalibration Proposal 002
+> at reviewed boundary f99f75973049e71b7e3f1876ba0683a7d8434d48. Replace
+> the current Condition-1 gate with: Condition 1A: raw
+> mutation-effectiveness >= 85.127424876379% (2238/2629 at the reviewed
+> calibration boundary); AND Condition 1B: all 24 exact identities in
+> feature-engine-condition1-current-material-gap-set-002.json must be
+> individually resolved under the existing governed per-identity
+> mechanism. Preserve Condition 2 and Condition 3 as independent
+> requirements. Accept Review A CLEAN — 0 Blocker / 0 Major / 0 Minor,
+> Risk R1, ADR_OPTIONAL. No independent cross-check required."
+
+Decision date: `2026-09-24T10:08+07:00`.
+
+**Reviewed semantic boundary:** `f99f75973049e71b7e3f1876ba0683a7d8434d48`
+(the commit at which this candidate document reached its reviewed
+content — the actual, immutable proposal content this approval covers).
+**Reviewed subject blob:** `4ca7354600ccd81331b3fb8a46f25327bdf53371`
+(this file, at that boundary — the byte-identical `CANDIDATE — NOT
+EFFECTIVE / AWAITING REVIEW A` content Review A evaluated). **Reviewed
+24-ID artifact blob:** `d4558f37c8c9084bf8f404309c342126733eeebc` (the
+exact set Review A evaluated). This activation adds an approval banner to
+this document and an `activation` lifecycle block to the 24-ID artifact —
+both changes are lifecycle-record metadata only, never a change to the
+reviewed substantive calibration semantics (§1–§18 below remain
+byte-identical to what Review A evaluated). The **resulting,
+activated/lifecycle-record 24-ID artifact blob** is
+`2e6030c5581df51323937de0bd5f646f3e98b5d9`. Reviewed and resulting blobs
+are recorded explicitly and distinctly, never conflated: the reviewed
+blob identifies exactly what Review A evaluated; the resulting blob
+identifies the byte-identity of the artifact as it stands after this
+activation's lifecycle-metadata addition.
+
+**Review evidence at this approval (already completed, recorded — not
+recorder self-closure):**
+
+```text
+Review A -- ChatGPT / AI Technical Architect, reviewed boundary
+f99f75973049e71b7e3f1876ba0683a7d8434d48, reviewed proposal blob
+4ca7354600ccd81331b3fb8a46f25327bdf53371, reviewed 24-ID artifact blob
+d4558f37c8c9084bf8f404309c342126733eeebc:
+  CLEAN -- 0 Blocker / 0 Major / 0 Minor.
+Risk: R1. ADR Scope: ADR_OPTIONAL.
+R1 default: NO CROSS-CHECK. Product Owner explicitly selected: no
+  independent cross-check required. No Independent Review B performed or
+  fabricated.
+```
+
+**State after this approval:**
+
+```text
+Feature Engine Condition-1 Threshold Recalibration Proposal 002: APPROVED
+  -- Product Owner, EFFECTIVE. This is now the SOLE current Feature
+  Engine Condition-1 threshold authority.
+Condition 1A: raw mutation-effectiveness >= 85.127424876379% (exact-count
+  basis 2238/2629 at the reviewed calibration boundary) -- necessary but
+  not sufficient.
+Condition 1B: all 24 exact identities in the activated
+  feature-engine-condition1-current-material-gap-set-002.json (blob
+  2e6030c5581df51323937de0bd5f646f3e98b5d9) individually resolved --
+  necessary. Killing unrelated (message-text) mutants never substitutes.
+  No blanket reclassification. No score-offset mechanism.
+Condition 2 and Condition 3 preserved as independent requirements,
+  UNCHANGED and NOT merged with Condition 1B.
+Proposal-001 (feature-engine-mutation-threshold-recalibration-
+  proposal-001.md, 85.812095853937%, blob
+  12040044578d57d15e699a327a5a8ae39c1e9ea3) and its companion set-001
+  (feature-engine-condition1-current-material-gap-set-001.json, 42 IDs,
+  blob 49c30b439eb84db95c55dc4a86de22e2b491dbb5): now historical /
+  superseded threshold authority. Both files remain byte-unchanged --
+  their own internal historical APPROVED -- EFFECTIVE banners describe
+  their own historical lifecycle and are NOT retroactively edited; current
+  authority must be read from THIS document and from MANIFEST's canonical
+  current-threshold pointer, never inferred from either superseded
+  document's own banner.
+Current Condition 1 status: FAIL -- criteria (Condition 1A: FAIL --
+  criteria, current raw score 84.21453023963484%-84.55686572841384% <
+  85.127424876379%; Condition 1B: FAIL -- criteria / formal closure
+  incomplete, the 24 pinned identities are not all individually resolved
+  -- 11 carry Wave-5 targeted-kill implementation evidence with formal
+  credit NOT yet claimed, 13 remain unremediated). This activation changes
+  the governing threshold only -- no fresh mutation measurement was
+  performed by this transaction.
+Condition 2: 169/170, unchanged, independent.
+Condition 3: SATISFIED -- REVIEW A VALIDATED, unchanged.
+P3-FEATURE-QG-EVID-03: OPEN. Feature Engine: NOT APPROVED. Phase-3 module
+  approval: NOT GRANTED. LIVE: NOT_AUTHORIZED.
+```
+
+**Approval này KHÔNG:** perform a fresh 2629-mutant (or any) formal
+mutation measurement; resolve any of the 24 Condition-1B identities;
+resolve `contracts.x__seal_verified_authority__mutmut_33`
+(`TOOL_IDENTITY_DRIFT`); implement any Wave-6 test; mutate
+`feature-engine-mutation-threshold-recalibration-proposal-001.md`
+(remains byte-unchanged at `12040044578d57d15e699a327a5a8ae39c1e9ea3`) or
+`feature-engine-condition1-current-material-gap-set-001.json` (remains
+byte-unchanged at `49c30b439eb84db95c55dc4a86de22e2b491dbb5`); mutate the
+root-cause audit or the material-set DTR artifact (both remain
+byte-unchanged); touch Evidence-005, its correction, Testing Convention,
+Chapter 13, ADR-044, or ADR-045; touch any source/test/tooling; fabricate
+Independent Review B evidence; use Delegated Technical Resolution for the
+threshold-selection decision (ADR-045 `D10(a)` reserves it to Product
+Owner); mark Condition 1 PASS; approve Feature Engine; or authorize LIVE.
+
+**Below this banner (§0–§18) is this candidate's own authored content,
+byte-identical to what Review A evaluated (reviewed blob
+`4ca7354600ccd81331b3fb8a46f25327bdf53371`) — preserved unedited as the
+correct, immutable record of what was proposed and reviewed. Statements
+below describing this document as "CANDIDATE," "not requesting a Product
+Owner decision," "not activated," or similar are accurate as of this
+document's own authoring/review boundary and are superseded, effective
+this activation, by the banner above — never retroactively edited.**
+
+---
 
 ## 0. Authority resolved directly (fresh-read, not restated from memory)
 
