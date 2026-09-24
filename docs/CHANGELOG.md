@@ -2,6 +2,28 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-24 — feature-engine: Condition-2 tool-identity-continuity mechanism APPLIED — DELEGATED TECHNICAL RESOLUTION — CLEAN — Condition 2 170/170 SATISFIED
+
+Starting `main == origin/main == aae246532b7eac8c6e0bbdc15a120784b8bb7e99`, fresh-verified, working tree clean, no drift. Effective mechanism blob `f045be889d536c345d3f8154c17dd93fef07981c`; technical-evidence blob `a4f5ceb646e39a931a532af5fd324775a38c3bc5`; production source `contracts.py` blob `0d2e39bffb705a2b1f903cd1a54b5f099ae6a686` (no source drift), all fresh-verified before mutation.
+
+Applied the already Product-Owner-APPROVED/EFFECTIVE Condition-2 branch (c) `VERIFIED_TOOL_IDENTITY_CONTINUITY` mechanism to exactly one historical identity: `contracts.x__seal_verified_authority__mutmut_33`, mapped uniquely to current successor `feature_engine.contracts.x__seal_verified_authority__mutmut_36`. Current `mutmut_33` confirmed a different, unrelated mutation (the later-added `merge_policy` guard) — NOT credited. Current-status evidence: two independent isolated runs -- **killed + killed** -- corroborated by Evidence-006's own formal killed status.
+
+**C1-C12: all PASS**, unaltered and unredesigned -- exact historical/current reconstruction, same semantic site/mutation, unique 1:1 mapping (exhaustive 49-mutant scan), no legitimate refactor, affirmative ordinal-drift causal account, demonstrated mutmut_33 collision, mutmut 3.7.0 provenance, qualifying fresh successor evidence, per-historical-identity-only credit via this separate governed decision, no unrelated-kill substitution, no raw mutation-score adjustment.
+
+Review A: ChatGPT, AI Technical Architect -- `CLEAN — 0 Blocker / 0 Major / 0 Minor`. Specific-application Risk `R1`; ADR Scope `ADR_NOT_REQUIRED`. ADR-045 `D1-D12`: all PASS (D8: ChatGPT distinct from Claude; D10: no governing-artifact reservation, no Product Owner call-in for this specific application -- the mechanism's own R2/D10(a) reservation applied only to its already-completed one-time activation).
+
+**Governed outcome: `DELEGATED TECHNICAL RESOLUTION — CLEAN`** (`FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001-APPLY-DTR-001`) -- NOT a Product Owner approval; none requested or required.
+
+**Condition 2: `169/170` -> `170/170 — SATISFIED`.** New additive artifact `feature-engine-condition2-tool-identity-continuity-application-001.json`. Mechanism and technical-evidence documents both fresh-verified byte-unchanged, not touched.
+
+Condition 1 (`PASS — REVIEW A VALIDATED`) and Condition 3 (`SATISFIED — REVIEW A VALIDATED`) preserved, unchanged, independent, not reopened. **`P3-FEATURE-QG-EVID-03` NOT closed by this transaction — remains `OPEN`**, closure is a separate, not-yet-performed governed action. Feature Engine remains `NOT APPROVED`. `LIVE` remains `NOT_AUTHORIZED`.
+
+`manifest_version` `"10.439"` -> `"10.440"`.
+
+**Files changed (5):** `feature-engine-condition2-tool-identity-continuity-application-001.json` (new), `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md`. `feature-engine-condition2-tool-identity-continuity-proposal-001.md` and `-technical-evidence-001.json` explicitly NOT touched.
+
+---
+
 ## [Unreleased] — 2026-09-24 — feature-engine: Condition-2 tool-identity-continuity mechanism ACTIVATED — APPROVED — EFFECTIVE (mechanism activation only), NO CREDIT GRANTED
 
 Starting `main == origin/main == 278a8ab5c0916ef9c803d90bb8cf9ca934ca1260`, fresh-verified, working tree clean, no drift. Reviewed proposal blob `799d7f805387f09c846eebfbe87298fded338f75`; reviewed technical-evidence blob `a4f5ceb646e39a931a532af5fd324775a38c3bc5`, both fresh-verified exact before mutation.

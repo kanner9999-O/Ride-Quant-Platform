@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.439"
+manifest_version: "10.440"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -30155,6 +30155,28 @@ Decision recorded this transaction; reviewed boundary `278a8ab5c0916ef9c803d90bb
 **ADR Scope / Risk:** `ADR_OPTIONAL` (accepted as recorded, per Review A/Product Owner decision). Risk: `R2` (mechanism activation).
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-condition2-tool-identity-continuity-proposal-001.md` (activation banner added in place — same pattern already used for proposal-002/003's own activations), `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — exactly 5 files. `feature-engine-condition2-tool-identity-continuity-technical-evidence-001.json` explicitly NOT touched (fresh-verified byte-unchanged). No `src/`, `tests/`, `tooling/`, dependency, Evidence-005, Evidence-006, proposal-001/002/003, set-002/set-003, Testing Convention, ADR, or Constitution file touched. No per-identity application performed. No Condition-2 credit granted; Condition 2 remains `169/170`. No Condition-1/3 work. `manifest_version` `"10.438"` -> `"10.439"`.
+
+## Feature Engine Condition-2 tool-identity-continuity mechanism — per-identity application (`FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001-APPLY-001`) — `DELEGATED TECHNICAL RESOLUTION — CLEAN`, Condition 2 `169/170` → `170/170 — SATISFIED`
+
+**Boundary:** starting `main == origin/main == aae246532b7eac8c6e0bbdc15a120784b8bb7e99`, fresh-verified, working tree clean, no drift. Effective mechanism blob `f045be889d536c345d3f8154c17dd93fef07981c`; technical-evidence blob `a4f5ceb646e39a931a532af5fd324775a38c3bc5`; production source `python/feature-engine/src/feature_engine/contracts.py` blob `0d2e39bffb705a2b1f903cd1a54b5f099ae6a686` (identical to the technical-evidence artifact's own current boundary — no source drift), all fresh-verified exact before mutation.
+
+**Applied identity:** historical `contracts.x__seal_verified_authority__mutmut_33` (boundary `8d6293aca773757bc3b62cc0d3b80cba9e243954`; mutation `feature_computation_profile=feature_computation_profile` → `=None`), mapped uniquely to current successor `feature_engine.contracts.x__seal_verified_authority__mutmut_36` (same exact semantic transformation at the same logical construction site; current `mutmut_33` confirmed a different, unrelated mutation targeting the later-added `merge_policy` validation guard, not credited). Current status evidence: two independent isolated fresh-workspace runs — **killed + killed** — corroborated by Evidence-006's own formal killed status.
+
+**`C1`–`C12` disposition:** all twelve verified `PASS` — exact historical/current reconstruction (`C1`/`C2`), same semantic site and mutation (`C3`), unique 1:1 mapping via exhaustive 49-mutant scan (`C4`), no legitimate refactor (`C5`), affirmative ordinal-drift causal account (`C6`), demonstrated `mutmut_33` collision (`C7`), mutmut `3.7.0` provenance pinned (`C8`), qualifying fresh successor evidence (`C9`), per-historical-identity-only credit via this separate governed decision (`C10`), no unrelated-kill substitution (`C11`), no raw mutation-score numerator/denominator adjustment (`C12`). Branch (c) not redesigned or reinterpreted.
+
+**Review A:** ChatGPT, AI Technical Architect — `CLEAN — 0 Blocker / 0 Major / 0 Minor`. Specific-application **Risk Classification:** `R1`. Specific-application **ADR Scope:** `ADR_NOT_REQUIRED`.
+
+**ADR-045 `D1`–`D12` disposition:** all `PASS` — `D1` (ADR Scope `ADR_NOT_REQUIRED`), `D2` (Risk `R1`, not `R2`), `D3` (existing Approved/EFFECTIVE branch-(c) authority, `FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001-ACTIVATION-001`), `D4` (one bounded, individually-verifiable identity), `D5` (no new product/architecture/governance/contract semantics), `D6` (no product scope/priority/value-tradeoff change), `D7` (no residual risk accepted on Product Owner's behalf), `D8` (Review A/ChatGPT independently verified and CLEAN, distinct from Claude who authored/executed the underlying technical evidence), `D9` (all evidence/authority/boundaries fresh-verified), `D10` (no governing-artifact reservation, no Product Owner call-in for this specific application — the mechanism's own R2/`D10(a)` reservation applied only to its one-time activation, already completed), `D11` (bounded, deterministic outcome), `D12` (delegation eligibility unambiguous).
+
+**Governed outcome:** **`DELEGATED TECHNICAL RESOLUTION — CLEAN`** (`FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001-APPLY-DTR-001`) — NOT a Product Owner approval; no Product Owner decision requested or required for this eligible R1 application.
+
+**Condition 2:** `169/170` → **`170/170 — SATISFIED`.** New additive artifact: `docs/governance/mutation-baseline-evidence/feature-engine-condition2-tool-identity-continuity-application-001.json`. `feature-engine-condition2-tool-identity-continuity-proposal-001.md` and `-technical-evidence-001.json` both fresh-verified byte-unchanged, not touched — branch (c)/`C1`–`C12` not redesigned.
+
+**Condition 1/3 preserved, unchanged, independent:** Condition 1 `PASS — REVIEW A VALIDATED`, not reopened. Condition 3 `SATISFIED — REVIEW A VALIDATED`, not reopened. **`P3-FEATURE-QG-EVID-03` NOT closed by this transaction — remains `OPEN`**, closure is a separate, not-yet-performed governed action. Feature Engine remains `NOT APPROVED`. `LIVE` remains `NOT_AUTHORIZED`.
+
+**ADR Scope / Risk:** `ADR_NOT_REQUIRED`. Risk: `R1` (this specific application).
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-condition2-tool-identity-continuity-application-001.json` (new), `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — exactly 5 files. `feature-engine-condition2-tool-identity-continuity-proposal-001.md` and `-technical-evidence-001.json` explicitly NOT touched (fresh-verified byte-unchanged). No `src/`, `tests/`, `tooling/`, dependency, Evidence-005, Evidence-006, proposal-001/002/003, set-002/set-003, Testing Convention, ADR, or Constitution file touched. No Condition-1/3 work. No `P3-FEATURE-QG-EVID-03` closure, Feature Engine approval, or LIVE authorization performed. `manifest_version` `"10.439"` -> `"10.440"`.
 
 ## Decision Log
 

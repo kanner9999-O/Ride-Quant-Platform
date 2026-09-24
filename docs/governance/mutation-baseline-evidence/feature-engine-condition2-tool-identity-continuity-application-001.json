@@ -1,0 +1,137 @@
+{
+ "artifact_id": "feature-engine-condition2-tool-identity-continuity-application-001",
+ "wp_id": "FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001-APPLY-001",
+ "schema_note": "Records the specific, per-identity Delegated Technical Resolution applying the already-Product-Owner-APPROVED/EFFECTIVE Feature Engine Condition-2 branch (c) VERIFIED_TOOL_IDENTITY_CONTINUITY (feature-engine-condition2-tool-identity-continuity-proposal-001.md, resulting blob f045be889d536c345d3f8154c17dd93fef07981c) to exactly one historical identity. This artifact does NOT redesign branch (c), does NOT alter C1-C12, and does NOT credit any identity other than the one named below. This is the FIRST application of the now-effective mechanism.",
+ "effective_mechanism": {
+  "path": "docs/governance/mutation-baseline-evidence/feature-engine-condition2-tool-identity-continuity-proposal-001.md",
+  "blob": "f045be889d536c345d3f8154c17dd93fef07981c",
+  "status": "APPROVED — EFFECTIVE (mechanism activation only)",
+  "activation_wp": "FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001-ACTIVATION-001"
+ },
+ "technical_evidence": {
+  "path": "docs/governance/mutation-baseline-evidence/feature-engine-condition2-tool-identity-continuity-technical-evidence-001.json",
+  "blob": "a4f5ceb646e39a931a532af5fd324775a38c3bc5",
+  "note": "Fresh-verified byte-unchanged before this transaction; not modified by this transaction."
+ },
+ "boundary": {
+  "starting_state_verified": {
+   "main": "aae246532b7eac8c6e0bbdc15a120784b8bb7e99",
+   "origin_main": "aae246532b7eac8c6e0bbdc15a120784b8bb7e99",
+   "working_tree_clean": true,
+   "drift_detected": false
+  },
+  "production_source_fresh_verified": {
+   "path": "python/feature-engine/src/feature_engine/contracts.py",
+   "blob": "0d2e39bffb705a2b1f903cd1a54b5f099ae6a686",
+   "note": "Identical to the source blob at the technical-evidence artifact's own current boundary — no source drift at the relevant semantic site."
+  }
+ },
+ "row": {
+  "historical_mutant_id": "contracts.x__seal_verified_authority__mutmut_33",
+  "historical_repository_boundary": "8d6293aca773757bc3b62cc0d3b80cba9e243954",
+  "historical_recorded_mutation_label": "feature_computation_profile=feature_computation_profile -> =None",
+  "exact_reconstructed_historical_mutation_diff": "--- +++ @@ -40,7 +40,7 @@\n     return _construct_verified_authority(\n-        feature_computation_profile=feature_computation_profile,\n+        feature_computation_profile=None,\n         input_contract_ref=input_contract_ref,\n         stream_registry_version=stream_registry_version,\n         included_streams=included_streams,\n         input_contract_content_id=input_contract_content_id,\n         stream_registry_content_id=stream_registry_content_id,\n     )",
+  "exact_current_successor_mutant_id": "feature_engine.contracts.x__seal_verified_authority__mutmut_36",
+  "exact_current_mutation_diff": "--- +++ @@ -52,7 +52,7 @@\n     return _construct_verified_authority(\n-        feature_computation_profile=feature_computation_profile,\n+        feature_computation_profile=None,\n         input_contract_ref=input_contract_ref,\n         stream_registry_version=stream_registry_version,\n         included_streams=included_streams,\n         input_contract_content_id=input_contract_content_id,\n         stream_registry_content_id=stream_registry_content_id,\n         merge_policy=merge_policy,\n     )",
+  "current_mutmut_33_note": "Current mutmut_33 is a DIFFERENT, unrelated mutation (negates the newer, additive merge_policy isinstance validation guard, which did not exist at the historical boundary) — a genuine ordinal collision. NOT credited as the historical identity.",
+  "current_status_evidence": "Two independent isolated fresh-workspace runs of feature_engine.contracts.x__seal_verified_authority__mutmut_36 via python -m tooling run --max-children 1: killed + killed (no disagreement). Evidence-006 (full formal 2629-mutant population, executable boundary dd05c963397bbb8c9b8bd30f6a88c913baf3f153) independently also records this identity killed within its own final formal counts.",
+  "source_technical_evidence_artifact": "docs/governance/mutation-baseline-evidence/feature-engine-condition2-tool-identity-continuity-technical-evidence-001.json",
+  "source_technical_evidence_blob": "a4f5ceb646e39a931a532af5fd324775a38c3bc5"
+ },
+ "c1_c12_disposition": {
+  "C1": "PASS — historical mutant body reproducibly reconstructed from the exact pinned historical source boundary (8d6293aca773757bc3b62cc0d3b80cba9e243954) using the exact pinned mutmut 3.7.0 tool identity.",
+  "C2": "PASS — current mutant body reproducibly generated from current source (boundary aae246532b7eac8c6e0bbdc15a120784b8bb7e99, contracts.py blob 0d2e39bffb705a2b1f903cd1a54b5f099ae6a686), same method.",
+  "C3": "PASS — historical and current mutations target the exact same semantic construction site (the feature_computation_profile kwarg of the delegating call to _construct_verified_authority) and perform the exact same mutation, verified by direct diff comparison.",
+  "C4": "PASS — exhaustive scan of all 49 current mutants of x__seal_verified_authority found exactly one matching successor: mutmut_36. No ambiguity.",
+  "C5": "PASS — the underlying Feature code path (_seal_verified_authority's validation sequence and delegating call) was not refactored, removed, or semantically changed; only an additive, unrelated merge_policy parameter/validation was added.",
+  "C6": "PASS — the historical-33 -> current-36 ID difference is affirmatively explained: the function's total mutant count grew from 44 to 49 (additive AST growth from the merge_policy addition), shifting the ordinal assigned to the unchanged feature_computation_profile site.",
+  "C7": "PASS — current ordinal mutmut_33's collision is directly demonstrated (by diff) to be an unrelated mutation targeting the new merge_policy guard, not the historical site.",
+  "C8": "PASS — historical and current provenance both pinned to the evidenced mutmut 3.7.0 toolchain; no broader tool-version claim made.",
+  "C9": "PASS — current successor mutmut_36 carries qualifying fresh evidence: two independent isolated runs both killed, corroborated by Evidence-006's own formal killed status for this identity.",
+  "C10": "PASS — this transaction grants credit to exactly ONE historical identity (contracts.x__seal_verified_authority__mutmut_33) via its own separate, reviewed and recorded governed decision (this artifact) — not a blanket mapping, not self-granted by the mechanism's own author/executor.",
+  "C11": "PASS — no unrelated mutant kill substitutes for this identity; credit is grounded exclusively in the exact-site-matched successor mutmut_36.",
+  "C12": "PASS — no adjustment whatsoever to the raw mutation-score numerator/denominator; this is Condition-2 per-identity accounting only, structurally isolated from Condition 1 exactly as branches (a)/(b) already are."
+ },
+ "review_a": {
+  "principal": "ChatGPT",
+  "role": "AI Technical Architect",
+  "verdict": "CLEAN — 0 Blocker / 0 Major / 0 Minor",
+  "risk_classification": "R1",
+  "adr_scope": "ADR_NOT_REQUIRED"
+ },
+ "delegated_technical_resolution": {
+  "resolution_authority": "DELEGATED_TECHNICAL_RESOLUTION",
+  "delegated_resolution_state": "RESOLVED",
+  "delegated_resolution_id": "FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001-APPLY-DTR-001",
+  "not_an_approval": "This is a governed Delegated Technical Resolution under ADR-045 v0.3 (Approved, ACTIVE) — it is explicitly NOT a Product Owner approval and NOT an Approved/Locked/Phase-Approved/Module-Approved/LIVE-Authorized transition. No Product Owner decision text is fabricated or implied anywhere in this artifact.",
+  "governing_authority": "ADR-045 v0.3 (Approved, ACTIVE) — G-DELEGATE-001/G-DELEGATE-002 (Global Execution Rules v0.7, EFFECTIVE); applies the already Product-Owner-APPROVED/EFFECTIVE branch (c) VERIFIED_TOOL_IDENTITY_CONTINUITY mechanism (feature-engine-condition2-tool-identity-continuity-proposal-001.md, blob f045be889d536c345d3f8154c17dd93fef07981c) to this bounded 1-row case, exactly as that mechanism's own §11.3 application routing prescribes.",
+  "resolution_boundary": "aae246532b7eac8c6e0bbdc15a120784b8bb7e99",
+  "review_a_principal": "ChatGPT",
+  "review_a_role": "AI Technical Architect",
+  "review_a_verdict": "CLEAN — 0 Blocker / 0 Major / 0 Minor",
+  "risk_classification": "R1",
+  "adr_scope": "ADR_NOT_REQUIRED",
+  "application_author_executor_principal": "Claude — distinct from the Review A principal (ChatGPT), satisfying D8's distinct-principal safeguard",
+  "delegation_eligibility": "D1-D12 SATISFIED",
+  "delegation_eligibility_disposition": {
+   "D1": "PASS — ADR Scope Rule = ADR_NOT_REQUIRED for this specific application.",
+   "D2": "PASS — Risk Classification is R1 (not R2).",
+   "D3": "PASS — branch (c) is an existing Approved/EFFECTIVE authority (Product Owner activation, FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001-ACTIVATION-001) already defining the mechanism being applied.",
+   "D4": "PASS — this transaction only applies that existing mechanism to one bounded, individually-verifiable identity (contracts.x__seal_verified_authority__mutmut_33).",
+   "D5": "PASS — creates no new product/architecture/governance/contract semantics, invariant, schema, or module dependency; C1-C12 unaltered.",
+   "D6": "PASS — does not alter product scope, priority, roadmap direction, or a Product-Owner-owned value tradeoff.",
+   "D7": "PASS — accepts no new residual risk on behalf of Product Owner.",
+   "D8": "PASS — Review A (ChatGPT) independently verified this exact application and returned CLEAN: 0 Blocker / 0 Major; Review A principal is distinct from Claude, who authored/executed the underlying technical evidence and repository work.",
+   "D9": "PASS — the exact evidence/authority/boundary needed for this resolution (effective mechanism blob, technical-evidence blob, historical and current source boundaries) were fresh-verified this transaction.",
+   "D10": "PASS — no governing artifact explicitly reserves this application class to Product Owner, and the Product Owner has not explicitly called in or reserved this specific application; ADR-045's own R2/D10(a) reservation applies only to the mechanism's one-time activation (already completed, ACTIVATION-001), not to this bounded R1 application.",
+   "D11": "PASS — the delegated outcome is bounded and deterministic: another eligible reviewer applying the same C1-C12 evidence would reach the same disposition.",
+   "D12": "PASS — delegation eligibility is unambiguous; no uncertainty requiring fail-closed-to-Product-Owner routing."
+  }
+ },
+ "governed_condition_2_accounting": {
+  "rows_permitted_to_alter_governed_count_this_transaction": 1,
+  "reason": "Branch (c) VERIFIED_TOOL_IDENTITY_CONTINUITY (§11.3) requires a SEPARATE, reviewed and recorded governed decision, routed through the existing ADR-045 model, before any identity may be credited under it. That decision has now been rendered — a Delegated Technical Resolution under ADR-045 v0.3, satisfying D1-D12, exactly as ADR-045 authorizes for an eligible R0/R1 case (no Product Owner decision required for this specific application).",
+  "delegated_resolution_id": "FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001-APPLY-DTR-001",
+  "controlling_condition_2_count_before_this_transaction": "169/170",
+  "controlling_condition_2_count_after_this_transaction": "170/170 — SATISFIED"
+ },
+ "governed_condition_2_result": {
+  "label": "CONTROLLING — resolved by Delegated Technical Resolution, not a projection",
+  "rows_resolved_by_this_DTR": 1,
+  "resulting_condition_2_count": "169 + 1 = 170/170",
+  "remaining_unresolved": 0,
+  "remaining_unresolved_identity": null,
+  "note": "All 170 historical Condition-2 material-gap identities are now resolved: 169 via the pre-existing §4.1(a)/(b) mechanisms (unchanged, untouched by this transaction) plus this 1 via the newly-effective branch (c) VERIFIED_TOOL_IDENTITY_CONTINUITY."
+ },
+ "confirmation_untouched": {
+  "169_previously_resolved_rows": "Untouched, not re-submitted — already effective per the completed candidate-002/003/004/005 Review A -> Risk Classification -> Product Owner Decision / Delegated Technical Resolution chains.",
+  "condition_1_and_3": "Condition 1 (PASS — REVIEW A VALIDATED) and Condition 3 (SATISFIED — REVIEW A VALIDATED) are both untouched and not reopened by this transaction.",
+  "branch_c_mechanism_text": "feature-engine-condition2-tool-identity-continuity-proposal-001.md fresh-verified byte-unchanged (blob f045be889d536c345d3f8154c17dd93fef07981c) — C1-C12 not redesigned, not reinterpreted.",
+  "technical_evidence_artifact": "feature-engine-condition2-tool-identity-continuity-technical-evidence-001.json fresh-verified byte-unchanged (blob a4f5ceb646e39a931a532af5fd324775a38c3bc5)."
+ },
+ "adr_scope_rule_fresh": {
+  "assessment": "This transaction applies an already-governed, already Product-Owner-activated branch (c) mechanism within Feature Engine to exactly one bounded identity — it does not alter the mechanism itself (C1-C12 unchanged), does not add a Platform Invariant, Event Schema, Module Taxonomy, or Governance/Approval-process change, and reuses the exact application routing (§11.3) the activated mechanism itself already specifies.",
+  "result": "ADR_NOT_REQUIRED"
+ },
+ "review_risk_classification": "R1",
+ "not_performed_by_this_transaction": [
+  "No production src/** change.",
+  "No test change.",
+  "No tooling change.",
+  "No dependency change.",
+  "No mutation test execution or rerun (bounded isolated evidence from the activation transaction reused; no full 2629-mutant rerun).",
+  "No Condition-1 work (PASS — REVIEW A VALIDATED preserved, not reopened).",
+  "No Condition-3 work (SATISFIED preserved, not reopened).",
+  "No redesign or reinterpretation of branch (c) or C1-C12.",
+  "No credit granted to current mutmut_33 (confirmed unrelated).",
+  "No credit granted to any identity other than contracts.x__seal_verified_authority__mutmut_33.",
+  "No adjustment to the raw mutation-score numerator/denominator.",
+  "No new identity-continuity mechanism created.",
+  "No ADR authored or modified.",
+  "No Product Owner decision fabricated, implied, or requested — this resolution is explicitly NOT a Product Owner approval (ADR-045), and is not eligible to require one per D1-D12.",
+  "No P3-FEATURE-QG-EVID-03 closure.",
+  "No Feature Engine approval.",
+  "No LIVE authorization.",
+  "feature-engine-condition2-tool-identity-continuity-proposal-001.md and feature-engine-condition2-tool-identity-continuity-technical-evidence-001.json both byte-unchanged."
+ ]
+}

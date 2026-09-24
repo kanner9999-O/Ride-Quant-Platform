@@ -111,7 +111,7 @@ See §4 for full detail.
 | Condition 1 — unstable cases (current, evidence-006) | `0` — historical Evidence-005 figure of `9` is superseded at the current measurement boundary, not reopened |
 | Condition 1 — current survivor count (evidence-006) | `384` — historical Evidence-005 figure of `406` is superseded at the current measurement boundary |
 | Condition 1 — current-material companion gate | `18/18 formally resolved — PASS — REVIEW A VALIDATED` — `docs/governance/mutation-baseline-evidence/feature-engine-condition1-current-material-gap-set-003.json` (APPROVED — EFFECTIVE, sole current Condition-1B authority; all 18 measured KILLED by exact identity in `feature-engine-mutation-step9-formal-evidence-006.json`; old 42-ID set-001/24-ID set-002 and their 18+6 delegated-reclassifications are historical, `feature-engine-condition1-material-gap-dtr-001.json` + `feature-engine-condition1-wave6-classification-dtr-001.json`) |
-| Condition 2 | `169/170` — also independently blocking (1 `TOOL_IDENTITY_DRIFT` row unresolved: `contracts.x__seal_verified_authority__mutmut_33`). A resolution mechanism has been Product Owner APPROVED — EFFECTIVE — `feature-engine-condition2-tool-identity-continuity-proposal-001.md`, branch (c) `VERIFIED_TOOL_IDENTITY_CONTINUITY` (`FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001-ACTIVATION-001`) — mechanism activation only; grants no credit to any identity; count remains `169/170` until a separate, governed per-identity application decision. |
+| Condition 2 | `170/170 — SATISFIED`. The final identity, `contracts.x__seal_verified_authority__mutmut_33`, is now resolved via branch (c) `VERIFIED_TOOL_IDENTITY_CONTINUITY` (mapped uniquely to current successor `feature_engine.contracts.x__seal_verified_authority__mutmut_36`, KILLED), recorded as `DELEGATED TECHNICAL RESOLUTION — CLEAN` under ADR-045 (`FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001-APPLY-001`, `FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001-APPLY-DTR-001`) — not a Product Owner approval. `P3-FEATURE-QG-EVID-03` closure remains a separate, not-yet-performed governed action (see below). |
 | Condition 3 | `SATISFIED — REVIEW A VALIDATED` (**DONE — not reopened by this WP**) |
 | `P3-FEATURE-QG-EVID-03` | `OPEN` |
 | Feature Engine approval | `NOT APPROVED` |
@@ -651,7 +651,7 @@ credit — neither initiated here.
 
 | Lane | Item | Status |
 |---|---|---|
-| Primary | *(none currently assigned)* | `FE-EVID03-COND1-WAVE5-001`, `FE-EVID03-COND1-AUDIT-001`, `FE-EVID03-COND1-MATERIAL-SET-DTR-001`, `FE-EVID03-COND1-THRESHOLD-RECAL-V2-001`, `FE-EVID03-COND1-WAVE6-001`, `FE-EVID03-COND1-WAVE6-CLASSIFICATION-DTR-001`, `FE-EVID03-COND1-THRESHOLD-RECAL-V3-001`, `FE-EVID03-COND1-FORMAL-EVID-006-001`, `FE-EVID03-COND1-FORMAL-006-DTR-001`, `FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001`, `FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001-CORR-001`, and `FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001-ACTIVATION-001` (Product Owner APPROVED activation of branch (c) `VERIFIED_TOOL_IDENTITY_CONTINUITY` — `APPROVED — EFFECTIVE` as a general mechanism; grants NO Condition-2 credit to any identity) are all COMPLETE. Condition 1: `PASS — REVIEW A VALIDATED`. Condition 2 remains `169/170` (mechanism effective, not yet applied to any identity). Next primary WP: a separately-scoped, distinctly-governed per-identity application decision for `contracts.x__seal_verified_authority__mutmut_33` under branch (c) — awaits a separate scoping decision, not initiated here. |
+| Primary | *(none currently assigned)* | `FE-EVID03-COND1-WAVE5-001`, `FE-EVID03-COND1-AUDIT-001`, `FE-EVID03-COND1-MATERIAL-SET-DTR-001`, `FE-EVID03-COND1-THRESHOLD-RECAL-V2-001`, `FE-EVID03-COND1-WAVE6-001`, `FE-EVID03-COND1-WAVE6-CLASSIFICATION-DTR-001`, `FE-EVID03-COND1-THRESHOLD-RECAL-V3-001`, `FE-EVID03-COND1-FORMAL-EVID-006-001`, `FE-EVID03-COND1-FORMAL-006-DTR-001`, `FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001`, `FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001-CORR-001`, `FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001-ACTIVATION-001`, and `FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001-APPLY-001` (per-identity application: `contracts.x__seal_verified_authority__mutmut_33` resolved via branch (c) to current successor `mutmut_36` [KILLED], `DELEGATED TECHNICAL RESOLUTION — CLEAN` under ADR-045, not a Product Owner approval) are all COMPLETE. Condition 1: `PASS — REVIEW A VALIDATED`. Condition 2: `170/170 — SATISFIED`. Condition 3: `SATISFIED — REVIEW A VALIDATED`. `P3-FEATURE-QG-EVID-03` remains `OPEN` — closure is a separate, not-yet-performed governed action, not initiated here. Next primary WP: a separately-scoped `P3-FEATURE-QG-EVID-03` closure evaluation — awaits a separate scoping decision. |
 | Deferred | `contracts.x__seal_verified_authority__mutmut_33` (TOOL_IDENTITY_DRIFT) | Deferred — no existing governed mechanism |
 | Completed | `RIDE-PROJECT-MILESTONE-DASHBOARD-001` | Tracking infrastructure only |
 | Completed | `FE-EVID03-COND1-STOP-001` | 9/9 mutants `REQUIRES_GOVERNED_PROTOCOL_DECISION`; §13.10 applicability question flagged for ChatGPT review |
@@ -685,36 +685,39 @@ credit — neither initiated here.
 | Completed | `FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001` | Authored a candidate Feature Engine Condition-2 identity-continuity resolution mechanism (branch (c) `VERIFIED_TOOL_IDENTITY_CONTINUITY`, companion to — not an edit of — `feature-engine-mutation-threshold-proposal-001.md` §4.1's existing (a)/(b) branches) for the final unresolved row `contracts.x__seal_verified_authority__mutmut_33` (`TOOL_IDENTITY_DRIFT — NO EXISTING GOVERNED RESOLUTION MECHANISM`). Fresh technical reconstruction (isolated disposable worktrees, zero test execution, exact pinned historical boundary `8d6293aca773757bc3b62cc0d3b80cba9e243954` + mutmut `3.7.0`, current boundary `e9873e17170ada23da98be9c7dd3820045d64cde`) independently re-verified all 5 required facts: (1) `_seal_verified_authority`'s semantic code path not refactored (one honest correction of a prior 6-vs-7-kwarg imprecision, substantive conclusion unchanged); (2) historical mutation site and current `mutmut_36` byte-identical; (3) current `mutmut_33` confirmed a different, unrelated mutation (negates the new ADR-043 `merge_policy` guard); (4) historical-33 → current-36 mapping confirmed unique via exhaustive 49-mutant scan; (5) drift explained by additive ordinal growth (44→49 mutants), not a behavior change. Bounded isolated current-boundary verification of `mutmut_36` (fresh workspace, two independent runs via `python -m tooling run --max-children 1`): `killed` + `killed`, no disagreement — no full 2629-mutant rerun performed. Candidate rule requires ALL of C1–C12 (exact reconstruction, unique mapping, no refactor, tool-provenance pinned to mutmut `3.7.0`, per-identity-only credit via a SEPARATE future governed decision, no raw-score denominator/numerator adjustment) — fails closed on any unresolved criterion; explicitly not a bulk table, heuristic, or ordinal-only rule. **No Condition-2 credit granted by this transaction — remains `169/170`.** Fresh Chapter 0 §4b analysis (not inherited): `ADR_SCOPE_DISPOSITION: ADR_OPTIONAL` — reasoned directly on whether the new evidentiary branch constitutes a Governance/Approval-process change (concluded: no new review role/lifecycle stage/approval-gate structure is created; reuses Testing Convention v0.16 item 8's already-established identity-pin + justification + governed-decision shape) versus the prior final-six-assessment's own deferred concern about an in-place Testing Convention edit (this document deliberately avoids that path via the companion-document pattern already used for proposal-002/003). Risk `R2` (new architecture/authority/contract semantics per `P3-REVIEW-001`, not a bounded correction). New artifacts: `feature-engine-condition2-tool-identity-continuity-proposal-001.md` (`CANDIDATE — NOT EFFECTIVE / AWAITING REVIEW A`) and `feature-engine-condition2-tool-identity-continuity-technical-evidence-001.json`. DTR NOT ELIGIBLE for this mechanism's own eventual activation or any future per-identity credit decision (ADR-045 `D10(a)`, PO-reserved). No `src/`/`test`/`tooling`/dependency change; no Condition-1/3 work; Condition 1 remains `PASS — REVIEW A VALIDATED`; Condition 3 remains `SATISFIED — REVIEW A VALIDATED`; EVID-03 remains `OPEN`; Feature Engine remains `NOT APPROVED`; LIVE remains `NOT_AUTHORIZED` |
 | Completed | `FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001-CORR-001` | Bounded correction remediating Review A round-1 finding on `feature-engine-condition2-tool-identity-continuity-proposal-001.md` (principal ChatGPT, reviewed blob `14f83e9c0edfdff503df867222d68f19d31b540e`, technical-evidence blob `a4f5ceb646e39a931a532af5fd324775a38c3bc5`): `REVISION_REQUIRED — 0 Blocker / 1 Major / 0 Minor`, Risk `R2`, ADR Scope `ADR_OPTIONAL, conditional on correcting the Major`. **`MAJOR-01` — approval-routing contradiction:** §10.1 correctly found branch (c) introduces no new Governance/Approval-process, but §11 then hard-coded Product Owner approval for every future per-identity application, an undeclared new mandatory routing rule contradicting that finding. **Corrected:** §5 (`C10`) and §11 now distinguish two decisions — mechanism **activation** (remains Product-Owner-reserved; establishes new R2 evidence-policy semantics; ADR-045 R2 is never delegated) from per-identity **application** of an already-effective mechanism (now routed through the existing, unmodified ADR-045 model: Review A → Risk Classification → `R0`/`R1` + `D1`–`D12` all `PASS` → Delegated Technical Resolution eligible; `R2`/`ADR_REQUIRED`/governing-artifact reservation/explicit Product Owner call-in → Product Owner Decision) — no branch-(c)-specific carve-out. `C10`'s semantic safeguard preserved unchanged: credit remains per-historical-identity-only, individually reviewed/recorded, never blanket/heuristic/bulk. Fresh Chapter 0 §4b re-confirmed against the corrected text: `ADR_SCOPE_DISPOSITION: ADR_OPTIONAL` (strengthened, not weakened, by removing the undeclared routing rule); Risk `R2` unchanged for mechanism activation. **Technical reconstruction/evidence NOT altered** — `feature-engine-condition2-tool-identity-continuity-technical-evidence-001.json` fresh-verified byte-unchanged (blob `a4f5ceb646e39a931a532af5fd324775a38c3bc5`); C1–C9/C11/C12 untouched; historical-33 → current-36 mapping, uniqueness, current-33 collision, and both isolated `killed`+`killed` verification runs not re-litigated. **No Condition-2 credit granted.** Resulting proposal blob `799d7f805387f09c846eebfbe87298fded338f75`, status remains `CANDIDATE — NOT EFFECTIVE / AWAITING REVIEW A` (bounded re-review of this correction, not self-approved). No `src/`/`test`/`tooling`/dependency change; no Condition-1/3 work; Condition 1 remains `PASS — REVIEW A VALIDATED`; Condition 3 remains `SATISFIED — REVIEW A VALIDATED`; EVID-03 remains `OPEN`; Feature Engine remains `NOT APPROVED`; LIVE remains `NOT_AUTHORIZED` |
 | Completed | `FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001-ACTIVATION-001` | Executed the Product-Owner-authorized atomic activation of the Condition-2 tool-identity-continuity mechanism at reviewed boundary `278a8ab5c0916ef9c803d90bb8cf9ca934ca1260` (reviewed proposal blob `799d7f805387f09c846eebfbe87298fded338f75`, reviewed technical-evidence blob `a4f5ceb646e39a931a532af5fd324775a38c3bc5`). Review A: ChatGPT, **CLEAN — 0 Blocker / 0 Major / 0 Minor**, Risk `R2`, ADR Scope `ADR_OPTIONAL`, Product Owner explicitly selected `PROCEED WITHOUT OPTIONAL CROSS-CHECK`. `feature-engine-condition2-tool-identity-continuity-proposal-001.md` → **`APPROVED — EFFECTIVE` (mechanism activation only)** (resulting blob `f045be889d536c345d3f8154c17dd93fef07981c`), now an additional, disjoint Condition-2 resolution branch **(c) `VERIFIED_TOOL_IDENTITY_CONTINUITY`** — companion to, not a replacement of, `feature-engine-mutation-threshold-proposal-001.md` §4.1's existing (a)/(b) (byte-unchanged, untouched). Mechanism substance (`C1`–`C12`) unchanged from the `MAJOR-01`-corrected reviewed text — not redesigned. Application routing (§11.3) unchanged: every future per-identity application still requires its own separate reviewed/recorded governed decision under the existing ADR-045 model (Review A → Risk Classification → `R0`/`R1` + `D1`–`D12` all PASS → Delegated Technical Resolution eligible; `R2`/`ADR_REQUIRED`/governing-artifact reservation/explicit Product Owner call-in → Product Owner Decision). **This activation does NOT apply branch (c) to `contracts.x__seal_verified_authority__mutmut_33` or any other identity, and grants NO Condition-2 credit — Condition 2 remains `169/170`.** `feature-engine-condition2-tool-identity-continuity-technical-evidence-001.json` fresh-verified byte-unchanged (blob `a4f5ceb646e39a931a532af5fd324775a38c3bc5`), not touched. No `src/`/`test`/`tooling`/dependency change; no Condition-1/3 work; Condition 1 remains `PASS — REVIEW A VALIDATED`; Condition 3 remains `SATISFIED — REVIEW A VALIDATED`; EVID-03 remains `OPEN`; Feature Engine remains `NOT APPROVED`; LIVE remains `NOT_AUTHORIZED` |
+| Completed | `FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001-APPLY-001` | Applied the already Product-Owner-APPROVED/EFFECTIVE Condition-2 branch (c) `VERIFIED_TOOL_IDENTITY_CONTINUITY` mechanism to exactly one historical identity: `contracts.x__seal_verified_authority__mutmut_33`, mapped uniquely to current successor `feature_engine.contracts.x__seal_verified_authority__mutmut_36` (KILLED — two independent isolated runs, corroborated by Evidence-006's own formal killed status). Fresh-verified before mutation: boundary `aae246532b7eac8c6e0bbdc15a120784b8bb7e99`; effective mechanism blob `f045be889d536c345d3f8154c17dd93fef07981c`; technical-evidence blob `a4f5ceb646e39a931a532af5fd324775a38c3bc5`; `contracts.py` source blob `0d2e39bffb705a2b1f903cd1a54b5f099ae6a686` (identical to the technical-evidence artifact's own current boundary — no source drift). All `C1`–`C12` verified PASS (exact reconstruction both sides, unique 1:1 mapping, no refactor, mutmut `3.7.0` provenance, per-identity-only credit, no raw-score adjustment). Review A: ChatGPT, **CLEAN — 0 Blocker / 0 Major / 0 Minor**, Risk `R1`, ADR Scope `ADR_NOT_REQUIRED`. ADR-045 `D1`–`D12` all `PASS` (D8: ChatGPT distinct from Claude, who authored/executed the underlying technical evidence; D10: no governing-artifact reservation, no Product Owner call-in for this specific application — R2/D10(a) applied only to the mechanism's own one-time activation, already completed). Governed outcome: **`DELEGATED TECHNICAL RESOLUTION — CLEAN`** (`FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001-APPLY-DTR-001`) — NOT a Product Owner approval; no Product Owner decision requested or required. **Condition 2: `169/170` → `170/170 — SATISFIED`.** New additive artifact `feature-engine-condition2-tool-identity-continuity-application-001.json`. `feature-engine-condition2-tool-identity-continuity-proposal-001.md` and `-technical-evidence-001.json` both fresh-verified byte-unchanged, not touched — branch (c)/`C1`–`C12` not redesigned. No `src/`/`test`/`tooling`/dependency change; no Condition-1/3 work; Condition 1 remains `PASS — REVIEW A VALIDATED`; Condition 3 remains `SATISFIED — REVIEW A VALIDATED`. **`P3-FEATURE-QG-EVID-03` NOT closed by this transaction** — remains `OPEN`, closure is a separate, not-yet-performed governed action. Feature Engine remains `NOT APPROVED`; LIVE remains `NOT_AUTHORIZED` |
 
 ## 6. PO dashboard snapshot
 
 ```text
 Current milestone:        M1 — Feature Engine EVID-03 Closure (ACTIVE, AT RISK)
-Primary blocker:          Condition 2 -- 169/170, the final 1/170
-                           TOOL_IDENTITY_DRIFT identity
-                           (contracts.x__seal_verified_authority__
-                           mutmut_33). A resolution mechanism (branch
-                           (c) VERIFIED_TOOL_IDENTITY_CONTINUITY) is
-                           now `APPROVED -- EFFECTIVE` but has NOT been
-                           applied to this identity -- a separate,
-                           governed per-identity application decision
-                           is still required. Condition 1 is now `PASS
-                           -- REVIEW A VALIDATED` (evidence-006 +
-                           FE-EVID03-COND1-FORMAL-006-DTR-001) and no
-                           longer blocking -- historical figures below
-                           (84.21%-84.56% / 42-ID gate) are superseded.
+Primary blocker:          None at the raw-condition level -- Condition
+                           1 `PASS -- REVIEW A VALIDATED`, Condition 2
+                           `170/170 -- SATISFIED` (final identity
+                           contracts.x__seal_verified_authority__
+                           mutmut_33 resolved via branch (c)
+                           VERIFIED_TOOL_IDENTITY_CONTINUITY, mapped to
+                           current successor mutmut_36, KILLED,
+                           DELEGATED TECHNICAL RESOLUTION -- CLEAN
+                           under ADR-045), Condition 3 `SATISFIED --
+                           REVIEW A VALIDATED`. `P3-FEATURE-QG-EVID-03`
+                           remains OPEN -- closure is a SEPARATE,
+                           not-yet-performed governed action, not
+                           initiated by this transaction. Historical
+                           figures below (84.21%-84.56% / 42-ID gate)
+                           are superseded.
 Current primary WP:       (none currently assigned) -- Condition-1
                            formal measurement 006 and its Review A
                            DTR (`FE-EVID03-COND1-FORMAL-EVID-006-001`,
                            `FE-EVID03-COND1-FORMAL-006-DTR-001`)
                            COMPLETE; Condition-2 tool-identity-
                            continuity mechanism authored, corrected
-                           (MAJOR-01), and Product Owner activated
+                           (MAJOR-01), Product Owner activated, and
+                           applied to the final identity
                            (`FE-EVID03-COND2-TOOL-IDENTITY-
                            CONTINUITY-001`, `-CORR-001`,
-                           `-ACTIVATION-001`) -- `APPROVED --
-                           EFFECTIVE` (mechanism activation only, no
-                           per-identity application, no credit)
+                           `-ACTIVATION-001`, `-APPLY-001`) --
+                           Condition 2 now `170/170 -- SATISFIED`
 ADR-045:                   v0.3, Approved / ACTIVE -- Delegated
                            Technical Resolution lane, self-contained
                            R0/R1/R2 definitions (X-MAJ-02), D8
@@ -860,6 +863,53 @@ activation                 ACTIVATION-001. Product Owner APPROVED
                            931a532af5fd324775a38c3bc5), not touched. No
                            src/test/tooling/dependency change. Condition
                            1/3 preserved, unchanged.
+Continuity mechanism       FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001-
+application                APPLY-001. Applied branch (c) to exactly one
+(APPLY-001):               historical identity:
+                           contracts.x__seal_verified_authority__
+                           mutmut_33, mapped uniquely to current
+                           successor
+                           feature_engine.contracts.x__seal_verified_
+                           authority__mutmut_36 (KILLED -- two
+                           independent isolated runs, corroborated by
+                           Evidence-006's own formal killed status).
+                           Fresh-verified before mutation: boundary
+                           aae246532b7eac8c6e0bbdc15a120784b8bb7e99;
+                           effective mechanism blob
+                           f045be889d536c345d3f8154c17dd93fef07981c;
+                           technical-evidence blob
+                           a4f5ceb646e39a931a532af5fd324775a38c3bc5;
+                           contracts.py source blob
+                           0d2e39bffb705a2b1f903cd1a54b5f099ae6a686
+                           (identical to the technical-evidence
+                           artifact's own current boundary -- no
+                           source drift). All C1-C12 verified PASS.
+                           Review A: ChatGPT, CLEAN -- 0 Blocker / 0
+                           Major / 0 Minor, Risk R1, ADR Scope
+                           ADR_NOT_REQUIRED. ADR-045 D1-D12 all PASS
+                           (D8: ChatGPT distinct from Claude; D10: no
+                           governing-artifact reservation, no Product
+                           Owner call-in for this specific application
+                           -- the mechanism's own R2/D10(a) reservation
+                           applied only to activation, already
+                           completed). Governed outcome: DELEGATED
+                           TECHNICAL RESOLUTION -- CLEAN
+                           (FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-
+                           001-APPLY-DTR-001) -- NOT a Product Owner
+                           approval; none requested or required.
+                           CONDITION 2: 169/170 -> 170/170 --
+                           SATISFIED. New artifact: feature-engine-
+                           condition2-tool-identity-continuity-
+                           application-001.json. Mechanism/evidence
+                           documents fresh-verified byte-unchanged, not
+                           touched -- branch (c)/C1-C12 not redesigned.
+                           No src/test/tooling/dependency change; no
+                           Condition-1/3 work. P3-FEATURE-QG-EVID-03
+                           NOT closed by this transaction -- remains
+                           OPEN, closure is a separate, not-yet-
+                           performed governed action. Feature Engine
+                           remains NOT APPROVED; LIVE remains
+                           NOT_AUTHORIZED.
 Last Review A:             CLEAN -- 0 Blocker / 0 Major / 0 Minor, Risk
                            R1 (on Candidate-005, boundary
                            1e4078c3...). Reviewer ChatGPT, AI Technical
@@ -1128,32 +1178,31 @@ PO decision required now: NO
                            Resolution, not a Product Owner approval --
                            D1-D12 satisfied a bounded, deterministic
                            application of the existing Approved gate.
-                           Condition 2 (169/170) independently
-                           continues to block. The Condition-2 tool-
-                           identity-continuity mechanism (branch (c)
-                           VERIFIED_TOOL_IDENTITY_CONTINUITY) has been
-                           Product Owner APPROVED -- EFFECTIVE
+                           Condition 2 is now 170/170 -- SATISFIED: the
+                           final identity, contracts.x__seal_verified_
+                           authority__mutmut_33, was resolved via the
+                           already Product-Owner-activated branch (c)
+                           VERIFIED_TOOL_IDENTITY_CONTINUITY (mapped
+                           uniquely to current successor mutmut_36,
+                           KILLED), recorded as DELEGATED TECHNICAL
+                           RESOLUTION -- CLEAN under ADR-045
                            (FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-
-                           001-ACTIVATION-001) -- mechanism activation
-                           ONLY, no per-identity application performed,
-                           NO Condition-2 credit granted, count remains
-                           169/170. contracts.x__seal_verified_
-                           authority__mutmut_33 remains unresolved.
-                           Condition 3 (SATISFIED) preserved unchanged.
-                           EVID-03 remains OPEN; Feature Engine remains
-                           NOT APPROVED; Phase-3 module approval
-                           remains NOT GRANTED; LIVE remains
-                           NOT_AUTHORIZED. Next governed decision
-                           point: a separately-scoped, distinctly-
-                           governed per-identity application decision
-                           for contracts.x__seal_verified_authority__
-                           mutmut_33 under the now-effective branch (c)
-                           -- routed through the existing ADR-045
-                           model (Review A -> Risk Classification ->
-                           R0/R1 + D1-D12 all PASS -> Delegated
-                           Technical Resolution eligible; otherwise ->
-                           Product Owner Decision) -- not initiated
-                           here.)
+                           001-APPLY-001 /
+                           -APPLY-DTR-001) -- ALSO NOT a Product Owner
+                           approval; D1-D12 satisfied a bounded,
+                           deterministic, distinctly-reviewed
+                           application of an already-effective
+                           mechanism. Condition 3 (SATISFIED) preserved
+                           unchanged. P3-FEATURE-QG-EVID-03 remains
+                           OPEN -- its closure, Feature Engine
+                           approval, and LIVE authorization are NOT
+                           performed by this transaction and each
+                           remain a SEPARATE, not-yet-initiated
+                           governed decision. Phase-3 module approval
+                           remains NOT GRANTED. Next governed decision
+                           point: a separately-scoped
+                           P3-FEATURE-QG-EVID-03 closure evaluation --
+                           not initiated here.)
 ```
 
 ## 7. Update rules
