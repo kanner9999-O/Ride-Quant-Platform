@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.429"
+manifest_version: "10.430"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -29767,6 +29767,28 @@ LIVE:                               NOT_AUTHORIZED.
 **ADR Scope / Risk:** `ADR_NOT_REQUIRED` (governance DTR-recording transaction, no Platform Invariant/Event Schema/Module Taxonomy/Governance-process/Locked-ADR trigger). Risk: `R1`.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-condition1-material-gap-dtr-001.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — exactly 6 files. No `src/`, `tooling/`, test, dependency, Constitution, ADR, Testing Convention, root-cause-audit-artifact, threshold-artifact, or 42-ID-artifact file touched. `manifest_version` `"10.428"` -> `"10.429"`.
+
+## Feature Condition-1 threshold recalibration candidate 002 (`feature-engine-mutation-threshold-recalibration-proposal-002.md`) — 85.127424876379% + 24-ID candidate — CANDIDATE, NOT ACTIVATED
+
+**Fresh boundary verification:** starting HEAD `2c2911f2056964edd7a82c57b75526660dbc61e5` fresh-verified equal to `origin/main`, no drift. Governing artifacts fresh-verified exact and byte-unchanged: active proposal-001 blob `12040044578d57d15e699a327a5a8ae39c1e9ea3`, active 42-ID set-001 blob `49c30b439eb84db95c55dc4a86de22e2b491dbb5`, root-cause audit blob `aaece3895c3c66e05aba3a421f7b045db94e8bbb`, DTR blob `fe43ffe2ac460fc42551617d9bb7781e52a07f26`.
+
+**Purpose:** authors the final, bounded Feature Engine Condition-1 threshold-correction candidate, built directly on `FE-EVID03-COND1-MATERIAL-SET-DTR-001`'s Review-A-validated final partition (`GENUINE_TEST_GAP=24 / NON_MATERIAL=18 / UNCLEAR=0`). The active 42-identity population and its `85.812095853937%` figure are proven, by the active proposal's own calibration principle, conservative/over-strict relative to what they actually measure — 18 of the 42 pinned identities do not represent genuine behavioral gaps. This candidate corrects the calibration to the same principle, applied to the exact 24-identity Review-A-validated population — a precision correction, not a policy weakening.
+
+**Candidate math (same `2214`/`2629` calibration boundary as the active proposal, never the post-Wave-5 killed count):** `M=24` → candidate numerator `2214+24=2238` → **`2238/2629×100 = 85.127424876379%`** (full precision `85.12742487637885%`). Proposed gate: Condition 1A (`raw score ≥ 85.127424876379%`) AND Condition 1B (all 24 exact IDs in the new candidate companion artifact individually resolved) — same resolution mechanism `(a) killed/confirmed_timeout OR (b) individually reclassified`, no substitution, no blanket reclassification, no score-offset.
+
+**New candidate artifacts (both `CANDIDATE`, neither effective):** `feature-engine-mutation-threshold-recalibration-proposal-002.md` and `feature-engine-condition1-current-material-gap-set-002.json` (exact 24 IDs sourced from the DTR's own `remaining_material_24_sorted`, `count=24`, `duplicates=0`, sorted-set sha256 `6c8181f7665a63494632ef89514ea7efdf9948c544c9a9a8094e87c17c3d2543`, matching the DTR's recorded value exactly). Engineering status carried forward: 11/24 with Wave-5 targeted-kill implementation evidence (formal credit NOT claimed), 13/24 unremediated.
+
+**Not a pass-fitting number, explicitly shown:** current Evidence-005 raw score (`84.21453023963484%–84.55686572841384%`) remains below `85.127424876379%` — Condition 1A would still `FAIL` on current formal evidence even if this candidate were activated today; Condition 1B also remains incomplete. The 18 DTR-resolved non-material identities' governed reclassification is preserved unchanged as valid audit history, not erased or re-litigated by this candidate.
+
+**Active gate unchanged — explicit verification:** proposal-001 (`85.812095853937%` / 42-ID set-001) remains the sole current, fully controlling Condition-1 authority. This transaction does NOT activate, does NOT touch, and does NOT supersede it. No Review A performed on the new candidate. No Product Owner approval requested. No formal mutation measurement. No `TOOL_IDENTITY_DRIFT` resolution. No Feature Engine approval. No `LIVE` authorization.
+
+**Review/decision path (defined, not performed):** Review A mandatory (R1 default, no independent cross-check unless escalated). Numeric threshold selection remains explicitly Product-Owner-reserved (ADR-045 `D10(a)`) — DTR is NOT eligible for this candidate's own activation decision. Proposed next step: after CLEAN Review A, route one narrow Product Owner decision on the quality bar — not requested by this transaction.
+
+**Wave 6 remains PAUSED** pending this candidate's own Review A/decision, to stabilize the controlling quality-bar candidate before the next implementation wave.
+
+**ADR Scope / Risk:** fresh-run against this candidate's actual content (not inherited from proposal-001): `ADR_OPTIONAL` (same single-module numeric-recalibration category — Condition 1B's resolution mechanism is verbatim the same already-established pattern, applied to a smaller, more precisely audited identity set; no new governance/approval-process machinery). Risk: `R1` (candidate disposition, pending independent confirmation by this candidate's own Review A).
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-recalibration-proposal-002.md` (new), `docs/governance/mutation-baseline-evidence/feature-engine-condition1-current-material-gap-set-002.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — exactly 7 files. No `src/`, `tooling/`, test, dependency, Constitution, ADR, Testing Convention, active-proposal-001, active-42-ID-set-001, root-cause-audit, DTR, or Wave-5-evidence file touched. `manifest_version` `"10.429"` -> `"10.430"`.
 
 ## Decision Log
 

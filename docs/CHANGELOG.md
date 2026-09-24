@@ -2,6 +2,24 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-24 — feature-engine: Condition-1 threshold recalibration candidate 002 — 85.127424876379% + 24-ID candidate, NOT activated
+
+Starting HEAD `2c2911f2056964edd7a82c57b75526660dbc61e5`, verified `main == origin/main`, no drift. Governing artifacts fresh-verified exact and byte-unchanged: active proposal-001 blob `12040044578d57d15e699a327a5a8ae39c1e9ea3`, active 42-ID set-001 blob `49c30b439eb84db95c55dc4a86de22e2b491dbb5`, root-cause audit blob `aaece3895c3c66e05aba3a421f7b045db94e8bbb`, DTR blob `fe43ffe2ac460fc42551617d9bb7781e52a07f26`.
+
+Authored the final, bounded Feature Engine Condition-1 threshold-correction candidate, built directly on the Delegated Technical Resolution's (`FE-EVID03-COND1-MATERIAL-SET-DTR-001`) Review-A-validated final partition: `GENUINE_TEST_GAP=24`, `NON_MATERIAL=18`, `UNCLEAR=0`. The active 42-identity population is now proven, by its own calibration principle, conservative/over-strict — this candidate corrects the calibration to the same principle applied to the 24-identity Review-A-validated population, using the SAME `2214`/`2629` calibration boundary as the active proposal (never the post-Wave-5 killed count): candidate numerator `2214+24=2238` -> `85.127424876379%` (full precision `85.12742487637885%`).
+
+New candidate documents (both `CANDIDATE`, neither effective): `feature-engine-mutation-threshold-recalibration-proposal-002.md` and `feature-engine-condition1-current-material-gap-set-002.json` (exact 24 IDs sourced from the DTR's own `remaining_material_24_sorted`, sha256 `6c8181f7665a63494632ef89514ea7efdf9948c544c9a9a8094e87c17c3d2543`, matching the DTR's recorded value). Proposed gate: Condition 1A (`raw score >= 85.127424876379%`) AND Condition 1B (all 24 exact set-002 IDs individually resolved), same resolution mechanism, no substitution.
+
+Explicitly shown NOT to be a pass-fitting number: current raw score (`84.21%-84.56%`) remains below `85.127424876379%` -- Condition 1A would still FAIL on current formal evidence even if activated today; Condition 1B also remains incomplete (13/24 unremediated, 11/24 with Wave-5 kill evidence but no formal credit claimed). The 18 DTR-resolved non-material identities' governed reclassification is preserved unchanged as valid audit history.
+
+Active gate UNCHANGED and fully controlling: proposal-001 (`85.812095853937%` / 42-ID set-001) is NOT activated, touched, or superseded by this transaction. No Review A performed, no Product Owner approval requested, no formal mutation measurement, no `TOOL_IDENTITY_DRIFT` resolution. Numeric threshold selection remains explicitly Product-Owner-reserved (ADR-045 `D10(a)`) -- DTR NOT eligible for this candidate's own activation decision. Wave 6 remains PAUSED pending this candidate's own Review A/decision.
+
+ADR Scope (fresh-run, not inherited): `ADR_OPTIONAL`. Risk: `R1`. `manifest_version` `"10.429"` -> `"10.430"`.
+
+**Files changed (7):** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-recalibration-proposal-002.md` (new), `docs/governance/mutation-baseline-evidence/feature-engine-condition1-current-material-gap-set-002.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md`.
+
+---
+
 ## [Unreleased] — 2026-09-24 — feature-engine: Condition-1 material-set Delegated Technical Resolution — 18/42 reclassified, 24/42 still require resolution
 
 Starting HEAD `f103aabb1ea3b725642841c204b79a66353e42ee`, verified `main == origin/main`, no drift. Reviewed root-cause audit artifact blob `aaece3895c3c66e05aba3a421f7b045db94e8bbb` fresh-verified exact match.
