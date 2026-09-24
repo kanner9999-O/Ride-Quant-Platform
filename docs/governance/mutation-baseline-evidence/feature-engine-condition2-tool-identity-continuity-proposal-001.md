@@ -1,6 +1,110 @@
 # Feature Engine Condition-2 Tool-Identity-Continuity Mechanism — Proposal 001
 
-**STATUS: CANDIDATE — NOT EFFECTIVE / AWAITING REVIEW A**
+**STATUS: APPROVED — EFFECTIVE (mechanism activation only)**
+
+**Product Owner APPROVAL — atomic activation, vai trò: `Feature Engine
+Condition-2 Tool-Identity-Continuity Proposal 001 Product Owner Decision
+Recorder`.** Product Owner decision (verbatim):
+
+> "PROCEED WITHOUT OPTIONAL CROSS-CHECK. APPROVE activation of
+> `VERIFIED_TOOL_IDENTITY_CONTINUITY` branch (c) exactly as defined in
+> `feature-engine-condition2-tool-identity-continuity-proposal-001.md`,
+> reviewed proposal blob `799d7f805387f09c846eebfbe87298fded338f75`,
+> with technical-evidence blob `a4f5ceb646e39a931a532af5fd324775a38c3bc5`,
+> at repository boundary `278a8ab5c0916ef9c803d90bb8cf9ca934ca1260`.
+> Accept Review A: `CLEAN — 0 Blocker / 0 Major / 0 Minor`; Risk `R2`;
+> ADR Scope `ADR_OPTIONAL`. This decision activates the mechanism only.
+> It grants NO Condition-2 credit to
+> `contracts.x__seal_verified_authority__mutmut_33`. Condition 2 remains
+> `169/170` until a separate per-identity governed application decision
+> is completed."
+
+**Reviewed repository boundary:** `278a8ab5c0916ef9c803d90bb8cf9ca934ca1260`
+(the commit at which this candidate document — corrected per `MAJOR-01`
+— and its technical evidence reached the reviewed content this approval
+covers). **Reviewed proposal blob:** `799d7f805387f09c846eebfbe87298fded338f75`
+(this file, at that boundary — the byte-identical `CANDIDATE — NOT
+EFFECTIVE / AWAITING REVIEW A` content, post-`MAJOR-01`-correction,
+Review A evaluated). **Reviewed technical-evidence blob:**
+`a4f5ceb646e39a931a532af5fd324775a38c3bc5`. This activation adds only an
+approval banner to this document — never a change to the reviewed
+substantive mechanism semantics (§0–§14 below remain byte-identical to
+what Review A evaluated; `C1`–`C12` are not redesigned).
+
+**Review evidence at this approval (already completed, recorded — not
+recorder self-closure):**
+
+```text
+Review A -- ChatGPT / AI Technical Architect, reviewed proposal blob
+799d7f805387f09c846eebfbe87298fded338f75, reviewed technical-evidence
+blob a4f5ceb646e39a931a532af5fd324775a38c3bc5:
+  CLEAN -- 0 Blocker / 0 Major / 0 Minor.
+Risk: R2. ADR Scope: ADR_OPTIONAL.
+R2 optional independent cross-check: Product Owner explicitly selected
+  PROCEED WITHOUT OPTIONAL CROSS-CHECK. No Independent Review B
+  performed or fabricated.
+```
+
+**State after this approval:**
+
+```text
+Feature Engine Condition-2 branch (c) VERIFIED_TOOL_IDENTITY_CONTINUITY:
+  APPROVED -- Product Owner, EFFECTIVE. This is now an additional,
+  disjoint Condition-2 resolution branch, companion to -- not a
+  replacement of, edit of, or reinterpretation of -- the existing
+  (a)/(b) branches in feature-engine-mutation-threshold-proposal-001.md
+  SS4.1 (byte-unchanged, not touched by this activation).
+Mechanism substance: C1-C12 (SS5), unchanged from the reviewed,
+  MAJOR-01-corrected text -- exact historical/current reconstruction,
+  unique 1:1 mapping, no legitimate refactor, mutmut 3.7.0 provenance
+  only, per-identity-only credit via a SEPARATE future governed
+  decision, no raw-score numerator/denominator adjustment.
+Application routing (SS11.3, unchanged from the reviewed text): every
+  future per-identity application still requires its own separate
+  reviewed and recorded governed decision, routed through the existing
+  ADR-045 model (Review A -> Risk Classification -> R0/R1 + D1-D12 all
+  PASS -> Delegated Technical Resolution eligible; R2, ADR_REQUIRED for
+  that application, a governing-artifact reservation, or an explicit
+  Product Owner call-in -> Product Owner Decision). This activation
+  does NOT itself perform, pre-authorize, or shortcut that decision for
+  any identity.
+Condition 2: 169/170 -- UNCHANGED. contracts.x__seal_verified_
+  authority__mutmut_33 remains unresolved. NO credit granted by this
+  activation.
+Condition 1 and Condition 3: preserved as independent requirements,
+  UNCHANGED, not reopened.
+P3-FEATURE-QG-EVID-03: OPEN. Feature Engine: NOT APPROVED. LIVE:
+  NOT_AUTHORIZED.
+```
+
+**Approval này KHÔNG:** apply branch (c) to
+`contracts.x__seal_verified_authority__mutmut_33` or any other
+identity; grant any Condition-2 credit; change `169/170` to `170/170`
+or any other value; rerun the full 2629-mutant population or any
+mutation test; redesign, weaken, or reinterpret `C1`–`C12`; mutate
+`feature-engine-mutation-threshold-proposal-001.md` (remains
+byte-unchanged, `§4.1` (a)/(b) untouched); mutate
+`feature-engine-condition2-tool-identity-continuity-technical-evidence-001.json`
+(remains byte-unchanged at `a4f5ceb646e39a931a532af5fd324775a38c3bc5`);
+touch Evidence-005, Evidence-006, proposal-002/003, set-002/set-003,
+Testing Convention, Chapter 13, ADR-044, or ADR-045; touch any
+source/test/tooling/dependency; reopen Condition 1 or Condition 3;
+close `P3-FEATURE-QG-EVID-03`; approve Feature Engine; authorize LIVE;
+or author a broader Ride governance/process-improvement ADR.
+
+**Below this banner (§0–§14) is this candidate's own authored content,
+byte-identical to what Review A evaluated (reviewed blob
+`799d7f805387f09c846eebfbe87298fded338f75`) — preserved unedited as the
+correct, immutable record of what was proposed and reviewed. Statements
+below describing this document as "CANDIDATE," "not requesting a
+Product Owner decision," "not yet reviewed," "not yet approved," or
+similar are accurate as of this document's own authoring/review
+boundary and are superseded, effective this activation, only for the
+mechanism's own ACTIVATION — never retroactively edited, and never
+read as authorizing any per-identity application, which §11.3 below
+continues to govern exactly as reviewed.**
+
+---
 
 **Bounded correction (this revision), remediating Review A round 1
 finding `MAJOR-01`** (principal ChatGPT, AI Technical Architect,

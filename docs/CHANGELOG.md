@@ -2,6 +2,26 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-24 — feature-engine: Condition-2 tool-identity-continuity mechanism ACTIVATED — APPROVED — EFFECTIVE (mechanism activation only), NO CREDIT GRANTED
+
+Starting `main == origin/main == 278a8ab5c0916ef9c803d90bb8cf9ca934ca1260`, fresh-verified, working tree clean, no drift. Reviewed proposal blob `799d7f805387f09c846eebfbe87298fded338f75`; reviewed technical-evidence blob `a4f5ceb646e39a931a532af5fd324775a38c3bc5`, both fresh-verified exact before mutation.
+
+Product Owner decision (verbatim): "PROCEED WITHOUT OPTIONAL CROSS-CHECK. APPROVE activation of `VERIFIED_TOOL_IDENTITY_CONTINUITY` branch (c) exactly as defined in `feature-engine-condition2-tool-identity-continuity-proposal-001.md`, reviewed proposal blob `799d7f805387f09c846eebfbe87298fded338f75`, with technical-evidence blob `a4f5ceb646e39a931a532af5fd324775a38c3bc5`, at repository boundary `278a8ab5c0916ef9c803d90bb8cf9ca934ca1260`. Accept Review A: `CLEAN — 0 Blocker / 0 Major / 0 Minor`; Risk `R2`; ADR Scope `ADR_OPTIONAL`. This decision activates the mechanism only. It grants NO Condition-2 credit to `contracts.x__seal_verified_authority__mutmut_33`. Condition 2 remains `169/170` until a separate per-identity governed application decision is completed."
+
+Review A: ChatGPT, AI Technical Architect -- `CLEAN — 0 Blocker / 0 Major / 0 Minor`, Risk `R2`, ADR Scope `ADR_OPTIONAL`. Product Owner explicitly selected `PROCEED WITHOUT OPTIONAL CROSS-CHECK` -- no Independent Review B.
+
+`feature-engine-condition2-tool-identity-continuity-proposal-001.md` -> **`APPROVED — EFFECTIVE` (mechanism activation only)** (resulting blob `f045be889d536c345d3f8154c17dd93fef07981c`), now an additional, disjoint Feature Engine Condition-2 resolution branch **(c) `VERIFIED_TOOL_IDENTITY_CONTINUITY`** -- companion to, not a replacement of, `feature-engine-mutation-threshold-proposal-001.md` §4.1's existing (a)/(b) (byte-unchanged). Mechanism substance (C1-C12) unchanged from the `MAJOR-01`-corrected reviewed text -- not redesigned. Application routing (§11.3) unchanged: every future per-identity application still requires its own separate reviewed/recorded governed decision under the existing ADR-045 model.
+
+**This activation does NOT apply branch (c) to `contracts.x__seal_verified_authority__mutmut_33` or any other identity, and grants NO Condition-2 credit.** Condition 2 remains `169/170 — BLOCKING`, unchanged. `feature-engine-condition2-tool-identity-continuity-technical-evidence-001.json` fresh-verified byte-unchanged (blob `a4f5ceb646e39a931a532af5fd324775a38c3bc5`), not touched.
+
+Condition 1 (`PASS — REVIEW A VALIDATED`) and Condition 3 (`SATISFIED — REVIEW A VALIDATED`) preserved, unchanged, independent, not reopened. `P3-FEATURE-QG-EVID-03` remains `OPEN`. Feature Engine remains `NOT APPROVED`. `LIVE` remains `NOT_AUTHORIZED`.
+
+`manifest_version` `"10.438"` -> `"10.439"`.
+
+**Files changed (5):** `feature-engine-condition2-tool-identity-continuity-proposal-001.md` (activation banner added in place), `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md`. `feature-engine-condition2-tool-identity-continuity-technical-evidence-001.json` explicitly NOT touched.
+
+---
+
 ## [Unreleased] — 2026-09-24 — feature-engine: Condition-2 tool-identity-continuity candidate — bounded correction (MAJOR-01) — CANDIDATE, NOT EFFECTIVE, NO CREDIT GRANTED
 
 Starting `main == origin/main == 5b91253e7b4f42e05353ac61938a73483552aeee`, fresh-verified, working tree clean, no drift. Reviewed proposal blob `14f83e9c0edfdff503df867222d68f19d31b540e`; reviewed technical-evidence blob `a4f5ceb646e39a931a532af5fd324775a38c3bc5`, fresh-verified byte-unchanged throughout.
