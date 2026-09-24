@@ -2,6 +2,43 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-24 — feature-engine: M2 scope derived and reconciled — M2 ACTIVE -> BLOCKED (EVID-04/EVID-06-remaining/EVID-08 externally blocked)
+
+Starting `main == origin/main == 01b05e73221474caf303b1a37fe886bf7366980d`, fresh-verified, working tree clean, no drift. All 10 pinned artifact/authority blobs fresh-verified exact before mutation.
+
+Bounded, repository-grounded scope derivation and tracking reconciliation for M2 (Feature Engine — Remaining Quality-Gate Closure). **No Quality-Gate finding remediated.**
+
+Fresh-verified current-state matrix:
+
+- `EVID-03 = CLOSED — PASS — REVIEW A VALIDATED` (`FE-EVID03-CLOSURE-001`)
+- `EVID-05 = CLOSED — PASS` (evidence-05b: part (a) SATISFIED, part (b) CLOSED — PASS)
+- `EVID-07 = CLOSED — PASS` (Hypothesis property-based mechanism Approved/installed/pinned)
+- `EVID-04 = BLOCKED_BY_EXTERNAL_DEPENDENCY` (no Decision Engine/Strategy Plugin Host exists)
+- `EVID-06 = OPEN — PARTIALLY SATISFIED / BLOCKED_BY_EXTERNAL_DEPENDENCY` (Feature-local `SATISFIED — REVIEW A VALIDATED`, NOT reopened; platform risk-not-increased assertion blocked, no Risk Gateway)
+- `EVID-08 = BLOCKED_BY_EXTERNAL_DEPENDENCY` (Strategy/Decision/Risk Gateway/Execution all unbuilt, strict superset of EVID-04)
+
+Repository implementation-existence verification (directories inspected, not declarations alone): zero Decision/Strategy/Risk/Execution implementation directories anywhere in `python/` or `go/`; `module-registry.yaml`'s corresponding entries all carry `status: candidate`.
+
+Chapter 14 §14.2 dependency-order finding: `Data Layer -> Structure Engine & Raw Regime Engine -> Feature Engine -> Context Projection -> Strategy -> Decision -> Risk Gateway -> Execution` -- matches expected sequence exactly. `EVID-04`, `EVID-06`'s remaining half, and `EVID-08` each depend on modules strictly downstream of Feature Engine -- no honest Feature-Engine-local remediation path exists for any of the three today.
+
+**M2 acceptance boundary derived, not invented:** `EVID-04 = CLOSED — PASS`, `EVID-06 = CLOSED — PASS`, `EVID-08 = CLOSED — PASS`. `EVID-03`/`EVID-05`/`EVID-07` already complete, excluded from new work, NOT reopened.
+
+**Explicit prohibition on fake Feature-local substitutes:** no stub/mock Decision/Risk/Execution capability may be authored; "Feature Engine emitted nothing" is never a substitute for the required platform risk-not-increased assertion.
+
+Tracking reconciliation applied: `feature-engine-chapter13-remediation-plan-001.md`'s `EVID-05`/`EVID-07` rows were stale (never mechanically updated after their own later closures) -- struck through, corrected in place; an `EVID-03` closure note appended; new §10 section added.
+
+Review: ChatGPT, AI Technical Architect -- `CLEAN — 0 Blocker / 0 Major / 0 Minor`, Risk `R1`, ADR Scope `ADR_NOT_REQUIRED`. No Product Owner decision required.
+
+**M2 (Feature Engine — Remaining Quality-Gate Closure): `ACTIVE` -> `BLOCKED`** -- reason: remaining closure depends on downstream Phase-3 capabilities not yet implemented. M1 remains `DONE`. M3 remains `QUEUED`. M4 remains `PROVISIONAL` -- neither re-sequenced (critical-path re-sequencing is a separate, subsequent orchestration decision).
+
+No `src/`/`test`/`tooling`/dependency change. **Feature Engine remains `NOT APPROVED`. Phase-3 module approval remains `NOT GRANTED`. `LIVE` remains `NOT_AUTHORIZED`.**
+
+`manifest_version` `"10.441"` -> `"10.442"`.
+
+**Files changed (6):** `feature-engine-m2-scope-derivation-001.json` (new), `feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md`.
+
+---
+
 ## [Unreleased] — 2026-09-24 — feature-engine: P3-FEATURE-QG-EVID-03 CLOSED — PASS — REVIEW A VALIDATED — M1 DONE, M2 ACTIVE
 
 Starting `main == origin/main == 2ae0f3969ee3d377ed57d00cfb2b65d7c56c83f1`, fresh-verified, working tree clean, no drift. All five pinned evidence blobs fresh-verified exact before mutation.

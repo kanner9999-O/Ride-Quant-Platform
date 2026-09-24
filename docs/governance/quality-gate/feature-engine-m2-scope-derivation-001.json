@@ -1,0 +1,197 @@
+{
+ "artifact_id": "feature-engine-m2-scope-derivation-001",
+ "wp_id": "FE-EVID03-COND2-M2-SCOPE-001",
+ "schema_note": "Bounded, repository-grounded scope derivation and tracking reconciliation for milestone M2 (Feature Engine — Remaining Quality-Gate Closure). Does NOT remediate any Quality-Gate finding. Establishes which remaining Feature Engine Chapter-13 findings are already closed versus still blocked, and records M2's real current state without inventing Feature-local work for externally-dependent evidence.",
+ "boundary": {
+  "starting_state_verified": {
+   "main": "01b05e73221474caf303b1a37fe886bf7366980d",
+   "origin_main": "01b05e73221474caf303b1a37fe886bf7366980d",
+   "working_tree_clean": true,
+   "drift_detected": false
+  },
+  "fresh_verified_blobs": {
+   "docs/project/milestone.md": "3182644160c75fbede2131912a8d6cb8b10fc287",
+   "docs/governance/mutation-baseline-evidence/feature-engine-evid03-closure-001.json": "2a509fc5e0238413ae370c4bf3bf83526e84a6e3",
+   "docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md": "8fa5034b8b4e1328ed652860969fb62c6c260ae4",
+   "docs/governance/quality-gate/feature-engine-evid05b-formal-evidence-001.md": "6f226560418f6d5cd0e845a8e1e4262e33dd874e",
+   "docs/governance/quality-gate/feature-engine-evid07-property-based-mechanism-candidate-001.md": "b5421ecde7fc905045d22fd17a290711cfe0f62c",
+   "docs/constitution/02-platform-invariants.md": "0e4c80227e7bae0592dfd880d3b29bb3a5969f30",
+   "docs/constitution/13-quality-gates.md": "acf4ab75eda1ea0613250ce3159669ea727e28ec",
+   "docs/constitution/14-roadmap.md": "f2cd722218bd80b40241e26530a1919811fedad9",
+   "docs/governance/phases/phase-3-rules.md": "2cb78e41dc2823b498a9be48f96f5369bab12294",
+   "docs/architecture/module-registry.yaml": "8535f92efeb76ffb226791d201dc0b3fb71f06c0"
+  },
+  "all_blobs_matched_exactly": true
+ },
+ "current_state_matrix": {
+  "EVID-03": {
+   "state": "CLOSED — PASS — REVIEW A VALIDATED",
+   "basis": "FE-EVID03-CLOSURE-001, DELEGATED TECHNICAL RESOLUTION — CLEAN",
+   "excluded_from_new_m2_work": true,
+   "reopened_by_this_transaction": false
+  },
+  "EVID-05": {
+   "state": "CLOSED — PASS",
+   "basis": "docs/governance/quality-gate/feature-engine-evid05b-formal-evidence-001.md, blob 6f226560418f6d5cd0e845a8e1e4262e33dd874e, status RECORDED — CLOSED — PASS",
+   "detail": "Part (a) self-contained replay: SATISFIED (unaffected, unrevisited). Part (b) content-identity checksum/schema: CLOSED — PASS. Overall EVID-05: CLOSED.",
+   "excluded_from_new_m2_work": true,
+   "reopened_by_this_transaction": false
+  },
+  "EVID-07": {
+   "state": "CLOSED — PASS",
+   "basis": "docs/governance/quality-gate/feature-engine-evid07-property-based-mechanism-candidate-001.md, blob b5421ecde7fc905045d22fd17a290711cfe0f62c, final Review A CLEAN — 0 Blocker / 0 Major / 0 Minor",
+   "detail": "Hypothesis property-based testing mechanism Approved, installed, pinned. All P3-FEATURE-QG-EVID07-A findings CLOSED — REVIEW A VALIDATED.",
+   "excluded_from_new_m2_work": true,
+   "reopened_by_this_transaction": false
+  },
+  "EVID-04": {
+   "state": "BLOCKED_BY_EXTERNAL_DEPENDENCY",
+   "dimension": "I-2 Decision Parity / Tier-1 Parity Test",
+   "missing_dependency": "Decision Engine + Strategy Plugin Host executable implementation, plus a parity harness (Chapter 14 §14.2 sequence)",
+   "unblock_condition": "Decision Engine reaches a state where it can process a real event log end-to-end AND a parity test harness exists comparing canonical Decision hashes across Replay/Backtest/Paper/Live.",
+   "repository_verification": "No decision/strategy implementation directory exists in python/ or go/. module-registry.yaml's decision-evaluation-engine, decision-authority-service, strategy-engine, strategy-plugin-host entries all carry status: candidate (architecture-declared only, not implemented).",
+   "in_m2_new_scope": true,
+   "target_closure_state": "CLOSED — PASS"
+  },
+  "EVID-06": {
+   "state": "OPEN — PARTIALLY SATISFIED / BLOCKED_BY_EXTERNAL_DEPENDENCY",
+   "dimension": "I-6 Fail-Safe by Scope",
+   "feature_local_half": "SATISFIED — REVIEW A VALIDATED (fault injection, blast-radius confirmation — exact executable boundary 2cee6e2cfd9538955c9591663a527b96c80e347d, Review A CLEAN 0/0/0). NOT to be reopened.",
+   "remaining_half": "Platform-level risk-not-increased assertion under an authoritative risk model/policy.",
+   "missing_dependency": "Risk Gateway (or an equivalent authoritative Decision/Risk Pipeline) executable implementation.",
+   "unblock_condition": "A Risk Gateway (or equivalent authoritative risk-policy path) exists and can produce a risk-not-increased assertion evaluable against Feature Engine's own outputs.",
+   "repository_verification": "No risk-gateway implementation directory exists in python/ or go/. module-registry.yaml's risk-gateway entry carries status: candidate (architecture-declared only, not implemented).",
+   "prohibited_substitute": "\"Feature Engine emitted nothing\" is never a substitute for the required platform risk-not-increased assertion. No stub/mock Risk Gateway may be authored to manufacture this evidence.",
+   "in_m2_new_scope": true,
+   "target_closure_state": "CLOSED — PASS (remaining half only; feature-local half already SATISFIED — REVIEW A VALIDATED, not reopened)"
+  },
+  "EVID-08": {
+   "state": "BLOCKED_BY_EXTERNAL_DEPENDENCY",
+   "dimension": "I-1 Explainability / Decision-Pipeline trace completeness",
+   "missing_dependency": "Full Decision/Risk/Execution evidence path — Strategy, Decision, Risk Gateway, and Execution Engine must ALL exist (strict superset of EVID-04's own dependency; EVID-08 cannot unblock before EVID-04 does).",
+   "unblock_condition": "The complete pipeline (Structure/Regime/Feature → Strategy → Decision → Risk Gateway → Execution) exists AND produces real production Decision/Risk Action traces that a Chapter-2 I-1 100%-trace-completeness verification can be run against.",
+   "repository_verification": "No strategy/decision/risk/execution implementation directory exists in python/ or go/. All corresponding module-registry.yaml entries carry status: candidate. Feature-local causation_refs/input_fact_refs/computation_cursor already exist and are preserved as supporting-only evidence — explicitly NOT sufficient alone for EVID-08 closure.",
+   "in_m2_new_scope": true,
+   "target_closure_state": "CLOSED — PASS"
+  }
+ },
+ "repository_implementation_existence_verification": {
+  "method": "Direct directory inspection (python/, go/, prototype/), not architecture/domain declaration reading alone.",
+  "python_top_level": [
+   "feature-engine",
+   "raw-regime-engine",
+   "structure-engine"
+  ],
+  "go_top_level": [
+   "market-data-ingestion",
+   "market-reference-service"
+  ],
+  "prototype_top_level": [
+   "phase-2 (batch-01 through batch-06, HTML/prototype artifacts only, not Phase-3 backend)"
+  ],
+  "decision_strategy_risk_execution_implementation_directories_found": 0,
+  "module_registry_candidate_status_entries": [
+   "strategy-engine",
+   "strategy-plugin-host",
+   "decision-evaluation-engine",
+   "decision-authority-service",
+   "risk-gateway",
+   "execution-engine",
+   "execution-result-processor",
+   "fill-processor",
+   "position-projection",
+   "replay-integration-service",
+   "backtest-orchestrator",
+   "paper-execution-boundary"
+  ],
+  "conclusion": "No implemented Decision Engine, Strategy Plugin Host, Risk Gateway, or Execution Engine exists anywhere in the repository. All are architecture-declared only (status: candidate), confirming EVID-04/EVID-06-remaining-half/EVID-08 cannot be honestly closed by any Feature-Engine-local action today."
+ },
+ "chapter_14_dependency_order_finding": {
+  "source": "docs/constitution/14-roadmap.md §14.2, blob f2cd722218bd80b40241e26530a1919811fedad9",
+  "phase_3_sequence": "Data Layer -> Structure Engine & Raw Regime Engine (song song, doc lap) -> Feature Engine -> Context Projection -> Strategy -> Decision -> Risk Gateway -> Execution",
+  "matches_expected_sequence": true,
+  "dependency_mapping": {
+   "EVID-04": "depends on Decision capability / parity path (downstream of Feature Engine)",
+   "EVID-06_remaining_half": "depends on Risk Gateway / authoritative risk path (downstream of Feature Engine)",
+   "EVID-08": "depends on Strategy + Decision + Risk Gateway + Execution complete trace path (downstream of Feature Engine)"
+  },
+  "conclusion": "No additional Feature-Engine-local coding/test work can honestly close EVID-04, the remaining half of EVID-06, or EVID-08 today — each depends on modules strictly downstream of Feature Engine in the authoritative Phase-3 build order."
+ },
+ "m2_acceptance_condition": {
+  "definition": "All remaining current Feature Engine Chapter-13 blocking findings are closed.",
+  "required_closures": [
+   "EVID-04 = CLOSED — PASS",
+   "EVID-06 = CLOSED — PASS",
+   "EVID-08 = CLOSED — PASS"
+  ],
+  "excluded_as_already_complete": [
+   "EVID-03",
+   "EVID-05",
+   "EVID-07"
+  ],
+  "note_on_evid_01_02": "EVID-01/EVID-02 are not reopened — the remediation plan's six-row scope began at EVID-03 because EVID-01/EVID-02 were already outside the remaining blocker set at the plan's own original authoring."
+ },
+ "explicit_prohibitions": [
+  "No stub/mock/simulated Decision, Risk Gateway, or Execution capability may be authored to manufacture EVID-04/EVID-06/EVID-08 evidence.",
+  "\"Feature Engine emitted nothing\" is never a substitute for the required platform risk-not-increased assertion.",
+  "Parity/trace-completeness evidence must be produced against a real, implemented Decision/Risk/Execution path — never a fake/stubbed one.",
+  "No reopening of EVID-03, EVID-05, EVID-07, or Feature-local EVID-06 evidence.",
+  "No waiver of EVID-04/EVID-06/EVID-08.",
+  "No reinterpretation of an external dependency as PASS."
+ ],
+ "milestone_transition": {
+  "M2": {
+   "before": "ACTIVE",
+   "after": "BLOCKED",
+   "reason": "Remaining closure depends on downstream Phase-3 capabilities that are not yet implemented; there is currently no honest Feature-Engine-local remediation path for EVID-04, the remaining half of EVID-06, or EVID-08."
+  },
+  "M1": {
+   "unchanged": "DONE"
+  },
+  "M3": {
+   "unchanged": "QUEUED",
+   "note": "Not re-sequenced by this transaction."
+  },
+  "M4": {
+   "unchanged": "PROVISIONAL",
+   "note": "Not re-sequenced by this transaction."
+  }
+ },
+ "review_disposition": {
+  "principal": "ChatGPT",
+  "role": "AI Technical Architect",
+  "verdict": "CLEAN — 0 Blocker / 0 Major / 0 Minor",
+  "risk_classification": "R1",
+  "adr_scope": "ADR_NOT_REQUIRED",
+  "reason": "This transaction creates no new Quality-Gate semantics, architecture, module dependency, invariant, schema, or governance rule. It only reconciles project tracking against already-existing authority and current evidence.",
+  "product_owner_decision_required": false,
+  "explicit_non_claims": [
+   "NOT a Feature Engine approval",
+   "NOT a Product Owner Approval-Gate decision"
+  ]
+ },
+ "not_performed_by_this_transaction": [
+  "No Quality-Gate finding remediated.",
+  "No Decision Engine implementation.",
+  "No Strategy implementation.",
+  "No Risk Gateway implementation.",
+  "No Execution Engine implementation.",
+  "No parity tests against fake/stubbed Decision semantics.",
+  "No reopening of EVID-03.",
+  "No reopening of EVID-05.",
+  "No reopening of EVID-07.",
+  "No reopening of Feature-local EVID-06 evidence.",
+  "No waiver of EVID-04/EVID-06/EVID-08.",
+  "No reinterpretation of an external dependency as PASS.",
+  "No Quality-Gate semantics modification.",
+  "No modification to Chapter 2/12/13/14.",
+  "No module-registry dependency-semantics change.",
+  "No critical-path/milestone re-sequencing (M3/M4 dependencies unchanged; that is a separate, subsequent orchestration decision).",
+  "No new downstream milestone created.",
+  "No claim that the project as a whole is blocked.",
+  "No Feature Engine approval.",
+  "No Phase-3 approval.",
+  "No LIVE authorization.",
+  "No Product Owner decision requested."
+ ]
+}

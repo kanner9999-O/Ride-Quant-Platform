@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.441"
+manifest_version: "10.442"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -30207,6 +30207,47 @@ Decision recorded this transaction; reviewed boundary `278a8ab5c0916ef9c803d90bb
 **ADR Scope / Risk:** `ADR_NOT_REQUIRED`. Risk: `R1`.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-evid03-closure-001.json` (new), `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — exactly 5 files. No `src/`, `tests/`, `tooling/`, dependency, Evidence-006, Condition-1-DTR, Condition-2-application, Condition-3-evidence, Testing Convention, ADR, or Constitution file touched. No Condition-1/2/3 redesign or rerun. No EVID-04 through EVID-08 closure. `manifest_version` `"10.440"` -> `"10.441"`.
+
+## Feature Engine M2 scope derivation (`FE-EVID03-COND2-M2-SCOPE-001`) — tracking reconciliation only — `M2: ACTIVE` → `BLOCKED`
+
+**Objective:** bounded, repository-grounded scope derivation and tracking reconciliation for milestone M2 (Feature Engine — Remaining Quality-Gate Closure). No Quality-Gate finding remediated. Establishes which remaining Feature Engine Chapter-13 findings are already closed versus still blocked, and records M2's real current state without inventing Feature-local work for externally-dependent evidence.
+
+**Boundary:** starting `main == origin/main == 01b05e73221474caf303b1a37fe886bf7366980d`, fresh-verified, working tree clean, no drift. All 10 pinned artifact/authority blobs fresh-verified exact before mutation: `docs/project/milestone.md`, `feature-engine-evid03-closure-001.json`, `feature-engine-chapter13-remediation-plan-001.md`, `feature-engine-evid05b-formal-evidence-001.md`, `feature-engine-evid07-property-based-mechanism-candidate-001.md`, Chapter 2/13/14 (Constitution), Phase-3 rules, `module-registry.yaml`.
+
+**Fresh-verified current-state matrix:**
+
+```text
+EVID-03  CLOSED — PASS — REVIEW A VALIDATED   (FE-EVID03-CLOSURE-001, DTR-CLEAN)
+EVID-05  CLOSED — PASS                        (evidence-05b, blob 6f226560418f6d5cd0e845a8e1e4262e33dd874e)
+EVID-07  CLOSED — PASS                        (candidate-001, blob b5421ecde7fc905045d22fd17a290711cfe0f62c)
+EVID-04  BLOCKED_BY_EXTERNAL_DEPENDENCY        (no Decision Engine / Strategy Plugin Host exists)
+EVID-06  OPEN — PARTIALLY SATISFIED /
+         BLOCKED_BY_EXTERNAL_DEPENDENCY        (Feature-local SATISFIED — REVIEW A VALIDATED;
+                                                 platform risk-not-increased assertion blocked —
+                                                 no Risk Gateway exists)
+EVID-08  BLOCKED_BY_EXTERNAL_DEPENDENCY        (Strategy/Decision/Risk Gateway/Execution
+                                                 all unbuilt — strict superset of EVID-04)
+```
+
+**Repository implementation-existence verification** (directories inspected, not declarations alone): `python/` contains only `feature-engine`, `raw-regime-engine`, `structure-engine`; `go/` contains only `market-data-ingestion`, `market-reference-service`. Zero Decision/Strategy/Risk/Execution implementation directories anywhere. `docs/architecture/module-registry.yaml`'s `strategy-engine`, `strategy-plugin-host`, `decision-evaluation-engine`, `decision-authority-service`, `risk-gateway`, `execution-engine` entries all carry `status: candidate` — architecture-declared only, confirmed NOT implemented.
+
+**Chapter 14 §14.2 dependency-order finding** (blob `f2cd722218bd80b40241e26530a1919811fedad9`): Phase 3 build sequence is `Data Layer → Structure Engine & Raw Regime Engine → Feature Engine → Context Projection → Strategy → Decision → Risk Gateway → Execution`. Matches expected sequence exactly. `EVID-04`, `EVID-06`'s remaining half, and `EVID-08` each depend on modules strictly downstream of Feature Engine — confirming no honest Feature-Engine-local remediation path exists for any of the three today.
+
+**M2 acceptance boundary (derived, not invented):** `EVID-04 = CLOSED — PASS`, `EVID-06 = CLOSED — PASS`, `EVID-08 = CLOSED — PASS`. `EVID-03`, `EVID-05`, `EVID-07` already complete, excluded from new work, NOT reopened. `EVID-01`/`EVID-02` not reopened (already outside the six-row scope at original authoring).
+
+**Explicit prohibition on fake Feature-local substitutes:** no stub/mock/simulated Decision, Risk Gateway, or Execution capability may be authored to manufacture `EVID-04`/`EVID-06`/`EVID-08` evidence. "Feature Engine emitted nothing" is never a substitute for the required platform risk-not-increased assertion.
+
+**Tracking reconciliation applied:** `feature-engine-chapter13-remediation-plan-001.md`'s `EVID-05` and `EVID-07` rows were stale (never mechanically updated after their own later closures) — struck through, corrected in place with a note referencing their governing artifacts. An `EVID-03` closure note was appended to its own row. A new §10 "M2 scope derivation" section was added, summarizing this matrix. `EVID-04`/`EVID-06`/`EVID-08` rows were already accurate — not touched.
+
+**Review / routing:** ChatGPT, AI Technical Architect — `CLEAN — 0 Blocker / 0 Major / 0 Minor`, Risk `R1`, ADR Scope `ADR_NOT_REQUIRED` (no new Quality-Gate semantics, architecture, module dependency, invariant, schema, or governance rule created — reconciles project tracking against already-existing authority and current evidence only). No Product Owner decision required. This is NOT a Feature Engine approval and NOT a Product Owner Approval-Gate decision.
+
+**Milestone transition:** M2 (Feature Engine — Remaining Quality-Gate Closure): `ACTIVE` → **`BLOCKED`** — reason: remaining closure depends on downstream Phase-3 capabilities that are not yet implemented; there is currently no honest Feature-Engine-local remediation path for `EVID-04`, the remaining half of `EVID-06`, or `EVID-08`. M1 remains `DONE`. M3 remains `QUEUED`. M4 remains `PROVISIONAL` — neither re-sequenced by this transaction; critical-path/milestone re-sequencing is a separate, subsequent orchestration decision.
+
+**Confirmation:** no production `src/**`, test, tooling, or dependency file changed. `feature-engine-mutation-surface-completeness-evidence-003.json` and all other Condition-1/2/3 evidence artifacts fresh-verified byte-unchanged (unaffected by this transaction). **Feature Engine remains `NOT APPROVED`. Phase-3 module approval remains `NOT GRANTED`. `LIVE` remains `NOT_AUTHORIZED`.**
+
+**ADR Scope / Risk:** `ADR_NOT_REQUIRED`. Risk: `R1`.
+
+**Files changed:** `docs/governance/quality-gate/feature-engine-m2-scope-derivation-001.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md` (stale rows reconciled, new §10 appended), `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — exactly 6 files. No `src/`, `tests/`, `tooling/`, dependency, `feature-engine-evid05b-formal-evidence-001.md`, `feature-engine-evid07-property-based-mechanism-candidate-001.md`, `feature-engine-evid03-closure-001.json`, Testing Convention, ADR, or Constitution file touched. No Quality-Gate finding remediated. No critical-path re-sequencing. `manifest_version` `"10.441"` -> `"10.442"`.
 
 ## Decision Log
 
