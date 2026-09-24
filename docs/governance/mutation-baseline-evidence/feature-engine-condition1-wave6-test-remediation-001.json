@@ -1,0 +1,212 @@
+{
+ "artifact_id": "feature-engine-condition1-wave6-test-remediation-001",
+ "schema_note": "Wave-6 bounded engineering-remediation evidence for the exact 13 currently-unremediated genuine-material identities in the ACTIVE Condition-1B gate (feature-engine-condition1-current-material-gap-set-002.json, 24 IDs). This is implementation evidence only -- formal Condition-1B gate credit is NOT claimed for any identity. This artifact also documents a significant, honestly-discovered finding: 6 of the 13 targets are PROVABLY_EQUIVALENT / STRUCTURALLY_UNREACHABLE, not genuine behavioral gaps -- their original GENUINE_TEST_GAP classification (root-cause audit, carried through the DTR and into the active 24-ID gate) was based on an incorrect mutation description caused by an indexing-drift bug in this session's own custom zero-test CST diff-extraction script for functions with unusually dense mutation candidate counts in swing_distance.py -- verified by reading each mutant's REAL generated body directly from mutmut's own materialized mutants/ workspace (ground truth), not from the custom script. This is reported as evidence for a future, separately-governed re-audit; this transaction does NOT modify the active gate.",
+ "starting_boundary": "be88041bda928843cc95f0aef5f63edf1d5df63e",
+ "governing_authority": {
+  "active_proposal": {
+   "path": "docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-recalibration-proposal-002.md",
+   "blob": "ea0b7a79b733622388597c59346c4615bb2726db",
+   "status": "APPROVED — EFFECTIVE"
+  },
+  "active_set": {
+   "path": "docs/governance/mutation-baseline-evidence/feature-engine-condition1-current-material-gap-set-002.json",
+   "blob": "2e6030c5581df51323937de0bd5f646f3e98b5d9",
+   "count": 24,
+   "sorted_set_sha256": "6c8181f7665a63494632ef89514ea7efdf9948c544c9a9a8094e87c17c3d2543"
+  }
+ },
+ "wave6_target_count": 13,
+ "exact_target_ids": [
+  "feature_engine.contracts.x__finalize_prepared_batch__mutmut_3",
+  "feature_engine.contracts.x__finalize_prepared_batch__mutmut_4",
+  "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_1",
+  "feature_engine.ownership.x__tie_break_key__mutmut_9",
+  "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_catch_up__mutmut_18",
+  "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_catch_up__mutmut_7",
+  "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁprocess_certified_frontier__mutmut_10",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_original__mutmut_13",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_preempt_settled_window__mutmut_20",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_recompute__mutmut_23",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_reevaluate_all_windows__mutmut_6",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_replacement_only__mutmut_14",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_select_eligible_swing__mutmut_22"
+ ],
+ "target_id_set_verification": {
+  "count": 13,
+  "duplicates": 0,
+  "all_members_of_active_24_id_set": true,
+  "complement_not_addressed_by_this_wave": 11
+ },
+ "baseline_targeted_verification": {
+  "method": "cd python/feature-engine && rm -rf mutants .mutmut-cache && .venv/bin/python -m tooling run <all 13 IDs>, run BEFORE any test edits, against unmodified starting HEAD",
+  "result": "all 13 targets confirmed 'survived' (🙁) at baseline -- none already killed by pre-existing tests or Wave-5 collateral changes. No ALREADY_KILLED_AT_WAVE6_BASELINE identities."
+ },
+ "extraction_method": "zero-test offline mutmut CST diff extraction was used for initial target understanding, but this transaction discovered that custom script's function-level mutation ordering can drift from mutmut's own real internal ordering for functions with unusually dense/nested mutation candidate counts (specifically observed in swing_distance.py's _select_eligible_swing and _prepare_reevaluate_all_windows). Every classification in this artifact for the 6 STILL_SURVIVED identities below was independently re-verified by reading the REAL mutant body directly from mutmut's own materialized mutants/<path> workspace (ground truth), not the custom script's output.",
+ "test_files_changed": [
+  "python/feature-engine/tests/test_contracts.py",
+  "python/feature-engine/tests/test_ownership.py",
+  "python/feature-engine/tests/test_swing_distance.py"
+ ],
+ "production_files_changed": false,
+ "tooling_files_changed": false,
+ "dependency_files_changed": false,
+ "ordinary_test_validation": {
+  "pytest_tests": "443 passed (baseline 434 + 9 new tests: 3 test_contracts.py, 4 test_ownership.py, 2 test_swing_distance.py)",
+  "pytest_tooling_tests": "5 passed",
+  "ruff_check_src_tests": "2 pre-existing errors in src/feature_engine/authority_resolver.py, confirmed present at baseline HEAD (git stash verified) and NOT introduced by this transaction; 0 errors in any file this transaction touched",
+  "mypy_src_tests": "Success: no issues found in 36 source files"
+ },
+ "per_target_result": [
+  {
+   "target_id": "feature_engine.contracts.x__finalize_prepared_batch__mutmut_3",
+   "baseline_status": "survived",
+   "post_wave_status": "KILLED_BY_WAVE6",
+   "test_responsible": "test_finalize_prepared_batch_fails_closed_when_preceding_invalidation_causation_has_no_real_invalidation (test_contracts.py)",
+   "behavioral_obligation": "A PreparedFeatureComputed with preceding_batch_invalidation_causation=True as the batch's only item (no real preceding invalidation) must fail closed with ValueError, never silently splice a placeholder causation ref.",
+   "real_mutation_verified": "invalidation_ref: EventRecordRef | None = None -> \"\" (module-level function, verified via real mutants/ body, matches original description exactly)"
+  },
+  {
+   "target_id": "feature_engine.contracts.x__finalize_prepared_batch__mutmut_4",
+   "baseline_status": "survived",
+   "post_wave_status": "KILLED_BY_WAVE6",
+   "test_responsible": "test_finalize_prepared_batch_fails_closed_when_depends_on_timing_has_no_real_invalidation (test_contracts.py)",
+   "behavioral_obligation": "A PreparedFeatureComputed with depends_on_preceding_invalidation_timing=True and no real preceding invalidation must fail closed with ValueError, never fall through to a mixed-type max() comparison.",
+   "real_mutation_verified": "invalidation_recorded_time: datetime | None = None -> \"\" (verified via real mutants/ body, matches original description exactly)"
+  },
+  {
+   "target_id": "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_1",
+   "baseline_status": "survived",
+   "post_wave_status": "KILLED_BY_WAVE6",
+   "test_responsible": "test_validate_canonical_recorded_time_fails_closed_when_depends_on_timing_has_no_real_invalidation (test_contracts.py)",
+   "behavioral_obligation": "Same sentinel guard in the historical-reconcile validation path -- must fail closed with CanonicalHistoryMismatchError, never a mixed-type comparison.",
+   "real_mutation_verified": "invalidation_recorded_time: datetime | None = None -> \"\" (verified via real mutants/ body, matches original description exactly)"
+  },
+  {
+   "target_id": "feature_engine.ownership.x__tie_break_key__mutmut_9",
+   "baseline_status": "survived",
+   "post_wave_status": "KILLED_BY_WAVE6",
+   "test_responsible": "test_tie_break_key_sequence_field_maps_to_the_real_ref_sequence (test_ownership.py)",
+   "behavioral_obligation": "Each configured tie-break field name must map to the actual corresponding EventRecordRef attribute -- direct test of the helper's own contract.",
+   "real_mutation_verified": "key.append(envelope.ref.sequence) -> key.append(None) (verified via real mutants/ body, matches original description exactly)"
+  },
+  {
+   "target_id": "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_catch_up__mutmut_18",
+   "baseline_status": "survived",
+   "post_wave_status": "KILLED_BY_WAVE6",
+   "test_responsible": "test_catch_up_proceeds_with_non_empty_unproven_canonical_history (test_ownership.py)",
+   "behavioral_obligation": "Non-empty canonical events with proven_empty=False must be accepted and processed normally, never rejected as an unproven-empty result.",
+   "real_mutation_verified": "not canonical.events -> canonical.events (verified via real mutants/ body, matches original description exactly)"
+  },
+  {
+   "target_id": "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_catch_up__mutmut_7",
+   "baseline_status": "survived",
+   "post_wave_status": "KILLED_BY_WAVE6",
+   "test_responsible": "test_catch_up_proceeds_with_non_empty_unproven_upstream_history (test_ownership.py)",
+   "behavioral_obligation": "Non-empty upstream events with proven_empty=False must be accepted and processed normally.",
+   "real_mutation_verified": "not upstream.events -> upstream.events (verified via real mutants/ body, matches original description exactly)"
+  },
+  {
+   "target_id": "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁprocess_certified_frontier__mutmut_10",
+   "baseline_status": "survived",
+   "post_wave_status": "KILLED_BY_WAVE6",
+   "test_responsible": "test_process_certified_frontier_proceeds_with_non_empty_unproven_apply_set (test_ownership.py)",
+   "behavioral_obligation": "Non-empty pending apply-set events with proven_empty=False must be processed normally on the ongoing (not historical) path.",
+   "real_mutation_verified": "not apply_set.events -> apply_set.events (verified via real mutants/ body, matches original description exactly)"
+  },
+  {
+   "target_id": "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_original__mutmut_13",
+   "baseline_status": "survived",
+   "post_wave_status": "STILL_SURVIVED — CLASSIFICATION_CONTRADICTION_DISCOVERED",
+   "classification": "PROVABLY_EQUIVALENT",
+   "real_mutation_verified": "floor = max(candle.recorded_time, state.recorded_time, cursor.recorded_time) -> max(candle.recorded_time, cursor.recorded_time) (verified via real mutants/ body, matches original description)",
+   "reachability_proof": "state.recorded_time is the swing's own recorded_time; the SAME state, computed via _select_eligible_swing(cursor) using the SAME cursor object as this floor, was only selectable because is_visible_at_cursor's own recorded-time branch requires state.recorded_time <= cursor.recorded_time (Chapter 5 §5.3, non-strict). Therefore state.recorded_time can never be the STRICT unique maximum of the three terms: either it is < cursor.recorded_time (cursor term dominates, drop is unobservable) or it exactly ties cursor.recorded_time (both terms equal, drop still unobservable). No legitimate caller can ever select a swing that violates this invariant. Verified NOT merely assumed: traced the exact same `cursor` parameter threaded unchanged from _select_eligible_swing's own eligibility check through to this floor computation in all 3 call sites.",
+   "not_implemented_because": "Closing this would require an impossible construction (a selected swing with recorded_time strictly exceeding the cursor's own recorded_time) or a production behavior change -- both forbidden by the anti-gaming rules."
+  },
+  {
+   "target_id": "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_preempt_settled_window__mutmut_20",
+   "baseline_status": "survived",
+   "post_wave_status": "STILL_SURVIVED — CLASSIFICATION_CONTRADICTION_DISCOVERED",
+   "classification": "PROVABLY_EQUIVALENT",
+   "real_mutation_verified": "invalidation_floor = max(existing.head_fact.recorded_time, state.recorded_time, cursor.recorded_time) -> max(existing.head_fact.recorded_time, cursor.recorded_time) -- this is the PREEMPTING INVALIDATION's own floor, not the replacement's (verified via real mutants/ body; the replacement's own floor is computed separately inside _prepare_replacement_only, called via self., unaffected when this specific mutant is targeted)",
+   "reachability_proof": "Identical structural argument to _prepare_original__mutmut_13 above: state (the new winning swing) satisfies state.recorded_time <= cursor.recorded_time by the same eligibility invariant, so it can never be the strict unique maximum against cursor.recorded_time in this max() either.",
+   "not_implemented_because": "Same as above -- impossible construction required."
+  },
+  {
+   "target_id": "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_replacement_only__mutmut_14",
+   "baseline_status": "survived",
+   "post_wave_status": "STILL_SURVIVED — CLASSIFICATION_CONTRADICTION_DISCOVERED",
+   "classification": "PROVABLY_EQUIVALENT",
+   "real_mutation_verified": "base_floor = max(candle.recorded_time, state.recorded_time, cursor.recorded_time) -> max(candle.recorded_time, cursor.recorded_time) (verified via real mutants/ body, matches original description)",
+   "reachability_proof": "Identical structural argument to the two entries above -- same cursor, same eligibility invariant, same redundancy.",
+   "not_implemented_because": "Same as above -- impossible construction required."
+  },
+  {
+   "target_id": "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_recompute__mutmut_23",
+   "baseline_status": "survived",
+   "post_wave_status": "STILL_SURVIVED — CLASSIFICATION_CONTRADICTION_DISCOVERED",
+   "classification": "STRUCTURALLY_UNREACHABLE",
+   "real_mutation_verified": "assert correction_ref is not None and correction_recorded_time is not None -> or (verified via real mutants/ body, matches original description exactly)",
+   "reachability_proof": "_prepare_recompute has exactly 2 call sites, both inside prepare_candle, both the SOLE callers in the entire codebase (grep-verified). One passes correction_ref=None, correction_recorded_time=None (both None, first-seen candle); the other passes correction_ref=fact.ref, correction_recorded_time=fact.recorded_time (both real, from the SAME fact object, correction path). No legitimate call ever supplies a mismatched pair (exactly one None). The assert is purely defensive against direct-call misuse, never reachable through the public API.",
+   "not_implemented_because": "Task's own explicit instruction: 'If implementation tracing instead proves this direct-call state is unreachable through every legitimate caller and the invariant is merely defensive implementation detail: STOP this target and report a classification contradiction.' Confirmed exactly that."
+  },
+  {
+   "target_id": "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_reevaluate_all_windows__mutmut_6",
+   "baseline_status": "survived",
+   "post_wave_status": "STILL_SURVIVED — CLASSIFICATION_CONTRADICTION_DISCOVERED",
+   "classification": "STRUCTURALLY_UNREACHABLE",
+   "real_mutation_verified": "if candle is None: continue -> break, on the `candle = self._candle_by_window.get(key)` guard -- NOT the `if winner is None: continue` branch originally assumed (indexing-drift discovery: a real test was initially written for the wrong branch and, correctly, did not kill this mutant on real targeted verification; the real body was then read directly from mutmut's own mutants/ workspace).",
+   "reachability_proof": "self._candle_by_window[key] and self._lineage[key] are always written together, keyed by the identical (window_start, window_end) tuple, inside prepare_candle/_prepare_original's and _prepare_replacement_only's own _apply callbacks; neither dict ever has an entry deleted anywhere in the module (grep-verified, zero `del`/`.pop()` sites on either dict). Therefore every key present in self._lineage (the only source of `key` iterated here) is PROVABLY always also present in self._candle_by_window -- `candle is None` can never be True for a key drawn from `self._lineage.items()`. continue vs break on unreachable dead code is unobservable.",
+   "not_implemented_because": "Confirmed dead code via exhaustive grep of every write/delete site on both dicts -- no legitimate or even adversarial single-process call sequence can violate this invariant.",
+   "note": "The test written for this Wave (test_prepare_reevaluate_all_windows_continues_past_an_unresolved_pending_window_to_a_later_resolvable_one) is RETAINED as genuine, independently valuable coverage of the real 'continue past an unresolved pending window' behavior (a different, adjacent branch in the same loop) -- it does not kill this specific mutant and is not claimed to."
+  },
+  {
+   "target_id": "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_select_eligible_swing__mutmut_22",
+   "baseline_status": "survived",
+   "post_wave_status": "STILL_SURVIVED — CLASSIFICATION_CONTRADICTION_DISCOVERED",
+   "classification": "STRUCTURALLY_UNREACHABLE",
+   "real_mutation_verified": "return min(candidates, key=lambda item: _total_order_key(item[0], item[1])) -> _total_order_key(item[1], item[1]) -- NOT a pivot_effective_time[0]->[1] eligibility-window change as originally assumed (indexing-drift discovery, identical root cause to the mutmut_6 entry above; the real body was read directly from mutmut's own mutants/ workspace). item[1] (a _SwingState) is substituted for item[0] (the swing_id str) as _total_order_key's first (swing_id) argument.",
+   "reachability_proof": "_total_order_key's swing_id parameter is placed into ONLY the 7th of 8 tuple positions in its returned sort key. Positions 3 and 5 of that same key (state.ref.stream_id, state.ref.sequence) already uniquely discriminate any two genuinely distinct (swing_id, state) candidates, since EventRecordRef is this codebase's durable unique event identity throughout (p_run_sort's own by_ref dedup, ConflictingUpstreamEnvelopeError) -- no two distinct swing_ids' states can share the same ref. Python tuple comparison short-circuits at the first differing element, so position 7 (where the corrupted _SwingState-as-swing_id value would land) is never compared for genuinely distinct candidates, and for a single-candidate list min() never compares keys at all. Identical reachability argument, independently re-derived, to the already-DTR-adjudicated non-material _select_eligible_swing__mutmut_18 (None substitution at the same position).",
+   "not_implemented_because": "Confirmed structurally unreachable via the same ref-uniqueness argument already governing the adjacent, already-non-material mutmut_18.",
+   "note": "The test written for this Wave (test_pivot_straddling_window_end_eligible_via_pivot_start_not_pivot_end) is RETAINED as genuine, independently valuable coverage of the real pivot-start-vs-end eligibility policy -- it does not kill this specific mutant and is not claimed to."
+  }
+ ],
+ "outcome_summary": {
+  "ALREADY_KILLED_AT_WAVE6_BASELINE": 0,
+  "KILLED_BY_WAVE6": 7,
+  "STILL_SURVIVED": 6,
+  "CLASSIFICATION_CONTRADICTION_DISCOVERED": 6
+ },
+ "classification_contradiction_finding": {
+  "summary": "6 of the 13 Wave-6 targets are PROVABLY_EQUIVALENT (3) or STRUCTURALLY_UNREACHABLE (3), not genuine behavioral gaps -- their GENUINE_TEST_GAP classification, carried from the root-cause audit through the DTR into the currently-active 24-ID Condition-1B gate, rests on an incorrect mutation description for 2 of the 6 (the other 4 were correctly described but the reachability analysis itself was not performed with sufficient rigor at audit time).",
+  "root_cause": "This session's custom zero-test offline mutmut CST diff-extraction script (used throughout the root-cause audit and all prior transactions) can silently drift out of index-alignment with mutmut's own real internal mutation ordering for functions with unusually dense/nested mutation candidate counts -- observed concretely in swing_distance.py's _select_eligible_swing (containing a lambda) and _prepare_reevaluate_all_windows (containing multiple adjacent continue-shaped branches). Every prior transaction's diff descriptions for these two functions' higher-numbered mutants should be treated as unverified until independently re-checked against mutmut's own real materialized mutants/ workspace.",
+  "affected_ids_this_wave": [
+   "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_reevaluate_all_windows__mutmut_6",
+   "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_select_eligible_swing__mutmut_22"
+  ],
+  "affected_ids_correctly_described_but_insufficiently_analyzed": [
+   "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_original__mutmut_13",
+   "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_preempt_settled_window__mutmut_20",
+   "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_replacement_only__mutmut_14",
+   "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_recompute__mutmut_23"
+  ],
+  "governance_implication": "The active 24-ID Condition-1B gate (feature-engine-condition1-current-material-gap-set-002.json) is, per this finding, likely conservative/over-strict for at least these 6 identities -- never permissive. This transaction does NOT alter the active gate, the active threshold, or any governance artifact. This finding is offered as evidence for a future, separately-governed re-audit and DTR-style adjudication, exactly mirroring how the original root-cause audit itself was later adjudicated by a distinct-principal Review A."
+ },
+ "full_24_id_engineering_accounting": {
+  "total_current_material_identities": 24,
+  "wave5_engineering_kills_no_formal_credit": 11,
+  "wave6_engineering_kills_no_formal_credit": 7,
+  "wave6_provably_equivalent_or_structurally_unreachable_pending_re_audit": 6,
+  "sum_check": "11 + 7 + 6 = 24",
+  "formal_gate_credit": "NOT YET CLAIMED for any identity in this or any prior transaction. Formal Condition-1B credit requires a separate, future, formal 2629-mutant (or larger) measurement transaction."
+ },
+ "not_performed_by_this_transaction": [
+  "No production code changed.",
+  "No tooling code changed.",
+  "No final full formal 2629-mutant measurement performed.",
+  "No TOOL_IDENTITY_DRIFT resolution.",
+  "No threshold or governance-artifact change (proposal-002, set-002, root-cause audit, DTR all fresh-verified byte-unchanged).",
+  "No Feature Engine approval.",
+  "No LIVE authorization.",
+  "No re-audit or reclassification of the active 24-ID gate -- the classification-contradiction finding above is evidence only, not a governed decision."
+ ]
+}

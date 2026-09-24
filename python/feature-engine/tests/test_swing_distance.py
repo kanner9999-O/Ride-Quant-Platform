@@ -167,6 +167,28 @@ def test_pivot_before_window_end_eligible(allocator: SequenceAllocator, time_sou
     assert only_computed(events[0]).value == Decimal("5.00")  # 105 - 100
 
 
+def test_pivot_straddling_window_end_eligible_via_pivot_start_not_pivot_end(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """Wave-6 (Condition-1B): `_select_eligible_swing`'s effective-time
+    eligibility filter compares the pivot's own START against
+    `reference_cutoff` -- a pivot whose start is strictly before the
+    candle's own window_end remains eligible even when its own END is
+    at-or-after that same window_end (policy is windowed on when the pivot
+    BEGINS being effective, never on when it stops).
+    """
+    engine = _engine(allocator, time_source)
+    # candle index=10 -> window_end = BASE + 11 minutes (reference_cutoff).
+    # pivot_index=10 -> pivot_start = BASE + 10 minutes (< cutoff),
+    #                   pivot_end   = BASE + 11 minutes (== cutoff, not <).
+    swing = swing_confirmed_at(allocator, pivot_index=10, swing_id="s1", pivot_price="100")
+    engine.on_swing_confirmed(swing, cursor=frontier_at(BASE + timedelta(days=1)))
+    reference = candle_at(allocator, 10, high="110", low="90", close="105")
+    events = engine.on_candle(reference, cursor=frontier_at(reference.recorded_time))
+    assert len(events) == 1
+    assert only_computed(events[0]).value == Decimal("5.00")  # 105 - 100
+
+
 def test_pivot_exactly_equal_window_end_rejected(
     allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
 ) -> None:
@@ -490,6 +512,56 @@ def test_pending_window_resolved_by_newly_visible_replacement_revision(
     key = (replacement.window_start, replacement.window_end)
     assert engine._lineage[key].invalidated is False  # noqa: SLF001
     assert engine._lineage[key].used_swing_id == "s1"  # noqa: SLF001
+
+
+def test_prepare_reevaluate_all_windows_continues_past_an_unresolved_pending_window_to_a_later_resolvable_one(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """Wave-6 (Condition-1B): `_prepare_reevaluate_all_windows` iterates
+    EVERY lineage-tracked window each time a new Swing revision becomes
+    visible. A window that is STILL unresolved (no eligible Swing yet)
+    must not stop the loop -- a LATER window in the same iteration that IS
+    newly resolvable must still be processed, never silently skipped.
+    """
+    engine = _engine(allocator, time_source)
+    far_future = frontier_at(BASE + timedelta(days=1))
+
+    s1 = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", swing_revision=1, pivot_price="100")
+    engine.on_swing_confirmed(s1, cursor=far_future)
+
+    # window 1: window_end = BASE + 11 minutes.
+    candle1 = candle_at(allocator, 10, high="110", low="90", close="105")
+    window1_events = engine.on_candle(candle1, cursor=frontier_at(candle1.recorded_time))
+    assert len(window1_events) == 1
+
+    # window 2: window_end = BASE + 31 minutes.
+    candle2 = candle_at(allocator, 30, high="120", low="95", close="108")
+    window2_events = engine.on_candle(candle2, cursor=frontier_at(candle2.recorded_time))
+    assert len(window2_events) == 1
+
+    inv = swing_invalidated_at(allocator, swing_id="s1", swing_revision=1, recorded_time=BASE + timedelta(minutes=40))
+    invalidation_events = engine.on_swing_invalidated(inv, cursor=frontier_at(inv.recorded_time))
+    assert len(invalidation_events) == 2  # both windows lose their only eligible Swing -> PENDING_CORRECTION
+
+    # s2's pivot (start = BASE + 20 minutes) straddles the two windows' own
+    # cutoffs: NOT eligible for window 1 (pivot starts AFTER window 1's own
+    # window_end, BASE + 11 minutes), but eligible for window 2 (pivot
+    # starts BEFORE window 2's own window_end, BASE + 31 minutes). Window 1
+    # (iterated FIRST, insertion order) remains unresolved while window 2
+    # (iterated SECOND) becomes newly resolvable in the SAME
+    # `_prepare_reevaluate_all_windows` pass.
+    s2 = swing_confirmed_at(
+        allocator, pivot_index=20, swing_id="s2", swing_revision=1, pivot_price="102", recorded_offset_minutes=25
+    )
+    resolved = engine.on_swing_confirmed(s2, cursor=far_future)
+    assert len(resolved) == 1
+    replacement = only_computed(resolved[0])
+    assert replacement.window_start == candle2.scope.window_start
+    assert replacement.window_end == candle2.scope.window_end
+    assert replacement.value == Decimal("6.00")  # 108 - 102
+
+    key1 = (candle1.scope.window_start, candle1.scope.window_end)
+    assert engine._lineage[key1].invalidated is True  # noqa: SLF001  -- window 1 still PENDING_CORRECTION
 
 
 def test_pending_correction_resolved_by_candle_correction_once_replacement_swing_becomes_cursor_visible(

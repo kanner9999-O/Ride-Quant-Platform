@@ -13,6 +13,7 @@ import dataclasses
 import inspect
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
+from decimal import Decimal
 
 import pytest
 from conftest import (
@@ -70,6 +71,7 @@ from feature_engine.ownership import (
     SubjectOwnershipState,
     UpstreamEnvelope,
     UpstreamHistoryResult,
+    _tie_break_key,
     p_run_sort,
 )
 
@@ -176,6 +178,20 @@ class InMemoryLineageHistoryProvider:
     _upstream: dict[str, list[UpstreamEnvelope]] = field(default_factory=dict)
     _canonical: dict[str, list[FeatureEvent]] = field(default_factory=dict)
     _pending: dict[str, list[UpstreamEnvelope]] = field(default_factory=dict)
+    # Wave-6 (Condition-1B): per-subject `proven_empty` overrides, independent
+    # of the "known subjects" convenience default below. `proven_empty=True`
+    # is meaningful ONLY for validating a genuinely-empty `events` tuple
+    # (`UpstreamHistoryResult`/`CanonicalOutputHistoryResult`'s own
+    # docstrings) -- a real, legitimate provider may return NON-empty events
+    # with `proven_empty=False` (it simply never bothered proving emptiness
+    # because it already has data to return), a combination every existing
+    # `register_*`/`enqueue_pending` caller happens never to exercise since
+    # they all rely on the "known subjects" convenience default below. These
+    # overrides let a caller configure `events`/`proven_empty` independently
+    # without a one-off mutation-only fixture.
+    _upstream_proven_empty_override: dict[str, bool] = field(default_factory=dict)
+    _canonical_proven_empty_override: dict[str, bool] = field(default_factory=dict)
+    _apply_set_proven_empty_override: dict[str, bool] = field(default_factory=dict)
     # Call-argument spies (ADR043-IMPL-A-MAJ-04/06 verification seam) -- this
     # fake otherwise ignores `up_to`/`frontier`/`applied_frontier` entirely
     # (proven_empty is tracked per-subject, not per-query-boundary), so a test
@@ -187,32 +203,50 @@ class InMemoryLineageHistoryProvider:
     last_apply_set_frontier: dict[str, EvaluationFrontier] = field(default_factory=dict)
     last_apply_set_applied_frontier: dict[str, EvaluationFrontier | None] = field(default_factory=dict)
 
-    def register_upstream(self, feature_subject_id: str, envelopes: list[UpstreamEnvelope]) -> None:
+    def register_upstream(
+        self, feature_subject_id: str, envelopes: list[UpstreamEnvelope], *, proven_empty: bool | None = None
+    ) -> None:
         self._known_subjects.add(feature_subject_id)
         self._upstream.setdefault(feature_subject_id, []).extend(envelopes)
+        if proven_empty is not None:
+            self._upstream_proven_empty_override[feature_subject_id] = proven_empty
 
-    def register_canonical(self, feature_subject_id: str, events: list[FeatureEvent]) -> None:
+    def register_canonical(
+        self, feature_subject_id: str, events: list[FeatureEvent], *, proven_empty: bool | None = None
+    ) -> None:
         self._known_subjects.add(feature_subject_id)
         self._canonical.setdefault(feature_subject_id, []).extend(events)
+        if proven_empty is not None:
+            self._canonical_proven_empty_override[feature_subject_id] = proven_empty
 
     def register_known_empty(self, feature_subject_id: str) -> None:
         self._known_subjects.add(feature_subject_id)
 
-    def enqueue_pending(self, feature_subject_id: str, envelopes: list[UpstreamEnvelope]) -> None:
+    def enqueue_pending(
+        self, feature_subject_id: str, envelopes: list[UpstreamEnvelope], *, proven_empty: bool | None = None
+    ) -> None:
         self._known_subjects.add(feature_subject_id)
         self._pending.setdefault(feature_subject_id, []).extend(envelopes)
+        if proven_empty is not None:
+            self._apply_set_proven_empty_override[feature_subject_id] = proven_empty
 
     def upstream_history(self, feature_subject_id: str, *, up_to: EvaluationFrontier) -> UpstreamHistoryResult:
         self.last_upstream_up_to[feature_subject_id] = up_to
         events = tuple(self._upstream.get(feature_subject_id, ()))
-        return UpstreamHistoryResult(events=events, proven_empty=feature_subject_id in self._known_subjects)
+        proven_empty = self._upstream_proven_empty_override.get(
+            feature_subject_id, feature_subject_id in self._known_subjects
+        )
+        return UpstreamHistoryResult(events=events, proven_empty=proven_empty)
 
     def canonical_output_history(
         self, feature_subject_id: str, *, up_to: EvaluationFrontier
     ) -> CanonicalOutputHistoryResult:
         self.last_canonical_up_to[feature_subject_id] = up_to
         events = tuple(self._canonical.get(feature_subject_id, ()))
-        return CanonicalOutputHistoryResult(events=events, proven_empty=feature_subject_id in self._known_subjects)
+        proven_empty = self._canonical_proven_empty_override.get(
+            feature_subject_id, feature_subject_id in self._known_subjects
+        )
+        return CanonicalOutputHistoryResult(events=events, proven_empty=proven_empty)
 
     def not_yet_applied_apply_set(
         self,
@@ -224,7 +258,10 @@ class InMemoryLineageHistoryProvider:
         self.last_apply_set_frontier[feature_subject_id] = frontier
         self.last_apply_set_applied_frontier[feature_subject_id] = applied_frontier
         events = tuple(self._pending.pop(feature_subject_id, []))
-        return UpstreamHistoryResult(events=events, proven_empty=feature_subject_id in self._known_subjects)
+        proven_empty = self._apply_set_proven_empty_override.get(
+            feature_subject_id, feature_subject_id in self._known_subjects
+        )
+        return UpstreamHistoryResult(events=events, proven_empty=proven_empty)
 
 
 # --- Local engine/envelope construction helpers -----------------------------
@@ -1094,6 +1131,144 @@ def test_catch_up_reconstructs_regime_lineage_using_canonical_refs_and_allocates
     key = (fact_2.window_start, fact_2.window_end)
     assert fresh_engine._lineage[key].head_fact.ref == computed_2.ref
     assert fresh_engine._lineage[key].head_fact.ref.event_id.startswith("reference-run")
+
+
+# --- Wave-6 (Condition-1B): `_catch_up`/`process_certified_frontier`'s own
+# emptiness-proof guards (`not X.events and not X.proven_empty`) -----------
+#
+# `proven_empty=True` is meaningful ONLY for validating a genuinely-empty
+# `events` tuple (`UpstreamHistoryResult`/`CanonicalOutputHistoryResult`'s
+# own docstrings) -- a real, legitimate provider may return non-empty
+# events with `proven_empty=False` (it never bothered proving emptiness
+# because it already has data to return). Every EXISTING test in this file
+# only ever exercises `proven_empty=True` (via the "known subjects"
+# convenience default), which is why the guard's exact boolean phrasing was
+# never independently exercised -- these three tests use the fixture's new
+# `proven_empty=` override to construct that legitimate, real-world
+# combination directly.
+
+
+def test_catch_up_proceeds_with_non_empty_unproven_upstream_history(
+    time_source: FixedDeltaTimeSource,
+) -> None:
+    """A provider returning real, non-empty upstream events with
+    `proven_empty=False` (it has data, so it never separately proved
+    emptiness) must be accepted -- `_catch_up`'s own emptiness-proof guard
+    exists only to reject a GENUINELY empty, unproven result, never to
+    reject non-empty history merely because `proven_empty` happens to be
+    `False`.
+    """
+    reference_allocator = SequenceAllocator(
+        module_id="feature-engine", implementation_version="0.1.0", run_id="reference-run"
+    )
+    reference_engine = _regime_engine(reference_allocator, time_source)
+    subject_id = reference_engine.scope.feature_subject_id
+
+    fact_1 = regime_classified_at(reference_allocator, 0, computed_metric="1.50")
+    frontier_1 = frontier_at(fact_1.recorded_time, resolved_input_contract=REGIME_INPUT_CONTRACT)
+    computed_1 = only_computed(reference_engine.on_regime_classified(fact_1, cursor=frontier_1)[0])
+
+    provider = InMemoryLineageHistoryProvider()
+    provider.register_upstream(
+        subject_id, [_regime_envelope(fact_1, kind="regime_classified", frontier=frontier_1)], proven_empty=False
+    )
+    provider.register_canonical(subject_id, [computed_1])
+
+    fresh_allocator = SequenceAllocator(module_id="feature-engine", implementation_version="0.1.0", run_id="fresh-run")
+    fresh_engine = _regime_engine(fresh_allocator, time_source)
+    authority = InMemorySubjectOwnershipAuthority()
+    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=fresh_allocator, time_source=time_source)
+    owner = AuthoritativeSubjectOwner(
+        engine=fresh_engine,
+        authority=authority,
+        committer=committer,
+        history_provider=provider,
+    )
+    reconciled = owner.acquire_and_activate(catch_up_frontier=frontier_1)
+    assert reconciled == (computed_1,)
+    assert owner.state is SubjectOwnershipState.ACTIVE
+
+
+def test_catch_up_proceeds_with_non_empty_unproven_canonical_history(
+    time_source: FixedDeltaTimeSource,
+) -> None:
+    """Sibling of the test above, on the canonical (not upstream) history
+    query -- non-empty canonical events with `proven_empty=False` must be
+    accepted, never rejected merely because `proven_empty` is `False`.
+    """
+    reference_allocator = SequenceAllocator(
+        module_id="feature-engine", implementation_version="0.1.0", run_id="reference-run"
+    )
+    reference_engine = _regime_engine(reference_allocator, time_source)
+    subject_id = reference_engine.scope.feature_subject_id
+
+    fact_1 = regime_classified_at(reference_allocator, 0, computed_metric="1.50")
+    frontier_1 = frontier_at(fact_1.recorded_time, resolved_input_contract=REGIME_INPUT_CONTRACT)
+    computed_1 = only_computed(reference_engine.on_regime_classified(fact_1, cursor=frontier_1)[0])
+
+    provider = InMemoryLineageHistoryProvider()
+    provider.register_upstream(subject_id, [_regime_envelope(fact_1, kind="regime_classified", frontier=frontier_1)])
+    provider.register_canonical(subject_id, [computed_1], proven_empty=False)
+
+    fresh_allocator = SequenceAllocator(module_id="feature-engine", implementation_version="0.1.0", run_id="fresh-run")
+    fresh_engine = _regime_engine(fresh_allocator, time_source)
+    authority = InMemorySubjectOwnershipAuthority()
+    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=fresh_allocator, time_source=time_source)
+    owner = AuthoritativeSubjectOwner(
+        engine=fresh_engine,
+        authority=authority,
+        committer=committer,
+        history_provider=provider,
+    )
+    reconciled = owner.acquire_and_activate(catch_up_frontier=frontier_1)
+    assert reconciled == (computed_1,)
+    assert owner.state is SubjectOwnershipState.ACTIVE
+
+
+def test_process_certified_frontier_proceeds_with_non_empty_unproven_apply_set(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """Same emptiness-proof-guard obligation on the ongoing (not
+    historical) `not_yet_applied_apply_set` path -- non-empty pending
+    events with `proven_empty=False` must be processed normally, never
+    rejected as an unproven-empty apply set.
+    """
+    engine = _regime_engine(allocator, time_source)
+    subject_id = engine.scope.feature_subject_id
+    authority = InMemorySubjectOwnershipAuthority()
+    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=allocator, time_source=time_source)
+    provider = InMemoryLineageHistoryProvider()
+    provider.register_known_empty(subject_id)
+    owner = AuthoritativeSubjectOwner(
+        engine=engine, authority=authority, committer=committer, history_provider=provider
+    )
+    owner.acquire_and_activate(catch_up_frontier=frontier_at(BASE, resolved_input_contract=REGIME_INPUT_CONTRACT))
+
+    fact = regime_classified_at(allocator, 0, computed_metric="1.50")
+    frontier = frontier_at(fact.recorded_time, resolved_input_contract=REGIME_INPUT_CONTRACT)
+    provider.enqueue_pending(
+        subject_id, [_regime_envelope(fact, kind="regime_classified", frontier=frontier)], proven_empty=False
+    )
+    events = owner.process_certified_frontier(frontier)
+    assert len(events) == 1
+    assert only_computed(events[0]).value == Decimal("1.50")
+
+
+def test_tie_break_key_sequence_field_maps_to_the_real_ref_sequence() -> None:
+    """`_tie_break_key` is a small, directly-callable semantic helper: each
+    configured tie-break field name must map to the actual corresponding
+    `EventRecordRef` attribute -- a legitimate, non-contrived direct test
+    of the helper's own contract, independent of whether `p_run_sort`'s
+    overall sort order happens to ever compare on this exact position for
+    two ready envelopes sharing a `stream_id` (same-stream envelopes are
+    already fully ordered by `P_stream` edges before any tie-break runs).
+    """
+    ref = EventRecordRef(stream_id="market-data-ingestion-candle", sequence=42, event_id="e-1")
+    envelope = UpstreamEnvelope(
+        ref=ref, recorded_time=BASE, causation_refs=(), kind="candle", fact=None, frontier=frontier_at(BASE)
+    )
+    assert _tie_break_key(envelope, ("sequence",)) == (42, "e-1")
+    assert _tie_break_key(envelope, ("stream_id", "sequence")) == ("market-data-ingestion-candle", 42, "e-1")
 
 
 def test_catch_up_mismatch_fails_closed(time_source: FixedDeltaTimeSource) -> None:

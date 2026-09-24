@@ -2,6 +2,24 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-24 — feature-engine: Condition-1 Wave-6 test remediation — 7/13 targeted kills, classification-contradiction finding on the remaining 6
+
+Starting HEAD `be88041bda928843cc95f0aef5f63edf1d5df63e`, verified `main == origin/main`, no drift. Active proposal-002 blob `ea0b7a79b733622388597c59346c4615bb2726db`, active set-002 blob `2e6030c5581df51323937de0bd5f646f3e98b5d9` (24 IDs, sha256 `6c8181f7665a63494632ef89514ea7efdf9948c544c9a9a8094e87c17c3d2543`) both fresh-verified exact.
+
+Implemented Wave-6 against the exact 13 currently-unremediated genuine identities in the active 24-ID gate. Baseline targeted verification (before edits) confirmed all 13 survived. 9 new tests across `test_contracts.py`, `test_ownership.py`, `test_swing_distance.py` -- ordinary suite `443/443 passed` (was 434), `ruff`/`mypy` clean (2 pre-existing, baseline-confirmed `authority_resolver.py` findings, not introduced). Post-implementation: `7/13 KILLED_BY_WAVE6` (3 `contracts.py` sentinel guards, 4 `ownership.py` emptiness-proof guards + tie-break helper).
+
+Significant honest finding: the remaining `6/13 STILL_SURVIVED`, all in `swing_distance.py`, all independently proven `PROVABLY_EQUIVALENT` (3 recorded-time-floor mutants -- the dropped `state.recorded_time` term is structurally redundant given the swing-eligibility invariant `state.recorded_time <= cursor.recorded_time`, same `cursor` object, source-traced across all call chains) or `STRUCTURALLY_UNREACHABLE` (`_prepare_recompute__mutmut_23`'s assert guards an invariant only its 2 legitimate callers, both inside `prepare_candle`, can ever satisfy; `_prepare_reevaluate_all_windows__mutmut_6` and `_select_eligible_swing__mutmut_22` were discovered, via direct inspection of mutmut's own real generated mutant bodies, to be DIFFERENT mutations than the root-cause audit originally described -- an indexing-drift bug in this session's own custom diff-extraction script for functions with dense mutation candidates -- and both are themselves independently structurally unreachable). None of the 6 were force-tested; both originally-intended tests are retained as genuinely valuable general coverage, honestly documented as not killing their originally-intended mutant.
+
+Governance implication, NOT acted on: the active 24-ID gate is conservative/over-strict for at least these 6 identities, never permissive. Active proposal-002/set-002, the root-cause audit, and the DTR all fresh-verified byte-unchanged -- this finding is evidence only for a future, separately-governed re-audit; no reclassification performed here.
+
+Full current 24-ID accounting: 11 Wave-5 + 7 Wave-6 engineering kills (formal Condition-1B credit NOT claimed for any) + 6 pending future re-audit = 24.
+
+New evidence artifact: `docs/governance/mutation-baseline-evidence/feature-engine-condition1-wave6-test-remediation-001.json`. ADR Scope: `ADR_NOT_REQUIRED`. Risk: `R1`. `manifest_version` `"10.431"` -> `"10.432"`.
+
+**Files changed (6):** `docs/governance/mutation-baseline-evidence/feature-engine-condition1-wave6-test-remediation-001.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md`, plus 3 test files (`python/feature-engine/tests/test_contracts.py`, `test_ownership.py`, `test_swing_distance.py`).
+
+---
+
 ## [Unreleased] — 2026-09-24 — feature-engine: Condition-1 threshold recalibration proposal-002 ACTIVATED — 85.127424876379% + 24-ID gate is now controlling
 
 Starting HEAD `f99f75973049e71b7e3f1876ba0683a7d8434d48`, verified `main == origin/main`, no drift. Reviewed boundary `f99f75973049e71b7e3f1876ba0683a7d8434d48`, reviewed proposal-002 blob `4ca7354600ccd81331b3fb8a46f25327bdf53371`, reviewed set-002 blob `d4558f37c8c9084bf8f404309c342126733eeebc`.

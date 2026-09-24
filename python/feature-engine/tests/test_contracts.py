@@ -1,17 +1,34 @@
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 
 import pytest
+from conftest import (
+    FEATURE_OUTPUT_CONTRACT_VERSION,
+    SWING_DISTANCE_EVIDENCE,
+    SWING_DISTANCE_INPUT_CONTRACT,
+    FixedDeltaTimeSource,
+    feature_scope,
+    frontier_at,
+)
 
 from feature_engine import (
+    FEATURE_COMPUTED_CONTRACT_ID,
     DecimalPrecisionPolicy,
+    EventContractRef,
     EventRecordRef,
     InvalidFeatureDefinitionError,
+    resolve_computation_cursor,
 )
-from feature_engine.contracts import InputMergePolicy, _validate_canonical_recorded_time, is_visible_at_cursor
-from feature_engine.errors import UnsupportedMergePolicyError
+from feature_engine.contracts import (
+    InputMergePolicy,
+    PreparedFeatureComputed,
+    _finalize_prepared_batch,
+    _validate_canonical_recorded_time,
+    is_visible_at_cursor,
+)
+from feature_engine.errors import CanonicalHistoryMismatchError, UnsupportedMergePolicyError
 
 # Direct unit tests of `resolve_output_event_contract_authority_from_repository`
 # (ADR-039/ADR-040 remediation, supersedes the earlier `resolve_output_contract_refs`
@@ -129,3 +146,98 @@ def test_validate_canonical_recorded_time_rejects_mismatched_batch_lengths() -> 
     """
     with pytest.raises(ValueError):
         _validate_canonical_recorded_time((), (object(),))  # type: ignore[arg-type]
+
+
+# --- Wave-6 (Condition-1B): _finalize_prepared_batch / _validate_canonical_
+# recorded_time sentinel-default (`None` -> `""`) guards ----------------------
+#
+# Both `_finalize_prepared_batch` and `_validate_canonical_recorded_time`
+# track a same-batch preceding invalidation's own real `ref`/`recorded_time`
+# via a module-local `None`-sentinel local, threaded through to a same-batch
+# `PreparedFeatureComputed` whose `preceding_batch_invalidation_causation`/
+# `depends_on_preceding_invalidation_timing` is True but which is NOT
+# actually preceded by a real invalidation earlier in the same batch (a
+# malformed/inconsistent prepared batch) -- these three direct, minimal
+# constructions exercise that fail-closed guard without inspecting mutant
+# internals or asserting exact message text.
+
+
+def _prepared_computed(
+    *,
+    recorded_time_floor: datetime,
+    preceding_batch_invalidation_causation: bool = False,
+    depends_on_preceding_invalidation_timing: bool = False,
+) -> PreparedFeatureComputed:
+    scope = feature_scope("distance_to_last_confirmed_swing", version="wave6-test")
+    input_ref = EventRecordRef(stream_id="market-data-ingestion-candle", sequence=1, event_id="wave6-input-1")
+    cursor = resolve_computation_cursor(
+        frontier_at(recorded_time_floor), resolved_input_contract=SWING_DISTANCE_INPUT_CONTRACT
+    )
+    return PreparedFeatureComputed(
+        scope=scope,
+        value=Decimal("1"),
+        unit="price",
+        window_start=recorded_time_floor,
+        window_end=recorded_time_floor,
+        input_fact_refs=(input_ref,),
+        supersedes_fact_ref=None,
+        causation_refs=(input_ref,),
+        preceding_batch_invalidation_causation=preceding_batch_invalidation_causation,
+        recorded_time_floor=recorded_time_floor,
+        depends_on_preceding_invalidation_timing=depends_on_preceding_invalidation_timing,
+        event_contract_ref=EventContractRef(FEATURE_COMPUTED_CONTRACT_ID, FEATURE_OUTPUT_CONTRACT_VERSION),
+        computation_cursor=cursor,
+        computation_dependency_content_evidence=SWING_DISTANCE_EVIDENCE,
+    )
+
+
+def test_finalize_prepared_batch_fails_closed_when_preceding_invalidation_causation_has_no_real_invalidation() -> (
+    None
+):
+    """`_finalize_prepared_batch`'s `invalidation_ref` local starts `None`
+    and is only ever set when an earlier `PreparedFeatureFactInvalidated`
+    is finalized in the SAME batch. A `PreparedFeatureComputed` whose own
+    `preceding_batch_invalidation_causation=True` but which is the batch's
+    only/first item (no such invalidation precedes it) must fail closed --
+    `PreparedFeatureComputed.finalize`'s own `invalidation_ref is None`
+    guard exists specifically to reject exactly this malformed batch shape,
+    never to silently splice a placeholder causation ref.
+    """
+    floor = datetime(2026, 1, 1, tzinfo=UTC)
+    prepared = _prepared_computed(recorded_time_floor=floor, preceding_batch_invalidation_causation=True)
+    ref = EventRecordRef(stream_id="feature-engine-distance-output", sequence=1, event_id="wave6-out-1")
+    with pytest.raises(ValueError):
+        _finalize_prepared_batch((prepared,), (ref,), time_source=FixedDeltaTimeSource())
+
+
+def test_finalize_prepared_batch_fails_closed_when_depends_on_timing_has_no_real_invalidation() -> None:
+    """Sibling sentinel guard: `_finalize_prepared_batch`'s `invalidation_
+    recorded_time` local starts `None` and is only set once an earlier same-
+    batch invalidation is finalized. A `PreparedFeatureComputed` whose own
+    `depends_on_preceding_invalidation_timing=True` but which has no such
+    preceding invalidation in the same batch must fail closed with the
+    documented `ValueError` -- never silently fall through to comparing a
+    real `datetime` floor against a non-`datetime` sentinel.
+    """
+    floor = datetime(2026, 1, 1, tzinfo=UTC)
+    prepared = _prepared_computed(recorded_time_floor=floor, depends_on_preceding_invalidation_timing=True)
+    ref = EventRecordRef(stream_id="feature-engine-distance-output", sequence=1, event_id="wave6-out-2")
+    with pytest.raises(ValueError):
+        _finalize_prepared_batch((prepared,), (ref,), time_source=FixedDeltaTimeSource())
+
+
+def test_validate_canonical_recorded_time_fails_closed_when_depends_on_timing_has_no_real_invalidation() -> None:
+    """`_validate_canonical_recorded_time`'s own analogous `invalidation_
+    recorded_time` sentinel guard, in the historical-reconcile validation
+    path: a prepared replacement that depends on a preceding same-batch
+    invalidation's timing, with no such invalidation reconciled earlier in
+    the same call, must fail closed with the documented
+    `CanonicalHistoryMismatchError` -- never fall through to a mixed-type
+    comparison against a non-`datetime` sentinel.
+    """
+    floor = datetime(2026, 1, 1, tzinfo=UTC)
+    prepared = _prepared_computed(recorded_time_floor=floor, depends_on_preceding_invalidation_timing=True)
+    ref = EventRecordRef(stream_id="feature-engine-distance-output", sequence=1, event_id="wave6-out-3")
+    canonical = prepared.finalize(ref, floor + timedelta(seconds=1))
+    with pytest.raises(CanonicalHistoryMismatchError):
+        _validate_canonical_recorded_time((prepared,), (canonical,))
