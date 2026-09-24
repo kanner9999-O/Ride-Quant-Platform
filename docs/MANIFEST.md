@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.434"
+manifest_version: "10.435"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -30039,6 +30039,36 @@ LIVE:                        NOT_AUTHORIZED
 **Next governed action:** a separate, subsequent, bounded Work Package to perform a full formal Condition-1 mutation measurement against the active proposal-003/set-003 gate — not initiated here.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-recalibration-proposal-003.md` (activated, resulting blob `a3193f73eb9222ca1b87f4db78c68643dba3a266`), `docs/governance/mutation-baseline-evidence/feature-engine-condition1-current-material-gap-set-003.json` (activated, resulting blob `ba276a767a57c2e533e7178000b4f129d61a3e9e`), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — `feature-engine-mutation-threshold-recalibration-proposal-002.md`, `feature-engine-condition1-current-material-gap-set-002.json`, the Wave-6 evidence, the Wave-6 classification DTR, the prior root-cause audit, the prior material-set DTR, and all source/tests/tooling NOT touched. `manifest_version` `"10.433"` -> `"10.434"`.
+
+## Feature Engine Condition-1 formal measurement 006 (`feature-engine-mutation-step9-formal-evidence-006.json`) — MEASUREMENT COMPLETE, PASS — PENDING REVIEW A VALIDATION
+
+**Fresh boundary verification:** starting HEAD `dd05c963397bbb8c9b8bd30f6a88c913baf3f153` fresh-verified equal to `origin/main`, working tree clean, no drift. Active proposal-003 blob `a3193f73eb9222ca1b87f4db78c68643dba3a266`, active set-003 blob `ba276a767a57c2e533e7178000b4f129d61a3e9e` (count 18, sha256 `e4d21a0f1765f860d48d8a607c5d4e25b5b43c88f76db631cdd8528d83f73872`), Evidence-005 blob `f7a6ab715155ad166808e0e9d9a7474196d9b69d` all fresh-verified exact.
+
+**Executable boundary:** `dd05c963397bbb8c9b8bd30f6a88c913baf3f153` (repo HEAD at measurement time — the documentation commit recording this evidence is NOT the executable boundary). `src_tree`/`tooling_tree`/`pyproject.toml`/`requirements-dev.lock.txt` byte-identical to Evidence-005's own executable boundary; only `tests_tree` differs (Wave-5/6 test-only additions).
+
+**Fresh disposable environment:** `python3.13 -m venv` + `pip install -r requirements-dev.lock.txt` + `pip install -e . --no-deps`, `pip check` clean, all tool versions (`pytest 9.1.1`, `mutmut 3.7.0`, `coverage 7.16.0`, `platformdirs 4.11.5`, `ruff 0.16.4`, `mypy 2.3.1`) match the lock exactly and match Evidence-005's own recorded versions.
+
+**Ordinary verification:** `pytest -q` → `443 passed`; `pytest -q tooling/tests/` → `5 passed`; `mypy src tests` → clean; `ruff check src tests` → the same 2 pre-existing `authority_resolver.py` E501 findings, unchanged, not introduced by this transaction. No regression.
+
+**Full formal mutation run:** `python -m tooling run --max-children 1` (single-worker, chosen deterministically per Evidence-005's own diagnosed parallel-worker resource-contention timeout-inflation finding — not for throughput), fresh mutant workspace, run to natural completion: **2629/2629** mutants processed. Raw status: `killed=2243 / survived=384 / timeout=2 / all other statuses=0`, sum exactly `2629`. One measurement anomaly investigated and recorded, not hidden: a first attempt was manually interrupted after ~350/2629 mutants on observing repeated `BadTestExecutionCommandsException` console tracebacks; direct reproduction confirmed these are genuine, mutation-induced conftest.py import-time collection failures (documented, Testing-Convention-v0.16-approved shim behavior, `P3-PY-MUT-BASELINE-B-MAJ-01`), not an infrastructure or environment defect — the workspace was fully cleaned and the run restarted from scratch, completing cleanly with no further interruption.
+
+**Strict, twice-independent isolated timeout triage on both raw timeout candidates (no majority vote, no third tie-break, no guessing):** `ownership.x_p_run_sort__mutmut_82` → `timeout` + `timeout` → **`CONFIRMED_TIMEOUT`** (consistent with Evidence-005's own prior confirmation of this exact identity at its own boundary). `authority_resolver.x_resolve_input_contract_authority_from_repository__mutmut_109` → `killed` + `killed` → **resolved KILLED** (same genuine conftest.py collection-breaking mutation class; correctly recorded as killed both times under isolated single-mutant conditions). Zero `UNSTABLE_TIMEOUT_TRIAGE`.
+
+**Final formal post-triage counts:** `killed=2244 / confirmed_timeout=1 / survived=384 / unstable_timeout_triage=0`, sum exactly `2629`.
+
+**Condition 1A:** formal numerator `2244+1=2245` (required `≥ 2232`) — **PASS**. Formal percentage `2245/2629×100 = 85.393685812096%` (required `≥ 84.899201217193%`, exact-count basis `2232/2629` used as the primary comparison) — **PASS**.
+
+**Condition 1B:** all 18 exact Set-003 identities queried by exact mutmut identity directly from the persisted result store (never inferred from Wave-5/6 targeted evidence, custom CST extraction, or index proximity) — **`18/18 KILLED`** — **PASS**.
+
+**`FORMAL MEASUREMENT RESULT: PASS — PENDING REVIEW A VALIDATION`.** This executor does NOT self-issue final Review-A validation — a separate, distinct-principal ChatGPT Review A of Evidence-006 is required before this result becomes governed.
+
+**New, additive evidence artifact:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-006.json` (blob `460cf678a2c682c26540719da78ff798ce88705d`) — does NOT overwrite or modify Evidence-005 (fresh-verified byte-unchanged). No threshold/calibration change — `84.899201217193%`, `2232/2629`, proposal-003, and set-003 all fresh-verified byte-unchanged and unaltered regardless of the measurement outcome. No source/test/tooling file changed.
+
+**Condition 2/3 preserved, unchanged, independent:** Condition 2 `169/170` (remaining: `contracts.x__seal_verified_authority__mutmut_33`, `TOOL_IDENTITY_DRIFT`, not touched); Condition 3 `SATISFIED — REVIEW A VALIDATED`, not reopened. `P3-FEATURE-QG-EVID-03` remains `OPEN` (Condition 2 independently blocking). Feature Engine remains `NOT APPROVED`. `LIVE` remains `NOT_AUTHORIZED`.
+
+**ADR Scope / Risk:** `ADR_NOT_REQUIRED` (performs and records an already-authorized measurement without changing behavior, threshold, governance, or architecture, freshly re-run). Risk: `R1`.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-006.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — exactly 6 files. No `src/`, `tests/`, `tooling/`, dependency, proposal-003, set-003, proposal-002/set-002, Wave-5/6 evidence, DTR, Testing Convention, ADR, or Constitution file touched. `manifest_version` `"10.434"` -> `"10.435"`.
 
 ## Decision Log
 

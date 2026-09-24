@@ -2,6 +2,28 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-24 — feature-engine: Condition-1 formal mutation measurement 006 — MEASUREMENT COMPLETE, PASS — PENDING REVIEW A VALIDATION
+
+Starting HEAD `dd05c963397bbb8c9b8bd30f6a88c913baf3f153`, verified `main == origin/main`, working tree clean, no drift. Active proposal-003 blob `a3193f73eb9222ca1b87f4db78c68643dba3a266`, active set-003 blob `ba276a767a57c2e533e7178000b4f129d61a3e9e` (18 IDs, sha256 `e4d21a0f1765f860d48d8a607c5d4e25b5b43c88f76db631cdd8528d83f73872`), Evidence-005 blob `f7a6ab715155ad166808e0e9d9a7474196d9b69d` all fresh-verified exact.
+
+Executable boundary `dd05c963397bbb8c9b8bd30f6a88c913baf3f153` -- src/tooling/dependency trees byte-identical to Evidence-005's own, only tests_tree differs (Wave-5/6 test-only). Fresh disposable venv, all tool versions match the lock exactly. Ordinary verification: `443 passed`, `5 passed` (tooling), mypy clean, ruff unchanged (2 pre-existing findings).
+
+Full formal mutation run: `python -m tooling run --max-children 1` (single-worker, per Evidence-005's own diagnosed parallel-worker timeout-inflation finding), fresh workspace, natural completion: `2629/2629` mutants. Raw: `killed=2243 / survived=384 / timeout=2`, sum `2629`. One anomaly investigated, not hidden: a first attempt was interrupted on repeated `BadTestExecutionCommandsException` tracebacks; confirmed genuine, mutation-induced conftest.py import-time collection failures (documented shim behavior, `P3-PY-MUT-BASELINE-B-MAJ-01`), not infrastructure defect -- workspace cleaned, run restarted cleanly.
+
+Strict twice-independent isolated timeout triage: `ownership.x_p_run_sort__mutmut_82` -> timeout+timeout -> `CONFIRMED_TIMEOUT` (consistent with Evidence-005's own prior confirmation); `authority_resolver.x_resolve_input_contract_authority_from_repository__mutmut_109` -> killed+killed -> resolved KILLED. Zero unstable.
+
+Final formal: `killed=2244 / confirmed_timeout=1 / survived=384 / unstable_timeout_triage=0`, sum `2629`. Formal numerator `2245` (>= required `2232`); formal percentage `85.393685812096%` (>= required `84.899201217193%`) -- **Condition 1A: PASS**. All 18 exact Set-003 identities queried by exact mutmut identity -- **`18/18 KILLED`** -- **Condition 1B: PASS**.
+
+**`FORMAL MEASUREMENT RESULT: PASS — PENDING REVIEW A VALIDATION`** -- not self-issued; a separate, distinct-principal ChatGPT Review A of Evidence-006 is required. New, additive evidence artifact `feature-engine-mutation-step9-formal-evidence-006.json` (does NOT overwrite Evidence-005). No threshold/calibration change; proposal-003/set-003 fresh-verified byte-unchanged. No source/test/tooling change.
+
+Condition 2 (`169/170`) and Condition 3 (`SATISFIED`) preserved, unchanged, independent. `P3-FEATURE-QG-EVID-03` remains `OPEN`. Feature Engine remains `NOT APPROVED`. `LIVE` remains `NOT_AUTHORIZED`. `TOOL_IDENTITY_DRIFT` not resolved.
+
+ADR Scope: `ADR_NOT_REQUIRED`. Risk: `R1`. `manifest_version` `"10.434"` -> `"10.435"`.
+
+**Files changed (6):** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-006.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md`.
+
+---
+
 ## [Unreleased] — 2026-09-24 — feature-engine: Condition-1 threshold recalibration proposal-003 ACTIVATED — 84.899201217193% + 18-ID gate is now controlling
 
 Starting HEAD `0ebde2bd9e532ef7c89ff0a847c84e71d107ba48`, verified `main == origin/main`, no drift. Reviewed boundary `0ebde2bd9e532ef7c89ff0a847c84e71d107ba48`, reviewed proposal-003 blob `2a263b9c28e02638bd69884ef0e5b12ac2090460`, reviewed set-003 blob `9065930f732b441e2b298e096c9b8f48531f7aee`.

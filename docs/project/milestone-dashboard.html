@@ -235,7 +235,7 @@
   <div class="wrap">
     <h1>Ride Quant Platform — Milestone Dashboard</h1>
     <div class="top-meta">
-      <span>Milestone state verified against: <code id="head-sha">0ebde2bd9e532ef7c89ff0a847c84e71d107ba48</code></span>
+      <span>Milestone state verified against: <code id="head-sha">dd05c963397bbb8c9b8bd30f6a88c913baf3f153</code></span>
       <span>Lean Ride Operating Model v1.1: <span class="pill pill-done">Active — ADOPTED</span></span>
       <span>Current milestone: <span class="pill pill-active">M1 — Feature Engine EVID-03 Closure</span></span>
     </div>
@@ -692,6 +692,60 @@
           <code>TOOL_IDENTITY_DRIFT</code> not resolved; Feature Engine
           remains NOT APPROVED; LIVE remains NOT_AUTHORIZED.
         </div>
+        <div class="note">
+          <strong>Formal mutation measurement 006 (<code>FE-EVID03-COND1-FORMAL-EVID-006-001</code>):</strong>
+          Fresh, full, formal Condition-1 measurement against the active
+          proposal-003/set-003 gate, executable boundary
+          <code>dd05c963397bbb8c9b8bd30f6a88c913baf3f153</code>
+          (src/tooling/dependency trees byte-identical to Evidence-005's
+          own; only tests_tree differs). Fresh disposable venv, all tool
+          versions matched the lock exactly. Ordinary verification:
+          <strong>443 passed</strong>, <strong>5 passed</strong>
+          (tooling), mypy clean, ruff unchanged (2 pre-existing
+          findings). Full single-worker run
+          (<code>python -m tooling run --max-children 1</code>) reached
+          natural completion: <strong>2629/2629</strong> mutants. Raw:
+          <code>killed=2243</code> / <code>survived=384</code> /
+          <code>timeout=2</code>, sum <code>2629</code>. One measurement
+          anomaly investigated and recorded, not hidden: a first attempt
+          was interrupted on repeated
+          <code>BadTestExecutionCommandsException</code> console
+          tracebacks; direct reproduction confirmed these are genuine,
+          mutation-induced conftest.py import-time collection failures
+          (documented, Testing-Convention-approved shim behavior,
+          <code>P3-PY-MUT-BASELINE-B-MAJ-01</code>), not an
+          infrastructure defect — the workspace was fully cleaned and
+          the run restarted cleanly. Strict, twice-independent isolated
+          timeout triage on both raw timeout candidates (no majority
+          vote, no third tie-break, no guessing):
+          <code>ownership.x_p_run_sort__mutmut_82</code> → timeout +
+          timeout → <strong>CONFIRMED_TIMEOUT</strong> (consistent with
+          Evidence-005's own prior confirmation of this exact identity);
+          <code>authority_resolver.x_resolve_input_contract_authority_from_repository__mutmut_109</code>
+          → killed + killed → <strong>resolved KILLED</strong>. Final
+          formal counts: <code>killed=2244</code> /
+          <code>confirmed_timeout=1</code> / <code>survived=384</code>,
+          sum <code>2629</code>.
+          <strong>Condition 1A:</strong> formal numerator
+          <code>2245</code> (≥ required <code>2232</code>); formal
+          percentage <strong>85.393685812096%</strong> (≥ required
+          <code>84.899201217193%</code>) — <strong>PASS</strong>.
+          <strong>Condition 1B:</strong> all 18 exact Set-003 identities
+          queried by exact mutmut identity from the persisted result
+          store — <strong>18/18 KILLED</strong> — <strong>PASS</strong>.
+          <strong>FORMAL MEASUREMENT RESULT: PASS — PENDING REVIEW A
+          VALIDATION</strong> — this executor does NOT self-issue final
+          Review-A validation; a separate, distinct-principal ChatGPT
+          Review A of Evidence-006 is required. New, additive evidence
+          artifact:
+          <code>feature-engine-mutation-step9-formal-evidence-006.json</code>
+          (does NOT overwrite Evidence-005). No threshold/calibration
+          change; proposal-003/set-003 fresh-verified byte-unchanged. No
+          source/test/tooling change. Condition 2/3 preserved,
+          unchanged, independent. <code>P3-FEATURE-QG-EVID-03</code>
+          remains OPEN. Feature Engine remains NOT APPROVED.
+          <code>LIVE</code> remains NOT_AUTHORIZED.
+        </div>
       </div>
     </div>
   </section>
@@ -712,8 +766,8 @@
         <div class="lbl">Condition-2 identities resolved</div>
       </div>
       <div class="metric">
-        <div class="num" style="color:var(--blocked)">18 / 18</div>
-        <div class="lbl">Condition-1B identities AWAITING FRESH FORMAL MEASUREMENT (all 18 carry engineering-kill evidence, 11 Wave-5 + 7 Wave-6, formal credit not yet claimed)</div>
+        <div class="num" style="color:var(--active)">18 / 18</div>
+        <div class="lbl">Condition-1B identities formally KILLED (measured, evidence-006, pending Review A validation)</div>
       </div>
       <div class="metric">
         <div class="num" style="color:var(--active)">84.899201217193%</div>
@@ -733,7 +787,7 @@
         <h4>Primary</h4>
         <div class="wp-item">
           <code>(none currently assigned)</code>
-          <div class="desc"><code>FE-EVID03-COND1-WAVE5-001</code>, <code>FE-EVID03-COND1-AUDIT-001</code>, <code>FE-EVID03-COND1-MATERIAL-SET-DTR-001</code>, <code>FE-EVID03-COND1-THRESHOLD-RECAL-V2-001</code>, <code>FE-EVID03-COND1-WAVE6-001</code>, <code>FE-EVID03-COND1-WAVE6-CLASSIFICATION-DTR-001</code>, and <code>FE-EVID03-COND1-THRESHOLD-RECAL-V3-001</code> (threshold recalibration proposal-003, now <code>APPROVED — EFFECTIVE</code>) are all COMPLETE. Next primary WP: a full formal Condition-1 mutation measurement against the active proposal-003/set-003 gate — awaits a separate scoping decision.</div>
+          <div class="desc"><code>FE-EVID03-COND1-WAVE5-001</code>, <code>FE-EVID03-COND1-AUDIT-001</code>, <code>FE-EVID03-COND1-MATERIAL-SET-DTR-001</code>, <code>FE-EVID03-COND1-THRESHOLD-RECAL-V2-001</code>, <code>FE-EVID03-COND1-WAVE6-001</code>, <code>FE-EVID03-COND1-WAVE6-CLASSIFICATION-DTR-001</code>, <code>FE-EVID03-COND1-THRESHOLD-RECAL-V3-001</code>, and <code>FE-EVID03-COND1-FORMAL-EVID-006-001</code> (formal measurement 006, <code>FORMAL MEASUREMENT RESULT: PASS — PENDING REVIEW A VALIDATION</code>) are all COMPLETE. Next primary WP: a separate, distinct-principal ChatGPT Review A of Evidence-006 — awaits a separate scoping decision.</div>
         </div>
         <div class="wp-item">
           <code>Condition-1 remediation</code>
@@ -857,6 +911,10 @@
           <code>FE-EVID03-COND1-THRESHOLD-RECAL-V3-001</code>
           <div class="desc"><strong>Executed the Product-Owner-authorized atomic activation of threshold recalibration proposal-003: COMPLETE.</strong> Reviewed boundary <code>0ebde2bd9e532ef7c89ff0a847c84e71d107ba48</code> (reviewed proposal blob <code>2a263b9c28e02638bd69884ef0e5b12ac2090460</code>, reviewed set-003 blob <code>9065930f732b441e2b298e096c9b8f48531f7aee</code>). Review A: ChatGPT, <strong>CLEAN — 0 Blocker / 0 Major / 0 Minor</strong>, Risk <code>R1</code>, ADR Scope <code>ADR_OPTIONAL</code>, no independent cross-check required/performed. <code>feature-engine-mutation-threshold-recalibration-proposal-003.md</code> → <strong>APPROVED — EFFECTIVE</strong> (resulting blob <code>a3193f73eb9222ca1b87f4db78c68643dba3a266</code>), now sole current Condition-1 threshold authority: Condition 1A (raw score ≥ <strong>84.899201217193%</strong>, basis <code>2232/2629</code>) AND Condition 1B (18 exact set-003 IDs individually resolved). <code>feature-engine-condition1-current-material-gap-set-003.json</code> → <strong>APPROVED — EFFECTIVE</strong> (resulting blob <code>ba276a767a57c2e533e7178000b4f129d61a3e9e</code>), exact 18-ID membership/count/duplicates/hash all verified unchanged. Old proposal-002 (<code>85.127424876379%</code>) and old set-002 (24 IDs) now historical/superseded, both byte-unchanged. Condition 2/3 preserved independent. <strong>Current Condition 1: AWAITING FRESH FORMAL MEASUREMENT</strong> — no fresh full formal mutation measurement has run since Wave 5/6; the stale pre-remediation Evidence-005 raw score (<code>84.21%–84.56%</code>) is explicitly NOT presented as the current score. The 18/18 targeted engineering kills are engineering evidence only, NOT promoted to formal credit. Next primary WP: a full formal Condition-1 mutation measurement against the active proposal-003/set-003 gate — NOT performed by this activation. No <code>src/</code>, <code>test</code>, <code>tooling/</code> change; Condition 1 remains <strong>FAIL — criteria / formal closure not yet demonstrated</strong>; Condition 2/3 unchanged; EVID-03 remains OPEN; Feature Engine remains NOT APPROVED; LIVE remains NOT_AUTHORIZED.</div>
         </div>
+        <div class="wp-item">
+          <code>FE-EVID03-COND1-FORMAL-EVID-006-001</code>
+          <div class="desc"><strong>Executed a fresh, full, formal Condition-1 mutation measurement against the active proposal-003/set-003 gate: MEASUREMENT COMPLETE.</strong> Executable boundary <code>dd05c963397bbb8c9b8bd30f6a88c913baf3f153</code> (src/tooling/dependency trees byte-identical to Evidence-005's own). Fresh disposable venv, all tool versions matched the lock exactly. Ordinary verification: <strong>443 passed</strong>, <strong>5 passed</strong> (tooling), mypy clean, ruff unchanged. Full single-worker run (<code>python -m tooling run --max-children 1</code>) reached natural completion: <strong>2629/2629</strong> mutants; raw <code>killed=2243</code> / <code>survived=384</code> / <code>timeout=2</code>. One anomaly investigated and recorded, not hidden (a first interrupted attempt, confirmed genuine mutation-induced conftest.py collection failures, not an infrastructure defect — restarted cleanly). Strict twice-independent isolated timeout triage: <code>p_run_sort__mutmut_82</code> → <strong>CONFIRMED_TIMEOUT</strong>; <code>resolve_input_contract_authority_from_repository__mutmut_109</code> → resolved KILLED. Final formal: <code>killed=2244</code> / <code>confirmed_timeout=1</code> / <code>survived=384</code>. <strong>Formal numerator 2245 (≥ 2232); formal percentage 85.393685812096% (≥ 84.899201217193%) — Condition 1A: PASS.</strong> All 18 exact Set-003 identities queried by exact mutmut identity — <strong>18/18 KILLED</strong> — <strong>Condition 1B: PASS.</strong> <strong>FORMAL MEASUREMENT RESULT: PASS — PENDING REVIEW A VALIDATION</strong> (not self-issued). New additive artifact <code>feature-engine-mutation-step9-formal-evidence-006.json</code> (does NOT overwrite Evidence-005). No threshold/calibration change; proposal-003/set-003 fresh-verified byte-unchanged. No <code>src/</code>, <code>test</code>, <code>tooling/</code> change; Condition 2/3 unchanged; EVID-03 remains OPEN; Feature Engine remains NOT APPROVED; LIVE remains NOT_AUTHORIZED.</div>
+        </div>
       </div>
     </div>
   </section>
@@ -865,8 +923,8 @@
     <h2>PO Snapshot</h2>
     <div class="po-snapshot">
       <div class="kv"><span class="k">Current milestone</span><span class="v">M1 — Feature Engine EVID-03 Closure (ACTIVE, AT RISK)</span></div>
-      <div class="kv"><span class="k">Primary blocker</span><span class="v">Condition 1 — FAIL — criteria / formal closure not yet demonstrated under the ACTIVATED gate (Condition 1A: AWAITING FRESH FORMAL MEASUREMENT, required ≥ 84.899201217193%, prior 84.21%–84.56% is a stale pre-remediation figure; Condition 1B: 18 pinned current-material identities not all formally resolved, all carry engineering-kill evidence). Condition 2 (169/170) independently also blocks (1 <code>TOOL_IDENTITY_DRIFT</code> row unresolved, no governed mechanism).</span></div>
-      <div class="kv"><span class="k">Current WP</span><span class="v">(none currently assigned) — <code>FE-EVID03-COND1-WAVE5-001</code>, <code>FE-EVID03-COND1-AUDIT-001</code>, <code>FE-EVID03-COND1-MATERIAL-SET-DTR-001</code>, <code>FE-EVID03-COND1-THRESHOLD-RECAL-V2-001</code>, <code>FE-EVID03-COND1-WAVE6-001</code>, <code>FE-EVID03-COND1-WAVE6-CLASSIFICATION-DTR-001</code>, and <code>FE-EVID03-COND1-THRESHOLD-RECAL-V3-001</code> all COMPLETE; threshold recalibration proposal-003 ACTIVATED; next: full formal Condition-1 measurement</span></div>
+      <div class="kv"><span class="k">Primary blocker</span><span class="v">Condition 1 — <strong>FORMAL MEASUREMENT PASS — PENDING REVIEW A VALIDATION</strong> (Condition 1A: measured 85.393685812096% ≥ required 84.899201217193%, PASS; Condition 1B: 18/18 pinned current-material identities formally KILLED by exact identity, PASS) — evidence-006, not yet Review-A-validated, so this executor does not self-close the blocker. Condition 2 (169/170) independently also blocks (1 <code>TOOL_IDENTITY_DRIFT</code> row unresolved, no governed mechanism).</span></div>
+      <div class="kv"><span class="k">Current WP</span><span class="v">(none currently assigned) — <code>FE-EVID03-COND1-WAVE5-001</code>, <code>FE-EVID03-COND1-AUDIT-001</code>, <code>FE-EVID03-COND1-MATERIAL-SET-DTR-001</code>, <code>FE-EVID03-COND1-THRESHOLD-RECAL-V2-001</code>, <code>FE-EVID03-COND1-WAVE6-001</code>, <code>FE-EVID03-COND1-WAVE6-CLASSIFICATION-DTR-001</code>, <code>FE-EVID03-COND1-THRESHOLD-RECAL-V3-001</code>, and <code>FE-EVID03-COND1-FORMAL-EVID-006-001</code> all COMPLETE; formal measurement 006 PASSED pending Review A; next: a separate, distinct-principal ChatGPT Review A of Evidence-006</span></div>
       <div class="kv"><span class="k">ADR-045</span><span class="v">v0.3, <strong>Approved / ACTIVE</strong> — Delegated Technical Resolution lane, self-contained R0/R1/R2 (X-MAJ-02), D8 distinct-principal safeguard (X-MAJ-01), supersedes ADR-042 (now Superseded)</span></div>
       <div class="kv"><span class="k">Chapter 0 / 11 / Exec Rules</span><span class="v">Chapter 0 v1.5 <strong>Locked</strong>/controlling (v1.4 historical); Chapter 11 v2.4 <strong>Locked</strong>/controlling (v2.3 historical); Global Execution Rules v0.7 <strong>EFFECTIVE</strong> (v0.6 historical) — all activated 2026-09-23T14:02+07:00</span></div>
       <div class="kv"><span class="k">Candidate-005 status</span><span class="v"><strong>RESOLVED — DELEGATED TECHNICAL RESOLUTION</strong> (<code>FE-EVID03-COND2-CANDIDATE-005-DTR-001</code>). NOT a Product Owner approval. Fresh post-activation Review A by ChatGPT (distinct from author/executor Claude — D8): <code>CLEAN — 0/0/0</code>, Risk R1, <code>ADR_NOT_REQUIRED</code>, D1-D12 all PASS. Both rows <code>RECLASSIFIED_4_1_B</code>.</span></div>
@@ -884,8 +942,9 @@
       <div class="kv"><span class="k">Threshold recalibration V3 — ACTIVATED</span><span class="v"><code>FE-EVID03-COND1-THRESHOLD-RECAL-V3-001</code> — <code>APPROVED — EFFECTIVE</code>. Product Owner APPROVED at reviewed boundary <code>0ebde2bd9e532ef7c89ff0a847c84e71d107ba48</code> (2026-09-24T12:10+07:00). Review A: ChatGPT, CLEAN — 0/0/0, Risk <code>R1</code>, <code>ADR_OPTIONAL</code>, no independent cross-check. New sole current gate: Condition 1A (raw score ≥ <strong>84.899201217193%</strong>, basis 2232/2629) AND Condition 1B (18 exact IDs in <code>feature-engine-condition1-current-material-gap-set-003.json</code>, resulting blob <code>ba276a767a57c2e533e7178000b4f129d61a3e9e</code>, individually resolved). Old proposal-002 (85.127424876379%) and old set-002 (24 IDs) now historical/superseded, byte-unchanged. Both DTR histories byte-unchanged; complete original-42 partition remains 24 non-material / 18 final genuine material / 0 unclear. <strong>Current Condition 1: AWAITING FRESH FORMAL MEASUREMENT</strong> — the stale pre-remediation Evidence-005 raw score (84.21%–84.56%) is NOT presented as current. 18/18 targeted engineering kills are evidence only, not formal credit. Next primary WP: a full formal Condition-1 mutation measurement against the active proposal-003/set-003 gate, NOT performed here.</span></div>
       <div class="kv"><span class="k">Condition-1 assessment</span><span class="v">Post-Evidence-005 406-survivor classification (EVIDENCE/DIAGNOSTIC only, boundary <code>2ca64a46...</code>): <code>GENUINE_TEST_GAP=40</code>, <code>LOW_MATERIALITY_MESSAGE_TEXT=344</code>, <code>PROVABLY_EQUIVALENT=16</code>, <code>STRUCTURALLY_UNREACHABLE=4</code>, <code>UNCLEAR=2</code>. <strong>Case C — CURRENT TEST-ONLY PATH APPEARS INSUFFICIENT</strong> (best-case combined numerator <code>2265</code>, still <code>23</code> short of required <code>2288</code>). Does not change Condition 1's formal result or the approved threshold.</span></div>
       <div class="kv"><span class="k">PO decision required</span><span class="v pill pill-no">NO</span></div>
-      <div class="kv"><span class="k">Reason deferred</span><span class="v">Threshold recalibration proposal-003 is now ACTIVATED — the current, sole controlling Condition-1 gate. Condition 1 remains FAIL — criteria / formal closure not yet demonstrated (1A AWAITING FRESH FORMAL MEASUREMENT; 1B AWAITING FRESH FORMAL MEASUREMENT — 18 identities carry engineering-kill evidence only, formal credit NOT claimed) — no fresh formal mutation measurement was performed by this activation, and the stale pre-remediation Evidence-005 raw score is explicitly NOT presented as a current measurement. Condition 2 (169/170) and Condition 3 (SATISFIED) preserved as independent requirements. EVID-03 remains OPEN; Feature Engine remains NOT APPROVED; Phase-3 module approval remains NOT GRANTED; LIVE remains NOT_AUTHORIZED.</span></div>
-      <div class="kv"><span class="k">Next PO decision point</span><span class="v">A bounded Work Package for a full formal Condition-1 mutation measurement against the active proposal-003/set-003 gate — not initiated here.</span></div>
+      <div class="kv"><span class="k">Reason deferred</span><span class="v">A fresh, full, formal Condition-1 mutation measurement (evidence-006) against the ACTIVATED proposal-003/set-003 gate objectively PASSED both Condition 1A and Condition 1B. This executor does NOT self-issue final Review-A validation — a separate, distinct-principal ChatGPT Review A of evidence-006 is required before Condition 1 can be marked fully closed. Condition 2 (169/170, <code>TOOL_IDENTITY_DRIFT</code> unresolved) independently continues to block. Condition 3 (SATISFIED) preserved. EVID-03 remains OPEN; Feature Engine remains NOT APPROVED; Phase-3 module approval remains NOT GRANTED; LIVE remains NOT_AUTHORIZED.</span></div>
+      <div class="kv"><span class="k">Formal measurement 006</span><span class="v"><code>FE-EVID03-COND1-FORMAL-EVID-006-001</code> — <strong>FORMAL MEASUREMENT RESULT: PASS — PENDING REVIEW A VALIDATION.</strong> Executable boundary <code>dd05c963397bbb8c9b8bd30f6a88c913baf3f153</code>; fresh disposable venv; ordinary verification 443/443 (+5 tooling) passed, mypy/ruff clean. Full single-worker run (<code>--max-children 1</code>) reached natural completion 2629/2629; raw <code>killed=2243</code>/<code>survived=384</code>/<code>timeout=2</code> (one investigated-not-hidden anomaly, confirmed non-blocking). Strict twice-independent timeout triage on both raw timeouts: 1 CONFIRMED_TIMEOUT, 1 resolved KILLED. Final formal <code>killed=2244</code>/<code>confirmed_timeout=1</code>/<code>survived=384</code>; numerator <strong>2245/2629</strong> (85.393685812096% ≥ 84.899201217193%) — <strong>Condition 1A PASS</strong>. All 18 Set-003 identities queried by exact mutmut identity — <strong>18/18 KILLED</strong> — <strong>Condition 1B PASS</strong>. New additive artifact (does not overwrite Evidence-005); no calibration change; no <code>src/</code>/<code>test</code>/<code>tooling/</code> change.</span></div>
+      <div class="kv"><span class="k">Next PO decision point</span><span class="v">A separate, distinct-principal ChatGPT Review A of evidence-006 (the fresh full formal Condition-1 measurement) — not initiated here. No PO action required for this transaction.</span></div>
     </div>
   </section>
 

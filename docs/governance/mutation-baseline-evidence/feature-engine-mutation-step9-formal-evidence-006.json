@@ -1,0 +1,281 @@
+{
+ "artifact_id": "feature-engine-mutation-step9-formal-evidence-006",
+ "schema_note": "A fresh, full, formal Feature Engine Condition-1 mutation measurement against the currently-effective Proposal-003 / Set-003 gate. This is measurement + evidence recording only -- no governance/threshold/calibration decision is made or self-issued by this artifact. This artifact is NEW and ADDITIVE; it does not overwrite feature-engine-mutation-step9-formal-evidence-005.json, which remains the immutable historical record of its own (now-superseded) Condition-1 measurement boundary.",
+ "supersedes_condition_1_measurement_of": {
+  "path": "docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-005.json",
+  "blob": "f7a6ab715155ad166808e0e9d9a7474196d9b69d",
+  "note": "Evidence-005 remains byte-unchanged, immutable historical record of its own measurement boundary (raw killed=2135/survived=406/timeout=88, formal killed=2209/confirmed_timeout=5/unstable_timeout_triage=9). This transaction does NOT project Wave-5/Wave-6 targeted kills onto Evidence-005 and does NOT reuse its score as current -- a completely fresh full measurement was performed."
+ },
+ "does_not_supersede": [
+  "feature-engine-condition1-post-e005-survivor-assessment-001.json (historical semantic classification)",
+  "feature-engine-condition1-material-gap-dtr-001.json (governed DTR)",
+  "feature-engine-condition1-material-gap-root-cause-audit-001.json (governed audit)",
+  "feature-engine-condition1-wave5-test-remediation-001.json (implementation evidence)",
+  "feature-engine-condition1-wave6-test-remediation-001.json (implementation evidence)",
+  "feature-engine-condition1-wave6-classification-dtr-001.json (governed DTR)",
+  "any prior activated threshold proposal document's own historical lifecycle banner"
+ ],
+ "active_gate": {
+  "proposal": {
+   "path": "docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-recalibration-proposal-003.md",
+   "blob": "a3193f73eb9222ca1b87f4db78c68643dba3a266",
+   "status": "APPROVED — EFFECTIVE"
+  },
+  "set": {
+   "path": "docs/governance/mutation-baseline-evidence/feature-engine-condition1-current-material-gap-set-003.json",
+   "blob": "ba276a767a57c2e533e7178000b4f129d61a3e9e",
+   "count": 18,
+   "duplicates": 0,
+   "sorted_set_sha256": "e4d21a0f1765f860d48d8a607c5d4e25b5b43c88f76db631cdd8528d83f73872"
+  },
+  "condition_1a_requirement": "raw mutation-effectiveness >= 84.899201217193% (exact basis 2232/2629)",
+  "condition_1b_requirement": "all 18 exact Set-003 identities individually resolved (killed or confirmed_timeout in fresh formal evidence, OR separately governed exact-ID semantic reclassification)"
+ },
+ "executable_boundary": {
+  "repository_head": "dd05c963397bbb8c9b8bd30f6a88c913baf3f153",
+  "src_tree": "1029a9fef083b0902d6d00a2e96cfde14213324c",
+  "tests_tree": "fb93ed45724bb37b6f7cceb95eced25a74b8d529",
+  "tooling_tree": "508e681133a7d95488318dd1c966cae582a27360",
+  "pyproject_toml_blob": "6fa4b74582dea5dd023f216f7fa10a9efdcc16db",
+  "requirements_dev_lock_txt_blob": "a1481d6f7912a034a2a416227496ea47198671be",
+  "note": "src_tree, tooling_tree, pyproject_toml_blob, requirements_dev_lock_txt_blob are BYTE-IDENTICAL to evidence-005.json's own executable_boundary (1029a9f.../508e681.../6fa4b74.../a1481d6...). Only tests_tree differs (e82cb7a... in evidence-005.json vs fb93ed4... here), consistent with Wave-5 and Wave-6 being test-only remediation transactions between evidence-005 and this measurement. Repository HEAD == main == origin/main at measurement time, no drift. The executable boundary is the DOCUMENTATION-commit-preceding HEAD dd05c96... -- the later documentation commit that records this evidence is NOT itself the executable measurement boundary."
+ },
+ "fresh_environment_provenance": {
+  "method": "fresh disposable venv (NOT reused from any prior wave/transaction), python3.13 -m venv, pip install -r requirements-dev.lock.txt, pip install -e . --no-deps",
+  "pip_check_result": "No broken requirements found.",
+  "python_version": "3.13.6",
+  "pytest_version": "9.1.1",
+  "mutmut_version": "3.7.0",
+  "coverage_version": "7.16.0",
+  "platformdirs_version": "4.11.5",
+  "ruff_version": "0.16.4",
+  "mypy_version": "2.3.1",
+  "all_versions_match_lock": true,
+  "all_versions_match_evidence_005": true
+ },
+ "ordinary_verification": {
+  "pytest_-q": "443 passed",
+  "pytest_-q_tooling_tests": "5 passed",
+  "ruff_check_src_tests": "2 pre-existing findings, both E501 in src/feature_engine/authority_resolver.py (lines 465, 528) -- unrelated, unchanged from evidence-005.json baseline (confirmed via git stash comparison against the pre-Wave-5/6 baseline), not fixed in this transaction",
+  "mypy_src_tests": "Success: no issues found in 36 source files",
+  "no_new_regression": true
+ },
+ "fresh_run_confirmation": {
+  "mutants_dir_absent_before_run": true,
+  "note_on_first_attempt": "A first full run attempt (same executable boundary, same fresh venv) was manually interrupted after ~350/2629 mutants processed, upon observing repeated `BadTestExecutionCommandsException` tracebacks in the console output for scattered individual mutants. Root-cause investigation (direct reproduction with MUTANT_UNDER_TEST set) confirmed this is a GENUINE, mutation-induced conftest.py import-time collection failure (e.g., a `/` -> `*` operator mutation in `_find_repo_root`, called at module level by conftest.py's own authority-resolution fixtures via tooling/ride_mutmut_shim.py's own documented, approved compatibility design for P3-PY-MUT-BASELINE-B-MAJ-01) -- NOT an infrastructure defect, stale test-selection artifact, or environment problem. Per the shim's own docstring, this specific case (pytest exit code 4 outside the one-time forced-fail sanity check) is intentionally left fatal to the mutant's own forked child process, byte-for-byte identical to unmodified mutmut 3.7.0; the parent process's own fork/exit-code monitoring then correctly records the mutant as killed (the mutation demonstrably broke test collection, an unambiguous kill signal), which is the semantically correct mutation-testing outcome, not a data-integrity defect. The workspace was fully cleaned and the run was restarted from a clean state; this note is preserved for auditability.",
+  "command": "python -m tooling run --max-children 1",
+  "max_children_flag_supported": true,
+  "single_worker_rationale": "Evidence-005 diagnosed substantial false-positive timeout inflation from parallel-worker resource contention (88 raw timeouts, only 5 confirmed genuine). --max-children 1 was used for this measurement to obtain a deterministic, single-worker formal run, per instruction -- not for throughput.",
+  "run_to_natural_completion": true,
+  "total_mutants_processed": 2629,
+  "reused_prior_evidence_or_wave_run_state": false,
+  "methodology_note_display_step_crash": "The `run` CLI process reached 2629/2629 processed mutants and printed its final rate line (\"2.90 mutations/second\"), then exited silently WITHOUT printing its own post-processing 'Mutant results' summary listing (no traceback, no error at the top level). This is the SAME cosmetic display-step behavior documented in evidence-005.json's own fresh_run_confirmation -- confirmed here identically: `python -m tooling export-cicd-stats` and `python -m tooling results --all true` both successfully read the SAME underlying persisted per-mutant result store and returned complete, internally consistent data (killed=2243, survived=384, timeout=2, total=2629, all other statuses=0, sum exactly equal to total). This does not constitute a failure to reach natural completion."
+ },
+ "ten_status_counts_raw_full_run": {
+  "killed": 2243,
+  "survived": 384,
+  "no_tests": 0,
+  "not_checked": 0,
+  "skipped": 0,
+  "suspicious": 0,
+  "timeout": 2,
+  "caught_by_type_check": 0,
+  "segfault": 0,
+  "check_was_interrupted_by_user": 0,
+  "total": 2629,
+  "sum_equals_total": true,
+  "note": "Raw statuses exactly as produced by the single, clean, full `python -m tooling run --max-children 1` invocation, BEFORE timeout triage. Verified via both the console progress summary and the independently re-read persisted result store (`export-cicd-stats` + `results --all true`), byte-for-byte consistent. Only 2 raw timeout candidates (vs. evidence-005's 88), consistent with the single-worker mode eliminating most of the parallel-worker resource-contention false-positive timeouts evidence-005 diagnosed."
+ },
+ "timeout_triage": {
+  "protocol": "For each raw timeout candidate: (1) delete mutants/ workspace and .mutmut-cache; (2) regenerate a fully fresh workspace; (3) run the mutant in isolated `python -m tooling run --max-children 1 <id>` mode, record result #1; (4) delete mutants/ again; (5) independently regenerate another fully fresh workspace; (6) rerun the same mutant, record result #2. Classification: timeout+timeout -> CONFIRMED_TIMEOUT; killed+killed -> resolved KILLED; survived+survived -> resolved SURVIVED; any disagreement -> UNSTABLE_TIMEOUT_TRIAGE (no majority vote, no third tie-break run, no guess).",
+  "raw_timeout_candidate_count": 2,
+  "raw_timeout_ids": [
+   "feature_engine.ownership.x_p_run_sort__mutmut_82",
+   "feature_engine.authority_resolver.x_resolve_input_contract_authority_from_repository__mutmut_109"
+  ],
+  "per_mutant_triage_results": [
+   {
+    "mutant_id": "feature_engine.ownership.x_p_run_sort__mutmut_82",
+    "reproduction_1": "timeout",
+    "reproduction_2": "timeout",
+    "classification": "CONFIRMED_TIMEOUT",
+    "note": "Same mutant identity Evidence-005's own correction (P3-PY-MUT-STEP9-003-A-MAJ-01) confirmed as a genuine deterministic timeout at that boundary -- consistent finding, independently re-confirmed at this boundary."
+   },
+   {
+    "mutant_id": "feature_engine.authority_resolver.x_resolve_input_contract_authority_from_repository__mutmut_109",
+    "reproduction_1": "killed",
+    "reproduction_2": "killed",
+    "classification": "resolved KILLED (NOT_REPRODUCED as timeout)",
+    "note": "This mutant is called at conftest.py module-import time (SWING_DISTANCE_INPUT_CONTRACT / REGIME_INPUT_CONTRACT); it raised the same genuine, mutation-induced conftest.py collection failure diagnosed above, which fatally crashes the forked child process and is correctly recorded as killed by mutmut's own fork/exit-code monitoring. In the full-run's shared-resource context it apparently manifested as a raw 'timeout' (plausibly the exception surfaced slowly enough to cross the computed wall-time limit under full-run conditions); in BOTH independent single-mutant isolated reproductions it consistently manifested as an immediate crash/kill, not a timeout. Per the strict protocol, this resolves to KILLED and folds into the final killed count -- it is NOT counted as confirmed_timeout and NOT counted as unstable_timeout_triage, since both isolated reproductions agreed with each other (killed + killed)."
+   }
+  ],
+  "confirmed_timeout_count": 1,
+  "resolved_to_killed_count": 1,
+  "resolved_to_survived_count": 0,
+  "unstable_timeout_triage_count": 0
+ },
+ "ten_status_counts_post_triage_formal": {
+  "killed": 2244,
+  "survived": 384,
+  "confirmed_timeout": 1,
+  "unstable_timeout_triage": 0,
+  "no_tests": 0,
+  "not_checked": 0,
+  "skipped": 0,
+  "suspicious": 0,
+  "caught_by_type_check": 0,
+  "segfault": 0,
+  "check_was_interrupted_by_user": 0,
+  "total": 2629,
+  "sum_equals_total": true
+ },
+ "formal_numerator": 2245,
+ "formal_denominator": 2629,
+ "formal_skipped": 0,
+ "raw_mutation_effectiveness_metric": {
+  "formula": "mutation_score = (killed + confirmed_timeout) / (total - skipped) * 100",
+  "numerator": 2245,
+  "denominator": 2629,
+  "percentage_full_precision": "85.393685812095853936858120958539368581209585393686",
+  "percentage_display_12dp": "85.393685812096%"
+ },
+ "condition_1_evaluation": {
+  "condition_1a": {
+   "requirement": "formal numerator >= 2232 AND formal percentage >= 84.899201217193%, exact-count basis 2232/2629 as the primary comparison",
+   "measured_numerator": 2245,
+   "measured_percentage_full_precision": "85.393685812095853936858120958539368581209585393686",
+   "result": "PASS"
+  },
+  "condition_1b": {
+   "requirement": "all 18 exact Set-003 identities individually formally resolved (KILLED or CONFIRMED_TIMEOUT)",
+   "per_id_results": [
+    {
+     "mutant_id": "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_18",
+     "raw_full_run_status": "killed",
+     "final_formal_status": "KILLED"
+    },
+    {
+     "mutant_id": "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_33",
+     "raw_full_run_status": "killed",
+     "final_formal_status": "KILLED"
+    },
+    {
+     "mutant_id": "feature_engine.authority_resolver.x__extract_scalar__mutmut_5",
+     "raw_full_run_status": "killed",
+     "final_formal_status": "KILLED"
+    },
+    {
+     "mutant_id": "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_100",
+     "raw_full_run_status": "killed",
+     "final_formal_status": "KILLED"
+    },
+    {
+     "mutant_id": "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_101",
+     "raw_full_run_status": "killed",
+     "final_formal_status": "KILLED"
+    },
+    {
+     "mutant_id": "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_30",
+     "raw_full_run_status": "killed",
+     "final_formal_status": "KILLED"
+    },
+    {
+     "mutant_id": "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_40",
+     "raw_full_run_status": "killed",
+     "final_formal_status": "KILLED"
+    },
+    {
+     "mutant_id": "feature_engine.contracts.x__finalize_prepared_batch__mutmut_3",
+     "raw_full_run_status": "killed",
+     "final_formal_status": "KILLED"
+    },
+    {
+     "mutant_id": "feature_engine.contracts.x__finalize_prepared_batch__mutmut_4",
+     "raw_full_run_status": "killed",
+     "final_formal_status": "KILLED"
+    },
+    {
+     "mutant_id": "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_1",
+     "raw_full_run_status": "killed",
+     "final_formal_status": "KILLED"
+    },
+    {
+     "mutant_id": "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_4",
+     "raw_full_run_status": "killed",
+     "final_formal_status": "KILLED"
+    },
+    {
+     "mutant_id": "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_7",
+     "raw_full_run_status": "killed",
+     "final_formal_status": "KILLED"
+    },
+    {
+     "mutant_id": "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_8",
+     "raw_full_run_status": "killed",
+     "final_formal_status": "KILLED"
+    },
+    {
+     "mutant_id": "feature_engine.output_contract_resolver.x__extract_scalar__mutmut_5",
+     "raw_full_run_status": "killed",
+     "final_formal_status": "KILLED"
+    },
+    {
+     "mutant_id": "feature_engine.ownership.x__tie_break_key__mutmut_9",
+     "raw_full_run_status": "killed",
+     "final_formal_status": "KILLED"
+    },
+    {
+     "mutant_id": "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_catch_up__mutmut_18",
+     "raw_full_run_status": "killed",
+     "final_formal_status": "KILLED"
+    },
+    {
+     "mutant_id": "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_catch_up__mutmut_7",
+     "raw_full_run_status": "killed",
+     "final_formal_status": "KILLED"
+    },
+    {
+     "mutant_id": "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁprocess_certified_frontier__mutmut_10",
+     "raw_full_run_status": "killed",
+     "final_formal_status": "KILLED"
+    }
+   ],
+   "resolved_count": 18,
+   "total_count": 18,
+   "result": "PASS"
+  },
+  "combined_provisional_result": "FORMAL MEASUREMENT RESULT: PASS — PENDING REVIEW A VALIDATION",
+  "self_issued_review_a": false,
+  "note": "This executor does NOT self-issue final Review-A validation. This is an objective measurement result only, explicitly pending a separate, distinct-principal ChatGPT Review A."
+ },
+ "measurement_anomalies": [
+  {
+   "anomaly": "First full-run attempt manually interrupted after ~350/2629 mutants due to repeated BadTestExecutionCommandsException tracebacks visible in console output.",
+   "investigated": true,
+   "root_cause": "Genuine, mutation-induced conftest.py import-time collection failures (not an infrastructure defect) -- see fresh_run_confirmation.note_on_first_attempt above.",
+   "disposition": "Workspace fully cleaned; run restarted from a clean state and completed to natural completion without interruption. Not hidden -- recorded here explicitly per instruction."
+  }
+ ],
+ "mutant_universe_verification": {
+  "expected": 2629,
+  "measured": 2629,
+  "match": true,
+  "skipped_expected_zero": true
+ },
+ "source_files_changed": false,
+ "tests_files_changed": false,
+ "tooling_files_changed": false,
+ "dependency_files_changed": false,
+ "no_calibration_changes": "This transaction did not change 84.899201217193%, 2232/2629, proposal-003, set-003, the material population, the mutation formula, or timeout-credit semantics, regardless of the measurement outcome.",
+ "review_state": "PENDING REVIEW A",
+ "not_performed_by_this_transaction": [
+  "No source, test, or tooling code changed.",
+  "No new test implemented.",
+  "No threshold/calibration change.",
+  "No activation of any new proposal.",
+  "No self-issued Review A validation.",
+  "No TOOL_IDENTITY_DRIFT resolution.",
+  "No Feature Engine approval.",
+  "No LIVE authorization."
+ ]
+}
