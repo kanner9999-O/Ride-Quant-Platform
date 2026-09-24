@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.435"
+manifest_version: "10.436"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -30069,6 +30069,28 @@ LIVE:                        NOT_AUTHORIZED
 **ADR Scope / Risk:** `ADR_NOT_REQUIRED` (performs and records an already-authorized measurement without changing behavior, threshold, governance, or architecture, freshly re-run). Risk: `R1`.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-006.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — exactly 6 files. No `src/`, `tests/`, `tooling/`, dependency, proposal-003, set-003, proposal-002/set-002, Wave-5/6 evidence, DTR, Testing Convention, ADR, or Constitution file touched. `manifest_version` `"10.434"` -> `"10.435"`.
+
+## Feature Engine Condition-1 formal measurement 006 — Review A / Delegated Technical Resolution (`feature-engine-condition1-formal-measurement-006-review-a-dtr-001.json`) — `FE-EVID03-COND1-FORMAL-006-DTR-001`, DELEGATED TECHNICAL RESOLUTION — CLEAN
+
+**Boundary:** starting `main == origin/main == bb00e28056679852f2ccc6b1659e6ef026907f0c`, fresh-verified, working tree clean, no drift. Evidence-006 fresh-verified byte-unchanged (blob `460cf678a2c682c26540719da78ff798ce88705d`), executable measurement boundary `dd05c963397bbb8c9b8bd30f6a88c913baf3f153` unchanged. Active proposal-003 (`a3193f73eb9222ca1b87f4db78c68643dba3a266`) and set-003 (`ba276a767a57c2e533e7178000b4f129d61a3e9e`) fresh-verified byte-unchanged. No new measurement performed by this transaction.
+
+**Review A:** Principal `ChatGPT`, AI Technical Architect, reviewed boundary `bb00e28056679852f2ccc6b1659e6ef026907f0c`, evidence subject blob `460cf678a2c682c26540719da78ff798ce88705d`. Verdict **`CLEAN — 0 Blocker / 0 Major / 2 Minor`**, Risk `R1`, ADR Scope `ADR_NOT_REQUIRED`, independent cross-check `NOT REQUIRED`.
+
+**Verified measurement (restated from Evidence-006, unchanged):** population `2629`, skipped `0`, `killed=2244`/`confirmed_timeout=1`/`survived=384`/`unstable_timeout_triage=0`, formal numerator `2245`, score `85.393685812096%`. Condition 1A: `2245 ≥ 2232` — **PASS**. Condition 1B: `18/18` exact Set-003 identities `KILLED` — **PASS**.
+
+**Delegated Technical Resolution:** `FE-EVID03-COND1-FORMAL-006-DTR-001`, disposition `DELEGATED TECHNICAL RESOLUTION — CLEAN`, D1-D12 all `PASS` (D8: reviewer ChatGPT distinct from Evidence-006's author/executor Claude) — bounded application of the existing Approved gate (proposal-003/set-003) to an already-complete, objectively-passing measurement; no new semantics; no product decision; no residual-risk acceptance; no PO reservation/call-in; deterministic outcome; unambiguous schema/recording.
+
+**Governed transition:** Condition 1 `FORMAL MEASUREMENT PASS — PENDING REVIEW A VALIDATION` → **`PASS — REVIEW A VALIDATED`**. This is NOT Product Owner approval.
+
+**Review-A Minors reconciled in this same transaction (deterministic bookkeeping, folded rather than split into a new WP):** (1) current-state tracking in `docs/project/milestone.md` and `docs/project/milestone-dashboard.html` corrected wherever it still presented Evidence-005's own historical figures (`406` survivors, `9` `UNSTABLE_TIMEOUT_TRIAGE` mutants) as current — replaced with Evidence-006's own current figures (`384` survivors, `0` unstable); the superseded 42-ID set-001 (proposal-001) is no longer presented anywhere as the current Condition-1B target — current-state views now show `18/18 KILLED` against set-003. Legitimate historical narrative passages (each self-dated, describing what was true at its own prior boundary) were left unmodified. (2) Provenance wording corrected going forward: Evidence-006's `src`/`tooling`/dependency trees are byte-identical to Evidence-005's own boundary, but its `tests` tree legitimately DIFFERS (Wave-5/6 test-only remediation) — this document and `milestone.md` already recorded this correctly; the correction applies to completion-report wording for this and future transactions.
+
+**New, additive artifact:** `docs/governance/mutation-baseline-evidence/feature-engine-condition1-formal-measurement-006-review-a-dtr-001.json` — does NOT modify or overwrite Evidence-006 (fresh-verified byte-unchanged, blob unchanged).
+
+**Resulting project state:** Condition 1 `PASS — REVIEW A VALIDATED`. Condition 2 `169/170 — BLOCKING` (remaining: `contracts.x__seal_verified_authority__mutmut_33`, `TOOL_IDENTITY_DRIFT — NO EXISTING GOVERNED RESOLUTION MECHANISM`, not touched). Condition 3 `SATISFIED — REVIEW A VALIDATED`, not reopened. `P3-FEATURE-QG-EVID-03` remains `OPEN`. Feature Engine remains `NOT APPROVED`. `LIVE` remains `NOT_AUTHORIZED`. Primary lane becomes: Condition 2 — final `1/170` `TOOL_IDENTITY_DRIFT`. No further Condition-1 remediation/calibration/measurement work is expected.
+
+**ADR Scope / Risk:** `ADR_NOT_REQUIRED`. Risk: `R1`.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-condition1-formal-measurement-006-review-a-dtr-001.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — exactly 6 files. No `src/`, `tests/`, `tooling/`, dependency, Evidence-006, proposal-003, set-003, Testing Convention, ADR, or Constitution file touched. No Condition-2 work performed. `manifest_version` `"10.435"` -> `"10.436"`.
 
 ## Decision Log
 

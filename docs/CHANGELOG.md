@@ -2,6 +2,30 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-24 — feature-engine: Condition-1 formal measurement 006 Review A / Delegated Technical Resolution — Condition 1 PASS — REVIEW A VALIDATED
+
+Starting `main == origin/main == bb00e28056679852f2ccc6b1659e6ef026907f0c`, fresh-verified, working tree clean, no drift. Evidence-006 fresh-verified byte-unchanged (blob `460cf678a2c682c26540719da78ff798ce88705d`); active proposal-003/set-003 fresh-verified byte-unchanged. No new measurement performed.
+
+Records the already-issued, distinct-principal Review A of Evidence-006: Principal `ChatGPT`, AI Technical Architect, reviewed boundary `bb00e28056679852f2ccc6b1659e6ef026907f0c`. Verdict **`CLEAN — 0 Blocker / 0 Major / 2 Minor`**, Risk `R1`, ADR Scope `ADR_NOT_REQUIRED`, independent cross-check NOT REQUIRED.
+
+Verified measurement (restated from Evidence-006, unchanged): `killed=2244 / confirmed_timeout=1 / survived=384 / unstable_timeout_triage=0`, sum `2629`. Condition 1A: numerator `2245 >= 2232`, `85.393685812096% >= 84.899201217193%` -- **PASS**. Condition 1B: `18/18 KILLED` -- **PASS**.
+
+Resolution `FE-EVID03-COND1-FORMAL-006-DTR-001`, disposition `DELEGATED TECHNICAL RESOLUTION — CLEAN`, D1-D12 all `PASS` (D8: reviewer ChatGPT distinct from Evidence-006's author/executor Claude) -- bounded application of the existing Approved gate to an already-complete, objectively-passing measurement; no new semantics; no product decision; no residual-risk acceptance; no PO reservation/call-in; deterministic outcome.
+
+**Governed transition: Condition 1 `FORMAL MEASUREMENT PASS — PENDING REVIEW A VALIDATION` -> `PASS — REVIEW A VALIDATED`.** This is NOT Product Owner approval.
+
+Review-A Minors reconciled in this same transaction (deterministic bookkeeping, folded rather than split into a new WP): (1) current-state tracking in `milestone.md`/`milestone-dashboard.html` corrected wherever it still presented Evidence-005's own historical figures (`406` survivors, `9` unstable-timeout-triage mutants) as current -- replaced with Evidence-006's own current figures (`384` survivors, `0` unstable); the superseded 42-ID set-001 is no longer presented as the current Condition-1B target anywhere current-state. (2) Provenance wording corrected going forward: Evidence-006's `src`/`tooling`/dependency trees are byte-identical to Evidence-005's own boundary, but its `tests` tree legitimately DIFFERS (Wave-5/6 test-only remediation).
+
+New, additive artifact `feature-engine-condition1-formal-measurement-006-review-a-dtr-001.json` -- does NOT modify Evidence-006 (fresh-verified byte-unchanged).
+
+Resulting project state: Condition 1 `PASS — REVIEW A VALIDATED`. Condition 2 `169/170 — BLOCKING` (remaining: `contracts.x__seal_verified_authority__mutmut_33`, `TOOL_IDENTITY_DRIFT`, not touched). Condition 3 `SATISFIED — REVIEW A VALIDATED`, not reopened. `P3-FEATURE-QG-EVID-03` remains `OPEN`. Feature Engine remains `NOT APPROVED`. `LIVE` remains `NOT_AUTHORIZED`. Primary lane becomes: Condition 2 — final `1/170` `TOOL_IDENTITY_DRIFT`. No further Condition-1 remediation/calibration/measurement work is expected. No Condition-2 work performed by this transaction.
+
+ADR Scope: `ADR_NOT_REQUIRED`. Risk: `R1`. `manifest_version` `"10.435"` -> `"10.436"`.
+
+**Files changed (6):** `docs/governance/mutation-baseline-evidence/feature-engine-condition1-formal-measurement-006-review-a-dtr-001.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md`.
+
+---
+
 ## [Unreleased] — 2026-09-24 — feature-engine: Condition-1 formal mutation measurement 006 — MEASUREMENT COMPLETE, PASS — PENDING REVIEW A VALIDATION
 
 Starting HEAD `dd05c963397bbb8c9b8bd30f6a88c913baf3f153`, verified `main == origin/main`, working tree clean, no drift. Active proposal-003 blob `a3193f73eb9222ca1b87f4db78c68643dba3a266`, active set-003 blob `ba276a767a57c2e533e7178000b4f129d61a3e9e` (18 IDs, sha256 `e4d21a0f1765f860d48d8a607c5d4e25b5b43c88f76db631cdd8528d83f73872`), Evidence-005 blob `f7a6ab715155ad166808e0e9d9a7474196d9b69d` all fresh-verified exact.
