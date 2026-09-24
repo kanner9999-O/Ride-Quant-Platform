@@ -1,0 +1,180 @@
+{
+ "artifact_id": "feature-engine-condition1-wave6-classification-dtr-001",
+ "schema_note": "Delegated Technical Resolution recording artifact for the Wave-6 six-identity semantic reclassification. Records the already-issued DTR (ChatGPT Review A, distinct-principal from the Wave-6 evidence's author/executor, Claude) that adjudicated the Wave-6 evidence artifact's 'classification_contradiction_finding' section and confirmed all 6 STILL_SURVIVED identities RECLASSIFIED as non-material under the currently-approved Condition-1B mechanism's individually-governed exact-ID semantic-reclassification path. This artifact does NOT modify the Wave-6 evidence artifact, the active proposal-002, the active set-002, the prior root-cause audit, or the prior material-set DTR -- all remain byte-unchanged and are pinned below.",
+ "resolution_id": "FE-EVID03-COND1-WAVE6-CLASSIFICATION-DTR-001",
+ "resolution": "DELEGATED TECHNICAL RESOLUTION — CLEAN",
+ "review_boundary": {
+  "starting_head": "544ed73d807f1345c855d17aff822a8466619ab3",
+  "fresh_verified": "main == origin/main == 544ed73d807f1345c855d17aff822a8466619ab3, no drift"
+ },
+ "review_a": {
+  "principal": "ChatGPT",
+  "role": "AI Technical Architect",
+  "boundary": "544ed73d807f1345c855d17aff822a8466619ab3",
+  "reviewed_artifact": {
+   "path": "docs/governance/mutation-baseline-evidence/feature-engine-condition1-wave6-test-remediation-001.json",
+   "blob": "3dc2566222581f6e5e1f69c52b7e54fe13861348"
+  },
+  "verdict": "CLEAN — 0 Blocker / 0 Major / 0 Minor",
+  "risk": "R1",
+  "adr_scope": "ADR_NOT_REQUIRED"
+ },
+ "distinct_principal": {
+  "wave6_author_executor": "Claude",
+  "review_a_principal": "ChatGPT",
+  "d8": "PASS"
+ },
+ "d1_d12": {
+  "D1": "PASS — ADR_NOT_REQUIRED.",
+  "D2": "PASS — R1.",
+  "D3": "PASS — current Condition-1B mechanism permits exact-ID semantic reclassification.",
+  "D4": "PASS — exactly six identities.",
+  "D5": "PASS — no new architecture/governance/contract semantics.",
+  "D6": "PASS — no product value/scope decision.",
+  "D7": "PASS — no risk acceptance required.",
+  "D8": "PASS — ChatGPT distinct from Claude executor/evidence author.",
+  "D9": "PASS — Wave-6 evidence + current source + active gate fresh-verified.",
+  "D10": "PASS — exact-ID semantic reclassification is not PO-reserved; numeric threshold selection remains separately PO-reserved.",
+  "D11": "PASS — exact real mutant bodies and source invariants give reproducible semantic proofs.",
+  "D12": "PASS — six dispositions are unambiguous after Review A."
+ },
+ "exact_six_reclassified_ids": [
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_original__mutmut_13",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_preempt_settled_window__mutmut_20",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_replacement_only__mutmut_14",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_recompute__mutmut_23",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_reevaluate_all_windows__mutmut_6",
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_select_eligible_swing__mutmut_22"
+ ],
+ "per_id_disposition": {
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_original__mutmut_13": {
+   "disposition": "RECLASSIFIED — PROVABLY_EQUIVALENT",
+   "reasoning": "Real mutant body: floor = max(candle.recorded_time, state.recorded_time, cursor.recorded_time) -> max(candle.recorded_time, cursor.recorded_time). state was obtained via _select_eligible_swing's own _swing_state_as_of(..., cursor) call using the SAME cursor object as this floor. is_visible_at_cursor's recorded-time branch requires recorded_time <= cursor_recorded_time (non-strict), so state.recorded_time <= cursor.recorded_time always holds for any legitimately selected state. state.recorded_time can therefore never be the unique strict maximum being dropped from this max() -- either cursor.recorded_time already dominates, or the two terms tie (drop still unobservable). Verified by source trace across the call chain, not assumed."
+  },
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_preempt_settled_window__mutmut_20": {
+   "disposition": "RECLASSIFIED — PROVABLY_EQUIVALENT",
+   "reasoning": "Real mutant body: invalidation_floor = max(existing.head_fact.recorded_time, state.recorded_time, cursor.recorded_time) -> max(existing.head_fact.recorded_time, cursor.recorded_time) -- the preempting invalidation's own floor. Identical structural argument to mutmut_13 above: the new winning state satisfies state.recorded_time <= cursor.recorded_time (same eligibility invariant, same cursor object), so it can never be the strict unique maximum in this max() either."
+  },
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_replacement_only__mutmut_14": {
+   "disposition": "RECLASSIFIED — PROVABLY_EQUIVALENT",
+   "reasoning": "Real mutant body: base_floor = max(candle.recorded_time, state.recorded_time, cursor.recorded_time) -> max(candle.recorded_time, cursor.recorded_time). Identical structural argument to mutmut_13/_20 above -- same cursor, same eligibility invariant, same redundancy."
+  },
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_recompute__mutmut_23": {
+   "disposition": "RECLASSIFIED — STRUCTURALLY_UNREACHABLE",
+   "reasoning": "Real mutant body: assert correction_ref is not None and correction_recorded_time is not None -> or. _prepare_recompute has exactly 2 call sites, both inside prepare_candle, its only callers in the entire codebase (grep-verified). One always passes both None (first-seen candle); the other always passes both real values from the SAME fact object (candle correction). No legitimate caller ever supplies a mismatched pair. The assert is purely defensive against direct-call misuse, never reachable through the public API."
+  },
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_prepare_reevaluate_all_windows__mutmut_6": {
+   "disposition": "RECLASSIFIED — STRUCTURALLY_UNREACHABLE",
+   "reasoning": "Real mutant body (corrected from the root-cause audit's original description): `if candle is None: continue` -> `break`, on `candle = self._candle_by_window.get(key)` -- NOT the adjacent `winner is None` branch. self._candle_by_window[key] and self._lineage[key] are always written together, keyed identically, inside prepare_candle/_prepare_original's and _prepare_replacement_only's own _apply callbacks; neither dict has any deletion/pop site anywhere in the module (grep-verified). Every key present in self._lineage (the only source of `key` here) is therefore provably always also present in self._candle_by_window -- `candle is None` can never be True for a key drawn from self._lineage.items(). continue vs break on this dead branch is unobservable. The Wave-6 test written toward the originally (incorrectly) assumed target remains valuable general coverage of a different, adjacent branch in the same loop, but does not kill and is not claimed to kill this mutant."
+  },
+  "feature_engine.swing_distance.xǁSwingDistanceFeatureEngineǁ_select_eligible_swing__mutmut_22": {
+   "disposition": "RECLASSIFIED — STRUCTURALLY_UNREACHABLE",
+   "reasoning": "Real mutant body (corrected from the root-cause audit's original description): _total_order_key(item[0], item[1]) -> _total_order_key(item[1], item[1]) -- NOT a pivot-start/pivot-end eligibility change. This corrupts only _total_order_key's swing_id argument (criterion 7 of 8 in its returned sort key). Criteria 3 and 5 of that same key (state.ref.stream_id, state.ref.sequence) already uniquely discriminate any two genuinely distinct (swing_id, state) candidates, since EventRecordRef is this codebase's durable unique event identity throughout (p_run_sort's own by_ref dedup, ConflictingUpstreamEnvelopeError) -- no two distinct swing_ids' states can share the same ref. Python tuple comparison short-circuits at the first differing element, so criterion 7 is never compared for genuinely distinct candidates, and for a single-candidate list min() never compares keys at all. Same structural family, independently re-derived, as the already-governed adjacent non-material _select_eligible_swing__mutmut_18 (None substitution at the same position). The Wave-6 test written toward the originally (incorrectly) assumed target remains valuable general coverage of the real pivot-start-vs-end eligibility policy, but does not kill and is not claimed to kill this mutant."
+  }
+ },
+ "final_disposition_summary": {
+  "PROVABLY_EQUIVALENT": 3,
+  "STRUCTURALLY_UNREACHABLE": 3,
+  "total_reclassified": 6
+ },
+ "remaining_genuine_material_18": [
+  "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_18",
+  "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_33",
+  "feature_engine.authority_resolver.x__extract_scalar__mutmut_5",
+  "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_100",
+  "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_101",
+  "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_30",
+  "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_40",
+  "feature_engine.contracts.x__finalize_prepared_batch__mutmut_3",
+  "feature_engine.contracts.x__finalize_prepared_batch__mutmut_4",
+  "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_1",
+  "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_4",
+  "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_7",
+  "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_8",
+  "feature_engine.output_contract_resolver.x__extract_scalar__mutmut_5",
+  "feature_engine.ownership.x__tie_break_key__mutmut_9",
+  "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_catch_up__mutmut_18",
+  "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_catch_up__mutmut_7",
+  "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁprocess_certified_frontier__mutmut_10"
+ ],
+ "remaining_genuine_material_sha256": {
+  "method": "sha256 of the 18 IDs, newline-joined, lexicographically sorted",
+  "sha256": "e4d21a0f1765f860d48d8a607c5d4e25b5b43c88f76db631cdd8528d83f73872"
+ },
+ "partition_checks": {
+  "within_active_set_002_24": {
+   "reclassified_non_material": 6,
+   "genuine_material": 18,
+   "unclear": 0,
+   "sum": 24
+  },
+  "across_original_42_history": {
+   "previous_non_material_dtr": 18,
+   "new_wave6_non_material": 6,
+   "final_genuine_material": 18,
+   "sum": 42
+  }
+ },
+ "engineering_evidence_for_final_18": {
+  "wave5_targeted_kills_with_evidence": 11,
+  "wave6_targeted_kills_with_evidence": 7,
+  "total": 18,
+  "sum_check": "11 + 7 = 18 / 18 — every retained material identity now individually inspected, backed by a real behavioral obligation, and empirically killed by a targeted behavioral test",
+  "formal_gate_credit": "STILL NOT CLAIMED — pending a future, separately-governed formal mutation-measurement transaction"
+ },
+ "candidate_numeric_recalibration_math": {
+  "status": "EVIDENCE ONLY — NOT ACTIVATED. For a future Product-Owner-reserved threshold decision, informed by feature-engine-mutation-threshold-recalibration-proposal-003.md (candidate, authored separately by this same transaction).",
+  "M": 18,
+  "base_numerator": 2214,
+  "total": 2629,
+  "candidate_numerator": 2232,
+  "candidate_percentage": 84.89920121719285
+ },
+ "active_gate_status": {
+  "condition_1a": "85.127424876379% — UNCHANGED, still controlling",
+  "condition_1b_artifact": {
+   "path": "docs/governance/mutation-baseline-evidence/feature-engine-condition1-current-material-gap-set-002.json",
+   "blob": "2e6030c5581df51323937de0bd5f646f3e98b5d9",
+   "status": "UNCHANGED by this transaction"
+  },
+  "recalibration_proposal": {
+   "path": "docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-recalibration-proposal-002.md",
+   "blob": "ea0b7a79b733622388597c59346c4615bb2726db",
+   "status": "APPROVED — EFFECTIVE, UNCHANGED by this transaction"
+  },
+  "wave6_evidence": {
+   "path": "docs/governance/mutation-baseline-evidence/feature-engine-condition1-wave6-test-remediation-001.json",
+   "blob": "3dc2566222581f6e5e1f69c52b7e54fe13861348",
+   "status": "IMMUTABLE, UNCHANGED by this transaction"
+  },
+  "prior_material_set_dtr": {
+   "path": "docs/governance/mutation-baseline-evidence/feature-engine-condition1-material-gap-dtr-001.json",
+   "blob": "fe43ffe2ac460fc42551617d9bb7781e52a07f26",
+   "status": "UNCHANGED by this transaction, remains valid historical governed record"
+  }
+ },
+ "active_condition_1b_accounting_after_this_dtr": {
+  "mechanism": "all 24 exact identities in set-002 individually resolved",
+  "resolved_by_delegated_technical_reclassification": 6,
+  "genuine_material_with_engineering_evidence_formal_credit_not_claimed": 18,
+  "sum": 24
+ },
+ "current_project_state": {
+  "condition_1": "FAIL — criteria (no formal measurement performed)",
+  "condition_2": "169/170",
+  "condition_3": "SATISFIED — REVIEW A VALIDATED",
+  "p3_feature_qg_evid_03": "OPEN",
+  "feature_engine": "NOT APPROVED",
+  "live": "NOT_AUTHORIZED"
+ },
+ "not_performed_by_this_transaction": [
+  "No numeric threshold change.",
+  "No activation of proposal-003/set-003.",
+  "No Product Owner approval requested.",
+  "No formal full mutation measurement.",
+  "No TOOL_IDENTITY_DRIFT resolution.",
+  "No Feature Engine approval.",
+  "No LIVE authorization.",
+  "No modification to the Wave-6 evidence artifact, the activated proposal-002/set-002, the prior root-cause audit, or the prior material-set DTR."
+ ]
+}

@@ -2,6 +2,24 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-24 — feature-engine: Wave-6 classification DTR (6/24 reclassified) + threshold recalibration candidate 003 (84.899201217193% + 18-ID candidate, NOT activated)
+
+Starting HEAD `544ed73d807f1345c855d17aff822a8466619ab3`, verified `main == origin/main`, no drift. Governing artifacts fresh-verified exact and byte-unchanged: active proposal-002 blob `ea0b7a79b733622388597c59346c4615bb2726db`, active 24-ID set-002 blob `2e6030c5581df51323937de0bd5f646f3e98b5d9`, Wave-6 evidence blob `3dc2566222581f6e5e1f69c52b7e54fe13861348`, prior material-set DTR blob `fe43ffe2ac460fc42551617d9bb7781e52a07f26`.
+
+Part 1: recorded the already-issued Delegated Technical Resolution `FE-EVID03-COND1-WAVE6-CLASSIFICATION-DTR-001` -- ChatGPT Review A (distinct from Wave-6's author/executor, Claude), **CLEAN -- 0 Blocker / 0 Major / 0 Minor**, Risk `R1`, ADR Scope `ADR_NOT_REQUIRED`, D1-D12 all `PASS`. Adjudicated the Wave-6 evidence's classification-contradiction finding -- all 6 `STILL_SURVIVED` identities RECLASSIFIED: 3 `PROVABLY_EQUIVALENT` (recorded-time-floor mutants, redundant given the swing-eligibility invariant `state.recorded_time <= cursor.recorded_time`, same cursor object) and 3 `STRUCTURALLY_UNREACHABLE` (`_prepare_recompute__mutmut_23` unreachable via its 2 legitimate callers; `_prepare_reevaluate_all_windows__mutmut_6`/`_select_eligible_swing__mutmut_22` confirmed, via direct real-mutant-body inspection, to be different mutations than the root-cause audit described, both independently unreachable).
+
+Active Condition-1B accounting within the unmodified 24-ID set-002: `6/24 RESOLVED_BY_DELEGATED_TECHNICAL_RECLASSIFICATION`, `18/24` genuine material -- all 18 now carry targeted engineering-kill evidence (11 Wave-5 + 7 Wave-6), formal credit NOT claimed for any. New artifact: `feature-engine-condition1-wave6-classification-dtr-001.json`.
+
+Part 2: authored threshold recalibration candidate 003 from the resulting exact 18-ID population, same `2214`/`2629` calibration boundary (never a post-Wave-6 observed score -- none exists yet): candidate numerator `2214+18=2232` -> `84.899201217193%` (full precision `84.89920121719285%`). New `CANDIDATE -- NOT EFFECTIVE / AWAITING REVIEW A` documents: `feature-engine-mutation-threshold-recalibration-proposal-003.md` and `feature-engine-condition1-current-material-gap-set-003.json` (18 IDs, sha256 `e4d21a0f1765f860d48d8a607c5d4e25b5b43c88f76db631cdd8528d83f73872`). Proposed gate: Condition 1A (`raw score >= 84.899201217193%`) AND Condition 1B (18 exact set-003 IDs individually resolved).
+
+Active gate UNCHANGED and fully controlling: proposal-002 (`85.127424876379%` / 24-ID set-002) is NOT activated, touched, or superseded. No Review A performed on candidate-003, no Product Owner approval requested (DTR not eligible for candidate-003's own activation, ADR-045 `D10(a)`, PO-reserved), no formal mutation measurement performed. Formal Condition-1 measurement remains BLOCKED pending Review A + PO decision on candidate-003.
+
+ADR Scope: DTR `ADR_NOT_REQUIRED`; candidate-003 fresh-run `ADR_OPTIONAL`. Risk `R1` both. `manifest_version` `"10.432"` -> `"10.433"`.
+
+**Files changed (8):** `docs/governance/mutation-baseline-evidence/feature-engine-condition1-wave6-classification-dtr-001.json` (new), `docs/governance/mutation-baseline-evidence/feature-engine-condition1-current-material-gap-set-003.json` (new), `docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-recalibration-proposal-003.md` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md`.
+
+---
+
 ## [Unreleased] — 2026-09-24 — feature-engine: Condition-1 Wave-6 test remediation — 7/13 targeted kills, classification-contradiction finding on the remaining 6
 
 Starting HEAD `be88041bda928843cc95f0aef5f63edf1d5df63e`, verified `main == origin/main`, no drift. Active proposal-002 blob `ea0b7a79b733622388597c59346c4615bb2726db`, active set-002 blob `2e6030c5581df51323937de0bd5f646f3e98b5d9` (24 IDs, sha256 `6c8181f7665a63494632ef89514ea7efdf9948c544c9a9a8094e87c17c3d2543`) both fresh-verified exact.

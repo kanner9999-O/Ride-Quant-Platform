@@ -1,0 +1,185 @@
+{
+ "artifact_id": "feature-engine-condition1-current-material-gap-set-003",
+ "status": "CANDIDATE — NOT EFFECTIVE",
+ "schema_note": "Candidate replacement for the active Condition-1B companion artifact (feature-engine-condition1-current-material-gap-set-002.json, 24 IDs, currently APPROVED — EFFECTIVE authority). This candidate's exact 18 identities are set-002's own 24 identities minus the 6 identities RECLASSIFIED non-material by FE-EVID03-COND1-WAVE6-CLASSIFICATION-DTR-001 (3 PROVABLY_EQUIVALENT, 3 STRUCTURALLY_UNREACHABLE). Every one of these 18 identities has real, empirical targeted-kill engineering evidence (11 from Wave-5, 7 from Wave-6) — formal Condition-1B gate credit is NOT claimed for any of them. This artifact does not itself activate anything: it becomes the controlling Condition-1B identity authority only if/when feature-engine-mutation-threshold-recalibration-proposal-003.md is separately reviewed, decided by the Product Owner, and activated.",
+ "source_wave6_classification_dtr": {
+  "path": "docs/governance/mutation-baseline-evidence/feature-engine-condition1-wave6-classification-dtr-001.json",
+  "resolution_id": "FE-EVID03-COND1-WAVE6-CLASSIFICATION-DTR-001"
+ },
+ "source_wave6_evidence": {
+  "path": "docs/governance/mutation-baseline-evidence/feature-engine-condition1-wave6-test-remediation-001.json",
+  "blob": "3dc2566222581f6e5e1f69c52b7e54fe13861348"
+ },
+ "source_prior_material_set_dtr": {
+  "path": "docs/governance/mutation-baseline-evidence/feature-engine-condition1-material-gap-dtr-001.json",
+  "blob": "fe43ffe2ac460fc42551617d9bb7781e52a07f26"
+ },
+ "source_active_set_002": {
+  "path": "docs/governance/mutation-baseline-evidence/feature-engine-condition1-current-material-gap-set-002.json",
+  "blob": "2e6030c5581df51323937de0bd5f646f3e98b5d9",
+  "note": "Per-ID module/class/function metadata sourced from this artifact for the 18 IDs retained here. This source artifact itself is UNCHANGED and remains the active Condition-1B authority until a future, separate activation transaction."
+ },
+ "excluded_6_ids_note": "The 6 identities present in the active 24-ID set-002 but absent here were RECLASSIFIED non-material (3 PROVABLY_EQUIVALENT, 3 STRUCTURALLY_UNREACHABLE) by FE-EVID03-COND1-WAVE6-CLASSIFICATION-DTR-001. That DTR resolution is preserved as valid governed audit history and is NOT erased or invalidated by this candidate artifact.",
+ "exact_sorted_id_list": [
+  "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_18",
+  "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_33",
+  "feature_engine.authority_resolver.x__extract_scalar__mutmut_5",
+  "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_100",
+  "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_101",
+  "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_30",
+  "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_40",
+  "feature_engine.contracts.x__finalize_prepared_batch__mutmut_3",
+  "feature_engine.contracts.x__finalize_prepared_batch__mutmut_4",
+  "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_1",
+  "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_4",
+  "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_7",
+  "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_8",
+  "feature_engine.output_contract_resolver.x__extract_scalar__mutmut_5",
+  "feature_engine.ownership.x__tie_break_key__mutmut_9",
+  "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_catch_up__mutmut_18",
+  "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_catch_up__mutmut_7",
+  "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁprocess_certified_frontier__mutmut_10"
+ ],
+ "count": 18,
+ "duplicates": 0,
+ "sorted_set_identity": {
+  "method": "sha256 of the 18 IDs, newline-joined, lexicographically sorted",
+  "sha256": "e4d21a0f1765f860d48d8a607c5d4e25b5b43c88f76db631cdd8528d83f73872"
+ },
+ "per_id": {
+  "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_18": {
+   "module": "src/feature_engine/authority_resolver.py",
+   "class_name": null,
+   "function_name": "_extract_merge_policy",
+   "mutmut_index": 18,
+   "current_engineering_status": "Targeted engineering kill evidence exists (Wave-5, real test execution scoped to this exact mutant ID). FORMAL CREDIT NOT YET CLAIMED — a future, separately-governed formal mutation-measurement transaction determines actual Condition-1B credit."
+  },
+  "feature_engine.authority_resolver.x__extract_merge_policy__mutmut_33": {
+   "module": "src/feature_engine/authority_resolver.py",
+   "class_name": null,
+   "function_name": "_extract_merge_policy",
+   "mutmut_index": 33,
+   "current_engineering_status": "Targeted engineering kill evidence exists (Wave-5, real test execution scoped to this exact mutant ID). FORMAL CREDIT NOT YET CLAIMED — a future, separately-governed formal mutation-measurement transaction determines actual Condition-1B credit."
+  },
+  "feature_engine.authority_resolver.x__extract_scalar__mutmut_5": {
+   "module": "src/feature_engine/authority_resolver.py",
+   "class_name": null,
+   "function_name": "_extract_scalar",
+   "mutmut_index": 5,
+   "current_engineering_status": "Targeted engineering kill evidence exists (Wave-5, real test execution scoped to this exact mutant ID). FORMAL CREDIT NOT YET CLAIMED — a future, separately-governed formal mutation-measurement transaction determines actual Condition-1B credit."
+  },
+  "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_100": {
+   "module": "src/feature_engine/authority_resolver.py",
+   "class_name": null,
+   "function_name": "resolve_historical_input_contract_authority_from_repository",
+   "mutmut_index": 100,
+   "current_engineering_status": "Targeted engineering kill evidence exists (Wave-5, real test execution scoped to this exact mutant ID). FORMAL CREDIT NOT YET CLAIMED — a future, separately-governed formal mutation-measurement transaction determines actual Condition-1B credit."
+  },
+  "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_101": {
+   "module": "src/feature_engine/authority_resolver.py",
+   "class_name": null,
+   "function_name": "resolve_historical_input_contract_authority_from_repository",
+   "mutmut_index": 101,
+   "current_engineering_status": "Targeted engineering kill evidence exists (Wave-5, real test execution scoped to this exact mutant ID). FORMAL CREDIT NOT YET CLAIMED — a future, separately-governed formal mutation-measurement transaction determines actual Condition-1B credit."
+  },
+  "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_30": {
+   "module": "src/feature_engine/authority_resolver.py",
+   "class_name": null,
+   "function_name": "resolve_historical_input_contract_authority_from_repository",
+   "mutmut_index": 30,
+   "current_engineering_status": "Targeted engineering kill evidence exists (Wave-5, real test execution scoped to this exact mutant ID). FORMAL CREDIT NOT YET CLAIMED — a future, separately-governed formal mutation-measurement transaction determines actual Condition-1B credit."
+  },
+  "feature_engine.authority_resolver.x_resolve_historical_input_contract_authority_from_repository__mutmut_40": {
+   "module": "src/feature_engine/authority_resolver.py",
+   "class_name": null,
+   "function_name": "resolve_historical_input_contract_authority_from_repository",
+   "mutmut_index": 40,
+   "current_engineering_status": "Targeted engineering kill evidence exists (Wave-5, real test execution scoped to this exact mutant ID). FORMAL CREDIT NOT YET CLAIMED — a future, separately-governed formal mutation-measurement transaction determines actual Condition-1B credit."
+  },
+  "feature_engine.contracts.x__finalize_prepared_batch__mutmut_3": {
+   "module": "src/feature_engine/contracts.py",
+   "class_name": null,
+   "function_name": "_finalize_prepared_batch",
+   "mutmut_index": 3,
+   "current_engineering_status": "Targeted engineering kill evidence exists (Wave-6, real test execution scoped to this exact mutant ID). FORMAL CREDIT NOT YET CLAIMED — a future, separately-governed formal mutation-measurement transaction determines actual Condition-1B credit."
+  },
+  "feature_engine.contracts.x__finalize_prepared_batch__mutmut_4": {
+   "module": "src/feature_engine/contracts.py",
+   "class_name": null,
+   "function_name": "_finalize_prepared_batch",
+   "mutmut_index": 4,
+   "current_engineering_status": "Targeted engineering kill evidence exists (Wave-6, real test execution scoped to this exact mutant ID). FORMAL CREDIT NOT YET CLAIMED — a future, separately-governed formal mutation-measurement transaction determines actual Condition-1B credit."
+  },
+  "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_1": {
+   "module": "src/feature_engine/contracts.py",
+   "class_name": null,
+   "function_name": "_validate_canonical_recorded_time",
+   "mutmut_index": 1,
+   "current_engineering_status": "Targeted engineering kill evidence exists (Wave-6, real test execution scoped to this exact mutant ID). FORMAL CREDIT NOT YET CLAIMED — a future, separately-governed formal mutation-measurement transaction determines actual Condition-1B credit."
+  },
+  "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_4": {
+   "module": "src/feature_engine/contracts.py",
+   "class_name": null,
+   "function_name": "_validate_canonical_recorded_time",
+   "mutmut_index": 4,
+   "current_engineering_status": "Targeted engineering kill evidence exists (Wave-5, real test execution scoped to this exact mutant ID). FORMAL CREDIT NOT YET CLAIMED — a future, separately-governed formal mutation-measurement transaction determines actual Condition-1B credit."
+  },
+  "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_7": {
+   "module": "src/feature_engine/contracts.py",
+   "class_name": null,
+   "function_name": "_validate_canonical_recorded_time",
+   "mutmut_index": 7,
+   "current_engineering_status": "Targeted engineering kill evidence exists (Wave-5, real test execution scoped to this exact mutant ID). FORMAL CREDIT NOT YET CLAIMED — a future, separately-governed formal mutation-measurement transaction determines actual Condition-1B credit."
+  },
+  "feature_engine.contracts.x__validate_canonical_recorded_time__mutmut_8": {
+   "module": "src/feature_engine/contracts.py",
+   "class_name": null,
+   "function_name": "_validate_canonical_recorded_time",
+   "mutmut_index": 8,
+   "current_engineering_status": "Targeted engineering kill evidence exists (Wave-5, real test execution scoped to this exact mutant ID). FORMAL CREDIT NOT YET CLAIMED — a future, separately-governed formal mutation-measurement transaction determines actual Condition-1B credit."
+  },
+  "feature_engine.output_contract_resolver.x__extract_scalar__mutmut_5": {
+   "module": "src/feature_engine/output_contract_resolver.py",
+   "class_name": null,
+   "function_name": "_extract_scalar",
+   "mutmut_index": 5,
+   "current_engineering_status": "Targeted engineering kill evidence exists (Wave-5, real test execution scoped to this exact mutant ID). FORMAL CREDIT NOT YET CLAIMED — a future, separately-governed formal mutation-measurement transaction determines actual Condition-1B credit."
+  },
+  "feature_engine.ownership.x__tie_break_key__mutmut_9": {
+   "module": "src/feature_engine/ownership.py",
+   "class_name": null,
+   "function_name": "_tie_break_key",
+   "mutmut_index": 9,
+   "current_engineering_status": "Targeted engineering kill evidence exists (Wave-6, real test execution scoped to this exact mutant ID). FORMAL CREDIT NOT YET CLAIMED — a future, separately-governed formal mutation-measurement transaction determines actual Condition-1B credit."
+  },
+  "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_catch_up__mutmut_18": {
+   "module": "src/feature_engine/ownership.py",
+   "class_name": "AuthoritativeSubjectOwner",
+   "function_name": "_catch_up",
+   "mutmut_index": 18,
+   "current_engineering_status": "Targeted engineering kill evidence exists (Wave-6, real test execution scoped to this exact mutant ID). FORMAL CREDIT NOT YET CLAIMED — a future, separately-governed formal mutation-measurement transaction determines actual Condition-1B credit."
+  },
+  "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁ_catch_up__mutmut_7": {
+   "module": "src/feature_engine/ownership.py",
+   "class_name": "AuthoritativeSubjectOwner",
+   "function_name": "_catch_up",
+   "mutmut_index": 7,
+   "current_engineering_status": "Targeted engineering kill evidence exists (Wave-6, real test execution scoped to this exact mutant ID). FORMAL CREDIT NOT YET CLAIMED — a future, separately-governed formal mutation-measurement transaction determines actual Condition-1B credit."
+  },
+  "feature_engine.ownership.xǁAuthoritativeSubjectOwnerǁprocess_certified_frontier__mutmut_10": {
+   "module": "src/feature_engine/ownership.py",
+   "class_name": "AuthoritativeSubjectOwner",
+   "function_name": "process_certified_frontier",
+   "mutmut_index": 10,
+   "current_engineering_status": "Targeted engineering kill evidence exists (Wave-6, real test execution scoped to this exact mutant ID). FORMAL CREDIT NOT YET CLAIMED — a future, separately-governed formal mutation-measurement transaction determines actual Condition-1B credit."
+  }
+ },
+ "engineering_status_summary": {
+  "wave5_targeted_kills_with_evidence": 11,
+  "wave6_targeted_kills_with_evidence": 7,
+  "total_with_engineering_evidence": 18,
+  "not_yet_remediated": 0,
+  "note": "Unlike prior calibration populations, every identity retained in this candidate has now been individually inspected, backed by a real behavioral obligation, and empirically killed by a targeted behavioral test. Formal Condition-1B gate credit is STILL NOT claimed until a future, separately-governed formal mutation-measurement transaction."
+ },
+ "resolution_requirement": "Each identity must be resolved by (a) killed / confirmed_timeout in fresh governed formal mutation evidence, OR (b) separate governed exact-ID semantic reclassification."
+}
