@@ -1,7 +1,19 @@
 {
  "artifact_id": "feature-engine-condition1-current-material-gap-set-003",
- "status": "CANDIDATE — NOT EFFECTIVE",
- "schema_note": "Candidate replacement for the active Condition-1B companion artifact (feature-engine-condition1-current-material-gap-set-002.json, 24 IDs, currently APPROVED — EFFECTIVE authority). This candidate's exact 18 identities are set-002's own 24 identities minus the 6 identities RECLASSIFIED non-material by FE-EVID03-COND1-WAVE6-CLASSIFICATION-DTR-001 (3 PROVABLY_EQUIVALENT, 3 STRUCTURALLY_UNREACHABLE). Every one of these 18 identities has real, empirical targeted-kill engineering evidence (11 from Wave-5, 7 from Wave-6) — formal Condition-1B gate credit is NOT claimed for any of them. This artifact does not itself activate anything: it becomes the controlling Condition-1B identity authority only if/when feature-engine-mutation-threshold-recalibration-proposal-003.md is separately reviewed, decided by the Product Owner, and activated.",
+ "status": "APPROVED — EFFECTIVE",
+ "schema_note": "The controlling Condition-1B companion artifact, activated atomically alongside feature-engine-mutation-threshold-recalibration-proposal-003.md by Product Owner decision (see \"activation\" below). This artifact's exact 18 identities are the prior active set-002's own 24 identities minus the 6 identities RECLASSIFIED non-material by FE-EVID03-COND1-WAVE6-CLASSIFICATION-DTR-001 (3 PROVABLY_EQUIVALENT, 3 STRUCTURALLY_UNREACHABLE; set-002, now historical/superseded, remains byte-unchanged). Every one of these 18 identities has real, empirical targeted-kill engineering evidence (11 from Wave-5, 7 from Wave-6) — formal Condition-1B gate credit is NOT claimed for any of them; a fresh full formal mutation measurement remains required before any formal credit determination.",
+ "activation": {
+  "approved_by": "Product Owner",
+  "approved_at": "2026-09-24T12:10+07:00",
+  "review_a_principal": "ChatGPT",
+  "review_a_boundary": "0ebde2bd9e532ef7c89ff0a847c84e71d107ba48",
+  "review_a_verdict": "CLEAN — 0 Blocker / 0 Major / 0 Minor",
+  "risk": "R1",
+  "adr_scope": "ADR_OPTIONAL",
+  "independent_cross_check": "NOT REQUIRED / NOT PERFORMED",
+  "reviewed_blob": "9065930f732b441e2b298e096c9b8f48531f7aee",
+  "note": "This is the resulting/lifecycle-record blob after this activation's status-field and activation-metadata edit — distinct from the reviewed_blob above, which identifies exactly what Review A evaluated (the byte-identical CANDIDATE-status content). Exact 18-ID membership, count, duplicates, sorted order, and sorted_set_identity.sha256 are unchanged by this activation."
+ },
  "source_wave6_classification_dtr": {
   "path": "docs/governance/mutation-baseline-evidence/feature-engine-condition1-wave6-classification-dtr-001.json",
   "resolution_id": "FE-EVID03-COND1-WAVE6-CLASSIFICATION-DTR-001"

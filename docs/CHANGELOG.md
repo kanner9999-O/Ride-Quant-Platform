@@ -2,6 +2,28 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-24 — feature-engine: Condition-1 threshold recalibration proposal-003 ACTIVATED — 84.899201217193% + 18-ID gate is now controlling
+
+Starting HEAD `0ebde2bd9e532ef7c89ff0a847c84e71d107ba48`, verified `main == origin/main`, no drift. Reviewed boundary `0ebde2bd9e532ef7c89ff0a847c84e71d107ba48`, reviewed proposal-003 blob `2a263b9c28e02638bd69884ef0e5b12ac2090460`, reviewed set-003 blob `9065930f732b441e2b298e096c9b8f48531f7aee`.
+
+Review A: ChatGPT (AI Technical Architect) — **CLEAN — 0 Blocker / 0 Major / 0 Minor**, Risk `R1`, ADR Scope `ADR_OPTIONAL`. R1 default: no independent cross-check; Product Owner explicitly confirmed no independent cross-check required. No Independent Review B fabricated.
+
+Product Owner decision (verbatim): "APPROVE Feature Engine Condition-1 Threshold Recalibration Proposal 003 at reviewed boundary 0ebde2bd9e532ef7c89ff0a847c84e71d107ba48. Replace the current Condition-1 gate with: Condition 1A: raw mutation-effectiveness >= 84.899201217193% (2232/2629 at the reviewed calibration boundary); AND Condition 1B: all 18 exact identities in feature-engine-condition1-current-material-gap-set-003.json must be individually resolved under the existing governed per-identity mechanism. Preserve Condition 2 and Condition 3 as independent requirements. Accept Review A CLEAN — 0 Blocker / 0 Major / 0 Minor, Risk R1, ADR_OPTIONAL. No independent cross-check required." Decision time `2026-09-24T12:10+07:00`.
+
+`feature-engine-mutation-threshold-recalibration-proposal-003.md` `CANDIDATE — NOT EFFECTIVE / AWAITING REVIEW A` -> **`APPROVED — EFFECTIVE`** (resulting blob `a3193f73eb9222ca1b87f4db78c68643dba3a266`), now the sole current Feature Engine Condition-1 threshold authority: Condition 1A (raw score >= `84.899201217193%`, basis `2232/2629`) AND Condition 1B (all 18 exact `feature-engine-condition1-current-material-gap-set-003.json` identities individually resolved). `feature-engine-condition1-current-material-gap-set-003.json` `CANDIDATE — NOT EFFECTIVE` -> **`APPROVED — EFFECTIVE`** (resulting blob `ba276a767a57c2e533e7178000b4f129d61a3e9e`) — exact 18-ID membership, `count=18`, `duplicates=0`, sorted-set sha256 `e4d21a0f1765f860d48d8a607c5d4e25b5b43c88f76db631cdd8528d83f73872` all verified unchanged; all 18 retain targeted engineering-kill evidence (11 Wave-5 + 7 Wave-6); formal Condition-1B credit NOT claimed.
+
+`feature-engine-mutation-threshold-recalibration-proposal-002.md` (`85.127424876379%`, blob `ea0b7a79b733622388597c59346c4615bb2726db`) and `feature-engine-condition1-current-material-gap-set-002.json` (24 IDs, blob `2e6030c5581df51323937de0bd5f646f3e98b5d9`): now historical/superseded, both byte-unchanged. Both DTR histories fresh-verified byte-unchanged — the complete original-42 partition remains `24 non-material / 18 final genuine material / 0 unclear`.
+
+Current Condition 1 status: **`AWAITING FRESH FORMAL MEASUREMENT`** (`FAIL — criteria / formal closure not yet demonstrated`). No fresh full formal mutation measurement has run since Wave 5/6 — the prior Evidence-005 raw score (`84.21453023963484%-84.55686572841384%`) is a stale, pre-remediation figure and is NOT presented as the current score under the modified test suite. The 18/18 targeted engineering kills are engineering evidence only and are NOT promoted to formal credit by this activation. Condition 2: `169/170`, unchanged, independent. Condition 3: `SATISFIED — REVIEW A VALIDATED`, unchanged. `P3-FEATURE-QG-EVID-03`: `OPEN`. Feature Engine: `NOT APPROVED`. LIVE: `NOT_AUTHORIZED`.
+
+Next primary WP: a full formal Condition-1 mutation measurement against the active proposal-003/set-003 gate — not performed by this activation. `TOOL_IDENTITY_DRIFT` not resolved.
+
+`manifest_version` `"10.433"` -> `"10.434"`.
+
+**Files changed (7):** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-recalibration-proposal-003.md` (activated), `docs/governance/mutation-baseline-evidence/feature-engine-condition1-current-material-gap-set-003.json` (activated), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md`.
+
+---
+
 ## [Unreleased] — 2026-09-24 — feature-engine: Wave-6 classification DTR (6/24 reclassified) + threshold recalibration candidate 003 (84.899201217193% + 18-ID candidate, NOT activated)
 
 Starting HEAD `544ed73d807f1345c855d17aff822a8466619ab3`, verified `main == origin/main`, no drift. Governing artifacts fresh-verified exact and byte-unchanged: active proposal-002 blob `ea0b7a79b733622388597c59346c4615bb2726db`, active 24-ID set-002 blob `2e6030c5581df51323937de0bd5f646f3e98b5d9`, Wave-6 evidence blob `3dc2566222581f6e5e1f69c52b7e54fe13861348`, prior material-set DTR blob `fe43ffe2ac460fc42551617d9bb7781e52a07f26`.

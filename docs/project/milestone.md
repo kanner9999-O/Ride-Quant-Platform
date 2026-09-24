@@ -6,7 +6,7 @@ status: Active
 owner: Product Owner
 maintainer: "WP executors under Lean Ride Operating Model v1.1"
 visual_companion: docs/project/milestone-dashboard.html
-state_verified_against_head: 544ed73d807f1345c855d17aff822a8466619ab3
+state_verified_against_head: 0ebde2bd9e532ef7c89ff0a847c84e71d107ba48
 state_verified_against_at: "2026-09-24"
 ---
 
@@ -107,10 +107,10 @@ See §4 for full detail.
 | Item | Current state |
 |---|---|
 | Overall | `AT RISK` |
-| Condition 1 | `FAIL — criteria` — **PRIMARY BLOCKER**, now gated by the ACTIVATED recalibrated threshold-v2: Condition 1A (raw score ≥ `85.127424876379%`, currently `84.21%–84.56%`, FAIL) AND Condition 1B (24 pinned current-material identities individually resolved, FAIL) |
+| Condition 1 | `FAIL — criteria / formal closure not yet demonstrated` — **PRIMARY BLOCKER**, now gated by the ACTIVATED recalibrated threshold-v3: Condition 1A (raw score ≥ `84.899201217193%`, AWAITING FRESH FORMAL MEASUREMENT — prior `84.21%–84.56%` is a stale pre-remediation figure) AND Condition 1B (18 pinned current-material identities individually resolved, AWAITING FRESH FORMAL MEASUREMENT — engineering-kill evidence exists for all 18, formal credit not claimed) |
 | Condition 1 — unstable cases | 9 `UNSTABLE_TIMEOUT_TRIAGE` mutants (remain individually unresolved) |
 | Condition 1 — current survivor count | 406 |
-| Condition 1 — current-material companion gate | `18/24 unresolved (formal)` — `docs/governance/mutation-baseline-evidence/feature-engine-condition1-current-material-gap-set-002.json` (APPROVED — EFFECTIVE, sole current Condition-1B authority; `6/24 RESOLVED_BY_DELEGATED_TECHNICAL_RECLASSIFICATION` per `FE-EVID03-COND1-WAVE6-CLASSIFICATION-DTR-001`; 18/24 genuine material, all carrying engineering-kill implementation evidence (11 Wave-5 + 7 Wave-6), formal credit NOT yet claimed; old 42-ID set-001 and its 18-ID delegated-reclassification are historical, `feature-engine-condition1-material-gap-dtr-001.json`) |
+| Condition 1 — current-material companion gate | `18/18 unresolved (formal)` — `docs/governance/mutation-baseline-evidence/feature-engine-condition1-current-material-gap-set-003.json` (APPROVED — EFFECTIVE, sole current Condition-1B authority; all 18 carry engineering-kill implementation evidence (11 Wave-5 + 7 Wave-6), formal credit NOT yet claimed pending a full formal mutation measurement; old 42-ID set-001/24-ID set-002 and their 18+6 delegated-reclassifications are historical, `feature-engine-condition1-material-gap-dtr-001.json` + `feature-engine-condition1-wave6-classification-dtr-001.json`) |
 | Condition 2 | `169/170` — also independently blocking (1 `TOOL_IDENTITY_DRIFT` row unresolved) |
 | Condition 3 | `SATISFIED — REVIEW A VALIDATED` (**DONE — not reopened by this WP**) |
 | `P3-FEATURE-QG-EVID-03` | `OPEN` |
@@ -158,6 +158,22 @@ near the end of this document and
 `docs/governance/mutation-baseline-evidence/feature-engine-mutation-
 threshold-recalibration-proposal-002.md` for the current, controlling
 authority.
+
+**Third note (added by `FE-EVID03-COND1-THRESHOLD-RECAL-V3-001`, this
+document's own later activation transaction; the paragraph above and both
+notes immediately above are preserved unchanged as the correct historical
+record at their own boundary):** proposal-002 and its
+`85.127424876379%`/24-ID gate have themselves since been superseded — the
+controlling Condition-1 gate is now Condition 1A (raw score ≥
+`84.899201217193%`) AND Condition 1B (18 pinned current-material
+identities in `feature-engine-condition1-current-material-gap-set-
+003.json` individually resolved); see the Primary Work Package paragraph
+near the end of this document and
+`docs/governance/mutation-baseline-evidence/feature-engine-mutation-
+threshold-recalibration-proposal-003.md` for the current, controlling
+authority. No fresh formal mutation measurement has been performed since
+Wave 5/6 — the current Condition 1 status is `AWAITING FRESH FORMAL
+MEASUREMENT`, not a re-assertion of any prior raw score.
 
 **Primary Work Package — `FE-EVID03-COND1-STOP-001`: COMPLETE.** Bounded
 investigation of the 9 unstable timeout-triage mutants. Result: all 9
@@ -635,7 +651,7 @@ credit — neither initiated here.
 
 | Lane | Item | Status |
 |---|---|---|
-| Primary | *(none currently assigned)* | `FE-EVID03-COND1-WAVE5-001`, `FE-EVID03-COND1-AUDIT-001`, `FE-EVID03-COND1-MATERIAL-SET-DTR-001`, `FE-EVID03-COND1-THRESHOLD-RECAL-V2-001`, `FE-EVID03-COND1-WAVE6-001`, and `FE-EVID03-COND1-WAVE6-CLASSIFICATION-DTR-001` (Wave-6 classification DTR, 6/24 reclassified, + threshold recalibration candidate 003, `CANDIDATE — AWAITING REVIEW A`) are all COMPLETE/AUTHORED. Next primary WP awaits a separate scoping decision — Review A of candidate-003, or a future formal Condition-1 measurement. |
+| Primary | *(none currently assigned)* | `FE-EVID03-COND1-WAVE5-001`, `FE-EVID03-COND1-AUDIT-001`, `FE-EVID03-COND1-MATERIAL-SET-DTR-001`, `FE-EVID03-COND1-THRESHOLD-RECAL-V2-001`, `FE-EVID03-COND1-WAVE6-001`, `FE-EVID03-COND1-WAVE6-CLASSIFICATION-DTR-001`, and `FE-EVID03-COND1-THRESHOLD-RECAL-V3-001` (threshold recalibration proposal-003, now `APPROVED — EFFECTIVE`) are all COMPLETE. Next primary WP: a full formal Condition-1 mutation measurement against the active proposal-003/set-003 gate — awaits a separate scoping decision. |
 | Deferred | `contracts.x__seal_verified_authority__mutmut_33` (TOOL_IDENTITY_DRIFT) | Deferred — no existing governed mechanism |
 | Completed | `RIDE-PROJECT-MILESTONE-DASHBOARD-001` | Tracking infrastructure only |
 | Completed | `FE-EVID03-COND1-STOP-001` | 9/9 mutants `REQUIRES_GOVERNED_PROTOCOL_DECISION`; §13.10 applicability question flagged for ChatGPT review |
@@ -663,6 +679,7 @@ credit — neither initiated here.
 | Completed | `FE-EVID03-COND1-THRESHOLD-RECAL-V2-001` (activation) | Executed the Product-Owner-authorized atomic activation of threshold recalibration proposal-002 at reviewed boundary `f99f75973049e71b7e3f1876ba0683a7d8434d48` (reviewed proposal blob `4ca7354600ccd81331b3fb8a46f25327bdf53371`, reviewed set-002 blob `d4558f37c8c9084bf8f404309c342126733eeebc`). Review A: ChatGPT, **CLEAN — 0 Blocker / 0 Major / 0 Minor**, Risk `R1`, ADR Scope `ADR_OPTIONAL`, no independent cross-check required/performed. `feature-engine-mutation-threshold-recalibration-proposal-002.md` → **`APPROVED — EFFECTIVE`** (resulting blob `ea0b7a79b733622388597c59346c4615bb2726db`), now sole current Condition-1 threshold authority: Condition 1A (raw score ≥ `85.127424876379%`, basis `2238/2629`) AND Condition 1B (24 exact set-002 IDs individually resolved). `feature-engine-condition1-current-material-gap-set-002.json` → **`APPROVED — EFFECTIVE`** (resulting blob `2e6030c5581df51323937de0bd5f646f3e98b5d9`), exact 24-ID membership/count/duplicates/hash all verified unchanged. Old proposal-001 (`85.812095853937%`) and old set-001 (42 IDs) now historical/superseded, both byte-unchanged. Condition 2/3 preserved independent. Current Condition 1: `FAIL — criteria` (1A FAIL: `84.21%–84.56% < 85.127424876379%`; 1B FAIL: formal closure incomplete). Wave 6 changes from `PAUSED` to **`READY FOR BOUNDED IMPLEMENTATION — 13 genuine unremediated identities`** — NOT implemented by this activation. No `src/`/`test`/`tooling` change; Condition 1 remains `FAIL — criteria` |
 | Completed | `FE-EVID03-COND1-WAVE6-001` | Implemented tests against the exact 13 unremediated identities in the active 24-ID gate. Baseline targeted verification: all 13 survived. 9 new tests across `test_contracts.py`/`test_ownership.py`/`test_swing_distance.py` — ordinary suite `443/443 passed` (was 434), `ruff`/`mypy` clean. **`7/13` `KILLED_BY_WAVE6`.** **Significant honest finding:** remaining `6/13` `STILL_SURVIVED`, all independently proven `PROVABLY_EQUIVALENT`/`STRUCTURALLY_UNREACHABLE` — 3 recorded-time-floor mutants redundant given the swing-eligibility invariant (`state.recorded_time <= cursor.recorded_time`, same cursor object, source-traced); `_prepare_recompute__mutmut_23`'s assert unreachable via its only 2 legitimate callers; `_prepare_reevaluate_all_windows__mutmut_6`/`_select_eligible_swing__mutmut_22` discovered, via direct real-mutant-body inspection, to be DIFFERENT mutations than the root-cause audit described (an indexing-drift bug in this session's own diff-extraction script for dense-mutation functions) — both independently structurally unreachable. None force-tested; both originally-intended tests retained as valuable general coverage. **Governance implication NOT acted on:** active gate conservative/over-strict for these 6, never permissive — evidence only for a future re-audit, no reclassification performed. Full 24-ID accounting: 11 Wave-5 + 7 Wave-6 engineering kills (formal credit NOT claimed) + 6 pending re-audit = 24. New artifact `feature-engine-condition1-wave6-test-remediation-001.json`. `ADR_NOT_REQUIRED`; Risk `R1`. No `src/`/`tooling` change; active proposal-002/set-002/audit/DTR byte-unchanged; Condition 1 remains `FAIL — criteria` |
 | Completed | `FE-EVID03-COND1-WAVE6-CLASSIFICATION-DTR-001` | Recorded the already-issued Wave-6 six-identity semantic reclassification DTR (ChatGPT Review A, distinct from Wave-6 author/executor Claude — CLEAN 0/0/0, Risk `R1`, `ADR_NOT_REQUIRED`, D1-D12 all PASS): all 6 `STILL_SURVIVED` Wave-6 identities RECLASSIFIED (3 `PROVABLY_EQUIVALENT`, 3 `STRUCTURALLY_UNREACHABLE`). Active Condition-1B accounting: `6/24 RESOLVED_BY_DELEGATED_TECHNICAL_RECLASSIFICATION`, `18/24` genuine material, all with engineering-kill evidence, formal credit NOT claimed. Then authored threshold recalibration candidate 003 from the resulting 18-ID population: candidate numerator `2214+18=2232` → `84.899201217193%`. New `CANDIDATE — NOT EFFECTIVE / AWAITING REVIEW A` documents `feature-engine-mutation-threshold-recalibration-proposal-003.md` and `feature-engine-condition1-current-material-gap-set-003.json` (18 IDs, sha256 `e4d21a0f1765f860d48d8a607c5d4e25b5b43c88f76db631cdd8528d83f73872`). Active gate (`85.127424876379%` / 24-ID set-002) NOT activated, touched, or superseded. No Review A performed on candidate-003; no PO decision requested; DTR NOT eligible for candidate-003's own activation. ADR Scope: DTR `ADR_NOT_REQUIRED`; candidate-003 `ADR_OPTIONAL`. Risk `R1` both. No `src/`/`test`/`tooling` change; Condition 1 remains `FAIL — criteria` |
+| Completed | `FE-EVID03-COND1-THRESHOLD-RECAL-V3-001` | Executed the Product-Owner-authorized atomic activation of threshold recalibration proposal-003 at reviewed boundary `0ebde2bd9e532ef7c89ff0a847c84e71d107ba48` (reviewed proposal blob `2a263b9c28e02638bd69884ef0e5b12ac2090460`, reviewed set-003 blob `9065930f732b441e2b298e096c9b8f48531f7aee`). Review A: ChatGPT, **CLEAN — 0 Blocker / 0 Major / 0 Minor**, Risk `R1`, ADR Scope `ADR_OPTIONAL`, no independent cross-check required/performed. `feature-engine-mutation-threshold-recalibration-proposal-003.md` → **`APPROVED — EFFECTIVE`** (resulting blob `a3193f73eb9222ca1b87f4db78c68643dba3a266`), now sole current Condition-1 threshold authority: Condition 1A (raw score ≥ `84.899201217193%`, basis `2232/2629`) AND Condition 1B (18 exact set-003 IDs individually resolved). `feature-engine-condition1-current-material-gap-set-003.json` → **`APPROVED — EFFECTIVE`** (resulting blob `ba276a767a57c2e533e7178000b4f129d61a3e9e`), exact 18-ID membership/count/duplicates/hash all verified unchanged. Old proposal-002 (`85.127424876379%`) and old set-002 (24 IDs) now historical/superseded, both byte-unchanged. Condition 2/3 preserved independent. **Current Condition 1: `AWAITING FRESH FORMAL MEASUREMENT`** — no fresh full formal mutation measurement has run since Wave 5/6; the stale pre-remediation Evidence-005 raw score (`84.21%–84.56%`) is explicitly NOT presented as the current score. The 18/18 targeted engineering kills are engineering evidence only, NOT promoted to formal credit. Next primary WP: a full formal Condition-1 mutation measurement against the active proposal-003/set-003 gate — NOT performed by this activation. No `src/`/`test`/`tooling` change; Condition 1 remains `FAIL — criteria / formal closure not yet demonstrated` |
 
 ## 6. PO dashboard snapshot
 
@@ -902,82 +919,78 @@ V2 -- ACTIVATED:            recalibration-proposal-002.md --
                            IDENTITY_DRIFT not resolved; Feature Engine
                            remains NOT APPROVED; LIVE remains
                            NOT_AUTHORIZED.
-Wave-6 classification DTR + FE-EVID03-COND1-WAVE6-CLASSIFICATION-
-threshold candidate 003:   DTR-001 -- DELEGATED TECHNICAL RESOLUTION --
-                           CLEAN. ChatGPT Review A (distinct from
-                           Wave-6 author/executor Claude, D8 PASS).
-                           Verdict: CLEAN -- 0/0/0, Risk R1,
-                           ADR_NOT_REQUIRED. D1-D12 all PASS. Governed
-                           disposition: all 6 Wave-6 STILL_SURVIVED
-                           identities RECLASSIFIED -- 3
-                           PROVABLY_EQUIVALENT (_prepare_original__
-                           mutmut_13, _prepare_preempt_settled_window__
-                           mutmut_20, _prepare_replacement_only__
-                           mutmut_14) and 3 STRUCTURALLY_UNREACHABLE
-                           (_prepare_recompute__mutmut_23,
-                           _prepare_reevaluate_all_windows__mutmut_6,
-                           _select_eligible_swing__mutmut_22). Active
-                           Condition-1B accounting within the
-                           unmodified 24-ID set-002: 6/24
-                           RESOLVED_BY_DELEGATED_TECHNICAL_
-                           RECLASSIFICATION, 18/24 genuine material --
-                           all 18 now carry targeted engineering-kill
-                           evidence (11 Wave-5 + 7 Wave-6), formal
-                           credit NOT claimed. New artifact: feature-
-                           engine-condition1-wave6-classification-dtr-
-                           001.json. THRESHOLD CANDIDATE 003 authored
-                           from the resulting 18-ID population: same
-                           2214/2629 calibration boundary (never a
-                           post-Wave-6 observed score -- none exists
-                           yet): candidate numerator 2214+18=2232 ->
-                           84.899201217193% (full precision
-                           84.89920121719285%). New CANDIDATE -- NOT
-                           EFFECTIVE / AWAITING REVIEW A documents:
-                           feature-engine-mutation-threshold-
-                           recalibration-proposal-003.md and feature-
+Threshold recalibration    feature-engine-mutation-threshold-
+V3 -- ACTIVATED:            recalibration-proposal-003.md --
+                           APPROVED -- EFFECTIVE. FE-EVID03-COND1-
+                           THRESHOLD-RECAL-V3-001. Product Owner
+                           APPROVED at reviewed boundary
+                           0ebde2bd9e532ef7c89ff0a847c84e71d107ba48
+                           (2026-09-24T12:10+07:00). Review A: ChatGPT,
+                           CLEAN -- 0 Blocker / 0 Major / 0 Minor, Risk
+                           R1, ADR_OPTIONAL, no independent cross-check
+                           required/performed. New sole current
+                           Condition-1 gate: Condition 1A (raw score
+                           >= 84.899201217193%, basis 2232/2629) AND
+                           Condition 1B (all 18 exact IDs in feature-
                            engine-condition1-current-material-gap-set-
-                           003.json (18 IDs, sha256
-                           e4d21a0f1765f860d48d8a607c5d4e25b5b43c88f76d
-                           b631cdd8528d83f73872). Proposed gate:
-                           Condition 1A (raw score >= 84.899201217193%)
-                           AND Condition 1B (18 exact set-003 IDs
-                           individually resolved). Active gate
-                           (85.127424876379% / 24-ID set-002) NOT
-                           activated, touched, or superseded. No
-                           Review A performed on candidate-003, no PO
-                           decision requested. DTR NOT eligible for
-                           candidate-003's own activation (ADR-045
-                           D10(a), PO-reserved). ADR Scope: DTR
-                           ADR_NOT_REQUIRED; candidate-003
-                           ADR_OPTIONAL. Risk R1 both. Formal Condition-
-                           1 measurement remains BLOCKED pending Review
-                           A + PO decision on candidate-003.
+                           003.json individually resolved, resulting
+                           blob ba276a767a57c2e533e7178000b4f129d61a3e
+                           9e, sha256 e4d21a0f1765f860d48d8a607c5d4e25
+                           b5b43c88f76db631cdd8528d83f73872 unchanged).
+                           Old proposal-002 (85.127424876379%, blob
+                           ea0b7a79b733622388597c59346c4615bb2726db)
+                           and old set-002 (24 IDs, blob
+                           2e6030c5581df51323937de0bd5f646f3e98b5d9):
+                           now historical/superseded, both byte-
+                           unchanged. Both DTR histories fresh-
+                           verified byte-unchanged; complete original-
+                           42 partition remains 24 non-material / 18
+                           final genuine material / 0 unclear. CURRENT
+                           CONDITION 1 STATUS: AWAITING FRESH FORMAL
+                           MEASUREMENT (FAIL -- criteria / formal
+                           closure not yet demonstrated). No fresh
+                           full formal mutation measurement has run
+                           since Wave 5/6 -- the prior Evidence-005
+                           raw score (84.21%-84.56%) is a STALE, pre-
+                           remediation figure and is NOT presented as
+                           the current score under the modified test
+                           suite. The 18/18 targeted engineering kills
+                           (11 Wave-5 + 7 Wave-6) are engineering
+                           evidence only and are NOT promoted to
+                           formal credit by this activation. Condition
+                           2/3 preserved independent, unchanged. Next
+                           primary WP: a full formal Condition-1
+                           mutation measurement against the active
+                           proposal-003/set-003 gate -- NOT performed
+                           by this activation. TOOL_IDENTITY_DRIFT not
+                           resolved; Feature Engine remains NOT
+                           APPROVED; LIVE remains NOT_AUTHORIZED.
 PO decision required now: NO
-                           (Wave-6 classification DTR recorded and
-                           threshold recalibration candidate 003
-                           authored -- both COMPLETE. Condition 1
-                           remains FAIL -- criteria under the active
-                           gate (1A FAIL: raw score 84.21%-84.56% <
-                           85.127424876379%; 1B FAIL: 24 identities not
-                           all individually resolved -- 6/24 delegated-
-                           reclassified, 18/24 genuine material with
-                           engineering-kill evidence, formal credit NOT
-                           claimed) -- no fresh formal mutation
-                           measurement was performed. Condition 2
-                           (169/170) and Condition 3 (SATISFIED)
-                           preserved as independent requirements, not
-                           merged with Condition 1B. EVID-03 remains
-                           OPEN; Feature Engine remains NOT APPROVED;
-                           Phase-3 module approval remains NOT GRANTED;
-                           LIVE remains NOT_AUTHORIZED. Next governed
-                           decision point: (1) Review A on threshold
-                           recalibration candidate 003, then a single
-                           narrow Product Owner decision on the quality
-                           bar (neither performed/requested by this
-                           transaction); and (2), independently, a
-                           future formal measurement transaction to
-                           determine actual Condition-1B credit --
-                           neither initiated here.)
+                           (Threshold recalibration proposal-003 is
+                           now ACTIVATED -- the current, sole
+                           controlling Condition-1 gate. Condition 1
+                           remains FAIL -- criteria / formal closure
+                           not yet demonstrated under the newly
+                           activated gate (1A AWAITING FRESH FORMAL
+                           MEASUREMENT; 1B AWAITING FRESH FORMAL
+                           MEASUREMENT -- 18 identities carry
+                           engineering-kill evidence only, formal
+                           credit NOT claimed) -- no fresh formal
+                           mutation measurement was performed by this
+                           activation, and the stale pre-remediation
+                           Evidence-005 raw score is explicitly NOT
+                           presented as a current measurement.
+                           Condition 2 (169/170) and Condition 3
+                           (SATISFIED) preserved as independent
+                           requirements, not merged with Condition 1B.
+                           EVID-03 remains OPEN; Feature Engine remains
+                           NOT APPROVED; Phase-3 module approval
+                           remains NOT GRANTED; LIVE remains
+                           NOT_AUTHORIZED. Next governed decision
+                           point: a bounded Work Package for a full
+                           formal Condition-1 mutation measurement
+                           against the active proposal-003/set-003
+                           gate -- not initiated here.)
 ```
 
 ## 7. Update rules

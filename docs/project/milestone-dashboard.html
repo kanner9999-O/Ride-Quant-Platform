@@ -235,7 +235,7 @@
   <div class="wrap">
     <h1>Ride Quant Platform — Milestone Dashboard</h1>
     <div class="top-meta">
-      <span>Milestone state verified against: <code id="head-sha">544ed73d807f1345c855d17aff822a8466619ab3</code></span>
+      <span>Milestone state verified against: <code id="head-sha">0ebde2bd9e532ef7c89ff0a847c84e71d107ba48</code></span>
       <span>Lean Ride Operating Model v1.1: <span class="pill pill-done">Active — ADOPTED</span></span>
       <span>Current milestone: <span class="pill pill-active">M1 — Feature Engine EVID-03 Closure</span></span>
     </div>
@@ -654,6 +654,44 @@
           Condition-1 measurement remains <strong>BLOCKED</strong>
           pending Review A + PO decision on candidate-003.
         </div>
+        <div class="note">
+          <strong>Threshold recalibration proposal-003 — ACTIVATED (<code>FE-EVID03-COND1-THRESHOLD-RECAL-V3-001</code>):</strong>
+          Product Owner APPROVED at reviewed boundary
+          <code>0ebde2bd9e532ef7c89ff0a847c84e71d107ba48</code>
+          (2026-09-24T12:10+07:00). Review A: ChatGPT, <strong>CLEAN — 0
+          Blocker / 0 Major / 0 Minor</strong>, Risk <code>R1</code>, ADR
+          Scope <code>ADR_OPTIONAL</code>, no independent cross-check
+          required/performed.
+          <code>feature-engine-mutation-threshold-recalibration-proposal-003.md</code>
+          → <strong>APPROVED — EFFECTIVE</strong> (resulting blob
+          <code>a3193f73eb9222ca1b87f4db78c68643dba3a266</code>), now the
+          sole current Condition-1 threshold authority: Condition 1A (raw
+          score ≥ <strong>84.899201217193%</strong>, basis
+          <code>2232/2629</code>) AND Condition 1B (all 18 exact
+          <code>feature-engine-condition1-current-material-gap-set-003.json</code>
+          identities individually resolved, resulting blob
+          <code>ba276a767a57c2e533e7178000b4f129d61a3e9e</code>). Old
+          proposal-002 (<code>85.127424876379%</code>) and old set-002
+          (24 IDs) are now historical/superseded, both byte-unchanged.
+          Both DTR histories fresh-verified byte-unchanged — the complete
+          original-42 partition remains 24 non-material / 18 final
+          genuine material / 0 unclear.
+          <strong>Current Condition 1: AWAITING FRESH FORMAL
+          MEASUREMENT</strong> (FAIL — criteria / formal closure not yet
+          demonstrated) — no fresh full formal mutation measurement has
+          run since Wave 5/6; the prior Evidence-005 raw score
+          (84.21%–84.56%) is a <strong>stale, pre-remediation
+          figure</strong> and is explicitly NOT presented as the current
+          score under the modified test suite. The 18/18 targeted
+          engineering kills are engineering evidence only and are NOT
+          promoted to formal credit by this activation. Condition 2/3
+          preserved independent, unchanged.
+          <strong>Next primary WP: a full formal Condition-1 mutation
+          measurement</strong> against the active proposal-003/set-003
+          gate — NOT performed by this activation.
+          <code>TOOL_IDENTITY_DRIFT</code> not resolved; Feature Engine
+          remains NOT APPROVED; LIVE remains NOT_AUTHORIZED.
+        </div>
       </div>
     </div>
   </section>
@@ -674,12 +712,12 @@
         <div class="lbl">Condition-2 identities resolved</div>
       </div>
       <div class="metric">
-        <div class="num" style="color:var(--active)">6 / 24</div>
-        <div class="lbl">Condition-1B identities resolved (6 via Wave-6 delegated reclassification; 18/24 genuine material, all with engineering-kill evidence, formal credit not yet claimed)</div>
+        <div class="num" style="color:var(--blocked)">18 / 18</div>
+        <div class="lbl">Condition-1B identities AWAITING FRESH FORMAL MEASUREMENT (all 18 carry engineering-kill evidence, 11 Wave-5 + 7 Wave-6, formal credit not yet claimed)</div>
       </div>
       <div class="metric">
-        <div class="num" style="color:var(--active)">85.127424876379%</div>
-        <div class="lbl">Condition 1A threshold (ACTIVE — proposal-002, basis 2238/2629)</div>
+        <div class="num" style="color:var(--active)">84.899201217193%</div>
+        <div class="lbl">Condition 1A threshold (ACTIVE — proposal-003, basis 2232/2629)</div>
       </div>
       <div class="metric">
         <div class="num pill pill-no" style="font-size:1.1rem;">NO</div>
@@ -695,7 +733,7 @@
         <h4>Primary</h4>
         <div class="wp-item">
           <code>(none currently assigned)</code>
-          <div class="desc"><code>FE-EVID03-COND1-WAVE5-001</code>, <code>FE-EVID03-COND1-AUDIT-001</code>, <code>FE-EVID03-COND1-MATERIAL-SET-DTR-001</code>, <code>FE-EVID03-COND1-THRESHOLD-RECAL-V2-001</code>, <code>FE-EVID03-COND1-WAVE6-001</code>, and <code>FE-EVID03-COND1-WAVE6-CLASSIFICATION-DTR-001</code> (Wave-6 classification DTR, 6/24 reclassified, + threshold recalibration candidate 003, <code>CANDIDATE — AWAITING REVIEW A</code>) are all COMPLETE/AUTHORED. Next primary WP awaits a separate scoping decision — Review A of candidate-003, or a future formal Condition-1 measurement.</div>
+          <div class="desc"><code>FE-EVID03-COND1-WAVE5-001</code>, <code>FE-EVID03-COND1-AUDIT-001</code>, <code>FE-EVID03-COND1-MATERIAL-SET-DTR-001</code>, <code>FE-EVID03-COND1-THRESHOLD-RECAL-V2-001</code>, <code>FE-EVID03-COND1-WAVE6-001</code>, <code>FE-EVID03-COND1-WAVE6-CLASSIFICATION-DTR-001</code>, and <code>FE-EVID03-COND1-THRESHOLD-RECAL-V3-001</code> (threshold recalibration proposal-003, now <code>APPROVED — EFFECTIVE</code>) are all COMPLETE. Next primary WP: a full formal Condition-1 mutation measurement against the active proposal-003/set-003 gate — awaits a separate scoping decision.</div>
         </div>
         <div class="wp-item">
           <code>Condition-1 remediation</code>
@@ -815,6 +853,10 @@
           <code>FE-EVID03-COND1-WAVE6-CLASSIFICATION-DTR-001</code>
           <div class="desc"><strong>Recorded the already-issued Wave-6 six-identity semantic reclassification DTR, then authored threshold recalibration candidate 003: COMPLETE.</strong> Resolution: <code>DELEGATED TECHNICAL RESOLUTION — CLEAN</code>. Review A: ChatGPT, distinct from Wave-6's author/executor Claude (D8 <code>PASS</code>). Verdict: <strong>CLEAN — 0 Blocker / 0 Major / 0 Minor</strong>, Risk <code>R1</code>, ADR Scope <code>ADR_NOT_REQUIRED</code>; D1-D12 all PASS. Governed disposition: all 6 Wave-6 <code>STILL_SURVIVED</code> identities <strong>RECLASSIFIED</strong> — 3 <code>PROVABLY_EQUIVALENT</code>, 3 <code>STRUCTURALLY_UNREACHABLE</code>. Active Condition-1B accounting: <strong>6/24 RESOLVED_BY_DELEGATED_TECHNICAL_RECLASSIFICATION</strong>, <strong>18/24 genuine material</strong>, all with engineering-kill evidence, formal credit NOT claimed. New artifact: <code>feature-engine-condition1-wave6-classification-dtr-001.json</code>. Then authored <strong>threshold recalibration candidate 003</strong> from the resulting 18-ID population: candidate numerator <code>2214+18=2232</code> → <strong>84.899201217193%</strong>. New <code>CANDIDATE — NOT EFFECTIVE / AWAITING REVIEW A</code> documents <code>feature-engine-mutation-threshold-recalibration-proposal-003.md</code> and <code>feature-engine-condition1-current-material-gap-set-003.json</code> (18 IDs, sha256 <code>e4d21a0f1765f860d48d8a607c5d4e25b5b43c88f76db631cdd8528d83f73872</code>). Active gate (<code>85.127424876379%</code> / 24-ID set-002) <strong>NOT activated, touched, or superseded</strong>. No Review A performed on candidate-003; no Product Owner decision requested; DTR NOT eligible for candidate-003's own activation. ADR Scope: DTR <code>ADR_NOT_REQUIRED</code>; candidate-003 <code>ADR_OPTIONAL</code>. Risk <code>R1</code> both. No <code>src/</code>, <code>test</code>, <code>tooling/</code> change; Condition 1 remains <strong>FAIL — criteria</strong>; Condition 2/3 unchanged; EVID-03 remains OPEN; Feature Engine remains NOT APPROVED; LIVE remains NOT_AUTHORIZED.</div>
         </div>
+        <div class="wp-item">
+          <code>FE-EVID03-COND1-THRESHOLD-RECAL-V3-001</code>
+          <div class="desc"><strong>Executed the Product-Owner-authorized atomic activation of threshold recalibration proposal-003: COMPLETE.</strong> Reviewed boundary <code>0ebde2bd9e532ef7c89ff0a847c84e71d107ba48</code> (reviewed proposal blob <code>2a263b9c28e02638bd69884ef0e5b12ac2090460</code>, reviewed set-003 blob <code>9065930f732b441e2b298e096c9b8f48531f7aee</code>). Review A: ChatGPT, <strong>CLEAN — 0 Blocker / 0 Major / 0 Minor</strong>, Risk <code>R1</code>, ADR Scope <code>ADR_OPTIONAL</code>, no independent cross-check required/performed. <code>feature-engine-mutation-threshold-recalibration-proposal-003.md</code> → <strong>APPROVED — EFFECTIVE</strong> (resulting blob <code>a3193f73eb9222ca1b87f4db78c68643dba3a266</code>), now sole current Condition-1 threshold authority: Condition 1A (raw score ≥ <strong>84.899201217193%</strong>, basis <code>2232/2629</code>) AND Condition 1B (18 exact set-003 IDs individually resolved). <code>feature-engine-condition1-current-material-gap-set-003.json</code> → <strong>APPROVED — EFFECTIVE</strong> (resulting blob <code>ba276a767a57c2e533e7178000b4f129d61a3e9e</code>), exact 18-ID membership/count/duplicates/hash all verified unchanged. Old proposal-002 (<code>85.127424876379%</code>) and old set-002 (24 IDs) now historical/superseded, both byte-unchanged. Condition 2/3 preserved independent. <strong>Current Condition 1: AWAITING FRESH FORMAL MEASUREMENT</strong> — no fresh full formal mutation measurement has run since Wave 5/6; the stale pre-remediation Evidence-005 raw score (<code>84.21%–84.56%</code>) is explicitly NOT presented as the current score. The 18/18 targeted engineering kills are engineering evidence only, NOT promoted to formal credit. Next primary WP: a full formal Condition-1 mutation measurement against the active proposal-003/set-003 gate — NOT performed by this activation. No <code>src/</code>, <code>test</code>, <code>tooling/</code> change; Condition 1 remains <strong>FAIL — criteria / formal closure not yet demonstrated</strong>; Condition 2/3 unchanged; EVID-03 remains OPEN; Feature Engine remains NOT APPROVED; LIVE remains NOT_AUTHORIZED.</div>
+        </div>
       </div>
     </div>
   </section>
@@ -823,8 +865,8 @@
     <h2>PO Snapshot</h2>
     <div class="po-snapshot">
       <div class="kv"><span class="k">Current milestone</span><span class="v">M1 — Feature Engine EVID-03 Closure (ACTIVE, AT RISK)</span></div>
-      <div class="kv"><span class="k">Primary blocker</span><span class="v">Condition 1 — FAIL — criteria under the ACTIVATED gate (Condition 1A: raw score 84.21%–84.56% &lt; required 85.127424876379%; Condition 1B: 24 pinned current-material identities not all resolved). Condition 2 (169/170) independently also blocks (1 <code>TOOL_IDENTITY_DRIFT</code> row unresolved, no governed mechanism).</span></div>
-      <div class="kv"><span class="k">Current WP</span><span class="v">(none currently assigned) — <code>FE-EVID03-COND1-WAVE5-001</code>, <code>FE-EVID03-COND1-AUDIT-001</code>, <code>FE-EVID03-COND1-MATERIAL-SET-DTR-001</code>, <code>FE-EVID03-COND1-THRESHOLD-RECAL-V2-001</code>, <code>FE-EVID03-COND1-WAVE6-001</code>, and <code>FE-EVID03-COND1-WAVE6-CLASSIFICATION-DTR-001</code> all COMPLETE/AUTHORED; threshold recalibration candidate 003 awaiting Review A</span></div>
+      <div class="kv"><span class="k">Primary blocker</span><span class="v">Condition 1 — FAIL — criteria / formal closure not yet demonstrated under the ACTIVATED gate (Condition 1A: AWAITING FRESH FORMAL MEASUREMENT, required ≥ 84.899201217193%, prior 84.21%–84.56% is a stale pre-remediation figure; Condition 1B: 18 pinned current-material identities not all formally resolved, all carry engineering-kill evidence). Condition 2 (169/170) independently also blocks (1 <code>TOOL_IDENTITY_DRIFT</code> row unresolved, no governed mechanism).</span></div>
+      <div class="kv"><span class="k">Current WP</span><span class="v">(none currently assigned) — <code>FE-EVID03-COND1-WAVE5-001</code>, <code>FE-EVID03-COND1-AUDIT-001</code>, <code>FE-EVID03-COND1-MATERIAL-SET-DTR-001</code>, <code>FE-EVID03-COND1-THRESHOLD-RECAL-V2-001</code>, <code>FE-EVID03-COND1-WAVE6-001</code>, <code>FE-EVID03-COND1-WAVE6-CLASSIFICATION-DTR-001</code>, and <code>FE-EVID03-COND1-THRESHOLD-RECAL-V3-001</code> all COMPLETE; threshold recalibration proposal-003 ACTIVATED; next: full formal Condition-1 measurement</span></div>
       <div class="kv"><span class="k">ADR-045</span><span class="v">v0.3, <strong>Approved / ACTIVE</strong> — Delegated Technical Resolution lane, self-contained R0/R1/R2 (X-MAJ-02), D8 distinct-principal safeguard (X-MAJ-01), supersedes ADR-042 (now Superseded)</span></div>
       <div class="kv"><span class="k">Chapter 0 / 11 / Exec Rules</span><span class="v">Chapter 0 v1.5 <strong>Locked</strong>/controlling (v1.4 historical); Chapter 11 v2.4 <strong>Locked</strong>/controlling (v2.3 historical); Global Execution Rules v0.7 <strong>EFFECTIVE</strong> (v0.6 historical) — all activated 2026-09-23T14:02+07:00</span></div>
       <div class="kv"><span class="k">Candidate-005 status</span><span class="v"><strong>RESOLVED — DELEGATED TECHNICAL RESOLUTION</strong> (<code>FE-EVID03-COND2-CANDIDATE-005-DTR-001</code>). NOT a Product Owner approval. Fresh post-activation Review A by ChatGPT (distinct from author/executor Claude — D8): <code>CLEAN — 0/0/0</code>, Risk R1, <code>ADR_NOT_REQUIRED</code>, D1-D12 all PASS. Both rows <code>RECLASSIFIED_4_1_B</code>.</span></div>
@@ -839,10 +881,11 @@
       <div class="kv"><span class="k">Threshold recalibration V2 — ACTIVATED</span><span class="v"><code>FE-EVID03-COND1-THRESHOLD-RECAL-V2-001</code> — <code>APPROVED — EFFECTIVE</code>. Product Owner APPROVED at reviewed boundary <code>f99f75973049e71b7e3f1876ba0683a7d8434d48</code> (2026-09-24T10:08+07:00). Review A: ChatGPT, CLEAN — 0/0/0, Risk <code>R1</code>, <code>ADR_OPTIONAL</code>, no independent cross-check. New sole current gate: Condition 1A (raw score ≥ <strong>85.127424876379%</strong>, basis 2238/2629) AND Condition 1B (24 exact IDs in <code>feature-engine-condition1-current-material-gap-set-002.json</code>, resulting blob <code>2e6030c5581df51323937de0bd5f646f3e98b5d9</code>, individually resolved). Old proposal-001 (85.812095853937%) and old set-001 (42 IDs) now historical/superseded, byte-unchanged. Engineering status preserved: 11/24 Wave-5 kill evidence (no formal credit), 13/24 unremediated. Current Condition 1: FAIL — criteria. Condition 2/3 unchanged. Root-cause audit/DTR byte-unchanged, their 24/18/0 result remains valid history. Wave 6 changes from PAUSED to <strong>READY FOR BOUNDED IMPLEMENTATION — 13 genuine unremediated identities</strong>, NOT implemented here.</span></div>
       <div class="kv"><span class="k">Wave-6 test remediation</span><span class="v"><code>FE-EVID03-COND1-WAVE6-001</code>. Targeted the exact 13 unremediated identities in the active 24-ID gate. Baseline: all 13 survived. 9 new tests, ordinary suite <strong>443/443 passed</strong> (was 434), <code>ruff</code>/<code>mypy</code> clean. Post-implementation: <strong>7/13 KILLED_BY_WAVE6</strong>. Significant honest finding: remaining <strong>6/13 STILL_SURVIVED</strong>, all independently proven <code>PROVABLY_EQUIVALENT</code>/<code>STRUCTURALLY_UNREACHABLE</code> (3 recorded-time-floor mutants via the swing-eligibility invariant; <code>_prepare_recompute__mutmut_23</code> unreachable via its 2 legitimate callers; 2 more discovered, via direct real-mutant-body inspection, to be DIFFERENT mutations than the root-cause audit described — an indexing-drift bug in this session's own diff-extraction script — both independently unreachable). None force-tested. Governance implication NOT acted on: gate conservative/over-strict for these 6, evidence only for a future re-audit. Full 24-ID accounting: 11 Wave-5 + 7 Wave-6 kills (no formal credit) + 6 pending re-audit = 24. New artifact <code>feature-engine-condition1-wave6-test-remediation-001.json</code>.</span></div>
       <div class="kv"><span class="k">Wave-6 classification DTR + candidate 003</span><span class="v"><code>FE-EVID03-COND1-WAVE6-CLASSIFICATION-DTR-001</code> — <code>DELEGATED TECHNICAL RESOLUTION — CLEAN</code>. Review A: ChatGPT, distinct from Wave-6 author/executor Claude — CLEAN 0/0/0, Risk <code>R1</code>, <code>ADR_NOT_REQUIRED</code>, D1-D12 all PASS. All 6 Wave-6 <code>STILL_SURVIVED</code> identities RECLASSIFIED (3 <code>PROVABLY_EQUIVALENT</code>, 3 <code>STRUCTURALLY_UNREACHABLE</code>). Active Condition-1B: <strong>6/24 RESOLVED_BY_DELEGATED_TECHNICAL_RECLASSIFICATION</strong>, <strong>18/24 genuine material</strong>, all with engineering-kill evidence, formal credit NOT claimed. New artifact <code>feature-engine-condition1-wave6-classification-dtr-001.json</code>. Then authored <strong>threshold recalibration candidate 003</strong> from the resulting 18-ID population: <code>2214+18=2232</code> → <strong>84.899201217193%</strong>. New <code>CANDIDATE — NOT EFFECTIVE / AWAITING REVIEW A</code> documents <code>feature-engine-mutation-threshold-recalibration-proposal-003.md</code>, <code>feature-engine-condition1-current-material-gap-set-003.json</code> (18 IDs, sha256 <code>e4d21a0f1765f860d48d8a607c5d4e25b5b43c88f76db631cdd8528d83f73872</code>). Active gate (85.127424876379% / 24-ID set-002) NOT activated/touched/superseded. No Review A performed; DTR NOT eligible for candidate-003 activation. ADR Scope: DTR <code>ADR_NOT_REQUIRED</code>; candidate-003 <code>ADR_OPTIONAL</code>. Risk <code>R1</code> both.</span></div>
+      <div class="kv"><span class="k">Threshold recalibration V3 — ACTIVATED</span><span class="v"><code>FE-EVID03-COND1-THRESHOLD-RECAL-V3-001</code> — <code>APPROVED — EFFECTIVE</code>. Product Owner APPROVED at reviewed boundary <code>0ebde2bd9e532ef7c89ff0a847c84e71d107ba48</code> (2026-09-24T12:10+07:00). Review A: ChatGPT, CLEAN — 0/0/0, Risk <code>R1</code>, <code>ADR_OPTIONAL</code>, no independent cross-check. New sole current gate: Condition 1A (raw score ≥ <strong>84.899201217193%</strong>, basis 2232/2629) AND Condition 1B (18 exact IDs in <code>feature-engine-condition1-current-material-gap-set-003.json</code>, resulting blob <code>ba276a767a57c2e533e7178000b4f129d61a3e9e</code>, individually resolved). Old proposal-002 (85.127424876379%) and old set-002 (24 IDs) now historical/superseded, byte-unchanged. Both DTR histories byte-unchanged; complete original-42 partition remains 24 non-material / 18 final genuine material / 0 unclear. <strong>Current Condition 1: AWAITING FRESH FORMAL MEASUREMENT</strong> — the stale pre-remediation Evidence-005 raw score (84.21%–84.56%) is NOT presented as current. 18/18 targeted engineering kills are evidence only, not formal credit. Next primary WP: a full formal Condition-1 mutation measurement against the active proposal-003/set-003 gate, NOT performed here.</span></div>
       <div class="kv"><span class="k">Condition-1 assessment</span><span class="v">Post-Evidence-005 406-survivor classification (EVIDENCE/DIAGNOSTIC only, boundary <code>2ca64a46...</code>): <code>GENUINE_TEST_GAP=40</code>, <code>LOW_MATERIALITY_MESSAGE_TEXT=344</code>, <code>PROVABLY_EQUIVALENT=16</code>, <code>STRUCTURALLY_UNREACHABLE=4</code>, <code>UNCLEAR=2</code>. <strong>Case C — CURRENT TEST-ONLY PATH APPEARS INSUFFICIENT</strong> (best-case combined numerator <code>2265</code>, still <code>23</code> short of required <code>2288</code>). Does not change Condition 1's formal result or the approved threshold.</span></div>
       <div class="kv"><span class="k">PO decision required</span><span class="v pill pill-no">NO</span></div>
-      <div class="kv"><span class="k">Reason deferred</span><span class="v">Wave-6 classification DTR recorded and threshold recalibration candidate 003 authored — both COMPLETE. Condition 1 remains FAIL — criteria under the active gate (1A FAIL: raw score below 85.127424876379%; 1B FAIL: 24 identities not all individually resolved — 6/24 delegated-reclassified, 18/24 genuine material with engineering-kill evidence, formal credit NOT claimed) — no fresh formal mutation measurement was performed. Condition 2 (169/170) and Condition 3 (SATISFIED) preserved as independent requirements. EVID-03 remains OPEN; Feature Engine remains NOT APPROVED; Phase-3 module approval remains NOT GRANTED; LIVE remains NOT_AUTHORIZED.</span></div>
-      <div class="kv"><span class="k">Next PO decision point</span><span class="v">(1) Review A on threshold recalibration candidate 003, then a single narrow Product Owner decision on the quality bar (neither performed/requested by this transaction); and (2), independently, a future formal measurement transaction to determine actual Condition-1B credit — neither initiated here.</span></div>
+      <div class="kv"><span class="k">Reason deferred</span><span class="v">Threshold recalibration proposal-003 is now ACTIVATED — the current, sole controlling Condition-1 gate. Condition 1 remains FAIL — criteria / formal closure not yet demonstrated (1A AWAITING FRESH FORMAL MEASUREMENT; 1B AWAITING FRESH FORMAL MEASUREMENT — 18 identities carry engineering-kill evidence only, formal credit NOT claimed) — no fresh formal mutation measurement was performed by this activation, and the stale pre-remediation Evidence-005 raw score is explicitly NOT presented as a current measurement. Condition 2 (169/170) and Condition 3 (SATISFIED) preserved as independent requirements. EVID-03 remains OPEN; Feature Engine remains NOT APPROVED; Phase-3 module approval remains NOT GRANTED; LIVE remains NOT_AUTHORIZED.</span></div>
+      <div class="kv"><span class="k">Next PO decision point</span><span class="v">A bounded Work Package for a full formal Condition-1 mutation measurement against the active proposal-003/set-003 gate — not initiated here.</span></div>
     </div>
   </section>
 
