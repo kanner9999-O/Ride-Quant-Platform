@@ -2,6 +2,30 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-24 — feature-engine: Condition-2 tool-identity-continuity candidate authored — CANDIDATE, NOT EFFECTIVE, NO CREDIT GRANTED
+
+Starting `main == origin/main == e9873e17170ada23da98be9c7dd3820045d64cde`, fresh-verified, working tree clean, no drift. Authors the governed candidate mechanism needed to resolve the final Feature Engine Condition-2 identity, `contracts.x__seal_verified_authority__mutmut_33` (`TOOL_IDENTITY_DRIFT — NO EXISTING GOVERNED RESOLUTION MECHANISM`), WITHOUT granting Condition-2 credit.
+
+Fresh technical reconstruction, not inherited: two isolated disposable git worktrees (historical boundary `8d6293aca773757bc3b62cc0d3b80cba9e243954`, current boundary `e9873e17170ada23da98be9c7dd3820045d64cde`), zero test execution (`create_mutants()` direct), exact pinned mutmut `3.7.0` both sides, both worktrees removed after use, main working tree never modified. All 5 required facts independently re-verified: (1) `_seal_verified_authority`'s semantic code path not refactored (one honest correction of a prior 6-vs-7-kwarg imprecision noted, substance unchanged); (2) historical mutation site and current `mutmut_36` byte-identical; (3) current `mutmut_33` confirmed a different, unrelated mutation (a new, additive ADR-043 `merge_policy` guard that did not exist historically); (4) historical-33 → current-36 mapping unique (exhaustive 49-mutant scan); (5) drift explained by additive ordinal growth (44→49 mutants), not a behavior change.
+
+Bounded isolated verification only (no full 2629-mutant rerun): `feature_engine.contracts.x__seal_verified_authority__mutmut_36`, two independent fresh-workspace runs -- **`killed` + `killed`**, no disagreement.
+
+New candidate `feature-engine-condition2-tool-identity-continuity-proposal-001.md` (`CANDIDATE — NOT EFFECTIVE / AWAITING REVIEW A`) proposes one new, disjoint Condition-2 resolution branch **(c) `VERIFIED_TOOL_IDENTITY_CONTINUITY`** -- companion to, not an edit of, `feature-engine-mutation-threshold-proposal-001.md` §4.1's existing (a)/(b) -- gated by **C1–C12** (exact reconstruction, unique 1:1 mapping, no legitimate refactor, tool provenance pinned to mutmut `3.7.0` only, per-identity-only credit via a SEPARATE future governed decision, no raw-score adjustment); fails closed on any unresolved criterion; not a bulk table, heuristic, or ordinal-only rule. Supporting evidence: `feature-engine-condition2-tool-identity-continuity-technical-evidence-001.json` (new).
+
+**No Condition-2 credit granted by this transaction — remains `169/170`.**
+
+Fresh Chapter 0 §4b (not inherited): the Governance/Approval-process trigger examined directly -- branch (c) reuses Testing Convention v0.16 item 8's already-established identity-pin + justification + governed-decision shape (the same shape §4.1(b) itself already reused without an ADR), creating no new review role/lifecycle stage/approval-gate structure; distinguished from the prior final-six-assessment's own deferred concern about an in-place Testing Convention edit, avoided here via the same companion-document pattern already used for proposal-002/003. Result: `ADR_SCOPE_DISPOSITION: ADR_OPTIONAL`, no ADR authored. Risk `R2` (new architecture/authority/contract semantics per `P3-REVIEW-001`, not a bounded correction).
+
+DTR NOT ELIGIBLE for this mechanism's own eventual activation or any future per-identity credit decision (ADR-045 `D10(a)`, PO-reserved).
+
+Condition 1 (`PASS — REVIEW A VALIDATED`) and Condition 3 (`SATISFIED — REVIEW A VALIDATED`) unaffected. `P3-FEATURE-QG-EVID-03` remains `OPEN`. Feature Engine remains `NOT APPROVED`. `LIVE` remains `NOT_AUTHORIZED`. Primary lane becomes: a distinct-principal ChatGPT Review A of the tool-identity-continuity candidate.
+
+`manifest_version` `"10.436"` -> `"10.437"`.
+
+**Files changed (6):** `feature-engine-condition2-tool-identity-continuity-proposal-001.md` (new), `feature-engine-condition2-tool-identity-continuity-technical-evidence-001.json` (new), `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md`.
+
+---
+
 ## [Unreleased] — 2026-09-24 — feature-engine: Condition-1 formal measurement 006 Review A / Delegated Technical Resolution — Condition 1 PASS — REVIEW A VALIDATED
 
 Starting `main == origin/main == bb00e28056679852f2ccc6b1659e6ef026907f0c`, fresh-verified, working tree clean, no drift. Evidence-006 fresh-verified byte-unchanged (blob `460cf678a2c682c26540719da78ff798ce88705d`); active proposal-003/set-003 fresh-verified byte-unchanged. No new measurement performed.

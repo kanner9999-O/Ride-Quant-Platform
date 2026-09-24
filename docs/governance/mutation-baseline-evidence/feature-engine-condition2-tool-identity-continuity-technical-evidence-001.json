@@ -1,0 +1,117 @@
+{
+ "artifact_id": "feature-engine-condition2-tool-identity-continuity-technical-evidence-001",
+ "schema_note": "Fresh technical evidence supporting the candidate mechanism authored in feature-engine-condition2-tool-identity-continuity-proposal-001.md (branch (c), VERIFIED_TOOL_IDENTITY_CONTINUITY). This artifact is evidence-only -- it does NOT grant Condition-2 credit for contracts.x__seal_verified_authority__mutmut_33, does NOT self-validate the candidate mechanism, and does NOT modify any prior governed artifact (feature-engine-condition2-final-six-resolution-assessment-001.json, feature-engine-condition2-remaining-ambiguity-historical-reconstruction-001.json, evidence-005/006, all verified byte-unchanged). All five expected technical findings were fresh-verified this transaction, not inherited mechanically from prior documents.",
+ "boundary": {
+  "starting_state_verified": {
+   "main": "e9873e17170ada23da98be9c7dd3820045d64cde",
+   "origin_main": "e9873e17170ada23da98be9c7dd3820045d64cde",
+   "working_tree_clean": true,
+   "drift_detected": false
+  },
+  "current_head": "e9873e17170ada23da98be9c7dd3820045d64cde",
+  "current_src_tree": "1029a9fef083b0902d6d00a2e96cfde14213324c",
+  "note": "current_src_tree fresh-verified identical to Evidence-006's own executable_boundary.src_tree (dd05c963397bbb8c9b8bd30f6a88c913baf3f153) -- production source has not changed since Evidence-006's formal measurement."
+ },
+ "historical_baseline_provenance": {
+  "source": "docs/governance/mutation-baseline-evidence/feature-engine-mutation-baseline-001.json evaluated_identities (the artifact that originally established the 170-identity Condition-2 material-gap population, including contracts.x__seal_verified_authority__mutmut_33)",
+  "repository_boundary": "8d6293aca773757bc3b62cc0d3b80cba9e243954",
+  "python_feature_engine_src_tree_pinned": "256421344a48a6c9d4ef72f81eb82b27dbedfc50",
+  "python_feature_engine_tests_tree_pinned": "6cfe8097b061870493cd44d711d79cd9e04a538c",
+  "python_feature_engine_tooling_tree_pinned": "b99f6252058cbf5404751cf85d80c6745eebd03b",
+  "tool_identities_pinned": {
+   "python": "3.13.6 (CPython, Darwin arm64)",
+   "mutmut": "3.7.0"
+  },
+  "same_boundary_as_prior_historical_reconstruction": "feature-engine-condition2-remaining-ambiguity-historical-reconstruction-001.json used this exact same boundary for a different (already-resolved) pair of rows -- confirms consistent, non-cherry-picked provenance."
+ },
+ "method": {
+  "isolation": "Two separate, disposable git worktrees created via 'git worktree add --detach' (one at the historical boundary, one at current HEAD), both removed after use. Main working tree never modified.",
+  "worktree_head_verification": {
+   "historical": "git rev-parse HEAD:python/feature-engine/src == 256421344a48a6c9d4ef72f81eb82b27dbedfc50 (MATCH); .../tests == 6cfe8097b061870493cd44d711d79cd9e04a538c (MATCH); .../tooling == b99f6252058cbf5404751cf85d80c6745eebd03b (MATCH)",
+   "current": "git rev-parse HEAD:python/feature-engine/src == 1029a9fef083b0902d6d00a2e96cfde14213324c (MATCH, == Evidence-006 executable_boundary.src_tree)"
+  },
+  "tool_version_verification": {
+   "historical_venv": "python3.13 -m venv, pip install -r requirements-dev.lock.txt (historical checkout's own lock), pip install -e . --no-deps -- python -m mutmut --version -> 'python -m mutmut, version 3.7.0'; pip show mutmut -> Version: 3.7.0",
+   "current_venv": "python3.13 -m venv, pip install -r requirements-dev.lock.txt (current lock), pip install -e . --no-deps -- mutmut 3.7.0, pytest 9.1.1, coverage 7.16.0, platformdirs 4.11.5, ruff 0.16.4, mypy 2.3.1 -- all match requirements-dev.lock.txt and Evidence-006's own recorded versions exactly"
+  },
+  "mutant_generation": "mutmut.__main__.create_mutants(max_children=1) called directly (bypassing the 'run' CLI's clean-test/forced-fail phases entirely) in BOTH worktrees -- zero test execution, zero coverage collection, zero mutation dispatch. Historical: MutantGenerationStats(mutated=14, unmodified=0, ignored=0). Current: MutantGenerationStats(mutated=17, unmodified=0, ignored=0) -- the 3 additional mutated files (ownership.py, output_contract_resolver.py, replay_preparation.py) are unrelated to contracts.py and consistent with production source growth already reflected in Evidence-006's own executable boundary.",
+  "diff_extraction": "Parsed the generated trampoline source (mutants/src/feature_engine/contracts.py in each worktree) by line-scanning each named def x__seal_verified_authority__mutmut_orig / __mutmut_N boundary, then line-diffing each named ordinal's full function body against __mutmut_orig -- content-identical to mutmut's own diff output, computed offline, no test execution involved."
+ },
+ "finding_1_semantic_code_path_not_refactored": {
+  "claim": "_seal_verified_authority semantic code path itself was not refactored.",
+  "verification": "Direct line diff of the full function body (contracts.py, historical worktree __mutmut_orig vs. current source _seal_verified_authority, lines 624-689) shows the historical validation sequence (7 checks: feature_computation_profile truthiness, input_contract_ref fields, stream_registry_version, included_streams, input_contract_content_id well-formedness, stream_registry_content_id well-formedness) and its delegating call to _construct_verified_authority are present, unmodified, at the same relative position in both versions.",
+  "correction_of_imprecision_in_prior_evidence": "feature-engine-condition2-final-six-resolution-assessment-001.json's fresh_investigation field states the current delegating call passes 'the identical 7-kwarg list ... as it did historically.' This is corrected here, fresh-verified: the HISTORICAL delegating call passed only 6 kwargs (feature_computation_profile, input_contract_ref, stream_registry_version, included_streams, input_contract_content_id, stream_registry_content_id) -- merge_policy did not exist historically. The CURRENT call passes 7 kwargs, the 7th (merge_policy) being an ADR-043 (ADR043-IMPLDESIGN-A-MAJ-04) addition: a new parameter, a new isinstance(merge_policy, InputMergePolicy) validation branch, a new docstring paragraph, and a new merge_policy=merge_policy kwarg appended AFTER the original 6. This is a genuine, honest correction of a minor imprecision in the prior assessment's phrasing -- it does not change that assessment's substantive conclusion (the code path was not refactored at the mutation site), since the original 6-kwarg delegating call, including the exact feature_computation_profile=feature_computation_profile line, is unmodified in content and unmodified in its position relative to the unchanged validation sequence above it. The merge_policy addition is purely additive, positioned after the historically-mutated site's own logical predecessors.",
+  "result": "CONFIRMED -- with one honest correction to prior evidence's phrasing (6-kwarg historical vs. 7-kwarg current, not 'identical 7-kwarg... as it did historically'), which does not alter the substantive finding."
+ },
+ "finding_2_historical_and_current_sites_structurally_semantically_same": {
+  "claim": "Historical mutation site and current mutmut_36 site are structurally and semantically the same.",
+  "historical_reconstructed_diff": "--- +++ @@ -40,7 +40,7 @@\n     return _construct_verified_authority(\n-        feature_computation_profile=feature_computation_profile,\n+        feature_computation_profile=None,\n         input_contract_ref=input_contract_ref,\n         stream_registry_version=stream_registry_version,\n         included_streams=included_streams,\n         input_contract_content_id=input_contract_content_id,\n         stream_registry_content_id=stream_registry_content_id,\n     )",
+  "current_mutmut_36_diff": "--- +++ @@ -52,7 +52,7 @@\n     return _construct_verified_authority(\n-        feature_computation_profile=feature_computation_profile,\n+        feature_computation_profile=None,\n         input_contract_ref=input_contract_ref,\n         stream_registry_version=stream_registry_version,\n         included_streams=included_streams,\n         input_contract_content_id=input_contract_content_id,\n         stream_registry_content_id=stream_registry_content_id,\n         merge_policy=merge_policy,\n     )",
+  "comparison": "Byte-identical single-line transformation ('feature_computation_profile=feature_computation_profile,' -> 'feature_computation_profile=None,') at the same logical position: the first kwarg of the same delegating call to the same function (_construct_verified_authority), immediately following the same validation sequence. The only difference between the two diff contexts is the presence of the additive merge_policy=merge_policy line at the end of the current call (finding 1), which does not alter the mutated site itself.",
+  "result": "CONFIRMED -- structurally and semantically identical mutation."
+ },
+ "finding_3_current_mutmut_33_unrelated": {
+  "claim": "Current mutmut_33 is an unrelated mutation, proving an ordinal-ID collision.",
+  "current_mutmut_33_diff": "--- +++ @@ -52,7 +52,7 @@\n-    if not isinstance(merge_policy, InputMergePolicy):\n+    if isinstance(merge_policy, InputMergePolicy):\n         raise UnsupportedMergePolicyError(\n             f\"merge_policy must be a genuine InputMergePolicy instance, got {type(merge_policy).__name__!r}\"\n         )",
+  "verification": "Direct line diff of current mutants/src/feature_engine/contracts.py's x__seal_verified_authority__mutmut_33 against __mutmut_orig: the sole change is a boolean-negation removal on the NEW merge_policy isinstance guard (an ADR-043 addition that did not exist at the historical boundary at all). This mutation does not touch feature_computation_profile in any way.",
+  "result": "CONFIRMED -- current mutmut_33 is a different mutation targeting a code branch that did not exist historically. This is a genuine ordinal-ID collision, not a semantic match."
+ },
+ "finding_4_mapping_unique": {
+  "claim": "Mapping historical 33 -> current 36 is unique.",
+  "method": "Exhaustive scan of ALL 49 current x__seal_verified_authority__mutmut_N functions (excluding __mutmut_orig) in the current-HEAD worktree: for each, computed the full line-diff against __mutmut_orig (ignoring only the def-line's own name difference), and checked whether the diff is EXACTLY the single line 'feature_computation_profile=feature_computation_profile,' -> 'feature_computation_profile=None,' at the same position.",
+  "result_count": {
+   "total_seal_verified_authority_current_mutants_excl_orig": 49,
+   "exact_unique_matches_found": 1,
+   "matching_ids": [
+    "feature_engine.contracts.x__seal_verified_authority__mutmut_36"
+   ]
+  },
+  "result": "CONFIRMED -- unique 1:1 mapping. No ambiguity; no other current mutant of this function reproduces the historical diff."
+ },
+ "finding_5_drift_is_tool_ordinal_not_behavior_change": {
+  "claim": "Drift is caused by tool-generated ordinal numbering, not Feature behavior change.",
+  "evidence": "Historical worktree generated 44 total x__seal_verified_authority__mutmut_N mutants for this function; current worktree generates 49 -- a difference of 5, consistent with the additive merge_policy parameter/validation-branch/docstring change (finding 1) introducing new AST nodes ahead of and around the original feature_computation_profile mutation site in mutmut's ordinal-numbering traversal, shifting that site's own assigned ordinal from 33 to 36 (+3, within the +5 total added-mutant envelope; not all 5 new mutants are necessarily generated in traversal-order before the target site). No change was made to the feature_computation_profile validation/delegating-call site itself (findings 1-2); the shift is fully explained by unrelated, additive AST growth elsewhere in the same function.",
+  "result": "CONFIRMED -- ordinal drift, not a behavior change at the mutated site."
+ },
+ "current_status_evidence": {
+  "target": "feature_engine.contracts.x__seal_verified_authority__mutmut_36",
+  "method": "Bounded, isolated verification via the repository's existing mutation tooling (python -m tooling run --max-children 1 <exact_id>), NOT a full 2629-mutant rerun. Fresh workspace (rm -rf mutants .mutmut-cache) before EACH of two independent runs.",
+  "environment": {
+   "python": "3.13.6",
+   "mutmut": "3.7.0",
+   "pytest": "9.1.1",
+   "coverage": "7.16.0",
+   "platformdirs": "4.11.5",
+   "ruff": "0.16.4",
+   "mypy": "2.3.1",
+   "all_versions_match_lock_and_evidence_006": true
+  },
+  "run_1": {
+   "workspace": "freshly regenerated (mutants dir absent before run)",
+   "command": "python -m tooling run --max-children 1 feature_engine.contracts.x__seal_verified_authority__mutmut_36",
+   "result": "killed",
+   "verified_via": "python -m tooling results --all true -> 'feature_engine.contracts.x__seal_verified_authority__mutmut_36: killed'"
+  },
+  "run_2": {
+   "workspace": "freshly regenerated (mutants and .mutmut-cache removed and regenerated before this run)",
+   "command": "python -m tooling run --max-children 1 feature_engine.contracts.x__seal_verified_authority__mutmut_36",
+   "result": "killed",
+   "verified_via": "python -m tooling results --all true -> 'feature_engine.contracts.x__seal_verified_authority__mutmut_36: killed'"
+  },
+  "agreement": "Both independent isolated runs agree: killed + killed. No disagreement -- per instruction, a positive continuity candidate may be authored.",
+  "note": "This bounded verification is qualifying evidence for the candidate mechanism's own C9 criterion. It is NOT a full formal Condition-1 measurement and does NOT supersede or duplicate Evidence-006 (which already independently, formally measured the full 2629-mutant population and separately found this same identity killed within that full run's own raw/formal counts)."
+ },
+ "not_performed_by_this_transaction": [
+  "No Condition-2 credit granted for contracts.x__seal_verified_authority__mutmut_33.",
+  "No production src/** change.",
+  "No test change.",
+  "No mutation tooling change.",
+  "No dependency change.",
+  "No full 2629-mutant rerun (bounded, isolated verification only, per instruction).",
+  "No modification to feature-engine-condition2-final-six-resolution-assessment-001.json, feature-engine-condition2-remaining-ambiguity-historical-reconstruction-001.json, evidence-005.json, or evidence-006.json -- all verified byte-unchanged.",
+  "No Condition-1 work. No Condition-3 work.",
+  "No candidate mechanism activation or self-validation -- see feature-engine-condition2-tool-identity-continuity-proposal-001.md, status CANDIDATE -- NOT EFFECTIVE / AWAITING REVIEW A.",
+  "No Product Owner decision fabricated. No Feature Engine approval. No LIVE authorization.",
+  "Main working tree never modified -- all reconstruction performed in isolated git worktrees (historical boundary 8d6293aca773757bc3b62cc0d3b80cba9e243954, current HEAD e9873e17170ada23da98be9c7dd3820045d64cde), both removed after use."
+ ]
+}
