@@ -2,6 +2,34 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-24 — feature-engine: P3-FEATURE-QG-EVID-03 CLOSED — PASS — REVIEW A VALIDATED — M1 DONE, M2 ACTIVE
+
+Starting `main == origin/main == 2ae0f3969ee3d377ed57d00cfb2b65d7c56c83f1`, fresh-verified, working tree clean, no drift. All five pinned evidence blobs fresh-verified exact before mutation.
+
+Performed the separately-scoped governed closure of `P3-FEATURE-QG-EVID-03`, based exclusively on the three already-governed current Condition states -- no new evidence produced, no condition re-evaluated:
+
+- Condition 1: `PASS — REVIEW A VALIDATED` (1A `84.899201217193%`, measured `85.393685812096%`, PASS; 1B `18/18 KILLED`).
+- Condition 2: `170/170 — SATISFIED` (final identity `contracts.x__seal_verified_authority__mutmut_33` resolved via branch (c), DTR-CLEAN).
+- Condition 3: `SATISFIED — REVIEW A VALIDATED` -- resolved the existing governed record (`evidence-003.json`, 14/14 DETECTED, folded into current-state tracking by an earlier MANIFEST-recorded transaction: CLEAN — 0/0/0, R1). Confirmed consistent, not redesigned, not rerun.
+
+Review A: ChatGPT, AI Technical Architect -- `CLEAN — 0 Blocker / 0 Major / 0 Minor`. Risk `R1`. ADR Scope `ADR_NOT_REQUIRED`. ADR-045 `D1-D12`: all PASS (D8: ChatGPT distinct from Claude; D10: no governing-artifact reservation, no Product Owner call-in).
+
+**Governed outcome: `DELEGATED TECHNICAL RESOLUTION — CLEAN`** (`FE-EVID03-CLOSURE-001-DTR-001`) -- NOT a Product Owner approval.
+
+**`P3-FEATURE-QG-EVID-03`: `OPEN` -> `CLOSED — PASS — REVIEW A VALIDATED`.**
+
+**Milestone transitions: M1 (Feature Engine EVID-03 Closure): `ACTIVE` -> `DONE`. M2 (Feature Engine Remaining Quality-Gate Closure): `QUEUED` -> `ACTIVE`** -- M2's substantive scope NOT invented by this transaction; must be fresh-derived separately.
+
+Authority boundary preserved explicitly: Chapter 13 owns quality-gate evidence/PASS-FAIL semantics but does NOT itself approve Feature Engine or Phase 3; Chapter 12 owns module/phase Approval-Gate orchestration with Product Owner as sole approval authority. Closing EVID-03 is explicitly NOT equivalent to Feature Engine approval, Phase-3 approval, downstream-phase opening, or LIVE authorization.
+
+New additive artifact `feature-engine-evid03-closure-001.json`. Evidence-006, Condition-1 DTR, Condition-2 application, and Condition-3 evidence artifacts all fresh-verified byte-unchanged, not touched. No `src/`/`test`/`tooling`/dependency change. **Feature Engine remains `NOT APPROVED`. Phase-3 module approval remains `NOT GRANTED`. `LIVE` remains `NOT_AUTHORIZED`.**
+
+`manifest_version` `"10.440"` -> `"10.441"`.
+
+**Files changed (5):** `feature-engine-evid03-closure-001.json` (new), `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md`.
+
+---
+
 ## [Unreleased] — 2026-09-24 — feature-engine: Condition-2 tool-identity-continuity mechanism APPLIED — DELEGATED TECHNICAL RESOLUTION — CLEAN — Condition 2 170/170 SATISFIED
 
 Starting `main == origin/main == aae246532b7eac8c6e0bbdc15a120784b8bb7e99`, fresh-verified, working tree clean, no drift. Effective mechanism blob `f045be889d536c345d3f8154c17dd93fef07981c`; technical-evidence blob `a4f5ceb646e39a931a532af5fd324775a38c3bc5`; production source `contracts.py` blob `0d2e39bffb705a2b1f903cd1a54b5f099ae6a686` (no source drift), all fresh-verified before mutation.
