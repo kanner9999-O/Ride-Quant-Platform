@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.446"
+manifest_version: "10.447"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -30642,6 +30642,120 @@ selection.py`, `python/context-aggregator/tests/test_selection.py`,
 `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`,
 `docs/MANIFEST.md`, `docs/CHANGELOG.md`. Exactly 6 files — no other source
 file touched. `manifest_version` `"10.445"` -> `"10.446"`.
+
+## Context Aggregator core — final Review A persisted, ADR-046 Draft candidate authored (`CONTEXT-CORE-REVIEW-A-DTR-001` + `ADR-046-AUTHOR-001`)
+
+Two-part transaction. Fresh-verified before mutation: boundary
+`442df64a3fcd2216c95cfc58129332ffbb42bedf`; `selection.py` (blob
+`0a0a5cb62114163ddf6b54153a62c17a1c00dddd`), `context.md`, Chapter 8, `stream-registry.yaml`,
+`module-registry.yaml`, `ADR-041.md`, `ADR-035.md`, and `milestone.md` all matched pinned
+blobs exactly.
+
+**Part A — persisted the final Review A closure of the Context deterministic core.** The
+already-issued ChatGPT Review A of `CONTEXT-AGGREGATOR-CORE-001` /
+`CONTEXT-AGGREGATOR-CORE-001-CORR-001` / `CONTEXT-AGGREGATOR-CORE-001-CORR-002`: verdict
+`CLEAN — 0 Blocker / 0 Major / 0 Minor`, Risk `R1`, ADR Scope `ADR_NOT_REQUIRED`, ADR-045
+`D1`–`D12` all `PASS` (D8: ChatGPT distinct from the implementation's author/executor Claude).
+Governed disposition: **`DELEGATED TECHNICAL RESOLUTION — CLEAN`**
+(`CONTEXT-CORE-REVIEW-A-DTR-001`) — explicitly **not** a Product Owner approval, **not** a
+Chapter-13 Quality-Gate PASS, **not** M3 completion, **not** a Phase-3 approval. All three
+prior findings (`CONTEXT-CORE-A-MAJ-01`/`-02`/`-03`) are now `CLOSED`. New additive artifact:
+`docs/governance/context-aggregator-core-review-a-dtr-001.json`. No file under
+`python/context-aggregator/**` was touched. **Context deterministic core:
+`REVIEW A VALIDATED — CLEAN`.**
+
+**Part B — authored `docs/adr/ADR-046.md` v0.1, `status: Draft`, as a candidate only.** Title:
+*Context Computation Cursor and Temporal Eligible-Upstream Supersession*. **Not
+approved, not self-reviewed, not self-approved** — a candidate for external ChatGPT Review A.
+
+**Ground-truth cursor gap (fresh-confirmed):** `context.md` §8/§14/§15 reason about a
+computation cursor `R` throughout, but `MarketContextSnapshot`/`MarketContextFactInvalidated`
+(§3/§4) have no durable `computation_cursor`/`input_contract_ref`/`stream_registry_version`/
+`lifecycle_frontier`/`stream_positions` field. `normalized_input_fact_refs` (§10) proves only
+the selected seven refs — never which candidates lost selection, which were not yet visible,
+the valid stream universe, per-stream frontier positions, or the lifecycle frontier. Chapter 8
+§8.5's own three-leg visibility predicate (stream-universe membership + same-stream sequence
+position + `recorded_time`) confirms a scalar `recorded_time` field alone is insufficient.
+
+**Ground-truth temporal-winner-supersession gap (fresh-confirmed via direct quote):**
+`context.md` §4's `MarketContextFactInvalidated` invariant is closed and exhaustive — every
+legal `affected_upstream_roles` → `causation_refs` mapping is a correction/invalidation event
+of the *previously-cited* fact (`context_cutoff_source → CandleCorrected`;
+`structure → StructureFactInvalidated` or `StructureRecomputed`;
+`volatility_regime`/`directional_persistence_regime → RegimeFactInvalidated`;
+the three Feature roles `→ FeatureFactInvalidated`). It has no provision for a role whose
+stored winner remains valid and non-invalidated, but a different, later-visible authoritative
+fact now wins §8's Phase-2 total order for that same role at the same computation point — the
+exact case [ADR-034](../adr/ADR-034.md) already authorized for Feature's single Eligible-Swing
+role (`eligible_swing_selection_superseded`), generalized here to Context's six non-Candle
+analytical roles. Candle.md/structure.md/regime.md/feature.md's own T-vs-T+n discipline makes
+this scenario structurally possible for all six roles, not hypothetical.
+
+**Classification:** Risk `R2`, ADR Scope `ADR_REQUIRED` — the same Chapter 0 §4b Event-Schema
+trigger class that made `ADR-034`/`ADR-035` required for Feature's analogous decisions. **Not**
+DTR-eligible under ADR-045 (`R2` is never delegated). A Product Owner decision is required
+eventually, but is **not** requested by this transaction.
+
+**Proposed cursor placement:** the canonical [Chapter 8](../constitution/08-event-model.md)
+§8.5 Replay Cursor, reused verbatim (no Context-local schema), required on every
+`MarketContextSnapshot` (own boundary, never inherited by a replacement) and on every
+`MarketContextFactInvalidated` (the `R_later` boundary proving the invalidation).
+
+**Proposed temporal invalidation rule:** for the six non-Candle roles, a stored snapshot `C`
+(evaluated at `R_original`) must be invalidated at a later `R_later` when a candidate fact (a)
+was not visible at `R_original`, (b) is fully visible at `R_later`, (c) is effective-time
+eligible for `C`'s same context cutoff, and (d) wins §8's Phase-2 total order at `R_later` for
+that role (or causes it to become missing/pending) — without requiring the previously-selected
+ref to have itself been invalidated. Candle is explicitly exempted (its own computation-point
+binding, `CONTEXT-CORE-A-MAJ-01`, already prevents this class of defect). Re-evaluation never
+stale-falls-back to `C`; no replacement is emitted unless all seven roles resolve.
+`affected_upstream_roles`/`causation_refs` are preserved and minimally extended (per-role
+causation may be a correction/invalidation event OR the later-visible winning fact itself —
+no new enum field; multi-role invalidation remains representable, each role's own
+`causation_refs` entry independently carrying its own branch).
+
+**Alternatives A–E** all explicitly evaluated in the ADR text: (A) canonical cursor + temporal
+rule — **chosen**; (B) cursor on Snapshot only, no invalidation cursor — rejected, cannot prove
+`R_later`; (C) derive cursor from envelope/refs — rejected, proven insufficient (Ground-truth
+items 1–2); (D) process-memory/run-manifest cursor — rejected, not durable/restart-survivable;
+(E) Context-local cursor schema — rejected, competing authority vs. already-Locked Chapter 8.
+
+**Authority relationship:** [ADR-014](../adr/ADR-014.md) (Context/Feature fan-in boundary) and
+[ADR-041](../adr/ADR-041.md) (exact Input Contract/Stream Registry version resolution) both
+cited descriptively in the ADR text, confirmed unaffected — no fabricated `depends_on` edge to
+either, nor to [ADR-035](../adr/ADR-035.md) (strong structural precedent, Feature-specific,
+not a genuine dependency). No Approved ADR modified in place; no Constitution chapter amended
+(Chapter 5/8 mechanics reused verbatim, not redefined).
+
+**No STOP condition triggered:** ground-truth confirmed the gap is real and not already
+resolved by existing authority; the later-visible-winner scenario is not provably impossible
+(T-vs-T+n discipline makes it structurally possible for all six roles); the invalidation
+representation is achievable within the existing `affected_upstream_roles`/`causation_refs`
+structure without a materially larger schema redesign; the decision stays within `context.md`
+§20's already-owned "Eligible Upstream Fact selection policy" scope and does not turn Context
+into an authoritative business-state owner; no module dependency topology change is required;
+no Constitution amendment is required (Chapter 8 reuse only).
+
+**Confirmed unchanged by this transaction:** `context.md`, `feature-context-architecture.md`,
+`module-registry.yaml`, `stream-registry.yaml`, any Input/Event Contract,
+`python/context-aggregator/**` (all source/tests/tooling), every existing Approved ADR
+(ADR-014/ADR-034/ADR-035/ADR-041/ADR-045 all fresh-verified byte-unchanged and untouched).
+
+**M2 unchanged (`BLOCKED`, parallel evidence lane). M3 remains `ACTIVE`** — deterministic core
+now `REVIEW A VALIDATED — CLEAN`; next architecture prerequisite is `ADR-046` candidate review;
+runtime/Input Contract/publishing layer remains blocked pending that decision. **M4 remains
+`QUEUED`.** `ADR-046 NOT APPROVED`. `Context Input Contract NOT AUTHORED`. Phase-3 Approval
+Gate not reached; `LIVE` remains `NOT_AUTHORIZED`.
+
+**Files changed:** `docs/adr/ADR-046.md` (new),
+`docs/governance/context-aggregator-core-review-a-dtr-001.json` (new), `docs/project/
+milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`,
+`docs/CHANGELOG.md`. No `docs/domain/context.md`, `feature-context-architecture.md`,
+`module-registry.yaml`, `stream-registry.yaml`, any Input/Event Contract, production
+source/tests/tooling, or existing Approved ADR touched. `manifest_version` `"10.446"` ->
+`"10.447"`.
+
+**Next governed action:** Fresh ChatGPT Review A of the `ADR-046` Draft candidate.
 
 ## Decision Log
 

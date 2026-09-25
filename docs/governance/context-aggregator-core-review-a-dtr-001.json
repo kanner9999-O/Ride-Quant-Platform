@@ -1,0 +1,114 @@
+{
+ "artifact_id": "context-aggregator-core-review-a-dtr-001",
+ "schema_note": "Persists the already-issued, distinct-principal ChatGPT Review A final closure of the Context Aggregator deterministic core implementation lineage (CONTEXT-AGGREGATOR-CORE-001, -CORR-001, -CORR-002), as a Delegated Technical Resolution under ADR-045 / Chapter 11 v2.4. This artifact is NEW and ADDITIVE. It does not modify, overwrite, or supersede python/context-aggregator/**, nor any prior governed artifact. This is NOT a Product Owner approval, NOT a Chapter-13 Quality-Gate PASS, NOT M3 completion, and NOT a Phase-3 approval.",
+ "resolution_id": "CONTEXT-CORE-REVIEW-A-DTR-001",
+ "disposition": "DELEGATED TECHNICAL RESOLUTION — CLEAN",
+ "boundary": {
+  "starting_state_verified": {
+   "main": "442df64a3fcd2216c95cfc58129332ffbb42bedf",
+   "origin_main": "442df64a3fcd2216c95cfc58129332ffbb42bedf",
+   "working_tree_clean": true,
+   "drift_detected": false
+  },
+  "reviewed_implementation_lineage": [
+   {
+    "wp_id": "CONTEXT-AGGREGATOR-CORE-001",
+    "resulting_head": "60124a1f77811651f34f34314c983207d0759cc7",
+    "note": "First bounded implementation slice — the deterministic Context aggregation core."
+   },
+   {
+    "wp_id": "CONTEXT-AGGREGATOR-CORE-001-CORR-001",
+    "resulting_head": "4eca6a7a5075da70dbf36036d974515810dad615",
+    "note": "Remediated CONTEXT-CORE-A-MAJ-01 (computation-point Candle binding), CONTEXT-CORE-A-MAJ-02 (superseded Regime/Feature resurrection), CONTEXT-CORE-A-MAJ-03 (Structure effective-time interval)."
+   },
+   {
+    "wp_id": "CONTEXT-AGGREGATOR-CORE-001-CORR-002",
+    "resulting_head": "442df64a3fcd2216c95cfc58129332ffbb42bedf",
+    "note": "Closed the CONTEXT-CORE-A-MAJ-02 residual — cross-window supersedes_ref validation."
+   }
+  ],
+  "evidence_subject": {
+   "path": "python/context-aggregator/src/context_aggregator/selection.py",
+   "blob": "0a0a5cb62114163ddf6b54153a62c17a1c00dddd",
+   "modified_by_this_transaction": false
+  },
+  "package_boundary": {
+   "path": "python/context-aggregator/**",
+   "modified_by_this_transaction": false,
+   "note": "This transaction is a Part-A bookkeeping/review-persistence action only — no source, test, or tooling file under this path is touched."
+  }
+ },
+ "review_a": {
+  "principal": "ChatGPT",
+  "role": "AI Technical Architect",
+  "reviewed_boundary": "442df64a3fcd2216c95cfc58129332ffbb42bedf",
+  "reviewed_implementation_blob": "0a0a5cb62114163ddf6b54153a62c17a1c00dddd",
+  "verdict": "CLEAN — 0 Blocker / 0 Major / 0 Minor",
+  "risk": "R1",
+  "adr_scope": "ADR_NOT_REQUIRED",
+  "independent_cross_check": "NOT REQUIRED",
+  "distinct_principal_d8": {
+   "implementation_author_executor": "Claude",
+   "review_a_principal": "ChatGPT",
+   "d8_result": "PASS"
+  }
+ },
+ "final_findings_disposition": {
+  "CONTEXT-CORE-A-MAJ-01": {
+   "description": "Computation-point Candle binding was lost — Phase-2 total order across all same-scope Candle windows could silently pick a newer window instead of the intended correction target.",
+   "remediated_by": "CONTEXT-AGGREGATOR-CORE-001-CORR-001",
+   "status": "CLOSED"
+  },
+  "CONTEXT-CORE-A-MAJ-02": {
+   "description": "Superseded Regime/Feature fact could resurrect if its replacement later became invalidated with no further replacement visible; residual — a malformed cross-window supersedes_ref edge was not validated.",
+   "remediated_by": "CONTEXT-AGGREGATOR-CORE-001-CORR-001 (primary fix), CONTEXT-AGGREGATOR-CORE-001-CORR-002 (residual cross-window validation)",
+   "status": "CLOSED"
+  },
+  "CONTEXT-CORE-A-MAJ-03": {
+   "description": "Structure effective-time interval was collapsed to a scalar datetime, losing the boundary-start component.",
+   "remediated_by": "CONTEXT-AGGREGATOR-CORE-001-CORR-001",
+   "status": "CLOSED"
+  }
+ },
+ "d1_d12_checklist": {
+  "D1": "PASS — ADR_NOT_REQUIRED: no new architecture/governance/domain semantics accepted by this closure; the reviewed implementation applies already-existing context.md/Chapter-8 authority only",
+  "D2": "PASS — Risk R1: bounded, objectively code/test-verifiable code-review closure, not a product-direction or platform-invariant risk",
+  "D3": "PASS — implementation applies already-existing Context Domain Contract (context.md §8/§9/§10/§17) and Chapter-8 event-model authority; no new semantic invented by the accepted implementation",
+  "D4": "PASS — one bounded module/core implementation (python/context-aggregator/), not a multi-module or cross-cutting change",
+  "D5": "PASS — no new architecture/governance/domain semantics in the accepted implementation; the three Majors were code-level correctness defects against already-fixed context.md/regime.md/feature.md/structure.md/candle.md semantics, not new semantics",
+  "D6": "PASS — no product-direction choice made or implied by closing these findings; the fixes conform the implementation to already-pinned Domain Contract requirements",
+  "D7": "PASS — no Product Owner risk acceptance requested or required; all three findings were objectively resolved by code and test evidence, not by residual-risk acceptance",
+  "D8": "PASS — Review A principal (ChatGPT) is distinct from the implementation's author/executor (Claude)",
+  "D9": "PASS — final implementation boundary (442df64a3fcd2216c95cfc58129332ffbb42bedf) and evidence (selection.py blob 0a0a5cb62114163ddf6b54153a62c17a1c00dddd) fresh-verified before this resolution was recorded",
+  "D10": "PASS — no Product-Owner-reserved decision, governing-artifact reservation, or explicit PO call-in is made or implied by this bounded code-review closure",
+  "D11": "PASS — all three findings were objectively resolved by code and 76/76 passing tests (ruff clean, mypy --strict clean), not by reviewer discretion",
+  "D12": "PASS — delegation eligibility is unambiguous: R1, ADR_NOT_REQUIRED, D1-D11 all PASS, no disqualifying condition present"
+ },
+ "governed_transition": {
+  "context_core_before": "Findings CONTEXT-CORE-A-MAJ-01/-02/-03 addressed/remediated, NOT self-closed (per CORR-001/CORR-002 completion reports)",
+  "context_core_after": "REVIEW A VALIDATED — CLEAN (0 Blocker / 0 Major / 0 Minor)",
+  "is_product_owner_approval": false,
+  "is_chapter_13_quality_gate_pass": false,
+  "is_m3_completion": false,
+  "is_phase_3_approval": false,
+  "note": "This transition closes the Review-A validation loop on the Context deterministic core implementation. It is a Delegated Technical Resolution, not a Product Owner Decision, not a formal Chapter-13 Quality-Gate PASS, not M3 completion, and not a Phase-3 Approval Gate decision. context-aggregator.quality_tier remains unresolved. Runtime/Input Contract/Event Contract/publishing/Current-View/Strategy integration remain unimplemented — M3 remains ACTIVE, not DONE."
+ },
+ "resulting_project_state": {
+  "context_deterministic_core": "REVIEW A VALIDATED — CLEAN",
+  "m2": "BLOCKED (parallel evidence lane, unaffected)",
+  "m3": "ACTIVE (deterministic core Review-A-validated; next architecture prerequisite is the ADR-046 candidate authored in this same transaction, Part B)",
+  "m4": "QUEUED",
+  "phase_3_approval_gate": "not reached",
+  "live": "NOT_AUTHORIZED"
+ },
+ "not_performed_by_this_transaction": [
+  "No source/test/tooling file under python/context-aggregator/** was modified",
+  "No Quality Tier was assigned",
+  "No formal Chapter-13 Quality-Gate PASS was claimed",
+  "No Product Owner decision/approval was made or implied",
+  "No Context Input Contract or Event Contract was authored",
+  "No context.md/module-registry.yaml/stream-registry.yaml file was modified",
+  "M3 was not marked complete; M2 was not closed; Phase-3 Approval Gate was not opened; LIVE was not authorized"
+ ],
+ "review_state": "DELEGATED TECHNICAL RESOLUTION — CLOSED"
+}

@@ -2,6 +2,28 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-25 — context-aggregator: final Review A persisted CLEAN; ADR-046 Draft candidate authored (computation cursor + temporal supersession)
+
+Starting `main == origin/main == 442df64a3fcd2216c95cfc58129332ffbb42bedf`, fresh-verified, working tree clean. `selection.py`/`context.md`/Chapter 8/`stream-registry.yaml`/`module-registry.yaml`/`ADR-041`/`ADR-035`/`milestone.md` all fresh-verified exact before mutation.
+
+**Part A:** persisted the already-issued final ChatGPT Review A closure of the Context deterministic core lineage (`CONTEXT-AGGREGATOR-CORE-001`/`-CORR-001`/`-CORR-002`) — `CLEAN — 0 Blocker / 0 Major / 0 Minor`, Risk `R1`, ADR Scope `ADR_NOT_REQUIRED`, ADR-045 D1-D12 all PASS. Governed disposition: `DELEGATED TECHNICAL RESOLUTION — CLEAN` (`CONTEXT-CORE-REVIEW-A-DTR-001`) — not a Product Owner approval, not a Chapter-13 Quality-Gate PASS, not M3 completion. `CONTEXT-CORE-A-MAJ-01`/`-02`/`-03` all `CLOSED`. New artifact `docs/governance/context-aggregator-core-review-a-dtr-001.json`. No `python/context-aggregator/**` file touched. Context deterministic core: `REVIEW A VALIDATED — CLEAN`.
+
+**Part B:** authored `docs/adr/ADR-046.md` v0.1, `status: Draft` — *Context Computation Cursor and Temporal Eligible-Upstream Supersession* — as a candidate only, not self-reviewed, not approved.
+
+Ground-truth confirmed: `MarketContextSnapshot`/`MarketContextFactInvalidated` have no durable computation cursor; `normalized_input_fact_refs` cannot substitute; scalar `recorded_time` is insufficient per Chapter 8 §8.5's three-leg visibility predicate; `context.md` §4's causation-mapping invariant is closed/exhaustive with no provision for a later-visible authoritative fact (never invalidated) becoming the new §8 winner for an old computation point.
+
+Classification: Risk `R2`, ADR Scope `ADR_REQUIRED` (same Event-Schema trigger class as `ADR-034`/`ADR-035` for Feature) — not DTR-eligible.
+
+Decision candidate: canonical Chapter 8 §8.5 Replay Cursor reused verbatim, required on every `MarketContextSnapshot` (own boundary) and every `MarketContextFactInvalidated` (`R_later` boundary); full three-leg visibility predicate; bounded temporal eligible-winner-supersession rule for the six non-Candle roles (Candle explicitly exempted, preserving its own computation-point binding); `affected_upstream_roles`/`causation_refs` preserved, minimally extended (no new enum field); Context Input Contract binding established as a requirement only, not authored; authoritative-use fail-closed; no global total order. Alternatives A-E all evaluated (canonical cursor + temporal rule chosen; snapshot-only, envelope-derived, process-memory, and Context-local-schema alternatives all rejected with reasons).
+
+`ADR-014`/`ADR-041`/`ADR-035` cited descriptively, confirmed unaffected — no fabricated `depends_on` edge. No Approved ADR modified; no Constitution chapter amended. No STOP condition triggered.
+
+`ADR-046 NOT APPROVED`. `Context Input Contract NOT AUTHORED`. M2 unchanged (`BLOCKED`, parallel lane). M3 remains `ACTIVE` (deterministic core Review-A-validated; next prerequisite is ADR-046 review). M4 remains `QUEUED`. Phase-3 Approval Gate not reached; LIVE remains `NOT_AUTHORIZED`.
+
+Next governed action: fresh ChatGPT Review A of the ADR-046 Draft candidate.
+
+---
+
 ## [Unreleased] — 2026-09-25 — context-aggregator: CONTEXT-CORE-A-MAJ-02 residual closed (cross-window supersession fails closed)
 
 Starting `main == origin/main == 4eca6a7a5075da70dbf36036d974515810dad615`, fresh-verified, working tree clean. `selection.py`/`evidence.py`/`aggregation.py`/`milestone.md`/`context.md`/`regime.md`/`feature.md` all fresh-verified exact before mutation.
