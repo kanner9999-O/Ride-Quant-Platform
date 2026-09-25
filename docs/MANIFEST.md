@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.448"
+manifest_version: "10.449"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -30896,6 +30896,116 @@ Event Contract, Stream Registry, Module Registry, Constitution file, or existing
 touched. `manifest_version` `"10.447"` -> `"10.448"`.
 
 **Next governed action:** Fresh ChatGPT Review A re-review of `ADR-046` v0.2 corrected Draft
+candidate.
+
+## ADR-046 bounded correction, round 2 — v0.2 → v0.3 (`ADR-046-CORR-002`)
+
+Bounded correction of `docs/adr/ADR-046.md` against fresh ChatGPT Review A of v0.2:
+`REVISION_REQUIRED — 0 Blocker / 3 Major / 0 Minor`, Risk `R2`, ADR Scope `ADR_REQUIRED`, no
+Product Owner decision yet.
+
+Fresh-verified before mutation: boundary `e6ce28ad7b5aefd28f49e2c351e586641e6e1250`;
+`ADR-046.md` matched pinned blob `e02d7777c8ac02dea8488fdc6e24e4b55a0c80bd` exactly.
+
+**All six v0.1 findings (`MAJ-01`–`MAJ-04`, `MIN-01`–`MIN-02`) confirmed genuinely remediated
+by v0.2 — none reopened**, except that `MAJ-04`'s Case B is further tightened by `MAJ-R2-02`
+below. Core decision direction preserved unchanged throughout this correction as well.
+
+**`MAJ-R2-01` — missing `Cursor → Context projection record` anti-look-ahead relation.**
+Reusing Chapter 8 §8.5's canonical Replay Cursor schema does not, by itself, define the
+relation between a `computation_cursor` value and the Context projection record carrying it —
+[Chapter 8 §8.5.2](../constitution/08-event-model.md)'s `Cursor → Decision` relation
+(`cursor.recorded_time <= decisionEvent.recorded_time`) was never adapted for Context, the
+identical gap [ADR-035](../adr/ADR-035.md) closed explicitly for `Cursor → Decision`/
+`FeatureComputed`/`FeatureFactInvalidated`. Without it, a Context projection record could
+theoretically carry a `computation_cursor` from its own future. Corrected: new Decision item
+`1a` requires, for every `MarketContextSnapshot` and every `MarketContextFactInvalidated`:
+`computation_cursor.recorded_time <= record.envelope.recorded_time` — equality permitted when
+knowledge-cut capture and record append occur within the same valid processing boundary;
+violation is an invalid cursor, and the record MUST NOT be published; no timestamp clamping,
+no substitution of one field for the other. The item also explicitly restates that the
+cursor's own internal invariants (Position → Cursor, Lifecycle → Cursor, Registry → Lifecycle,
+Registry → Contract, stream-universe validity, retained/genesis semantics) remain entirely
+Chapter 8's own, unchanged, never redefined locally.
+
+**`MAJ-R2-02` — `R_replacement != R_later` insufficient to establish "later."** v0.2's Decision
+item 8 Case B labeled `R_replacement != R_later` a "LATER replacement boundary," but Ride's
+no-global-total-order discipline (Chapter 8 §8.3/[ADR-009](../adr/ADR-009.md)) means two Replay
+Cursors can be later, earlier, or partially incomparable to one another — raw inequality proves
+nothing about which cursor's knowledge is a superset of the other's, so it cannot establish that
+a replacement incorporates the knowledge that justified the invalidation. Corrected: Case B is
+reframed as a **fresh subsequent re-evaluation boundary**, governed by nine explicit sub-rules:
+(1) `R_replacement` is a genuine valid canonical `computation_cursor`, captured via the future
+governed Context Input-Contract/frontier mechanism, never invented ad hoc; (2) it must be a
+genuine, non-counterfactual evaluation boundary for the actual replacement operation — a
+historical/counterfactual cursor must never be used to manufacture a replacement; (3) "later" is
+never proven by raw `recorded_time` alone, raw `sequence`, cross-stream sequence comparison,
+simple cursor inequality, or wall-clock ordering; (4) every in-scope event/fact in the
+invalidation's own minimal-complete role-resolution cause set (Decision item 7) that
+participates in Context state computation MUST be fully cursor-visible at `R_replacement` — the
+replacement must not omit the exact evidence that caused `C` to lose current-valid status;
+(5) exact `context.md` §8 selection is independently rerun at `R_replacement`, never reusing the
+cached `R_later` result; (6) replacement refs/values/`normalized_input_fact_refs` are exactly
+that fresh rerun's result; (7) `MAJ-R2-01`'s `Cursor → Context projection record` relation
+applies identically; (8) if the required cause/state evidence cannot be represented as visible
+under `R_replacement`'s own valid Input Contract universe, this fails closed — no replacement is
+published; (9) `R_replacement` may validly pin a later governed Input Contract/Stream Registry
+version than `R_later` if the platform's own governed lifecycle permits it, with no raw
+version-equality requirement between the two. `R_replacement != R_later` is now stated as one
+possible *consequence* of Case B, never its *definition*. An explicit **causation guardrail**
+was also added, citing [Chapter 6 §6.7](../constitution/06-identity-model.md)/
+[Chapter 8 §8.2.3](../constitution/08-event-model.md) (Locked): rule 4's cause set is exactly
+Decision item 7's `causation_refs` set, every member remaining a genuine direct domain causal
+predecessor/prerequisite, never a transitive or audit-only reference — Case B's
+visibility-at-`R_replacement` requirement does not expand `causation_refs` into a generic
+evidence bag.
+
+**`MAJ-R2-03` — retired mandatory-two-review governance vocabulary still present.** The ADR
+still carried `Execution ID`, `Independence mode`, `Isolation attestation`, `Mode A
+(DISTINCT_PRINCIPAL)`, `Independent Review B`, and `Review A/B` language, none of which survives
+under [Chapter 11 v2.4](../constitution/11-adr-process.md)/[ADR-045](../adr/ADR-045.md)'s
+current model (Review A → Risk Classification → routing; an `R2` optional cross-check is
+advisory-only and Product-Owner-selected, never a Review-B-equivalent eligibility gate).
+Corrected: the review table now uses only current-template columns (Reviewer principal / Role
+at review boundary / Review boundary / Concern / Risk / Recommendation) and records BOTH
+round-1 (boundary `e6eda486549323ed174603aa53fd62abda6060ac`, `REVISION_REQUIRED — 0/4/2`) and
+round-2 (boundary `e6ce28ad7b5aefd28f49e2c351e586641e6e1250`, `REVISION_REQUIRED — 0/3/0`)
+ChatGPT Review A as historical evidence — neither described as `Mode A` or `Independent Review
+B`. A new "Current governance routing" section states the exact current shape: fresh Review A
+required next; if `CLEAN`, Risk remains `R2` (fixed by content, not lowered by a clean review),
+the decision passes to the Product Owner as sole approval/risk-acceptance authority, Review A
+communicates what uncertainty an optional cross-check could reduce, and the Product Owner may
+choose `CROSS-CHECK` or `PROCEED WITHOUT CROSS-CHECK` — advisory-only, never an approval
+prerequisite. Consequences/Accepted-risks wording corrected to remove "Review A/B pass"
+language. No Claude/cross-check invoked or fabricated.
+
+**No STOP condition triggered:** the Case B fix required no platform-wide Replay-Cursor
+ordering relation (explicitly avoided per sub-rules 3/9); no Constitution change; no new
+Context authority model; no new schema field (item 1a is a relational invariant on the already-
+proposed `computation_cursor` field only, and Case B's nine sub-rules introduce no field); no
+module-taxonomy/dependency change; causation remains truthful under Chapter 6 §6.7 (explicit
+guardrail added).
+
+**Confirmed unchanged by this transaction:** `docs/domain/context.md`,
+`docs/architecture/engine/feature-context-architecture.md`,
+`docs/architecture/module-registry.yaml`, `docs/architecture/stream-registry.yaml`, any Input/
+Event Contract, all production source/tests/tooling, every existing Approved ADR (including
+`ADR-009`/`ADR-014`/`ADR-034`/`ADR-035`/`ADR-041`/`ADR-045`, fresh-verified byte-unchanged and
+untouched).
+
+**M2 unchanged (`BLOCKED`, parallel evidence lane). M3 remains `ACTIVE`** — Context
+deterministic core remains `REVIEW A VALIDATED — CLEAN`; `ADR-046` v0.3 corrected Draft
+candidate pending fresh Review A; Context runtime/Input Contract/publishing remains blocked on
+the `ADR-046` decision chain. **M4 remains `QUEUED`.** `ADR-046: Draft — NOT APPROVED`. Phase-3
+Approval Gate not reached; `LIVE` remains `NOT_AUTHORIZED`.
+
+**Files changed:** `docs/adr/ADR-046.md` only (substantive edit), plus deterministic
+bookkeeping: `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`,
+`docs/MANIFEST.md`, `docs/CHANGELOG.md`. No Context code, Domain Contract, Input Contract,
+Event Contract, Stream Registry, Module Registry, Constitution file, or existing Approved ADR
+touched. `manifest_version` `"10.448"` -> `"10.449"`.
+
+**Next governed action:** Fresh ChatGPT Review A re-review of `ADR-046` v0.3 corrected Draft
 candidate.
 
 ## Decision Log

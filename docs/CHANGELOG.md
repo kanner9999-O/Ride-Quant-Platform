@@ -2,6 +2,28 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-25 — ADR-046: bounded correction, round 2 (v0.2 → v0.3)
+
+Starting `main == origin/main == e6ce28ad7b5aefd28f49e2c351e586641e6e1250`, fresh-verified, working tree clean. `ADR-046.md` fresh-verified exact (blob `e02d7777c8ac02dea8488fdc6e24e4b55a0c80bd`) before mutation.
+
+Bounded correction of `docs/adr/ADR-046.md` against fresh ChatGPT Review A of v0.2: `REVISION_REQUIRED — 0 Blocker / 3 Major / 0 Minor`, Risk `R2`, ADR Scope `ADR_REQUIRED`, no Product Owner decision yet.
+
+All six v0.1 findings confirmed genuinely remediated by v0.2 — none reopened, except MAJ-04's Case B further tightened by MAJ-R2-02. Core decision direction preserved unchanged throughout.
+
+**MAJ-R2-01** (missing Cursor→Record anti-look-ahead relation) — schema reuse of Chapter 8 §8.5's cursor alone did not define the relation between `computation_cursor` and the Context projection record carrying it. Corrected: new Decision item `1a` requires `computation_cursor.recorded_time <= record.envelope.recorded_time` on every `MarketContextSnapshot`/`MarketContextFactInvalidated` (Chapter 8 §8.5.2's `Cursor → Decision` relation, adapted per ADR-035's identical precedent for Feature), fail-closed on violation, no timestamp clamping; cursor's own internal invariants restated as entirely Chapter 8's, unchanged.
+
+**MAJ-R2-02** (Case B insufficiently proves "later") — v0.2's Case B labeled `R_replacement != R_later` "LATER," but Ride's no-global-total-order discipline means two cursors can be later, earlier, or incomparable. Corrected: Case B reframed as a "fresh subsequent re-evaluation boundary" governed by 9 sub-rules (non-counterfactual capture, no naive inequality proof, full cause-set visibility at R_replacement, independent §8 rerun, MAJ-R2-01 applied, fail-closed if evidence unrepresentable, later registry version permitted without raw equality). Explicit causation guardrail added citing Chapter 6 §6.7/Chapter 8 §8.2.3.
+
+**MAJ-R2-03** (retired mandatory-two-review governance vocabulary) — Execution ID/Independence mode/Isolation attestation/Mode A/Independent Review B/Review A/B language removed, replaced with current Chapter 11 v2.4 shape (Review A → Risk Classification → routing; advisory Product-Owner-selected cross-check only). Review table now records both review rounds with current-template columns only.
+
+No STOP condition triggered. No Context code, Domain Contract, Input Contract, Event Contract, Stream Registry, Module Registry, Constitution, or existing Approved ADR touched.
+
+**M2 unchanged (`BLOCKED`). M3 remains `ACTIVE`** (deterministic core remains Review-A-validated CLEAN; ADR-046 v0.3 pending fresh Review A). **M4 remains `QUEUED`.** `ADR-046: Draft — NOT APPROVED`. Phase-3 Approval Gate not reached; LIVE remains `NOT_AUTHORIZED`.
+
+Next governed action: fresh ChatGPT Review A re-review of ADR-046 v0.3 corrected Draft candidate.
+
+---
+
 ## [Unreleased] — 2026-09-25 — ADR-046: bounded correction against fresh Review A (v0.1 → v0.2)
 
 Starting `main == origin/main == e6eda486549323ed174603aa53fd62abda6060ac`, fresh-verified, working tree clean. `ADR-046.md` fresh-verified exact (blob `9a16dd82bb0bbde1130d47944564f2b110784724`) before mutation.
