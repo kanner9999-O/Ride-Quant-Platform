@@ -2,6 +2,36 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-25 — ADR-046: bounded correction against fresh Review A (v0.1 → v0.2)
+
+Starting `main == origin/main == e6eda486549323ed174603aa53fd62abda6060ac`, fresh-verified, working tree clean. `ADR-046.md` fresh-verified exact (blob `9a16dd82bb0bbde1130d47944564f2b110784724`) before mutation.
+
+Bounded correction of `docs/adr/ADR-046.md` against fresh ChatGPT Review A of v0.1: `REVISION_REQUIRED — 0 Blocker / 4 Major / 2 Minor`, Risk `R2`, ADR Scope `ADR_REQUIRED`, no Product Owner decision yet.
+
+Core decision direction preserved unchanged: canonical Chapter-8 Replay Cursor, required durable boundaries on both Context projection-record types, temporal winner/role-state supersession, no global total order, Context Input Contract deferred, fail-closed until referenced artifacts resolve.
+
+**MAJ-01** (false reviewer-provenance metadata) — `reviewers: [ChatGPT, Claude]` falsely asserted review evidence that did not exist. Corrected: `v0.1 → v0.2`, `reviewers: [ChatGPT]` only (Claude has not reviewed; no cross-check invented), new bounded-correction banner, findings recorded as addressed/remediated pending re-review, none `CLOSED`.
+
+**MAJ-02** (Projection authority framing) — v0.1 wording implied Context's own output becomes authoritative in places, silently leaning on one side of the preserved `context.md`-vs-Chapter-7/module-registry terminology tension. Corrected: new "Authority-neutral framing" section (5 points) confirming no change to `module_type: projection`/`owns_authoritative_state: false`/Chapter 7 §7.4/the preserved tension; "Context projection record" terminology adopted throughout. `context.md`/`module-registry.yaml`/`feature-context-architecture.md` not touched.
+
+**MAJ-03** (incomplete causal proof set) — assumed one cause ref per temporally-superseded role, insufficient for compound transitions. Corrected: role-resolution-delta framing (6 steps); per-role minimal-complete cause-ref SET (one or more refs, branches a/b/c); `affected_upstream_roles`/`causation_refs` preserved, no new field; attribution via event type + role discriminant + target/ref relationship.
+
+**MAJ-04** (invalidation/replacement cursor relation under-specified) — Decision item 8 now defines Case A (`R_replacement == R_later`, reuse established result) and Case B (`R_replacement != R_later`, mandatory independent §8 recomputation).
+
+**MIN-01** (historical truth vs. current validity) — bitemporal-safe wording: `C` remains immutable/historically correct at `R_original`; only current-valid-lineage-head status changes at `R_later`.
+
+**MIN-02** (unsourced Scale numbers) — fabricated `strategy: 50`/`exchange: 20` removed, reset to 0/0/0 with the actual relevant scale dimensions explained.
+
+Review-A record table added (round-1 verdict as historical evidence, no finding CLOSED). No optional cross-check invoked. No STOP condition triggered.
+
+No Context code, Domain Contract, Input Contract, Event Contract, Stream Registry, Module Registry, Constitution, or existing Approved ADR touched.
+
+**M2 unchanged (`BLOCKED`). M3 remains `ACTIVE`** (deterministic core remains Review-A-validated CLEAN; ADR-046 v0.2 pending fresh Review A). **M4 remains `QUEUED`.** `ADR-046: Draft — NOT APPROVED`. Phase-3 Approval Gate not reached; LIVE remains `NOT_AUTHORIZED`.
+
+Next governed action: fresh ChatGPT Review A re-review of ADR-046 v0.2 corrected Draft candidate.
+
+---
+
 ## [Unreleased] — 2026-09-25 — context-aggregator: final Review A persisted CLEAN; ADR-046 Draft candidate authored (computation cursor + temporal supersession)
 
 Starting `main == origin/main == 442df64a3fcd2216c95cfc58129332ffbb42bedf`, fresh-verified, working tree clean. `selection.py`/`context.md`/Chapter 8/`stream-registry.yaml`/`module-registry.yaml`/`ADR-041`/`ADR-035`/`milestone.md` all fresh-verified exact before mutation.

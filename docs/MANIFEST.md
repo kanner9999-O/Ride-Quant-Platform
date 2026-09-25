@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.447"
+manifest_version: "10.448"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -30756,6 +30756,147 @@ source/tests/tooling, or existing Approved ADR touched. `manifest_version` `"10.
 `"10.447"`.
 
 **Next governed action:** Fresh ChatGPT Review A of the `ADR-046` Draft candidate.
+
+## ADR-046 bounded correction against fresh Review A — v0.1 → v0.2 (`ADR-046-CORR-001`)
+
+Bounded correction of `docs/adr/ADR-046.md` against fresh ChatGPT Review A of v0.1:
+`REVISION_REQUIRED — 0 Blocker / 4 Major / 2 Minor`, Risk `R2`, ADR Scope `ADR_REQUIRED`, no
+Product Owner decision yet.
+
+Fresh-verified before mutation: boundary `e6eda486549323ed174603aa53fd62abda6060ac`;
+`ADR-046.md` matched pinned blob `9a16dd82bb0bbde1130d47944564f2b110784724` exactly.
+
+**Core decision direction preserved, not replaced:** canonical Chapter-8 Replay Cursor (not a
+Context-local schema); required durable computation boundary on Context projection-record
+snapshots; durable later-evaluation boundary on Context invalidation records; temporal
+winner/role-state supersession distinct from ordinary upstream correction; no global total
+order; Context Input Contract authored only later; fail-closed until referenced artifacts
+resolve. All six findings below tighten this candidate — none replace it.
+
+**`MAJ-01` — false reviewer-provenance metadata.** v0.1's `reviewers: [ChatGPT, Claude]`
+asserted review evidence that did not exist — Claude has never reviewed this candidate, and
+[Chapter 11 §11.4](../constitution/11-adr-process.md) fixes `reviewers` as "Actor identities
+đã review boundary; historical evidence," not an aspirational or planned reviewer list.
+Corrected: `version: "0.1" → "0.2"`; `reviewers: [ChatGPT, Claude]` → `[ChatGPT]` (the true
+historical evidence — ChatGPT's round-1 Review A is now historical fact); `status: Draft`
+unchanged; `last_review` kept consistent with the round-1 review date. A new bounded-correction
+banner records the round-1 verdict and all six findings as `addressed/remediated pending fresh
+Review A re-review` — **none marked `CLOSED`** by this correction executor.
+
+**`MAJ-02` — Projection-authority framing must not silently resolve the preserved tension.**
+v0.1's prose used wording ("authoritative Context event publication," "future authoritative
+MarketContextSnapshot") that implied Context's own output becomes an authoritative domain fact
+in places — silently leaning on one side of the terminology tension
+`feature-context-architecture.md` §5.2/§13 explicitly preserves unresolved between `context.md`
+§2's envelope framing and `module-registry.yaml`/Chapter 7 §7.4's Projection/non-authoritative
+classification. Fresh-confirmed controlling authority:
+[Chapter 7 §7.4](../constitution/07-module-taxonomy.md) (Locked) forbids a Type-2 Projection
+from becoming "authoritative source cho một domain concept," permits operational
+self-metadata, and confirms a critical projection dependency "KHÔNG biến projection thành
+authoritative source." Corrected: a new "Authority-neutral framing" section states explicitly
+(1) this ADR does not change `module_type: projection`, `owns_authoritative_state: false`,
+Chapter 7 §7.4, or the preserved terminology tension; (2) `computation_cursor` gives
+record-integrity/durable knowledge-boundary evidence, never authoritative-domain-source status;
+(3) a Decision/Risk dependency on Context as a critical projection (I-6 fail-safe) does not
+convert Context into authoritative ownership; (4) whether `context.md`'s legacy
+"authoritative event record" phrase should be rewritten is explicitly out of this ADR's scope;
+(5) follow-on Context Event Contract/publication work must preserve this identical boundary.
+Terminology throughout the ADR now uses "Context projection record" / "durable Context
+projection record" / "eligible cursor-bounded projection record" in place of
+"authoritative Context event/fact." **`context.md`/`module-registry.yaml`/
+`feature-context-architecture.md` are NOT edited by this transaction** — the framing is
+entirely within `ADR-046.md`'s own prose.
+
+**`MAJ-03` — temporal role-state change needs a complete causal proof set.** v0.1's Decision
+item 5/7 assumed exactly one cause ref per temporally-superseded role — insufficient for a
+compound transition where the truthful proof requires BOTH a later-visible successor `B` AND
+that successor's own subsequent invalidation `I_B` (e.g. `B` becomes visible and would win, but
+`B` is itself later invalidated with no further replacement, so the role resolves
+missing/pending — a single ref cannot represent this). Corrected: Decision item 5 reframed as a
+6-step **role-resolution-delta** test (old ref `A` at `R_original`; one or more relevant
+records not visible at `R_original`; those records visible at `R_later`; effective-time
+eligibility and already-fixed producer-domain lineage semantics applied exactly, never
+invented; exact §8 re-evaluation yields a different winner or missing/pending; `C` ceases to be
+the current-valid lineage head). Decision item 7 changed from "one causation_refs entry per
+role" to a **per-role minimal-complete deterministic cause-ref SET** — one or more exact direct
+upstream event refs, never unrelated, never duplicated — with three branches: (a) a
+correction/invalidation event, (b) the later-visible winning fact itself, (c) both, when
+compound (e.g. `{B, I_B}`). `affected_upstream_roles` and the single flat, deduplicated
+`causation_refs` array are **preserved unchanged — no new schema field is introduced.** Role
+attribution remains fully deterministic via each referenced event's own governed type + role
+discriminant (`regime_dimension`/`feature_type`) + target/ref relationship
+(`invalidated_fact_ref`/`supersedes_fact_ref`) — never list order. Multi-role cause sets are
+resolved independently per role, then unioned/deduplicated into the one `causation_refs` array.
+
+**`MAJ-04` — invalidation-cursor-to-replacement-cursor relation was under-specified.** v0.1's
+Decision item 8 permitted a replacement after a successful `R_later` re-evaluation without
+defining whether `R_replacement` equals that boundary — creating a semantic hole where
+additional facts could become visible between `R_later` and a genuinely later `R_replacement`,
+making the `R_later` winner set stale. Corrected: Decision item 8 now defines exactly two legal
+cases. **Case A** (`replacement.computation_cursor == invalidation.computation_cursor ==
+R_later`): the replacement's role refs/values MUST be exactly the already-established `R_later`
+§8 result — no separate recomputation. **Case B** (`R_replacement != R_later`): the system MUST
+independently re-run exact `context.md` §8 selection at `R_replacement` — role refs/values/
+`normalized_input_fact_refs` MUST reflect `R_replacement`, never a stale cached `R_later`
+selection; the replacement still supersedes the invalidated lineage head in the same
+`(context_subject_id, effective_window)` lineage. This distinction is required even when all
+seven roles were already complete at `R_later`.
+
+**`MIN-01` — historical truth vs. later current validity.** v0.1's "`C` is no longer the
+correct cursor-bounded result for its computation point" wording was too strong/ambiguous,
+risking a reading that temporal invalidation rewrites `C`'s own historical correctness.
+Corrected: a new "Bitemporal clarification" subsection states `C` remains immutable and
+historically correct as produced under `R_original`; only its current-valid-lineage-head status
+changes at `R_later`; replay before the invalidation's `recorded_time` still observes `C` as
+valid (§14 anti-look-ahead, unaffected); replay at/after observes the invalidation/replacement/
+`PENDING_CORRECTION` state as appropriate (§13, unaffected). No-repaint and bitemporal-truth
+invariants are confirmed unaltered by this ADR.
+
+**`MIN-02` — unsourced Scale numbers.** v0.1's Scale check fabricated
+`expected_scale: {strategy: 50, exchange: 20}` with no Product-Owner/product-scale authority
+behind those values. Corrected: `expected_scale` reset to `{strategy: 0, exchange: 0,
+plugin: 0}` (same retention pattern `ADR-034` already used for its own cardinality-independent
+decision), with explicit reasoning that the actual relevant scale dimensions are Context
+computation/event volume (driven by Candle close cadence) and the fixed four-stream
+Input-Contract universe cardinality (`market-data-ingestion-candle`/`structure-engine-structure`/
+`raw-regime-engine-regime`/`feature-engine-feature`) — not a guessed strategy/exchange count.
+
+**Review-A record added.** A dedicated "Independent reviews / Concerns / Risks noted" table now
+records the round-1 ChatGPT Review A as historical evidence (boundary
+`e6eda486549323ed174603aa53fd62abda6060ac`, blob `9a16dd82bb0bbde1130d47944564f2b110784724`,
+verdict `REVISION_REQUIRED — 0 Blocker / 4 Major / 2 Minor`, Risk `R2`, recommendation
+`REVISION_REQUIRED`). No finding is marked `CLOSED` in this correction transaction — all six
+are `addressed/remediated pending fresh Review A re-review`, a determination this correction
+executor does not make. No optional cross-check is invoked or fabricated — per
+[Chapter 11 §11.5](../constitution/11-adr-process.md), an `R2` cross-check is advisory-only and
+Product-Owner-selected, considered only after a fresh Review A returns `CLEAN`.
+
+**No STOP condition triggered:** authority-safe Projection framing required no Chapter 7 or
+`module-registry.yaml` change; deterministic role→cause attribution is achieved entirely within
+the existing `affected_upstream_roles` + flat `causation_refs` structure, no new field; no new
+Context authority model, module-taxonomy/dependency change, or Constitution amendment is
+required; no materially new architecture option was needed — Option A preserved throughout.
+
+**Confirmed unchanged by this transaction:** `docs/domain/context.md`,
+`docs/architecture/engine/feature-context-architecture.md`,
+`docs/architecture/module-registry.yaml`, `docs/architecture/stream-registry.yaml`, any Input/
+Event Contract, all production source/tests/tooling, every existing Approved ADR (including
+`ADR-014`/`ADR-034`/`ADR-035`/`ADR-041`/`ADR-045`, fresh-verified byte-unchanged and untouched).
+
+**M2 unchanged (`BLOCKED`, parallel evidence lane). M3 remains `ACTIVE`** — Context
+deterministic core remains `REVIEW A VALIDATED — CLEAN`; `ADR-046` v0.2 correction candidate
+pending fresh Review A; Context runtime/Input Contract/publishing remains blocked on the
+`ADR-046` decision chain. **M4 remains `QUEUED`.** `ADR-046: Draft — NOT APPROVED`. Phase-3
+Approval Gate not reached; `LIVE` remains `NOT_AUTHORIZED`.
+
+**Files changed:** `docs/adr/ADR-046.md` only (substantive edit), plus deterministic
+bookkeeping: `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`,
+`docs/MANIFEST.md`, `docs/CHANGELOG.md`. No Context code, Domain Contract, Input Contract,
+Event Contract, Stream Registry, Module Registry, Constitution file, or existing Approved ADR
+touched. `manifest_version` `"10.447"` -> `"10.448"`.
+
+**Next governed action:** Fresh ChatGPT Review A re-review of `ADR-046` v0.2 corrected Draft
+candidate.
 
 ## Decision Log
 
