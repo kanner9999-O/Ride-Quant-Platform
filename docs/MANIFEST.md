@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.452"
+manifest_version: "10.453"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -31398,6 +31398,222 @@ Registry, Module Registry, Constitution file, or any other existing Approved ADR
 
 **Next governed action:** Fresh ChatGPT verification of the `ADR-046` approval boundary, then
 bounded derivation of the versioned `context.md` amendment implementing Approved `ADR-046`.
+
+## `context.md` v0.3 — Domain Contract amendment implementing Approved ADR-046 (`CONTEXT-DOMAIN-ADR046-AMEND-001`)
+
+**Bounded versioned Domain Contract amendment — transcription of already-Approved
+[`ADR-046`](../adr/ADR-046.md) into [`docs/domain/context.md`](../domain/context.md) only. Not
+another architecture decision, not a Product Owner approval transaction, not a Context Input
+Contract/Event Contract/runtime transaction.**
+
+**Fresh boundary verification:** HEAD confirmed exactly `303da07ea176437476eaabbd69ba55ed96334f0d`,
+identical to `origin/main` — no drift. Confirmed `docs/adr/ADR-046.md` matched pinned blob
+`6d81164b6c9323e12d81238a8fcdbc7fd276c6c0` exactly (`version: "0.5"`, `status: Approved`) before
+this transaction. Confirmed `docs/domain/context.md` matched pinned blob
+`f9274d5749768151748b9dfa2713118a4fd77791` exactly (`version: "0.2"`, `status: Draft`) before
+this transaction. Fresh-read [Chapter 5](../constitution/05-time-model.md),
+[Chapter 6 §6.7](../constitution/06-identity-model.md),
+[Chapter 7 §7.4](../constitution/07-module-taxonomy.md),
+[Chapter 8](../constitution/08-event-model.md) §8.2.3/§8.3/§8.5, [ADR-009](../adr/ADR-009.md),
+[ADR-041](../adr/ADR-041.md), `module-registry.yaml`'s `context-aggregator` entry
+(`module_type: projection`, `owns_authoritative_state: false`, confirmed unchanged), and
+`stream-registry.yaml`'s four upstream stream identities before mutation. Also fresh-read
+`docs/domain/feature.md`'s own `ADR-035` cursor-implementation precedent (v0.4/v0.6 history,
+§3/§4/§8b/§9a/§12/§13) to confirm consistent Domain Contract convention for representing a
+canonical Chapter-8 Replay Cursor field, its anti-look-ahead invariant, and full-cursor-visibility
+predicate structure.
+
+**Fresh ADR Scope Gate for this amendment:** **`ADR_NOT_REQUIRED`** — this transaction is a
+faithful transcription of already-Approved architecture authority; no independent semantic
+choice is authored. Risk Classification is not self-finalized by this executor — the resulting
+Domain Contract delta receives fresh ChatGPT Review A and Risk Classification after commit.
+
+**`context.md` frontmatter transition:** `version: "0.2" -> "0.3"`; `status` stays `Draft` (NOT
+`Approved`/`Locked`/`Consolidated Stable`); `reviewers`/`approved_by`/`approved_at` untouched
+(`[]`/`null`/`null`) — existing contract-level reviewer metadata preserved unchanged per current
+convention.
+
+**New v0.3 history banner + Authority-neutral clarification.** A concise v0.3 history paragraph
+was added near the document introduction (following the existing v0.2 history-paragraph
+convention), stating `context.md` v0.3 implements Approved `ADR-046` and summarizing:
+`computation_cursor` (canonical Chapter 8 §8.5 Replay Cursor, required on every
+`MarketContextSnapshot`/`MarketContextFactInvalidated`); the `Cursor → Context projection record`
+anti-look-ahead relation; full three-leg cursor visibility; `COVERS_CONTEXT`; the universal
+current-lineage invalidation coverage prerequisite; temporal eligible-upstream role-resolution
+supersession; per-role minimal-complete direct-cause sets; Case A/Case B replacement behavior;
+Context Input Contract still `NOT AUTHORED`; runtime/publication still `NOT IMPLEMENTED`. A
+separate "Authority-neutral clarification (`ADR-046`, v0.3)" paragraph states explicitly that
+`ADR-046` does not change `module_type: projection`/`owns_authoritative_state: false`, that
+`computation_cursor`/durable cursor evidence gives record-integrity and replay-boundary evidence
+only — not authoritative-source status for any domain concept Context aggregates — and that the
+preserved legacy-terminology tension (`context.md` §17's "authoritative market-state snapshot"
+vs. [Chapter 7 §7.4](../constitution/07-module-taxonomy.md)'s Type-2 Projection classification)
+remains unresolved and is not silently decided by this amendment. No global rewrite of legacy
+terminology was performed; new prose uses the neutral term "Context projection record."
+
+**§3 (`MarketContextSnapshot`):** new required `computation_cursor` field, typed as the canonical
+Chapter 8 §8.5 Replay Cursor (referenced by schema authority, not locally redeclared) — required
+for original computation and correction replacement alike, own boundary never inherited/copied
+from the fact it supersedes. New invariants: `computation_cursor` must independently satisfy
+every canonical Chapter 8 §8.5 Replay Cursor validity invariant; `computation_cursor.recorded_time
+<= envelope.recorded_time` anti-look-ahead relation, fail-closed on violation, no clamping, no
+field substitution; replacement facts pin their own actual cursor, never the superseded fact's.
+New "Fail-closed cursor until referenced artifacts resolve" paragraph (ADR-046 Decision item 10):
+schema is defined now, but durable publication remains fail-closed until the Context-scoped Input
+Contract, its exact `ADR-041` version, pinned Stream Registry version, and required upstream
+Event Contract dependency authority genuinely, persistently resolve — no process-local/in-memory
+substitute.
+
+**§4 (`MarketContextFactInvalidated`):** description updated to allow causation branch (b) —
+later-visible authoritative fact becomes the new §8 winner without the old ref having been
+directly invalidated — alongside the existing branch (a) direct correction/invalidation, and
+branch (c) for compound transitions. New required `computation_cursor` field (`R_later`), same
+Chapter-8-validity and anti-look-ahead invariants as §3, explicitly distinguished from the
+invalidated fact's own cursor, `envelope.recorded_time`, and any eventual replacement's cursor —
+three independent axes. `affected_upstream_roles`/`causation_refs` invariants rewritten from
+"exactly one cause ref per role" to ADR-046's per-role **minimal-complete direct-cause SET** (one
+or more refs, branches (a)/(b)/(c)), with deterministic role→cause attribution from event type +
+role discriminant + target/ref relationship — no new payload field, `affected_upstream_roles`/
+`causation_refs` shape (flat, deduplicated) unchanged. New **universal current-lineage
+invalidation coverage precondition** invariant: `R_later COVERS_CONTEXT R_original` (§14) must
+hold before any `MarketContextFactInvalidated` publishes as a current-valid lineage transition,
+regardless of trigger class (direct correction or temporal supersession) — coverage proves
+knowledge non-regression only, never causation.
+
+**§8 (Eligible Upstream Fact selection):** Phase 1 step 2 rewritten from the scalar
+`U.recorded_time <= R` test to full three-leg cursor visibility (stream-universe membership,
+same-stream position, recorded-time boundary), cross-referencing the new canonical definition at
+§14 rather than restating it; step 3 (effective-time cutoff) preserved as an independent filter,
+never collapsed into cursor visibility; step 4's "visible tại R" phrasing clarified to resolve to
+the identical full-cursor-visibility predicate throughout the document, never a weaker
+recorded-time-only shorthand. New **"Temporal eligible-upstream supersession"** subsection added
+after the ordinary Phase-2 selection result and the Required Structure verdict worked example,
+before §9 — bounded to the six non-Candle analytical roles, seven conditions (old ref not
+full-cursor-visible originally, new record full-cursor-visible later, producer-domain lineage and
+effective-time eligibility applied unchanged, a different §8 winner or missing/pending result,
+current-valid-head status change without rewriting history, and the universal coverage
+precondition), with an explicit "already-visible-but-not-selected is a computation defect, not
+supersession" distinction preserved, and explicit Candle exclusion (Candle correction remains
+governed by exact-same-window lineage, §4 branch (a), and remains subject to the universal
+coverage precondition like every other trigger).
+
+**§10 (Fact identity):** new explicit statement that `computation_cursor` is not part of
+computation identity/dedup — identity remains exactly `context_subject_id`, `effective_window`,
+`context_definition_version`, `normalized_input_fact_refs` (normalized); the same evidence tuple
+evaluated under different operational cursors must not silently produce different fact
+identities.
+
+**§12 (Correction lineage):** new "Cursor semantics for correction lineage" subsection, additive
+to the existing ten invariants and two paragraphs (unchanged): (A) the universal precondition
+must hold before any invalidation publishes; (B) Case A — same re-evaluation boundary,
+`replacement.computation_cursor == invalidation.computation_cursor == R_later`, legal precisely
+because coverage was already proven at invalidation time, no separate test required; (C) Case B —
+fresh subsequent re-evaluation, requires `R_replacement COVERS_CONTEXT R_later` plus an
+independent §8 rerun at `R_replacement`, never a cached `R_later` result, never stale-fallback,
+same `(context_subject_id, effective_window)` lineage preserved; (D) the resulting coverage chain
+`K_context(R_original) ⊆ K_context(R_later) ⊆ K_context(R_replacement)` — explicit transitive set
+inclusion for one Context lineage, explicitly not a platform-wide Replay-Cursor total order or an
+[ADR-009](../adr/ADR-009.md) change.
+
+**§14 (Time semantics) — rewritten as the single canonical home:** added `computation_cursor`
+to the time-semantics field list; added the full three-leg cursor-visibility definition (the
+document's one and only definition, cross-referenced everywhere else); rewrote the two-condition
+input-eligibility formulation from the old scalar `(a) recorded_time <= cursor` to `(a) full
+cursor visibility` + `(b) effective-time eligibility` (unchanged); added the full `COVERS_CONTEXT`
+definition (`K_context(R)` knowledge-set concept, the `R_new COVERS_CONTEXT R_old` relation) and
+its six canonical proof conditions (old stream universe preserved; same-stream position
+non-regression; recorded-time non-regression with the explicit transitive proof and non-ordering
+clarification; lifecycle-frontier non-regression; retired-stream Retained-in-Universe semantics;
+Input-Contract/Registry transition handling with fail-closed-if-unproven) — mirroring
+`ADR-046`'s own item 1b conditions exactly; added the "Coverage vs. causation — kept separate"
+paragraph. No new platform-wide cursor ordering, no scalar cursor rank.
+
+**§15 (No repaint/mode parity):** new leading bitemporal-clarification bullet — a
+`MarketContextSnapshot` remains immutable and historically correct at its own `R_original`; a
+later invalidation only changes current-valid-lineage-head status at `R_later`, never rewriting
+history. The existing no-look-ahead bullet updated to reference full-cursor-visibility (§14)
+rather than a scalar recorded-time shorthand.
+
+**§16 (Input contracts):** new paragraph distinguishing the existing event-family enumeration
+from the actual Chapter-8 Context-scoped Input Contract artifact that `computation_cursor.
+input_contract_ref` must eventually pin (ADR-046 Decision item 9) — that artifact remains **not
+authored** by this transaction; the expected four-stream universe (`market-data-ingestion-candle`,
+`structure-engine-structure`, `raw-regime-engine-regime`, `feature-engine-feature`) is cited from
+existing `stream-registry.yaml` authority only; `contract_id`/`contract_version`/`merge_policy`/
+`frontier_policy` are explicitly left deferred, not chosen, since no existing authority
+unambiguously fixes them.
+
+**§17 (Context/Strategy boundary):** a single bounded footnote added immediately after the
+existing "Context là một authoritative market-state snapshot" sentence, cross-referencing the new
+v0.3 authority-neutral clarification — the legacy sentence itself is preserved verbatim, not
+rewritten.
+
+**§20 (Authority boundary):** extended to state that, as of v0.3, this Domain Contract also owns
+the Context-specific semantics `ADR-046` (Approved, controlling architecture authority for this
+delta) authored: Context's own use of `computation_cursor` on its projection records,
+role-resolution temporal-invalidation semantics, `COVERS_CONTEXT` same-lineage
+knowledge-non-regression semantics, and Case A/Case B correction-replacement cursor behavior —
+while the "applies, does not redefine" clause is extended to explicitly name the canonical Replay
+Cursor schema/validity invariants (Chapter 8 §8.5), stream lifecycle mechanics (Chapter 8 §8.3),
+and producer-domain correction lineage (`candle.md`/`structure.md`/`regime.md`/`feature.md`).
+Explicit statement that `ADR-046` and this amendment do not change `module_type: projection`/
+`owns_authoritative_state: false`.
+
+**§21 (Deferred/out-of-scope):** new deferred-items list — the Context-scoped Input Contract
+artifact, Context Event Contracts, Context output stream identity, publication wiring,
+cursor-aware `context-aggregator` runtime/history state, and `MarketContextCurrentView` runtime
+implementation — each a separate, bounded, governed future transaction.
+
+**No renumbering.** All existing §1–§22 top-level section numbers are unchanged, preserving
+`ADR-046`'s own existing section citations (`context.md` §8/§9/§14/§15/§16 etc.) as still
+accurate. New content was added as new subsections (`###`) within existing sections, or as new
+paragraphs within existing sections' prose — never by inserting or renumbering a top-level
+section.
+
+**Post-amendment internal-consistency validation (performed this transaction):** exactly one
+canonical full-cursor-visibility definition exists (§14), all other references (§4/§8/§12/§13/
+§15) cross-reference it rather than restating it; exactly one canonical `COVERS_CONTEXT`
+definition exists (§14); exactly one universal invalidation coverage rule exists (§4's invariant,
+cross-referenced by §8's temporal subsection and §12's cursor-semantics subsection, never
+restated in full); no stale scalar `U.recorded_time <= R` remains as a complete visibility rule
+anywhere in the document; no statement still requires exactly one upstream cause ref per affected
+role; `computation_cursor` is explicitly excluded from computation identity (§10); no Candle
+temporal-winner trigger was introduced (Candle exclusion explicitly preserved in the new §8
+subsection); Case A and Case B semantics are both present (§12); no global cursor order was
+introduced (explicitly denied in §14, §12, and the v0.3 banner); no Input Contract artifact is
+claimed authored (§16, §21 both explicit). Frontmatter parses cleanly (`version: "0.3"`,
+`status: Draft`); code-fence markers balanced (37 pairs); all 22 top-level section headers
+confirmed present, sequential, unchanged in title.
+
+**No STOP condition triggered:** every addition is a faithful transcription of `ADR-046`'s own
+already-Approved decision content — no transcription required a change to Chapter 5/6/7/8;
+deterministic role→cause attribution was achievable entirely within existing fields (no new
+payload field); no Input Contract identifier/version/policy was chosen (all explicitly left
+deferred, ungoverned choices are not made here); no Context Event Contract/version was invented;
+no Context output-stream identity was invented; `COVERS_CONTEXT` required no new platform-wide
+cursor order; `module_type`/`owns_authoritative_state` were not changed; no other material
+semantic choice outside `ADR-046`'s own content was required.
+
+**Confirmed unchanged by this transaction:** `docs/adr/ADR-046.md` (fresh-verified byte-identical,
+`6d81164b6c9323e12d81238a8fcdbc7fd276c6c0`), every other existing Approved/Locked authority,
+`docs/architecture/module-registry.yaml`, `docs/architecture/stream-registry.yaml`, any Input/
+Event Contract, `python/context-aggregator/**` (deterministic core remains `REVIEW A VALIDATED —
+CLEAN`), every Constitution chapter.
+
+**M2 unchanged (`BLOCKED`, parallel evidence lane). M3 remains `ACTIVE`** — Context deterministic
+core remains `REVIEW A VALIDATED — CLEAN`; `ADR-046` remains `APPROVED`; `context.md` is now a
+**`v0.3` Draft candidate implementing `ADR-046`**, pending fresh Review A; Context Input Contract
+remains `NOT AUTHORED`; Context runtime/publication remains `NOT IMPLEMENTED`. **M4 remains
+`QUEUED`.** Phase-3 Approval Gate `NOT REACHED`; `LIVE` remains `NOT_AUTHORIZED`.
+
+**Files changed:** `docs/domain/context.md` only (substantive edit), plus deterministic
+bookkeeping: `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`,
+`docs/MANIFEST.md`, `docs/CHANGELOG.md`. No Context code, Input Contract, Event Contract, Stream
+Registry, Module Registry, Constitution file, or any Approved ADR touched. `manifest_version`
+`"10.452"` -> `"10.453"`.
+
+**Next governed action:** Fresh ChatGPT Review A of `context.md` v0.3 ADR-046 amendment delta,
+followed by Risk Classification and next routing.
 
 ## Decision Log
 

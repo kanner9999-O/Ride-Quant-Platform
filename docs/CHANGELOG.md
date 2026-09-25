@@ -2,6 +2,36 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-25 — context.md v0.3: Domain Contract amendment implementing Approved ADR-046
+
+Starting `main == origin/main == 303da07ea176437476eaabbd69ba55ed96334f0d`, fresh-verified, working tree clean. `ADR-046.md` fresh-verified exact (blob `6d81164b6c9323e12d81238a8fcdbc7fd276c6c0`, `status: Approved`); `context.md` fresh-verified exact (blob `f9274d5749768151748b9dfa2713118a4fd77791`, `version: "0.2"`, `status: Draft`) before mutation.
+
+Bounded versioned Domain Contract amendment of `docs/domain/context.md` transcribing already-Approved `ADR-046` (Context Computation Cursor and Temporal Eligible-Upstream Supersession) — NOT a new architecture decision, NOT a Product Owner approval, NOT a Context Input Contract/Event Contract/runtime transaction.
+
+Fresh ADR Scope Gate for this amendment: **`ADR_NOT_REQUIRED`** — faithful transcription only, no independent semantic choice authored.
+
+`context.md` `version: "0.2" → "0.3"`; `status` stays `Draft`; `reviewers`/`approved_by`/`approved_at` untouched. New v0.3 history banner + "Authority-neutral clarification (ADR-046, v0.3)" paragraph added near the intro — states ADR-046 does not change `module_type: projection`/`owns_authoritative_state: false` and does not resolve the preserved legacy-terminology tension.
+
+**§3/§4**: new required `computation_cursor` field on `MarketContextSnapshot`/`MarketContextFactInvalidated` (canonical Chapter 8 §8.5 Replay Cursor, referenced not redeclared), anti-look-ahead invariant (`computation_cursor.recorded_time <= envelope.recorded_time`), causation-mapping rewritten from "exactly one cause ref per role" to ADR-046's per-role minimal-complete direct-cause SET, and the universal current-lineage invalidation coverage precondition (`R_later COVERS_CONTEXT R_original`, applies to every trigger class).
+
+**§8**: Phase 1 step 2 rewritten from scalar `U.recorded_time <= R` to full three-leg cursor visibility (cross-referencing §14); new "Temporal eligible-upstream supersession" subsection (six non-Candle roles, Candle exclusion preserved).
+
+**§10**: `computation_cursor` explicitly excluded from computation identity/dedup.
+
+**§12**: new "Cursor semantics for correction lineage" subsection — universal precondition, Case A (same-boundary reuse), Case B (`R_replacement COVERS_CONTEXT R_later` + independent §8 rerun), and the transitive coverage chain `K_context(R_original) ⊆ K_context(R_later) ⊆ K_context(R_replacement)`.
+
+**§14**: rewritten as the single canonical home for full-cursor-visibility, `COVERS_CONTEXT` (six proof conditions, including the recorded-time non-regression transitive proof), and coverage-vs-causation separation.
+
+**§15/§16/§17/§20/§21**: bitemporal clarification, Input-Contract-artifact-vs-event-family distinction (artifact still NOT AUTHORED, no `contract_id`/`contract_version`/`merge_policy`/`frontier_policy` chosen), bounded authority-neutral footnote (legacy sentence not rewritten), authority-boundary extension citing ADR-046, and a new deferred-items list.
+
+No renumbering of existing §1–§22 (preserves ADR-046's own section citations). No STOP condition triggered — no Chapter 5/6/7/8 change required, no new payload field, no Input Contract/Event Contract/output-stream artifact authored, `module_type`/`owns_authoritative_state` unchanged, `python/context-aggregator/**` untouched.
+
+**M2 unchanged (`BLOCKED`). M3 remains `ACTIVE`** (deterministic core remains Review-A-validated CLEAN; ADR-046 remains APPROVED; context.md is now a v0.3 Draft candidate pending fresh Review A). **M4 remains `QUEUED`.** Phase-3 Approval Gate NOT REACHED; LIVE remains `NOT_AUTHORIZED`.
+
+Next governed action: fresh ChatGPT Review A of context.md v0.3 ADR-046 amendment delta, followed by Risk Classification and next routing.
+
+---
+
 ## [Unreleased] — 2026-09-25 — ADR-046 v0.5: Product Owner approval
 
 Starting `main == origin/main == d9aad86f5d0f13ff92ebb53cdbb1630568312607`, fresh-verified, working tree clean. `ADR-046.md` fresh-verified exact (blob `3f32e73076db0d69bb9fb7f10580031093dc3431`, `version: "0.5"`, `status: Draft`, `approved_by: null`) before mutation.

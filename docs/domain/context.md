@@ -1,7 +1,7 @@
 ---
 id: context
 title: Market Context
-version: "0.2"
+version: "0.3"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -35,6 +35,23 @@ Cộng một **read model tùy chọn** (`MarketContextCurrentView`) — project
 **v0.2 xử lý `RA-B4-MAJ-01`/`IRB-B4-MAJ-01`/`IRB-B4-MAJ-02`/`IRB-B4-MAJ-03`:** (a) `RA-B4-MAJ-01`/`IRB-B4-MAJ-01` — cùng một algorithmic defect: Eligible Upstream Fact selection v0.1 (§8) có một bước filter (Currency) tham chiếu NGƯỢC tới một bước sau nó (Not-invalidated) — vi phạm nguyên tắc "không bước nào được tham chiếu kết quả của bước sau"; viết lại thành hai phase tách bạch: Phase 1 (eligibility filtering, mỗi candidate tự đủ điều kiện độc lập) rồi Phase 2 (role-specific current selection, CHỈ chạy trên tập survivor của Phase 1) — không còn tham chiếu ngược (§8). (b) `IRB-B4-MAJ-02` — `missing_input_policy` (§6) là một chuỗi tự do, không pin giá trị canonical; đổi thành enum đóng, đúng một giá trị hợp lệ `NO_SNAPSHOT_WHEN_ANY_REQUIRED_ROLE_MISSING_OR_PENDING` (§6, §9) — **missing_input_policy correction closes `IRB-B4-MAJ-02`.** (c) `IRB-B4-MAJ-03` — xung đột kiến trúc với văn bản gốc ADR-003 ("Feature Engine là điểm fan-in duy nhất"); xử lý qua [ADR-014](../adr/ADR-014.md) narrow amendment — **`IRB-B4-MAJ-03` governance-resolved** kể từ khi Product Owner approve ADR-014 ngày 2026-07-30 (xem khối đầu tài liệu). Đồng thời làm rõ tường minh target-window tie-break tại `MarketContextCurrentView` (§13, non-blocking cleanup).
 
 **Narrow traceability correction (`RA-B4-MIN-02`, không đổi version):** commit trước (`f1ea03b`) từng gán nhầm `IRB-B4-MAJ-02` cho ADR-003 conflict và `IRB-B4-MAJ-03` cho `missing_input_policy` — NGƯỢC với mapping authoritative của Independent Review B report. Đã sửa toàn bộ reference trong tài liệu này: `IRB-B4-MAJ-02` = `missing_input_policy` (resolved technically, đóng); `IRB-B4-MAJ-03` = ADR-003 fan-in authority conflict (**governance-resolved** — ADR-014 Approved bởi Product Owner ngày 2026-07-30, xem khối đầu tài liệu). Đây là metadata/reference-only correction — không đổi bất kỳ semantic/algorithm/enum/event/identity/lineage/relationship nào; `context.md` giữ nguyên `version: "0.2"`.
+
+**v0.3 — triển khai [ADR-046](../adr/ADR-046.md) (Approved, `v0.5`, immutable, 2026-09-25) — Context Computation Cursor and Temporal Eligible-Upstream Supersession.** `ADR-046` là kiến trúc authority DUY NHẤT cho amendment này; v0.3 là **transcription có kiểm soát** của quyết định đã Approved — KHÔNG một quyết định kiến trúc mới, KHÔNG tự phát sinh bất kỳ semantic choice nào `ADR-046`/authority hiện tại chưa resolve. Nội dung chính:
+
+- **`computation_cursor`** — canonical [Chapter 8 §8.5](../constitution/08-event-model.md) Replay Cursor, tái sử dụng NGUYÊN VẸN (KHÔNG một schema local cạnh tranh) — BẮT BUỘC trên MỌI `MarketContextSnapshot` (§3, cả original lẫn correction replacement — mỗi fact tự pin cursor CHÍNH nó, KHÔNG kế thừa) VÀ MỌI `MarketContextFactInvalidated` (§4, cursor này là `R_later`, boundary chứng minh invalidation).
+- **`Cursor → Context projection record`** anti-look-ahead relation: `computation_cursor.recorded_time <= envelope.recorded_time` — fail-closed khi vi phạm, KHÔNG clamp timestamp, KHÔNG substitute field này cho field kia (§3, §4).
+- **Full three-leg cursor visibility** (§14) thay thế scalar `U.recorded_time <= R` cũ (§8 Phase 1 bước 2) — stream-universe membership + same-stream position + recorded-time boundary.
+- **`COVERS_CONTEXT`** (§14) — bounded, Context-scoped, **partial** knowledge-coverage relation — chứng minh `K_context(R_old) ⊆ K_context(R_new)` cộng lifecycle non-regression, KHÔNG một platform-wide cursor total order, KHÔNG một thay đổi [ADR-009](../adr/ADR-009.md).
+- **Universal current-lineage invalidation coverage precondition** — `R_later COVERS_CONTEXT R_original` BẮT BUỘC trước MỌI `MarketContextFactInvalidated` publish như current-valid lineage transition, bất kể trigger class (direct correction HAY temporal supersession) — §4, §14.
+- **Temporal eligible-upstream role-resolution supersession** (§8) — điều kiện mới, CHỈ áp dụng sáu role phân tích non-Candle (Structure, hai Regime, ba Feature): một upstream fact later-visible có thể trở thành §8 winner mới tại `R_later`, dù ref cũ CHƯA từng bị invalidate trực tiếp. Candle vẫn loại trừ khỏi trigger này (§8).
+- **Per-role minimal-complete direct-cause set** thay thế giả định cũ "đúng một cause ref mỗi role" (§4) — `affected_upstream_roles`/`causation_refs` giữ nguyên shape flat/dedup, mỗi role có thể cần MỘT HOẶC NHIỀU ref trực tiếp, đúng ba nhánh `ADR-046` Decision item 7.
+- **Case A / Case B replacement behavior** (§12) — Case A tái sử dụng CHÍNH XÁC kết quả §8 đã có tại `R_later`; Case B yêu cầu `R_replacement COVERS_CONTEXT R_later` cộng rerun §8 độc lập tại `R_replacement`, KHÔNG BAO GIỜ tái sử dụng kết quả `R_later` đã cache.
+- **Context-scoped Input Contract VẪN CHƯA authored** (§16, §21) — schema semantic được định nghĩa từ v0.3, nhưng publication một Context projection record như durable evidence dưới cơ chế này VẪN fail-closed cho tới khi referenced artifact (Input Contract, Stream Registry version, lifecycle frontier, upstream Event Contract dependency authority) genuinely resolve, persistently.
+- **Runtime/publication VẪN CHƯA enable** — `python/context-aggregator/**` KHÔNG bị sửa bởi amendment này (vẫn `REVIEW A VALIDATED — CLEAN`); Context Event Contract/output stream KHÔNG được mint ở v0.3 này (§21).
+
+Fresh ADR Scope Gate cho CHÍNH amendment v0.3 này: **`ADR_NOT_REQUIRED`** — transcription thuần túy của architecture authority đã Approved, không semantic choice độc lập nào được author ở đây. Risk Classification/Review A cho v0.3 candidate này **CHƯA thực hiện**, không tự finalize bởi transaction này — `context.md` giữ nguyên `status: Draft`.
+
+**Authority-neutral clarification (`ADR-046`, v0.3) — KHÔNG resolve terminology tension đã tồn tại.** `ADR-046` (Approved) tường minh KHÔNG đổi `module_type: projection`/`owns_authoritative_state: false` (`module-registry.yaml`, fresh-verified byte-unchanged) và KHÔNG resolve terminology tension đã preserve giữa văn bản legacy của CHÍNH tài liệu này (ví dụ §17's "Context là một authoritative market-state snapshot") và phân loại Type-2 Projection của [Chapter 7 §7.4](../constitution/07-module-taxonomy.md). `computation_cursor`/durable cursor evidence mà v0.3 thêm vào CHỈ cấp **record-integrity và replay-boundary evidence** — KHÔNG biến Context thành nguồn authoritative cho Candle/Structure/Regime/Feature/Strategy/Decision/Risk hay bất kỳ domain concept nào khác ngoài chính những gì Context tự aggregate. Terminology tension này VẪN preserve, chưa resolve, và amendment v0.3 này KHÔNG âm thầm quyết định nó — bất kỳ rewrite thuật ngữ legacy nào (ví dụ §17) đòi hỏi một transaction riêng, có kiểm soát, governed rõ ràng — KHÔNG phải một side-effect của việc transcribe `ADR-046`. Prose MỚI do v0.3 thêm vào dùng thuật ngữ trung lập **"Context projection record"** khi cần mô tả `MarketContextSnapshot`/`MarketContextFactInvalidated`; văn bản lịch sử KHÔNG bị rewrite chỉ vì lý do thuật ngữ.
 
 ## 1. Logical Market Context Subject — `kind: entity`
 
@@ -149,10 +166,14 @@ invariants:
   - "Replacement fact PHẢI dùng ĐÚNG CÙNG (context_subject_id, effective_window) với fact bị supersede — không được đổi window khi correction (đóng rule 3)."
   - "Tất cả ref của replacement PHẢI phản ánh ancestry ĐÃ SỬA — không được giữ nguyên ref cũ đã không còn authoritative (đóng rule 8)."
   - "KHÔNG có shortcut khi context_values không đổi: nếu một upstream correction ảnh hưởng bất kỳ role ref nào, cặp MarketContextFactInvalidated + replacement PHẢI phát sinh — kể cả khi context_values cuối cùng giữ nguyên sau khi tính lại — đúng nguyên tắc `regime.md` §10 / `feature.md` §9."
+  - "payload.computation_cursor PHẢI có mặt trên MỌI MarketContextSnapshot — original computation lẫn correction replacement, KHÔNG NGOẠI LỆ — giá trị là canonical Chapter 8 §8.5 Replay Cursor, applied nguyên vẹn KHÔNG định nghĩa lại (§14, §20 authority boundary). computation_cursor PHẢI độc lập thỏa mãn toàn bộ invariant validity của chính canonical Replay Cursor đó (Position → Cursor, Lifecycle → Cursor, Registry → Lifecycle, Registry → Contract — Chapter 8 §8.5.2/§8.5.3) — tài liệu này áp dụng, KHÔNG định nghĩa lại các invariant đó (ADR-046)."
+  - "computation_cursor.recorded_time PHẢI <= envelope.recorded_time của CHÍNH fact này (Cursor → Context projection record anti-look-ahead relation, ADR-046) — bằng nhau được phép khi knowledge-cut capture và record append thuộc cùng valid processing boundary; vi phạm là invalid cursor, record KHÔNG được publish. KHÔNG được clamp timestamp, KHÔNG được substitute computation_cursor.recorded_time cho envelope.recorded_time hay ngược lại — hai trục độc lập."
+  - "computation_cursor của một replacement fact ĐỘC LẬP HOÀN TOÀN với computation_cursor của fact nó supersede — mỗi fact, original hay replacement, pin đúng cursor THỰC TẾ nó dùng để evaluate §8, KHÔNG kế thừa/sao chép cursor của fact trước đó, độc lập với supersedes_fact_ref's target (ADR-046 Decision item 2)."
 payload:
   context_subject_id: {type: string, required: true}
   context_type: {type: enum, values: [market_context], required: true}
   context_definition_version: {type: string, required: true}
+  computation_cursor: {type: replay_cursor, required: true, description: "canonical Chapter 8 §8.5 Replay Cursor (shape owned by Chapter 8, applied here, not redefined) — exact knowledge boundary R dùng để evaluate §8 cho CHÍNH fact này. KHÔNG kế thừa/copy cursor của fact bị supersede khi là replacement — mỗi fact luôn pin cursor thực tế của chính nó. Xem §14 cho full cursor visibility predicate và COVERS_CONTEXT; ADR-046 (Approved) cho decision đầy đủ. KHÔNG PHẢI một phần computation identity (§10)."}
   effective_window:
     kind: interval
     window_start: {type: timestamp, required: true}
@@ -178,6 +199,8 @@ payload:
 
 **Đơn vị (`unit`) KHÔNG lặp lại trong `context_values`** — tra cứu qua `feature_fact_ref` tương ứng và `feature_definition_version` đã pin (§6) để tránh hai bản `unit` có thể lệch nhau theo thời gian.
 
+**Fail-closed cho tới khi referenced artifact resolve (ADR-046 Decision item 10).** `computation_cursor` được định nghĩa SCHEMA từ v0.3, nhưng publish một `MarketContextSnapshot` mang `computation_cursor` như durable evidence PHẢI fail-closed cho tới khi TOÀN BỘ artifact mà cursor tham chiếu genuinely resolve, persistently: Context-scoped Input Contract instance đã publish ([Chapter 8 §8.3.4](../constitution/08-event-model.md)), phiên bản chính xác của nó theo [ADR-041](../adr/ADR-041.md), pinned Stream Registry version, và required upstream Event Contract dependency authority. KHÔNG process-local/in-memory value nào được thay thế làm durable replay evidence. Amendment v0.3 này authorize **schema** ngay bây giờ; nó KHÔNG tự nó cho phép production publication dưới cơ chế này.
+
 ## 4. `MarketContextFactInvalidated` — `kind: event`
 
 Kế thừa nguyên vẹn envelope §2 — `causation_refs` không rỗng. Payload đặc thù:
@@ -189,9 +212,13 @@ capability_id: context-aggregation
 domain_context_id: context-projection
 description: >
   Phủ định MỘT MarketContextSnapshot lịch sử cụ thể — thuần túy ghi nhận "fact này không còn
-  hợp lệ", KHÔNG tự nó tuyên bố giá trị mới. Nguyên nhân LUÔN LÀ một correction/replacement
-  của MỘT HOẶC NHIỀU trong bảy ref mà fact bị invalidate đã cite (§3) — KHÔNG có nguyên nhân
-  `context_changed` chung chung nào được phát minh thêm. Nếu NHIỀU role bị ảnh hưởng đồng thời
+  hợp lệ", KHÔNG tự nó tuyên bố giá trị mới. Nguyên nhân thuộc đúng MỘT trong ba dạng đã pin ở
+  invariants dưới (ADR-046 Decision item 7) cho MỖI role bị ảnh hưởng: (a) một correction/
+  invalidation event trực tiếp của MỘT HOẶC NHIỀU trong bảy ref mà fact bị invalidate đã cite
+  (§3); (b) một upstream fact later-visible tự nó trở thành §8 winner mới tại R_later theo §8's
+  temporal eligible-upstream supersession — ref cũ KHÔNG bắt buộc từng bị invalidate trực tiếp;
+  hoặc (c) cả (a) và (b) khi transition compound. KHÔNG có nguyên nhân `context_changed` chung
+  chung nào được phát minh thêm. Nếu NHIỀU role bị ảnh hưởng đồng thời
   bởi cùng một correction gốc, chỉ phát ĐÚNG MỘT MarketContextFactInvalidated cho fact đó —
   causation_refs liệt kê đủ mọi nguyên nhân dưới dạng nhiều phần tử, affected_upstream_roles
   liệt kê đủ mọi role bị ảnh hưởng (đúng nguyên tắc dedup cascade của `structure.md` §10). Là
@@ -203,13 +230,17 @@ invariants:
   - "envelope.subject_ref PHẢI BẰNG HỆT subject_ref của invalidated_fact_ref (F) — cùng context_id, subject_kind, subject_type, subject_id, VÀ toàn bộ scope. Cấm target một fact thuộc subject KHÁC."
   - "envelope.effective_time PHẢI BẰNG HỆT effective_window của invalidated_fact_ref (F) — [window_start, window_end) giống hệt. Cấm target một fact đúng subject nhưng SAI window."
   - "payload.invalidated_fact_ref PHẢI resolve đúng CHÍNH XÁC bản ghi event F — dùng event_record_ref (Chapter 8 §8.2.3)."
-  - "payload.affected_upstream_roles PHẢI không rỗng, các phần tử duy nhất (không trùng lặp), VÀ mỗi phần tử PHẢI tương ứng một causation_refs entry là đúng loại authoritative correction event cho role đó: context_cutoff_source → CandleCorrected; structure → StructureFactInvalidated hoặc StructureRecomputed; volatility_regime/directional_persistence_regime → RegimeFactInvalidated; volatility_metric_feature/directional_persistence_metric_feature/distance_to_last_confirmed_swing_feature → FeatureFactInvalidated."
-  - "causation_refs PHẢI trỏ: invalidated_fact_ref (bắt buộc, đúng một, PHẢI trùng payload.invalidated_fact_ref); VÀ đúng một authoritative upstream correction event cho MỖI role liệt kê trong affected_upstream_roles — không thiếu, không thừa."
+  - "payload.affected_upstream_roles PHẢI không rỗng, các phần tử duy nhất (không trùng lặp). MỖI phần tử PHẢI có một minimal-complete deterministic direct-cause SET tương ứng trong causation_refs (một hoặc nhiều ref — KHÔNG bắt buộc đúng một, ADR-046 Decision item 7), thuộc đúng MỘT trong ba nhánh: (a) correction/invalidation event trực tiếp của role đó (context_cutoff_source → CandleCorrected; structure → StructureFactInvalidated hoặc StructureRecomputed; volatility_regime/directional_persistence_regime → RegimeFactInvalidated; volatility_metric_feature/directional_persistence_metric_feature/distance_to_last_confirmed_swing_feature → FeatureFactInvalidated); (b) later-visible authoritative fact tự nó trở thành §8 winner mới tại R_later (structure-recomputed/break-of-structure-detected/change-of-character-detected/regime-classified/feature-computed đúng role) — role cũ KHÔNG bắt buộc từng bị invalidate; hoặc (c) cả (a) và (b) khi transition compound (ví dụ successor B cộng invalidation của chính B, {B, I_B}, khi role kết thúc missing/pending, §8). Attribution role→cause-set là deterministic từ governed event type + role discriminant (regime_dimension/feature_type khi áp dụng) + target/ref relationship (invalidated_fact_ref/supersedes_fact_ref khi có mặt) — KHÔNG từ thứ tự phần tử trong causation_refs."
+  - "causation_refs PHẢI trỏ: invalidated_fact_ref (bắt buộc, đúng một, PHẢI trùng payload.invalidated_fact_ref); VÀ minimal-complete direct-cause set (một hoặc nhiều ref mỗi role, xem trên) cho MỖI role liệt kê trong affected_upstream_roles — union/dedup vào đúng MỘT flat causation_refs array — không thiếu, không thừa, không trùng lặp. Mọi phần tử PHẢI là genuine direct domain causal predecessor/prerequisite (Chapter 6 §6.7, Chapter 8 §8.2.3) — KHÔNG BAO GIỜ dùng causation_refs như một evidence bag chung; coverage evidence (K_context(R_new) - K_context(R_old), §14) KHÔNG được đưa vào đây chỉ vì nó visible tại R_later."
   - "invalidated_fact_ref PHẢI trỏ một MarketContextSnapshot CHƯA từng nhận MarketContextFactInvalidated khác — một fact chỉ bị invalidate đúng một lần."
   - "Đúng một MarketContextSnapshot có thể trỏ supersedes_fact_ref về invalidated_fact_ref này (§3 rule — cấm fork)."
   - "envelope.recorded_time PHẢI muộn hơn recorded_time của invalidated_fact_ref VÀ muộn hơn recorded_time của MỌI event trong causation_refs còn lại."
   - "Replay tại cursor trước recorded_time của invalidation KHÔNG được thấy invalidation này (chống look-ahead)."
+  - "payload.computation_cursor PHẢI có mặt trên MỌI MarketContextFactInvalidated, KHÔNG NGOẠI LỆ — cùng canonical Chapter 8 §8.5 Replay Cursor shape như §3, cùng discipline validity (ADR-046). Đây là R_later — cursor boundary chứng minh invalidated_fact_ref không còn CURRENT-VALID lineage head, KHÔNG PHẢI computation_cursor của chính invalidated_fact_ref (field riêng của fact đó, §3), KHÔNG PHẢI envelope.recorded_time (append time, trục khác), KHÔNG PHẢI computation_cursor của một replacement tương lai (fact độc lập khác, §3) — ba trục độc lập, không thay thế lẫn nhau."
+  - "computation_cursor.recorded_time PHẢI <= envelope.recorded_time của CHÍNH event này (Cursor → Context projection record, đối xứng invariant §3) — vi phạm là invalid cursor, record KHÔNG được publish; KHÔNG clamp, KHÔNG substitute."
+  - "Universal current-lineage invalidation coverage precondition (ADR-046, §14): gọi C = MarketContextSnapshot bị invalidate qua invalidated_fact_ref, R_original = C.computation_cursor, R_later = computation_cursor CỦA CHÍNH event này — R_later COVERS_CONTEXT R_original (§14) BẮT BUỘC đúng TRƯỚC KHI event này được publish như một current-valid lineage transition, bất kể trigger class (direct correction — nhánh (a)/(c) trên — HAY temporal eligible-upstream supersession — nhánh (b), §8). Nếu coverage KHÔNG chứng minh được, event này KHÔNG được publish như một current-valid lineage transition — cursor đó VẪN được phép dùng cho historical/counterfactual replay analysis. Precondition này chỉ chứng minh knowledge KHÔNG regress — nó KHÔNG tự nó chứng minh tại sao invalidation xảy ra (câu hỏi đó do causation_refs/affected_upstream_roles trên trả lời)."
 payload:
+  computation_cursor: {type: replay_cursor, required: true, description: "canonical Chapter 8 §8.5 Replay Cursor — R_later, exact knowledge boundary chứng minh invalidated_fact_ref không còn current-valid lineage head. Xem §14 cho full cursor visibility predicate, COVERS_CONTEXT, và universal invalidation coverage precondition; ADR-046 (Approved) cho decision đầy đủ. KHÔNG PHẢI một phần computation identity (§10)."}
   invalidated_fact_ref: {type: event_record_ref, required: true}
   affected_upstream_roles: {type: array, items: {type: enum, values: [context_cutoff_source, structure, volatility_regime, directional_persistence_regime, volatility_metric_feature, directional_persistence_metric_feature, distance_to_last_confirmed_swing_feature]}, required: true, description: "một hoặc nhiều role bị ảnh hưởng — không rỗng, không trùng lặp"}
   invalidation_reason: {type: string, required: false}
@@ -335,7 +366,7 @@ Context tiêu thụ **đúng bảy** authoritative ref cho mỗi computation poi
 
 ### Phase 1 — Eligibility filtering (per-candidate, độc lập hoàn toàn với mọi candidate khác và với Phase 2)
 
-Với một computation point tại `context_cutoff` (§11), cursor recorded-time `R`, và một role cụ thể (Candle cutoff source, Structure, hai Regime, ba Feature — mỗi role có tập candidate event type riêng, §7), một fact `U` **survive Phase 1** CHỈ KHI cả 4 bước dưới đây đều đúng, đánh giá THEO ĐÚNG THỨ TỰ, đánh giá ĐỘC LẬP cho từng `U` (không so sánh `U` với candidate khác ở Phase 1):
+Với một computation point tại `context_cutoff` (§11), `computation_cursor R` (§14, ADR-046 — canonical Chapter 8 §8.5 Replay Cursor mà bản thân computation point này sẽ pin lên chính fact nó tạo ra, §3/§4), và một role cụ thể (Candle cutoff source, Structure, hai Regime, ba Feature — mỗi role có tập candidate event type riêng, §7), một fact `U` **survive Phase 1** CHỈ KHI cả 4 bước dưới đây đều đúng, đánh giá THEO ĐÚNG THỨ TỰ, đánh giá ĐỘC LẬP cho từng `U` (không so sánh `U` với candidate khác ở Phase 1):
 
 ```text
 1. Identity/scope match
@@ -346,10 +377,18 @@ Với một computation point tại `context_cutoff` (§11), cursor recorded-tim
      Feature     → U.feature_type khớp đúng feature_type của role
    U required definition_version khớp đúng field pin ở §6 cho role đó
 
-2. Recorded-time visibility
-   U.recorded_time <= R
+2. Full cursor visibility tại computation_cursor R (v0.3, ADR-046 — thay thế scalar
+   recorded-time-only test cũ; định nghĩa DUY NHẤT tại §14, tham chiếu tại đây không lặp lại)
+   CẢ BA leg dưới đây đều phải đúng:
+     (a) U.stream_id thuộc valid included-stream universe của R.input_contract_ref, hợp lệ tại
+         R.lifecycle_frontier (Chapter 8 §8.3.5 Retained-in-Universe semantics)
+     (b) U.sequence <= R.stream_positions[U.stream_id] — CHỈ so trong CÙNG logical stream,
+         KHÔNG BAO GIỜ so sequence xuyên stream (Chapter 8 §8.3.3)
+     (c) U.recorded_time <= R.recorded_time
+   Một leg thất bại → U KHÔNG full-cursor-visible tại R, bị loại NGAY.
 
-3. Effective-time cutoff (chống look-ahead, đóng trước RA-B3-MAJ-01-style defect)
+3. Effective-time cutoff (chống look-ahead, đóng trước RA-B3-MAJ-01-style defect) — trục ĐỘC LẬP
+   với bước 2, KHÔNG BAO GIỜ collapse vào cursor visibility (§14)
    role-specific effective boundary CỦA U <= context_cutoff   (INCLUSIVE — khác Feature §9a's cutoff exclusive, xem §11)
      Structure  → U.effective_time (structure.md §2)     <= context_cutoff
      Regime     → U.analysis_window.window_end            <= context_cutoff
@@ -364,6 +403,8 @@ Với một computation point tại `context_cutoff` (§11), cursor recorded-tim
 ```
 
 Một candidate KHÔNG qua được bước nào thì bị loại NGAY khỏi tập survivor — không đánh giá các bước sau CHO CHÍNH candidate đó. **Bước 3 áp dụng ĐỘC LẬP với bước 2.** Kết thúc Phase 1: mỗi role có một **tập survivor** (có thể rỗng, một phần tử, hoặc nhiều phần tử).
+
+**"Visible tại R" trong bước 4 (v0.3, ADR-046) resolve về ĐÚNG full-cursor-visibility predicate của bước 2/§14** — KHÔNG một scalar `recorded_time`-only shorthand yếu hơn. Tài liệu này KHÔNG dùng hai nghĩa "visible" cạnh tranh nhau trong cùng một selection pipeline: mọi lần cụm từ "visible tại R"/"visible" xuất hiện (§4, §8, §12, §13, §15) đều là CHÍNH XÁC ba-leg predicate đã pin tại §14.
 
 ### Phase 2 — Role-specific current selection (CHỈ chạy trên tập survivor của Phase 1, không bao giờ tham chiếu ngược Phase 1 hay loại thêm candidate theo tiêu chí Phase 1)
 
@@ -414,6 +455,33 @@ Kết quả bắt buộc: Structure A ĐƯỢC CHỌN.
 Lý do: tại Phase 1 bước 4, B bị loại (StructureFactInvalidated nhắm B visible tại R40 >= R30) — B KHÔNG BAO GIỜ vào tập survivor, do đó KHÔNG BAO GIỜ được Phase 2 xem xét, bất kể `recorded_time` của B (R20) lớn hơn A (R10). Phase 2 chỉ thấy tập survivor `{A}`, chọn A.
 
 **Hành vi giữa thời điểm invalidation và `StructureRecomputed`:** rebuild selection từ tập survivor Phase 1 (mọi authoritative orientation-setting event — BOS/CHoCH/StructureRecomputed — còn sống sót, visible tại cursor); Phase 2 chọn candidate MỚI NHẤT trong tập đó; KHÔNG BAO GIỜ dùng event đã invalidate (đã bị loại từ Phase 1); nếu tập survivor rỗng (không còn orientation-setting event nào sống sót), Structure role **missing** — không phát `MarketContextSnapshot` (§9).
+
+### Temporal eligible-upstream supersession (v0.3, ADR-046)
+
+Bounded thêm — CHỈ áp dụng **sáu role phân tích non-Candle**: Structure, volatility Regime, directional-persistence Regime, volatility-metric Feature, directional-persistence-metric Feature, distance-to-last-confirmed-swing Feature. Candle (context_cutoff_source) KHÔNG thuộc phạm vi trigger này — xem "Candle exclusion" dưới đây.
+
+Với một `MarketContextSnapshot` C hiện CURRENT-VALID, đã evaluate tại `computation_cursor R_original`, temporal supersession tồn tại tại một `computation_cursor R_later` khi, cho ÍT NHẤT MỘT trong sáu role trên, TẤT CẢ đúng:
+
+```text
+1. role đã resolve về ref cũ A tại R_original (ref hiện C đang cite cho role đó, §3).
+2. một hoặc nhiều record upstream cần thiết để xác lập trạng thái role MỚI KHÔNG full-cursor-
+   visible (§14) tại R_original.
+3. đúng những record đó ĐÃ full-cursor-visible (§14) tại R_later.
+4. producer-domain correction/lineage semantics đã pin sẵn ở candle.md/structure.md/regime.md/
+   feature.md (KHÔNG invent/redefine ở đây), VÀ effective-time eligibility (§8 bước 3, độc lập
+   với cursor visibility) được áp dụng CHÍNH XÁC bằng CHÍNH các authority đó.
+5. exact §8 selection tại R_later, cho ĐÚNG computation point VÀ ĐÚNG Context Definition, cho ra:
+   MỘT winner KHÁC ref A; HOẶC role trở thành missing/pending (§9).
+6. C do đó KHÔNG còn là CURRENT-VALID lineage head cho computation point này tại R_later — CHỈ
+   một later-knowledge-boundary transition (§15 bitemporal clarification — KHÔNG rewrite lịch sử
+   của chính C tại R_original).
+7. R_later COVERS_CONTEXT R_original (§14) — universal invalidation coverage precondition §4 đã
+   pin cho MỌI trigger class, áp dụng CHÍNH XÁC tại đây.
+```
+
+Ref cũ `A` KHÔNG bắt buộc từng bị invalidate trực tiếp — đây là một temporal winner-change condition, khác cấu trúc với repaint (§15's "KHÔNG BAO GIỜ bị ghi đè tại chỗ" không bị ảnh hưởng: `C` KHÔNG BAO GIỜ bị mutate, chỉ invalidate-rồi-replace, append-only, §12). Một candidate ĐÃ full-cursor-visible tại `R_original` (§14) nhưng KHÔNG được chọn là một **defect của computation gốc** (thuật toán §8 áp dụng sai tại `R_original`) — KHÔNG PHẢI temporal supersession theo mục này, phân biệt này giữ nguyên không đổi.
+
+**Candle exclusion.** Candle (context_cutoff_source) KHÔNG thuộc phạm vi trigger sáu-role này — một Candle window khác, không liên quan, KHÔNG BAO GIỜ được supersede một computation point cũ hơn không thuộc về nó (Phase 1 bước 4's Candle correction-lineage resolution, cùng cửa sổ, đã đủ). Candle correction tiếp tục đi qua ĐÚNG lineage correction CÙNG computation point đã pin (§4 nhánh (a), `context_cutoff_source → CandleCorrected`). Candle direct correction VẪN thuộc phạm vi universal invalidation coverage precondition (§4) như mọi trigger khác.
 
 ## 9. Role cardinality và missing-input policy
 
@@ -484,6 +552,8 @@ Computation identity cho một `MarketContextSnapshot`:
 
 **Dedup rule:** cùng `context_subject_id`, cùng `effective_window`, cùng `context_definition_version`, cùng `normalized_input_fact_refs` → duplicate delivery → KHÔNG append event authoritative thứ hai; recomputation là **idempotent**.
 
+**`computation_cursor` (§3/§4, v0.3, ADR-046) KHÔNG phải một phần computation identity/dedup.** Identity vẫn CHÍNH XÁC bốn thành phần đã pin ở trên — `context_subject_id`, `effective_window`, `context_definition_version`, `normalized_input_fact_refs` đã normalize — KHÔNG thêm `computation_cursor` vào identity/hash/dedup tuple. CÙNG evidence tuple đã evaluate dưới hai `computation_cursor` operational khác nhau (ví dụ cùng bảy ref, đến từ hai thời điểm evaluate khác nhau nhưng resolve cùng tập input) PHẢI được coi là CÙNG một computation identity — KHÔNG âm thầm tạo ra hai fact identity khác nhau chỉ vì cursor operational khác nhau; identity là hàm của evidence, KHÔNG phải hàm của cursor evaluate nó.
+
 ## 11. Snapshot cadence
 
 **`computation_cadence_policy: DRIVEN_BY_CANDLE_CLOSE` (§6):** mỗi `candle-closed`/`candle-corrected` authoritative fact tại đúng `(instrument_id, venue_id, timeframe)` của Context subject định nghĩa đúng MỘT computation point mới — `effective_window` của `MarketContextSnapshot` = `effective_time` của chính Candle đó (`context_cutoff_source_ref`), và `context_cutoff = effective_window.window_end`.
@@ -533,6 +603,36 @@ C2
 
 **Nhiều role bị ảnh hưởng đồng thời bởi cùng một correction gốc trên MỘT snapshot:** chỉ phát ĐÚNG MỘT `MarketContextFactInvalidated`, `affected_upstream_roles` liệt kê đủ mọi role, `causation_refs` liệt kê đủ mọi nguyên nhân — đúng nguyên tắc dedup cascade `structure.md` §10 (đóng attack scenario "multiple upstream corrections affect one snapshot").
 
+### Cursor semantics cho correction lineage (v0.3, ADR-046)
+
+Bổ sung, KHÔNG thay thế mười invariant + hai paragraph trên — TẤT CẢ vẫn giữ nguyên hiệu lực nguyên vẹn.
+
+**A. Precondition trước MỌI invalidation.** Trước khi một `MarketContextFactInvalidated` publish như một current-valid lineage transition: `R_later COVERS_CONTEXT R_original` (định nghĩa canonical §14, precondition pin tại §4) BẮT BUỘC đúng — với `R_original = C.computation_cursor` (C = fact bị invalidate) và `R_later` = `computation_cursor` của chính invalidation đó.
+
+**B. Case A — cùng re-evaluation boundary.** Khi replacement được phát sinh từ ĐÚNG kết quả §8 đã evaluate tại `R_later` (không có cursor advance nào giữa invalidation và replacement):
+
+```text
+replacement.computation_cursor == invalidation.computation_cursor == R_later
+```
+
+Refs/values của replacement PHẢI CHÍNH XÁC bằng kết quả §8 đã có tại `R_later` — KHÔNG recompute riêng, KHÔNG claim một knowledge boundary khác. Case A hợp lệ CHÍNH XÁC vì `R_later COVERS_CONTEXT R_original` đã được chứng minh TRƯỚC KHI invalidation publish (mục A trên) — replacement kế thừa nguyên vẹn boundary chưa-regress đó, không cần một coverage test riêng.
+
+**C. Case B — fresh subsequent re-evaluation.** Khi replacement KHÔNG phát sinh từ đúng boundary `R_later` đó: một `computation_cursor` hợp lệ mới `R_replacement` được dùng. TRƯỚC KHI current-valid replacement publish:
+
+```text
+R_replacement COVERS_CONTEXT R_later   (§14)
+```
+
+BẮT BUỘC đúng, VÀ exact §8 selection PHẢI được rerun ĐỘC LẬP tại `R_replacement` — KHÔNG BAO GIỜ tái sử dụng kết quả `R_later` đã cache dưới một cursor khác. Refs/values/`normalized_input_fact_refs` của replacement PHẢI CHÍNH XÁC là kết quả fresh rerun đó. Nếu bất kỳ role nào missing/pending tại `R_replacement` — KHÔNG replacement nào được phát cho tới khi §9 cho phép một snapshot đầy đủ; KHÔNG BAO GIỜ stale-fallback. Replacement vẫn PHẢI dùng ĐÚNG CÙNG `(context_subject_id, effective_window)` lineage — mười invariant đầu §12 không đổi.
+
+**D. Coverage chain (Case B).**
+
+```text
+K_context(R_original) ⊆ K_context(R_later) ⊆ K_context(R_replacement)
+```
+
+Đây là **transitive set inclusion cho MỘT Context lineage** — kết hợp precondition mục A (`R_later COVERS_CONTEXT R_original`) với mục C (`R_replacement COVERS_CONTEXT R_later`). KHÔNG PHẢI một platform-wide Replay-Cursor total order, KHÔNG PHẢI một ordering relation giữa các stream event độc lập ([ADR-009](../adr/ADR-009.md) không đổi). Với Case A, chain thu gọn về đúng quan hệ mục A đã chứng minh (`R_replacement == R_later`).
+
 ## 13. `MarketContextCurrentView` — validity rules và deterministic total order
 
 **Bước 0 — row existence precondition:** nếu `context_subject_id` CHƯA từng có `MarketContextSnapshot` visible tại cursor → **KHÔNG có row nào tồn tại** — `GetCurrentContext` trả `NOT_FOUND`/`ABSENT`. Không materialize placeholder.
@@ -575,20 +675,99 @@ So sánh tiêu chí 1 đến 7 theo đúng thứ tự; tiêu chí đầu tiên k
 ```text
 effective_window              — [window_start, window_end) của CHÍNH fact đó (§3), = effective_time của context_cutoff_source_ref
 context_cutoff                 — = effective_window.window_end của computation point này (§6, §11)
+computation_cursor             — canonical Chapter 8 §8.5 Replay Cursor (v0.3, ADR-046) — exact
+                                  knowledge boundary R dùng để evaluate §8 cho MỘT fact cụ thể;
+                                  KHÔNG một schema local — Chapter 8 sở hữu representation nguyên
+                                  vẹn (§8.5.1 cardinality, §8.5.2 relational invariants, §8.5.3
+                                  dynamic stream set); bắt buộc trên mọi MarketContextSnapshot/
+                                  MarketContextFactInvalidated (§3, §4)
 recorded_time                  — khi Ride tính/ghi nhận fact này (bắt buộc, mọi event — envelope §2)
 market_time                    — PROHIBITED (§2)
 ```
 
 **Không dùng `event_time`.**
 
-**Input eligibility — hai điều kiện ĐỘC LẬP, cả hai PHẢI đúng cho MỌI role fact (đúng nguyên tắc `feature.md` §12, ngăn RA-B3-MAJ-01-style defect ngay từ v0.1):**
+**Full cursor visibility (v0.3, ADR-046 — định nghĩa DUY NHẤT tại đây; §4/§8/§12/§13/§15 CHỈ tham chiếu, không lặp lại).** Một upstream event `U` **full-cursor-visible** tại `computation_cursor R` khi và chỉ khi CẢ BA leg dưới đây đều đúng:
 
 ```text
-(a) role fact.recorded_time <= computation cursor      — recorded-time visibility
+1. Stream-universe membership — U.stream_id thuộc valid included-stream universe của
+   R.input_contract_ref, hợp lệ tại R.lifecycle_frontier (Chapter 8 §8.3.5 Retained-in-Universe
+   semantics — một stream đã retire vẫn thuộc universe tới terminal_position, không bị loại ngầm).
+2. Same-stream position — U.sequence <= R.stream_positions[U.stream_id] — CHỈ so trong CÙNG
+   logical stream, KHÔNG BAO GIỜ so sequence xuyên stream (Chapter 8 §8.3.3).
+3. Recorded-time boundary — U.recorded_time <= R.recorded_time (Chapter 5 §5.3's recorded-time
+   boundary).
+```
+
+Bất kỳ leg nào fail → `U` KHÔNG full-cursor-visible tại `R`. Mọi cụm từ "visible tại R"/"visible" xuất hiện xuyên tài liệu này (§4, §8, §12, §13, §15) đều resolve về ĐÚNG định nghĩa ba-leg này — KHÔNG một shorthand `recorded_time`-only yếu hơn, KHÔNG hai nghĩa "visible" cạnh tranh nhau trong cùng một selection pipeline.
+
+**Input eligibility — hai điều kiện ĐỘC LẬP, cả hai PHẢI đúng cho MỌI role fact (v0.3 — thay thế công thức scalar `(a)` cũ bằng full cursor visibility; đúng nguyên tắc `feature.md` §12, ngăn RA-B3-MAJ-01-style defect ngay từ v0.1):**
+
+```text
+(a) full cursor visibility của role fact tại computation_cursor R (định nghĩa trên)
 (b) role fact effective boundary <= context_cutoff      — effective-time eligibility (§8 bước 3, INCLUSIVE)
 ```
 
-`(a)` một mình KHÔNG đủ — một fact recorded-time visible vẫn có thể effective-time ineligible (§8). **Một fact effective muộn hơn `context_cutoff` KHÔNG BAO GIỜ được chọn cho computation point đó chỉ vì nó recorded-time visible tại cursor batch muộn.**
+`(a)` một mình KHÔNG đủ — một fact full-cursor-visible vẫn có thể effective-time ineligible (§8). **Một fact effective muộn hơn `context_cutoff` KHÔNG BAO GIỜ được chọn cho computation point đó chỉ vì nó full-cursor-visible tại cursor batch muộn.** Cursor visibility và effective-time eligibility là HAI trục độc lập, KHÔNG BAO GIỜ collapse thành một.
+
+**`COVERS_CONTEXT` — bounded, Context-scoped, partial knowledge-coverage relation (v0.3, ADR-046 Decision item 1b).** Định nghĩa `K_context(R)` — một khái niệm knowledge-set dùng CHỈ cho lập luận correctness, KHÔNG một payload field, KHÔNG một global cursor ordinal, KHÔNG một thay thế cho canonical Replay Cursor, KHÔNG một causation set:
+
+```text
+K_context(R) = tập toàn bộ Context-relevant upstream event record full-cursor-visible (định
+               nghĩa trên) tại computation_cursor R, dưới đúng Context Input Contract universe R
+               đã pin — bao gồm MỌI event family §16 authorize Context tiêu thụ: eligible
+               candidate, losing candidate, correction, invalidation — KHÔNG chỉ bảy ref thắng
+               (normalized_input_fact_refs, §10).
+```
+
+Với hai giá trị `computation_cursor` hợp lệ trên CÙNG một Context lineage:
+
+```text
+R_new COVERS_CONTEXT R_old   iff   K_context(R_old) ⊆ K_context(R_new)
+                              AND  lifecycle/topology knowledge không regress trên canonical
+                                   Lifecycle Stream (Chapter 8 §8.3.5) — lifecycle_frontier của
+                                   R_new tại hoặc sau lifecycle_frontier của R_old, dùng đúng
+                                   valid position ordering của CHÍNH stream đó, KHÔNG BAO GIỜ so
+                                   xuyên stream.
+```
+
+`COVERS_CONTEXT` tường minh KHÔNG PHẢI: `R_new > R_old`; một platform-wide Replay-Cursor total order; một thay đổi [ADR-009](../adr/ADR-009.md); một ordering relation giữa các stream event độc lập. Đây là set-inclusion/non-regression của Context-relevant visible knowledge cho MỘT cursor progression của MỘT Context lineage, chứng minh hoàn toàn từ evidence Chapter 8 đã sở hữu sẵn.
+
+**Chứng minh coverage — không cần field cursor mới** (sáu điều kiện canonical, v0.3, ADR-046):
+
+```text
+1. Old stream universe preserved — mọi Context input stream thuộc valid universe của R_old, mà
+   lịch sử của nó relevant tới cùng Context semantics, vẫn được represent trong valid universe
+   của R_new.
+2. Same-stream position non-regression — dùng stable logical stream_id (Chapter 8 §8.3.1),
+   R_new.stream_positions[stream_id] tại hoặc sau R_old.stream_positions[stream_id] cho MỖI
+   stream áp dụng — CHỈ so trong CÙNG stream, KHÔNG BAO GIỜ so sequence xuyên stream.
+3. Recorded-time non-regression — R_new.recorded_time >= R_old.recorded_time. Điều kiện 2 một
+   mình KHÔNG chứng minh leg này: Chapter 5/Chapter 8 KHÔNG đảm bảo recorded_time monotonic với
+   same-stream sequence. Chứng minh transitive cho MỌI E thuộc K_context(R_old):
+       E.recorded_time <= R_old.recorded_time      (leg-3 visibility của CHÍNH R_old, theo định
+                                                      nghĩa K_context(R_old))
+       R_old.recorded_time <= R_new.recorded_time   (điều kiện này)
+       do đó E.recorded_time <= R_new.recorded_time (bắc cầu)
+   KHÔNG PHẢI một ordering claim — R_new.recorded_time >= R_old.recorded_time KHÔNG có nghĩa
+   R_new > R_old, KHÔNG tự nó thiết lập event ordering (Chapter 5 §5.4/Chapter 8 §8.3.3 Ordering
+   Authority không đổi).
+4. Lifecycle-frontier non-regression — chỉ so trên canonical Lifecycle Stream (Chapter 8 §8.3.5),
+   CHỈ trong CÙNG stream đó.
+5. Retired streams — dùng nguyên vẹn Retained-in-Universe / terminal-position semantics của
+   Chapter 8 §8.3.5 — retirement KHÔNG BAO GIỜ âm thầm loại lịch sử đã visible của stream đó khỏi
+   coverage.
+6. Input-Contract / Registry transition — KHÔNG yêu cầu version bằng nhau. Một Input Contract
+   hoặc Stream Registry version mới hơn CHỈ được phép dưới R_new NẾU cursor kết quả vẫn preserve
+   visibility của MỌI Context-relevant record đã visible tại R_old — nếu không, R_new KHÔNG cover
+   R_old cho lineage transition đó; một intentional knowledge-dropping reset (nếu thực sự cần)
+   đòi hỏi semantics riêng, governed riêng biệt — KHÔNG BAO GIỜ ẩn bên trong cursor replacement
+   thông thường.
+```
+
+Chứng minh coverage KHÔNG BAO GIỜ so `sequence` xuyên stream identity khác nhau, KHÔNG BAO GIỜ yêu cầu `stream_registry_version`/`contract_version` bằng nhau, KHÔNG BAO GIỜ dựng một scalar cursor rank. FAIL CLOSED nếu coverage không chứng minh được cho một same-lineage transition thông thường — set inclusion KHÔNG BAO GIỜ được nới lỏng, KHÔNG một cursor rank nào được phát minh thay thế.
+
+**Coverage vs. causation — tách biệt (v0.3, ADR-046).** `K_context(R)`/`COVERS_CONTEXT` là knowledge-boundary correctness evidence — chứng minh non-regression, KHÔNG BAO GIỜ *tại sao* một invalidation xảy ra. `causation_refs` (§4) là direct-causal-predecessor evidence — chứng minh *tại sao*. Coverage KHÔNG BAO GIỜ bị thu gọn thành một câu hỏi `causation_refs`, và `causation_refs` KHÔNG BAO GIỜ mở rộng để chứa mọi phần tử của `K_context(R_new) - K_context(R_old)` — chỉ minimal-complete direct-cause set đã pin ở §4 thuộc về `causation_refs`.
 
 **Warm-up — valid absence, không phải null:** trước khi đủ role fact tồn tại cho một computation point ứng viên, **không** phát `MarketContextSnapshot` (§9).
 
@@ -600,11 +779,12 @@ market_time                    — PROHIBITED (§2)
 
 ## 15. No repaint và mode parity
 
+- **Bitemporal clarification (v0.3, ADR-046) — lịch sử không bị viết lại.** Một `MarketContextSnapshot` C vẫn **immutable và historically correct** đúng như evaluate tại `computation_cursor R_original` của chính nó — một `MarketContextFactInvalidated` sau này (tại `R_later`) KHÔNG BAO GIỜ viết lại tính đúng đắn lịch sử đó, và KHÔNG BAO GIỜ tuyên bố C's own original evaluation sai. Điều duy nhất đổi tại `R_later` là: C không còn là CURRENT-VALID lineage head cho computation point của nó — một later-knowledge-boundary transition, ghi nhận đúng như mọi correction khác trong tài liệu này (append-only, §12, không repaint).
 - **`MarketContextSnapshot` KHÔNG BAO GIỜ bị ghi đè tại chỗ** — chỉ có thể bị phủ định qua `MarketContextFactInvalidated` + replacement, luôn append-only (I-3).
 - **Không in-place mutation ở bất kỳ đâu** — mọi lineage member (kể cả đã bị supersede) giữ nguyên vĩnh viễn trong log.
 - **Effective-time vs recorded-time tách bạch trung thực** — đúng T-vs-T+n discipline xuyên suốt `candle.md`/`swing.md`/`structure.md`/`regime.md`/`feature.md`.
 - **Cursor-correct pending correction** — replay giữa invalidation và replacement thấy đúng `PENDING_CORRECTION` (§13), không âm thầm dùng giá trị cũ.
-- **No look-ahead qua batch recomputation:** historical Backtest/Replay tại một recorded cursor MUỘN PHẢI reconstruct MỖI `MarketContextSnapshot` chỉ dùng fact thỏa **CẢ HAI** điều kiện tại đúng computation cursor của CHÍNH fact đó (§14): recorded-time visible VÀ effective-time eligible (§8). Một fact effective muộn hơn (Structure/Regime/Feature/Candle) **KHÔNG BAO GIỜ** được "nhảy vào" một computation point sớm hơn mà nó effective-time ineligible tại điểm đó.
+- **No look-ahead qua batch recomputation (v0.3 — dùng đúng `computation_cursor` thực tế, ADR-046):** historical Backtest/Replay tại một recorded cursor MUỘN PHẢI reconstruct MỖI `MarketContextSnapshot` chỉ dùng fact thỏa **CẢ HAI** điều kiện tại đúng `computation_cursor` của CHÍNH fact đó (§14): full-cursor-visible (§14, ba leg — KHÔNG chỉ scalar recorded-time) VÀ effective-time eligible (§8). Một fact effective muộn hơn (Structure/Regime/Feature/Candle) **KHÔNG BAO GIỜ** được "nhảy vào" một computation point sớm hơn mà nó effective-time ineligible tại điểm đó.
 - **Cùng một chuỗi computation xuyên Backtest/Replay/Paper/Live** — deterministic given `(context_definition_version, upstream causal ancestry)` — bắt buộc SINH RA đủ MỌI computation point giống nhau ở mọi mode, bao gồm cùng tập bảy Eligible fact tại cùng computation point.
 - **Warm-up/missing-input deterministic** — áp dụng đồng nhất mọi mode.
 
@@ -627,9 +807,13 @@ feature-fact-invalidated            — như trên, correction
 
 **Không tiêu thụ:** `CandleObserved`; bất kỳ `*-current-view` nào (`CandleCurrentView`/`StructureCurrentView`/`RegimeCurrentView`/`FeatureCurrentView`/chính `MarketContextCurrentView`); provisional/candidate fact (`SwingCandidateDetected`); `Swing` event trực tiếp (Structure đã tự tiêu thụ Swing — Context không cần đi vòng qua Structure để lấy lại Swing); Strategy/Decision/Risk/Account/Position/Execution/Order/Fill — tất cả chưa tồn tại hoặc không thuộc phạm vi input authority của Context ở B4.
 
+**Phân biệt: §16 liệt kê EVENT FAMILY, KHÔNG PHẢI chính Context-scoped Input Contract artifact (v0.3, ADR-046).** Danh sách trên là upstream authoritative event family Context được authorize tiêu thụ — KHÔNG phải Chapter-8 Input Contract instance mà `computation_cursor.input_contract_ref` (§3, §4, ADR-046 Decision item 9) BẮT BUỘC pin. `ADR-046` (Approved) yêu cầu MỌI `computation_cursor` tương lai của Context resolve đúng MỘT Context-scoped Input Contract artifact — artifact đó **CHƯA được author ở v0.3 này**. Expected included-stream universe tương lai — derivable từ authority hiện có, `stream-registry.yaml` (fresh-verified) — là: `market-data-ingestion-candle`, `structure-engine-structure`, `raw-regime-engine-regime`, `feature-engine-feature` (bốn stream, KHÔNG Swing trực tiếp — đúng danh sách "Không tiêu thụ" trên, unaffected). `contract_id`/`contract_version`/`merge_policy`/`frontier_policy` cụ thể **KHÔNG được chọn ở đây** — không một authority hiện có nào unambiguously fix chúng; các giá trị này VẪN deferred cho tới một transaction authoring riêng, bounded, governed riêng biệt (§21).
+
 ## 17. Context và Strategy boundary
 
 Context là một **authoritative market-state snapshot, không phải một decision**.
+
+*(Thuật ngữ "authoritative market-state snapshot" ở trên là văn bản lịch sử, giữ nguyên KHÔNG rewrite bởi v0.3 — xem "Authority-neutral clarification (ADR-046, v0.3)" đầu tài liệu: `computation_cursor`/durable cursor evidence mà v0.3 thêm vào KHÔNG resolve/thay đổi terminology tension đã preserve với [Chapter 7 §7.4](../constitution/07-module-taxonomy.md)'s Type-2 Projection classification; câu này KHÔNG bị rewrite bởi amendment v0.3.)*
 
 **Context KHÔNG tính toán lại — chỉ as-of select và sao chép (v0.2, làm rõ theo [ADR-014](../adr/ADR-014.md) narrow amendment, Approved 2026-07-30, controlling authority — xem khối đầu tài liệu):**
 
@@ -683,13 +867,15 @@ Cả bốn execution mode tiêu thụ đúng cùng envelope (§2) và payload (�
 
 ## 20. Authority boundary
 
-**Contract này sở hữu:** semantic aggregation (as-of selection + snapshot assembly, KHÔNG phải computation) cho `market_context`, `MarketContextCurrentView` projection shape, `context_definition_version` policy schema tối thiểu (§6), Eligible Upstream Fact selection policy hai-phase (§8), Current View total-order policy (§13). **Áp dụng, không định nghĩa lại:** event envelope ([Chapter 8 §8.2](../constitution/08-event-model.md)); ordering/replay cursor mechanics ([Chapter 5](../constitution/05-time-model.md)/[Chapter 8](../constitution/08-event-model.md)); ID opaque rule ([Chapter 6 §6.8](../constitution/06-identity-model.md)); Structure orientation semantics (`structure.md`); Regime independence từ Structure ([ADR-003](../adr/ADR-003.md), narrow amendment [ADR-014](../adr/ADR-014.md) Approved 2026-07-30, controlling authority — xem khối đầu tài liệu); Feature computation semantics (`feature.md`) — Context KHÔNG sở hữu, KHÔNG tái sản xuất công thức/transformation của Feature Engine (§17); Candle observation semantics (`candle.md`). **Không sở hữu:** Strategy/Decision/Risk/Account/Execution/Position semantics (Package 0.2-C, chưa author); giá trị cụ thể của `context_definition_version` policy (configuration/Phase 1); Context type nào ngoài `market_context` (§21); bất kỳ Feature computation/formula/transformation nào (`feature.md` sở hữu duy nhất, §17).
+**Contract này sở hữu:** semantic aggregation (as-of selection + snapshot assembly, KHÔNG phải computation) cho `market_context`, `MarketContextCurrentView` projection shape, `context_definition_version` policy schema tối thiểu (§6), Eligible Upstream Fact selection policy hai-phase (§8), Current View total-order policy (§13); và, kể từ v0.3, các semantic Context-specific mà [ADR-046](../adr/ADR-046.md) (Approved, controlling architecture authority cho phần này) đã author: Context's own use của canonical `computation_cursor` trên `MarketContextSnapshot`/`MarketContextFactInvalidated` (§3, §4); role-resolution temporal-invalidation semantics cho sáu role non-Candle (§8); `COVERS_CONTEXT` same-lineage knowledge-non-regression semantics (§14); Case A/Case B correction-replacement cursor behavior (§12). **Áp dụng, không định nghĩa lại:** event envelope ([Chapter 8 §8.2](../constitution/08-event-model.md)); canonical Replay Cursor schema và validity invariant của chính nó ([Chapter 8 §8.5](../constitution/08-event-model.md), §8.5.1–§8.5.3); ordering/replay cursor mechanics nói chung ([Chapter 5](../constitution/05-time-model.md)/[Chapter 8](../constitution/08-event-model.md)); stream lifecycle mechanics ([Chapter 8 §8.3](../constitution/08-event-model.md)); ID opaque rule ([Chapter 6 §6.8](../constitution/06-identity-model.md)); Structure orientation semantics VÀ producer-domain correction lineage (`structure.md`); Regime independence từ Structure ([ADR-003](../adr/ADR-003.md), narrow amendment [ADR-014](../adr/ADR-014.md) Approved 2026-07-30, controlling authority — xem khối đầu tài liệu) VÀ producer-domain correction lineage (`regime.md`); Feature computation semantics VÀ producer-domain correction lineage (`feature.md`) — Context KHÔNG sở hữu, KHÔNG tái sản xuất công thức/transformation của Feature Engine (§17); Candle observation semantics VÀ producer-domain correction lineage (`candle.md`). `ADR-046` KHÔNG đổi, và amendment v0.3 này KHÔNG đổi, `module_type: projection`/`owns_authoritative_state: false` — xem "Authority-neutral clarification (ADR-046, v0.3)" đầu tài liệu. **Không sở hữu:** Strategy/Decision/Risk/Account/Execution/Position semantics (Package 0.2-C, chưa author); giá trị cụ thể của `context_definition_version` policy (configuration/Phase 1); Context type nào ngoài `market_context` (§21); bất kỳ Feature computation/formula/transformation nào (`feature.md` sở hữu duy nhất, §17).
 
 ## 21. Ngoài phạm vi — defer
 
 **Deferred tường minh, không author ở B4:** nhiều Context type (ngoài `market_context`); nested Context composition; arbitrary rule expression; scoring/confidence model; ML Context; strategy-specific Context; account-aware Context; portfolio Context; Context-to-Context dependency; storage architecture; caching; materialized feature-store infrastructure; distributed computation; user-defined schema. Cơ chế tính `context_subject_id` deterministic cụ thể; cơ chế lưu trữ/versioning cụ thể của `context_definition_version` registry (Phase 1, cùng ghi chú `swing.md`/`structure.md`/`regime.md`/`feature.md`). Quan hệ Context → Strategy (contract Strategy chưa author, §17). **`missing_input_policy` (v0.2) KHÔNG còn là configuration instance để ngỏ** — đã pin canonical enum đóng tại §6/§9 (đóng `IRB-B4-MAJ-02`), không cần liệt kê ở đây nữa.
 
 **Out of scope theo ranh giới domain (không phải "chưa làm"):** trade signal, entry/exit setup, risk recommendation — vi phạm trực tiếp định nghĩa Context nếu thêm vào (§17).
+
+**Deferred bởi v0.3 (`ADR-046`) — chưa author/thực hiện ở transaction này:** Context-scoped Input Contract artifact (`contract_id`/`contract_version`/`merge_policy`/`frontier_policy`, §16); Context Event Contract (chưa tồn tại — KHÔNG mint version/`schema_version`/`allowed_streams`/output stream nào ở đây); Context output stream identity; publication wiring; cursor-aware `context-aggregator` runtime/history state (deterministic core hiện tại, `python/context-aggregator/**`, KHÔNG bị sửa bởi amendment này — vẫn `REVIEW A VALIDATED — CLEAN`); `MarketContextCurrentView` runtime implementation. Mỗi mục là một bounded, governed transaction riêng, sau khi Domain Contract v0.3 này qua Review A/Risk Classification VÀ sau khi referenced artifact ở §3/§16 genuinely resolve.
 
 ## 22. Open questions ngoài phạm vi
 
