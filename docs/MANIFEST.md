@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.450"
+manifest_version: "10.451"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -31148,6 +31148,143 @@ Event Contract, Stream Registry, Module Registry, Constitution file, or existing
 touched. `manifest_version` `"10.449"` -> `"10.450"`.
 
 **Next governed action:** Fresh ChatGPT Review A re-review of `ADR-046` v0.4 corrected Draft
+candidate.
+
+## ADR-046 bounded correction, round 4 — v0.4 → v0.5 (`ADR-046-CORR-004`)
+
+Narrowly-scoped correction of `docs/adr/ADR-046.md` remediating the two remaining Review-A
+Majors found against v0.4: `REVISION_REQUIRED — 0 Blocker / 2 Major / 0 Minor`, Risk `R2`, ADR
+Scope `ADR_REQUIRED`, no Product Owner decision yet.
+
+Fresh-verified before mutation: boundary `e8e26c27ec8a476e0bff7daa70313eae0a2a993f`;
+`ADR-046.md` matched pinned blob `2ddd2345474a2f161042a89c4e5c47c22a48b3a1` exactly.
+
+**All findings from rounds 1-3 (ten total: `MAJ-01`–`MAJ-04`, `MIN-01`–`MIN-02`,
+`MAJ-R2-01`–`MAJ-R2-03`, `MAJ-R3-01`) are `CLOSED — REVIEW A VALIDATED` per round-4 Review A's
+own determination — not reopened by this transaction.** Core decision direction preserved
+unchanged throughout this correction as well.
+
+**`MAJ-R4-01` — `COVERS_CONTEXT` field-level proof omitted recorded-time non-regression.**
+Decision item 1b's "Proving coverage" method proved old-context-stream-universe preservation,
+same-stream `stream_positions` non-regression, retired-stream Retained-in-Universe semantics,
+lifecycle-frontier non-regression, and registry/contract-transition handling — but never proved
+the recorded-time leg of the full visibility predicate (Decision item 4, leg 3:
+`E.recorded_time <= R.recorded_time`). Same-stream position non-regression alone does not
+establish this leg: neither [Chapter 5](../constitution/05-time-model.md) nor
+[Chapter 8](../constitution/08-event-model.md) guarantees `recorded_time` is monotonic with
+same-stream `sequence`, so an implementation could theoretically accept
+`R_new.stream_positions[s] >= R_old.stream_positions[s]` for every relevant stream while
+`R_new.recorded_time < R_old.recorded_time`, silently losing events visible at `R_old` solely
+under that leg — violating the very set-inclusion relation item 1b is meant to prove.
+
+**Corrected:** the semantic definition `K_context(R_old) ⊆ K_context(R_new)` is unchanged; the
+canonical cursor-level proof conditions are strengthened with a new condition 3:
+`R_new.recorded_time >= R_old.recorded_time`, together with an explicit transitive proof — for
+every `E` in `K_context(R_old)`: `E.recorded_time <= R_old.recorded_time` (by `R_old`'s own
+leg-3 visibility, the definition of `K_context(R_old)`), `R_old.recorded_time <=
+R_new.recorded_time` (this condition), therefore `E.recorded_time <= R_new.recorded_time`
+(transitivity). Combined with same-stream position non-regression, retained-stream semantics,
+and lifecycle-frontier non-regression, this proves every event visible at `R_old` under all
+three legs of the full visibility predicate remains visible at `R_new` under all three legs.
+Remaining conditions are renumbered (lifecycle-frontier non-regression is condition 4,
+retired-stream semantics condition 5, registry/contract-version transitions condition 6) — no
+condition's substance changes, only ordering. An explicit **"Recorded-time non-regression is not
+an ordering claim"** paragraph clarifies: `R_new.recorded_time >= R_old.recorded_time` does
+**not** mean `R_new > R_old` and does not by itself establish event ordering — the
+Ordering-Authority discipline ([Chapter 5 §5.4](../constitution/05-time-model.md)/
+[Chapter 8 §8.3.3](../constitution/08-event-model.md), Locked) is entirely unaffected;
+`COVERS_CONTEXT` remains a partial relation formed from all six conditions together, never a
+scalar comparison of any single field. A closing **"The semantic definition remains
+authoritative"** paragraph confirms the field-level conditions are the canonical proof
+sufficient under the current event-log model, and that this ADR fails closed for an ordinary
+same-lineage transition if an unusual future topology/migration makes the proof insufficient —
+set inclusion is never weakened, and no scalar cursor rank is invented as a substitute.
+
+**`MAJ-R4-02` — `COVERS_CONTEXT` was required only for temporal supersession, not every
+invalidation trigger.** v0.4 wired `R_later COVERS_CONTEXT R_original` into Decision item 5's
+condition 7 — protecting only the temporal eligible-winner-supersession trigger. But Decision
+item 6 preserves ordinary direct upstream correction triggers (`CandleCorrected`,
+`StructureFactInvalidated`/`StructureRecomputed`, `RegimeFactInvalidated`/replacement,
+`FeatureFactInvalidated`/replacement) that also produce `MarketContextFactInvalidated` and
+therefore also change the current-valid Context lineage — with no knowledge-non-regression
+precondition at all. An invalidation cursor cause-set-visible for its own direct-correction
+trigger could still have, incidentally, lost visibility of other, unrelated Context-relevant
+knowledge already known at the invalidated snapshot's own boundary — the identical failure
+shape item 1b closes, reachable through a different trigger door; if all seven roles then
+happened to resolve, Case A could publish a replacement at that same regressed boundary.
+
+**Corrected:** new Decision item `3a`, "Universal current-lineage invalidation
+knowledge-boundary precondition," states one universal precondition controlling for every
+trigger class, never duplicated per trigger:
+
+```text
+For every MarketContextFactInvalidated targeting current-valid Context projection record C:
+
+  R_later    = invalidation.computation_cursor    (Decision item 3)
+  R_original = C.computation_cursor               (Decision item 2)
+
+  R_later COVERS_CONTEXT R_original   (Decision item 1b)
+
+  MUST hold before the invalidation may publish as a current-valid lineage transition.
+```
+
+If this precondition fails, the proposed invalidation MUST NOT author a current-valid lineage
+transition, regardless of whether the trigger-specific cause is otherwise entirely valid;
+historical/counterfactual analysis under that cursor remains allowed. This precondition answers
+only "did knowledge regress?" — never "why is `C` no longer current-valid?" (Decision item 6's
+existing direct-correction semantics, and Decision item 5's role-resolution-delta test,
+conditions 1-6, remain the sole authority for the causal question). Candle direct correction is
+explicitly **not** exempt from this universal precondition — Candle remains exempt only from the
+six-role temporal-winner-supersession trigger; `target_computation_point_ref`'s window-scoped
+lineage resolution (`CONTEXT-CORE-A-MAJ-01`, Review-A-validated) continues to bind a computation
+to its own Candle window unaffected.
+
+Decision item 5's condition 7 is rewritten to reference item 3a instead of restating its
+definition — removing the duplicate copy while preserving the exact enforcement wording
+("MUST NOT author... even if conditions 1-6 above otherwise hold"), so there is exactly one
+authoritative `COVERS_CONTEXT`-based invalidation rule. Decision item 6 gains an explicit
+cross-reference stating every direct-correction trigger is equally subject to item 3a. Decision
+item 8 gains: a **"Case A is legal only because Decision item 3a's universal precondition
+already holds at the invalidation boundary"** clarification (Case A's
+`replacement.computation_cursor == invalidation.computation_cursor == R_later` inherits the
+already-non-regressed boundary directly, no separate coverage test required); and a
+**"Resulting coverage chain"** paragraph — by transitivity of set inclusion, item 3a's `R_later
+COVERS_CONTEXT R_original` chained with Case B's existing rule 10 (`R_replacement
+COVERS_CONTEXT R_later`) gives `K_context(R_original) ⊆ K_context(R_later) ⊆
+K_context(R_replacement)`, explicitly **not** a global total ordering — transitive set inclusion
+for one Context lineage's own knowledge boundary, never inferred from cursor inequality. For
+Case A, the chain collapses to the single relation item 3a already proved.
+
+**No STOP condition triggered:** recorded-time non-regression is expressed entirely from the
+existing required cursor field (`recorded_time`, Decision item 1) without amending
+[Chapter 5](../constitution/05-time-model.md)/[Chapter 8](../constitution/08-event-model.md);
+the universal coverage precondition does not conflict with any existing Locked direct-correction
+semantic — it adds a precondition, it does not redefine which upstream event legitimately
+causes a correction; no direct correction is authorized to regress the Context knowledge
+boundary (the opposite — regression is now prevented uniformly); no new payload field was
+required; no platform-wide cursor total order was invented; no module-taxonomy/dependency
+change.
+
+**Confirmed unchanged by this transaction:** `docs/domain/context.md`,
+`docs/architecture/engine/feature-context-architecture.md`,
+`docs/architecture/module-registry.yaml`, `docs/architecture/stream-registry.yaml`, any Input/
+Event Contract, all production source/tests/tooling, every existing Approved ADR (including
+`ADR-009`/`ADR-014`/`ADR-034`/`ADR-035`/`ADR-041`/`ADR-045`, fresh-verified byte-unchanged and
+untouched).
+
+**M2 unchanged (`BLOCKED`, parallel evidence lane). M3 remains `ACTIVE`** — Context
+deterministic core remains `REVIEW A VALIDATED — CLEAN`; `ADR-046` v0.5 corrected Draft
+candidate pending fresh Review A; Context runtime/Input Contract/publishing remains blocked on
+the `ADR-046` decision chain. **M4 remains `QUEUED`.** `ADR-046: Draft — NOT APPROVED`. Phase-3
+Approval Gate not reached; `LIVE` remains `NOT_AUTHORIZED`.
+
+**Files changed:** `docs/adr/ADR-046.md` only (substantive edit), plus deterministic
+bookkeeping: `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`,
+`docs/MANIFEST.md`, `docs/CHANGELOG.md`. No Context code, Domain Contract, Input Contract,
+Event Contract, Stream Registry, Module Registry, Constitution file, or existing Approved ADR
+touched. `manifest_version` `"10.450"` -> `"10.451"`.
+
+**Next governed action:** Fresh ChatGPT Review A re-review of `ADR-046` v0.5 corrected Draft
 candidate.
 
 ## Decision Log

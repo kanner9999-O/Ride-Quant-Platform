@@ -2,6 +2,26 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-25 — ADR-046: bounded correction, round 4 (v0.4 → v0.5)
+
+Starting `main == origin/main == e8e26c27ec8a476e0bff7daa70313eae0a2a993f`, fresh-verified, working tree clean. `ADR-046.md` fresh-verified exact (blob `2ddd2345474a2f161042a89c4e5c47c22a48b3a1`) before mutation.
+
+Narrowly-scoped correction of `docs/adr/ADR-046.md` remediating the two remaining Review-A Majors found against v0.4: `REVISION_REQUIRED — 0 Blocker / 2 Major / 0 Minor`, Risk `R2`, ADR Scope `ADR_REQUIRED`, no Product Owner decision yet.
+
+All findings from rounds 1-3 (ten total: `MAJ-01`–`MAJ-04`, `MIN-01`–`MIN-02`, `MAJ-R2-01`–`MAJ-R2-03`, `MAJ-R3-01`) are `CLOSED — REVIEW A VALIDATED` per round-4 Review A's own determination — not reopened by this transaction. Core decision direction preserved unchanged.
+
+**MAJ-R4-01** (`COVERS_CONTEXT` proof omitted recorded-time non-regression) — v0.4's field-level proof method proved same-stream `stream_positions` non-regression but never proved the recorded-time leg of the full visibility predicate (`E.recorded_time <= R.recorded_time`), since neither Chapter 5 nor Chapter 8 guarantees `recorded_time` is monotonic with same-stream `sequence`. Corrected: new proof condition 3, `R_new.recorded_time >= R_old.recorded_time`, with an explicit transitive proof for every `E` in `K_context(R_old)`; explicit clarification this is not an ordering claim (`R_new.recorded_time >= R_old.recorded_time` does NOT mean `R_new > R_old`, Ordering-Authority discipline Chapter 5 §5.4/Chapter 8 §8.3.3 unaffected); remaining conditions renumbered (lifecycle frontier 4, retired-stream semantics 5, registry/contract transitions 6); closing "semantic definition remains authoritative" paragraph added.
+
+**MAJ-R4-02** (`COVERS_CONTEXT` required only for temporal supersession, not all invalidation triggers) — Decision item 5 condition 7 protected only the temporal eligible-winner-supersession trigger, leaving Decision item 6's preserved direct upstream correction triggers (`CandleCorrected`, `StructureFactInvalidated`/`StructureRecomputed`, `RegimeFactInvalidated`/replacement, `FeatureFactInvalidated`/replacement) able to invalidate a current-valid Context projection record with no knowledge-non-regression precondition. Corrected: new Decision item `3a` defines a single universal current-lineage invalidation knowledge-boundary precondition (`R_later COVERS_CONTEXT R_original`) governing every `MarketContextFactInvalidated` regardless of trigger class, including Candle direct correction; Decision item 5 condition 7 now references item 3a instead of duplicating it (exact requirement preserved, duplicate copy removed); Decision item 6 cross-references item 3a explicitly; Decision item 8 gains a Case-A legality clarification and a "Resulting coverage chain" paragraph showing `K_context(R_original) ⊆ K_context(R_later) ⊆ K_context(R_replacement)` by transitive set inclusion — never a global total order.
+
+No STOP condition triggered. No Context code, Domain Contract, Input Contract, Event Contract, Stream Registry, Module Registry, Constitution, or existing Approved ADR touched.
+
+**M2 unchanged (`BLOCKED`). M3 remains `ACTIVE`** (deterministic core remains Review-A-validated CLEAN; ADR-046 v0.5 pending fresh Review A). **M4 remains `QUEUED`.** `ADR-046: Draft — NOT APPROVED`. Phase-3 Approval Gate not reached; LIVE remains `NOT_AUTHORIZED`.
+
+Next governed action: fresh ChatGPT Review A re-review of ADR-046 v0.5 corrected Draft candidate.
+
+---
+
 ## [Unreleased] — 2026-09-25 — ADR-046: bounded correction, round 3 (v0.3 → v0.4)
 
 Starting `main == origin/main == 140319279347782791ae1830b721474ca5d007c8`, fresh-verified, working tree clean. `ADR-046.md` fresh-verified exact (blob `4a4959bbe847eb47f90acbf1ea97d848f83a8569`) before mutation.
