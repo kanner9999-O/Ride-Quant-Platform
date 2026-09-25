@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.443"
+manifest_version: "10.444"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -30303,6 +30303,119 @@ M4 — WAS "Feature Engine -> Downstream Phase-3 Unlock / Integration"
 **ADR Scope / Risk:** `ADR_NOT_REQUIRED`. Risk: `R1`.
 
 **Files changed:** `docs/project/ride-critical-path-correction-001.json` (new), `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — exactly 5 files. No `src/`, `tests/`, `tooling/`, dependency, Constitution, ADR, `module-registry.yaml`, `feature-engine-m2-scope-derivation-001.json`, `feature-engine-chapter13-remediation-plan-001.md`, or any Condition-1/2/3 evidence file touched. No critical-path/downstream implementation performed. `manifest_version` `"10.442"` -> `"10.443"`.
+
+## Context Aggregator deterministic core — first bounded Phase-3 implementation slice (`CONTEXT-AGGREGATOR-CORE-001`)
+
+First bounded implementation WP inside M3 (Context Projection /
+`context-aggregator`). Implements the **deterministic Context aggregation
+CORE ONLY** — no runtime/event-log integration, no stream-frontier capture,
+no Input Contract authority resolution, no output Event Contract
+publication, no Strategy/Decision integration, no Quality-Gate closure.
+
+**Fresh-verified before mutation:** boundary
+`97ace48f5780abc47fae127c7f11659a988b4a72`; all 6 pinned artifact/authority
+blobs (`ride-critical-path-correction-001.json`, `milestone.md`,
+`module-registry.yaml`, `feature-context-architecture.md`, `context.md`,
+`stream-registry.yaml`) matched exactly; upstream
+`market-data-ingestion`/`structure-engine`/`raw-regime-engine`/
+`feature-engine` implementation directories confirmed to still exist; no
+`context-aggregator` implementation directory existed yet.
+
+**Language resolution:** Python — the unambiguous application of
+`ADR-008`'s layer-level pin (core analytical/decision-support logic, no
+venue I/O/risk-control/execution boundary) to this module's
+`implements_capabilities: [context-aggregation]` registry entry, per
+`docs/engineering/monorepo.md` §4. `ADR_NOT_REQUIRED`, no new ADR created —
+same pattern already used for `feature-engine`/`structure-engine`.
+
+**New package:** `python/context-aggregator/` (package `context_aggregator`,
+Python `>=3.13`, zero runtime dependencies) —
+
+```text
+scope.py        ContextSubjectScope / deterministic context_subject_id (§1)
+definition.py   Bounded ContextDefinition (§6) — NOT a registry
+evidence.py     Module-local consumer-side views for exactly the seven
+                upstream roles (§7) — no import of feature_engine/
+                structure_engine/raw_regime_engine
+selection.py    The exact two-phase Eligible Upstream Fact pipeline (§8):
+                Phase 1 four-step per-candidate filtering, Phase 2
+                role-specific selection, shared seven-criterion
+                total-order tie-break; canonical input normalization (§10)
+aggregation.py  Public entrypoint aggregate_context_candidate (§9/§17)
+values.py       ContextValues / ContextAggregationCandidate — explicitly
+                NOT a published MarketContextSnapshot; no fabricated
+                event_id/event_contract_ref/stream_ref/producer_ref/
+                sequence
+identity.py     Deterministic opaque subject-id helper (module-local,
+                duplicated from feature-engine's own pattern, not imported)
+errors.py       Module-local technical failure modes only
+```
+
+**Explicit visibility/frontier boundary (Boundary D) preserved:** the
+public entrypoint accepts, per role, only candidate facts the caller
+already certifies as cursor-visible — recorded-time visibility (§8 Phase 1
+step 2, §14(a)) is NOT re-implemented here (would require inventing
+stream-position/frontier semantics `feature-context-architecture.md` §13
+still leaves open). Every other locally-resolvable Context-owned predicate
+IS enforced: identity/scope match, required definition-version match,
+effective-time cutoff (inclusive, no look-ahead), role-specific
+validity-at-cursor via supplied invalidation/lineage evidence, exact
+seven-role cardinality (fail-closed `None` on any gap — no null filling,
+stale fallback, or partial snapshot), deterministic role-specific winner
+selection (Structure: max `recorded_time`; Regime/Feature: lineage head,
+never falls back to a superseded survivor), and deterministic canonical
+normalization (raw `sequence` never compared across streams as a global
+order).
+
+**Terminology:** `ContextAggregationCandidate` is explicitly called an
+*eligible cursor-bounded Context aggregation candidate* — record-integrity
+properties only (immutable, cursor-bounded, lineage-preserving, eligible),
+never an authoritative `MarketContextSnapshot` claim
+(`feature-context-architecture.md` §5.2/§13's terminology correction,
+preserved unresolved as a non-blocking open gap — this transaction does not
+resolve it).
+
+**Validation:** `pytest` — 54 passed. `ruff check` — clean. `mypy --strict`
+— clean, 16 source files. `coverage` — 96% (diagnostic only, no formal
+Chapter-13 Quality Gate claim, no Quality Tier assigned).
+
+**Unresolved gaps explicitly preserved, none invented by this transaction:**
+no Context-scoped Input Contract; no published Context Event Contract
+(`market-context-snapshot`/`market-context-fact-invalidated`); no runtime
+`stream_ref`/`producer_ref` population; no ADR-009 concrete runtime
+ordering protocol; no concrete `context_definition_version` registry/
+storage mechanism; `context-aggregator.quality_tier` remains unresolved; no
+formal Chapter-13 Quality-Gate PASS. No Strategy/Decision/Risk Gateway/
+Execution work performed.
+
+**STOP conditions:** none triggered. Context semantic baseline (`context.md`
+§1/§6/§7/§8/§9/§10/§14/§17; `feature-context-architecture.md` §5/§13) was
+uniquely resolvable from existing authority — no invented Input Contract,
+Event Contract, frontier semantics, dependency-graph change, or new
+authoritative Context-state model was required.
+
+**Review / routing:** implemented and locally verified by Claude, but **NOT
+self-approved** — the exact implementation result is returned to ChatGPT
+for fresh Review A + Risk Classification. Expected planning classification
+`R1` / `ADR_NOT_REQUIRED`, not decided here.
+
+**Confirmation:** no upstream module source touched
+(`market-data-ingestion`/`structure-engine`/`raw-regime-engine`/
+`feature-engine` all byte-unchanged). No `docs/architecture/
+module-registry.yaml`/`stream-registry.yaml`/Constitution/ADR semantics
+changed. **M2 unchanged (`BLOCKED`, parallel evidence lane). M3 remains
+`ACTIVE`** (deterministic core now implemented; NOT `DONE` — runtime/Input
+Contract/Event Contract/publishing/Strategy integration still
+deliberately open). **M4 remains `QUEUED`.** Phase-3 Approval Gate not
+reached; `LIVE` remains `NOT_AUTHORIZED`.
+
+**Files changed:** `python/context-aggregator/**` (new package — source,
+tests, `pyproject.toml`, `README.md`, `.gitignore`), `docs/project/
+milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`,
+`docs/CHANGELOG.md`. No `docs/domain/context.md`, `docs/architecture/
+module-registry.yaml`, `docs/architecture/stream-registry.yaml`,
+`docs/architecture/engine/feature-context-architecture.md`, Constitution,
+or ADR file touched. `manifest_version` `"10.443"` -> `"10.444"`.
 
 ## Decision Log
 

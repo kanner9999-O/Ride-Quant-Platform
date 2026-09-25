@@ -2,6 +2,32 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-25 — context-aggregator: first bounded Phase-3 implementation slice — deterministic Context aggregation core
+
+Starting `main == origin/main == 97ace48f5780abc47fae127c7f11659a988b4a72`, fresh-verified, working tree clean, no drift. All 6 pinned artifact/authority blobs fresh-verified exact before mutation. Upstream `market-data-ingestion`/`structure-engine`/`raw-regime-engine`/`feature-engine` implementation directories confirmed to still exist; no `context-aggregator` directory existed yet.
+
+First bounded implementation WP inside M3 (Context Projection / `context-aggregator`, `ACTIVE`). Implements the **deterministic Context aggregation CORE ONLY** -- no runtime/event-log integration, no stream-frontier capture, no Input Contract authority resolution, no output Event Contract publication, no Strategy/Decision integration, no Quality-Gate closure.
+
+**Language resolution:** Python -- unambiguous application of `ADR-008`'s layer-level pin to `context-aggregator`'s `implements_capabilities: [context-aggregation]` registry entry (`docs/engineering/monorepo.md` §4). `ADR_NOT_REQUIRED`, no new ADR.
+
+**New package:** `python/context-aggregator/` (package `context_aggregator`, Python `>=3.13`, zero runtime dependencies) -- implements `docs/domain/context.md` §8's exact two-phase Eligible Upstream Fact selection pipeline, §9 seven-role cardinality with fail-closed `None` result, §10 canonical input normalization, and §17 verbatim (never recomputed) Context-values assembly.
+
+**Explicit visibility boundary (Boundary D) preserved:** the public entrypoint accepts, per role, only already cursor-visible candidates -- recorded-time visibility is the caller's responsibility, never self-certified here. Every other locally-resolvable Context-owned predicate is enforced.
+
+**Terminology:** internal result type is an *eligible cursor-bounded Context aggregation candidate*, never an authoritative `MarketContextSnapshot` claim -- see `feature-context-architecture.md` §5.2/§13's preserved, non-blocking open gap.
+
+**Validation:** `pytest` 54 passed; `ruff check` clean; `mypy --strict` clean; `coverage` 96% (diagnostic only).
+
+**Unresolved gaps explicitly preserved, none invented:** no Input Contract, no published Event Contract, no `stream_ref`/`producer_ref` resolution, no ADR-009 protocol, no `context_definition_version` registry mechanism, `quality_tier` unresolved, no formal Quality-Gate PASS.
+
+Result **not self-approved** -- returned to ChatGPT for fresh Review A + Risk Classification (expected `R1`/`ADR_NOT_REQUIRED`).
+
+**M2 unchanged (`BLOCKED`, parallel lane). M3 remains `ACTIVE`** (core implemented, not `DONE`). **M4 remains `QUEUED`.** Phase-3 Approval Gate not reached; LIVE remains `NOT_AUTHORIZED`.
+
+No `docs/domain/context.md`, `module-registry.yaml`, `stream-registry.yaml`, `feature-context-architecture.md`, Constitution, or ADR file touched. No upstream module source touched.
+
+---
+
 ## [Unreleased] — 2026-09-25 — project: Ride critical-path correction — M3/M4 redefined, M2 preserved as parallel evidence lane
 
 Starting `main == origin/main == cb4c514f2b11747ef4483910bce13a3ead628c5d`, fresh-verified, working tree clean, no drift. All 9 pinned artifact/authority blobs fresh-verified exact before mutation.
