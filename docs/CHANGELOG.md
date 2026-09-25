@@ -2,6 +2,28 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-25 — context-aggregator: bounded correction of 3 Review-A Majors (computation-point binding, lineage resurrection, Structure interval)
+
+Starting `main == origin/main == 60124a1f77811651f34f34314c983207d0759cc7`, fresh-verified, working tree clean. All 8 pinned blobs (`evidence.py`, `selection.py`, `aggregation.py`, `context.md`, `candle.md`, `structure.md`, `regime.md`, `feature.md`) fresh-verified exact before mutation.
+
+Bounded correction of `CONTEXT-AGGREGATOR-CORE-001`, remediating ChatGPT Review A `REVISION_REQUIRED — 0 Blocker / 3 Major / 0 Minor`, Risk `R1`, ADR Scope `ADR_NOT_REQUIRED`. Starting implementation remains valid in architecture/package boundary -- semantic correction, not a rollback/rewrite.
+
+**`CONTEXT-CORE-A-MAJ-01`** -- Candle computation-point binding was lost (Phase-2 total order could silently pick a newer, unrelated window instead of the intended correction target). Fixed: `aggregate_context_candidate`/`select_candle` now require an explicit `target_computation_point_ref`; lineage resolved only within that fact's own window; missing/invalid target fails closed.
+
+**`CONTEXT-CORE-A-MAJ-02`** -- a superseded Regime/Feature fact could resurrect if its replacement later became invalidated with no further replacement visible (the old `superseded` set was built only from post-invalidation survivors). Fixed: the lineage-superseded set is now resolved over the full identity-matched candidate set, before cutoff/invalidation filtering -- a once-superseded fact never resurfaces. New `MalformedLineageError` fails closed on detectable fork/self-supersession.
+
+**`CONTEXT-CORE-A-MAJ-03`** -- `StructureFact.effective_time` was collapsed to a scalar `datetime`, losing the boundary-start component structure.md/candle.md's own interval binding requires. Fixed: now `EffectiveWindow`; cutoff/tie-break/normalization all use the real `.window_start`/`.window_end` pair.
+
+**Tests:** 15 new regression tests covering the exact MAJ-01/02/03 mandatory scenarios (both Regime and Feature for MAJ-02). `pytest` 69/69 passed (was 54); `ruff check` clean; `mypy --strict` clean; `coverage` 97% (diagnostic only).
+
+Findings recorded as `CONTEXT-CORE-A-MAJ-01`/`-02`/`-03` -- addressed/remediated, **NOT self-closed**; closure belongs to a fresh ChatGPT Review A re-review.
+
+No `docs/domain/*.md`, module-registry, stream-registry, Constitution, or ADR file touched. No upstream module source touched. No Input Contract/Event Contract/frontier/publishing/Current-View work added; no Quality Tier assigned.
+
+**M2 unchanged (`BLOCKED`, parallel lane). M3 remains `ACTIVE`** (core corrected, not `DONE`). **M4 remains `QUEUED`.** Phase-3 Approval Gate not reached; LIVE remains `NOT_AUTHORIZED`.
+
+---
+
 ## [Unreleased] — 2026-09-25 — context-aggregator: first bounded Phase-3 implementation slice — deterministic Context aggregation core
 
 Starting `main == origin/main == 97ace48f5780abc47fae127c7f11659a988b4a72`, fresh-verified, working tree clean, no drift. All 6 pinned artifact/authority blobs fresh-verified exact before mutation. Upstream `market-data-ingestion`/`structure-engine`/`raw-regime-engine`/`feature-engine` implementation directories confirmed to still exist; no `context-aggregator` directory existed yet.

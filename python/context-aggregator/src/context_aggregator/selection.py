@@ -28,7 +28,7 @@ from datetime import datetime
 from functools import cmp_to_key
 from typing import Protocol, TypeVar
 
-from context_aggregator.errors import DuplicateFactReferenceError
+from context_aggregator.errors import DuplicateFactReferenceError, MalformedLineageError
 from context_aggregator.evidence import (
     CandleFact,
     FeatureFact,
@@ -65,6 +65,53 @@ def _reject_conflicting_duplicates(candidates: Sequence[_R]) -> None:  # noqa: U
             seen[candidate.ref] = candidate
         elif prior != candidate:
             raise DuplicateFactReferenceError(candidate.ref)
+
+
+class _Supersedes(Protocol):
+    """Same read-only-property rationale as `_Referenced`."""
+
+    @property
+    def ref(self) -> EventRecordRef: ...
+
+    @property
+    def supersedes_ref(self) -> EventRecordRef | None: ...
+
+
+_S = TypeVar("_S", bound=_Supersedes)
+
+
+def _lineage_superseded_targets(candidates: Sequence[_S]) -> set[EventRecordRef]:  # noqa: UP047
+    """The full set of refs ever pointed to by some OTHER candidate's
+    `supersedes_ref`, computed over the WHOLE supplied candidate set —
+    never restricted to currently-valid/non-invalidated survivors. A fact
+    that has ever been superseded by a visible successor must never become
+    current again merely because that successor later enters pending
+    correction (CONTEXT-CORE-A-MAJ-02) — mirrors regime.md §11's own
+    target-window-before-exclusion ordering principle.
+
+    Also fails closed on the two malformed-lineage shapes this bounded,
+    consumer-side evidence set can actually detect: self-supersession (a
+    fact's `supersedes_ref` equals its own `ref`) and a fork (two distinct
+    facts both claim to supersede the same target — at most one direct
+    replacement per invalidated fact, context.md §12 rule 6/regime.md rule
+    6). Broken-target and cross-role/cross-window lineage inconsistencies
+    are NOT detectable from this bounded evidence alone and are not
+    invented here.
+    """
+    superseded: set[EventRecordRef] = set()
+    claimed_by: dict[EventRecordRef, EventRecordRef] = {}
+    for c in candidates:
+        target = c.supersedes_ref
+        if target is None:
+            continue
+        if target == c.ref:
+            raise MalformedLineageError(c.ref)
+        prior_claimant = claimed_by.get(target)
+        if prior_claimant is not None and prior_claimant != c.ref:
+            raise MalformedLineageError((prior_claimant, c.ref, target))
+        claimed_by[target] = c.ref
+        superseded.add(target)
+    return superseded
 
 
 class _RankedFact(Protocol):
@@ -116,22 +163,46 @@ def select_candle(
     instrument_id: str,
     venue_id: str,
     timeframe: str,
+    target_computation_point_ref: EventRecordRef,
 ) -> CandleFact | None:
-    """Candle cutoff/cadence source role (context.md §7.0/§8). Phase 1 step
-    4 (lineage resolution) is performed inline: only a survivor not
-    superseded by another survivor's `supersedes_ref` proceeds to Phase 2.
-    There is no external `context_cutoff` filter for this role — the
-    winning Candle fact's own `effective_window.window_end` DEFINES
-    `context_cutoff` for every other role (context.md §6/§11)."""
+    """Candle cutoff/cadence source role (context.md §7.0/§8).
+
+    **Computation-point binding (CONTEXT-CORE-A-MAJ-01):** the caller MUST
+    explicitly identify the intended computation point via
+    `target_computation_point_ref` — a ref naming a specific visible Candle
+    fact the caller observed (e.g. the `candle-closed`/`candle-corrected`
+    that triggered this aggregation attempt). This core never selects an
+    unrelated, merely-newer Candle window instead: it locates the named
+    fact to determine which exact window is being requested, then resolves
+    ONLY that window's current visible lineage head. A `target_computation_
+    point_ref` that is absent/invalid within `candidates` fails closed —
+    `None`, no candidate — exactly per the existing missing-role boundary
+    (§9); this is not a new frontier/cursor mechanism, only a caller-
+    supplied identity check against caller-supplied evidence.
+
+    The winning Candle fact's own `effective_window` DEFINES both
+    `context_cutoff` and the resulting candidate's `effective_window` for
+    every other role (context.md §6/§11) — never an unrelated later window.
+    """
     _reject_conflicting_duplicates(candidates)
     scope_matched = [
         c
         for c in candidates
         if c.instrument_id == instrument_id and c.venue_id == venue_id and c.timeframe == timeframe
     ]
-    superseded = {c.supersedes_ref for c in scope_matched if c.supersedes_ref is not None}
-    survivors = [c for c in scope_matched if c.ref not in superseded]
-    if not survivors:
+    target_matches = [c for c in scope_matched if c.ref == target_computation_point_ref]
+    if not target_matches:
+        return None
+    target_window = target_matches[0].effective_window
+    window_matched = [
+        c
+        for c in scope_matched
+        if c.effective_window.window_start == target_window.window_start
+        and c.effective_window.window_end == target_window.window_end
+    ]
+    superseded = _lineage_superseded_targets(window_matched)
+    lineage_heads = [c for c in window_matched if c.ref not in superseded]
+    if not lineage_heads:
         return None
 
     def _cmp(a: CandleFact, b: CandleFact) -> int:
@@ -139,7 +210,7 @@ def select_candle(
             a, b, lambda x: x.effective_window.window_end, lambda x: x.effective_window.window_start
         )
 
-    ordered = sorted(survivors, key=cmp_to_key(_cmp))
+    ordered = sorted(lineage_heads, key=cmp_to_key(_cmp))
     return ordered[0]
 
 
@@ -156,7 +227,14 @@ def select_structure(
     """Structure role (context.md §7.1/§8). Phase 2 winner = survivor with
     MAX `recorded_time` (each BOS/CHoCH/StructureRecomputed sets the ENTIRE
     orientation, never accumulates); the shared total-order tie-break only
-    applies among survivors tied on that maximum."""
+    applies among survivors tied on that maximum.
+
+    `effective_time` is the `[window_start, window_end)` interval of the
+    breaking Candle (CONTEXT-CORE-A-MAJ-03) — the cutoff check and the
+    tie-break's boundary-end/boundary-start criteria use the interval's
+    `window_end`/`window_start` respectively, never one scalar collapsed
+    onto both.
+    """
     _reject_conflicting_duplicates(candidates)
     survivors = []
     for c in candidates:
@@ -164,7 +242,7 @@ def select_structure(
             continue
         if c.definition_version != required_definition_version:
             continue
-        if c.effective_time > context_cutoff:
+        if c.effective_time.window_end > context_cutoff:
             continue
         if c.kind != StructureFactKind.STRUCTURE_RECOMPUTED and c.ref in invalidated_refs:
             continue
@@ -175,7 +253,9 @@ def select_structure(
     tied = [c for c in survivors if c.recorded_time == max_recorded]
 
     def _cmp(a: StructureFact, b: StructureFact) -> int:
-        return _compare_total_order(a, b, lambda x: x.effective_time, lambda x: x.effective_time)
+        return _compare_total_order(
+            a, b, lambda x: x.effective_time.window_end, lambda x: x.effective_time.window_start
+        )
 
     ordered = sorted(tied, key=cmp_to_key(_cmp))
     return ordered[0]
@@ -193,27 +273,36 @@ def select_regime(
     invalidated_refs: Set[EventRecordRef] = frozenset(),
 ) -> RegimeFact | None:
     """One Regime dimension role (context.md §7.2/§8). Phase 2 winner = the
-    current lineage head: the survivor no OTHER survivor's `supersedes_ref`
-    points to — never a fallback to an already-superseded survivor."""
+    current lineage head: the fact no OTHER candidate's `supersedes_ref`
+    points to — never a fallback to an already-superseded fact.
+
+    **CONTEXT-CORE-A-MAJ-02:** the lineage graph (which facts are
+    superseded) is resolved over the FULL identity/scope/dimension/
+    definition-version-matched candidate set, independent of and BEFORE
+    the effective-time-cutoff and not-invalidated filters — mirrors
+    regime.md §11's own "determine target window before excluding
+    anything" principle. A fact that has ever been superseded by a visible
+    successor is removed from consideration permanently; it can never
+    resurface merely because that successor later becomes invalidated with
+    no replacement visible yet (that case resolves to `None` — role
+    missing/pending, §9 — never a fallback to the superseded fact).
+    """
     _reject_conflicting_duplicates(candidates)
-    survivors = []
-    for c in candidates:
-        if c.instrument_id != instrument_id or c.venue_id != venue_id or c.timeframe != timeframe:
-            continue
-        if c.regime_dimension != dimension:
-            continue
-        if c.definition_version != required_definition_version:
-            continue
-        if c.analysis_window.window_end > context_cutoff:
-            continue
-        if c.ref in invalidated_refs:
-            continue
-        survivors.append(c)
-    if not survivors:
-        return None
-    superseded = {c.supersedes_ref for c in survivors if c.supersedes_ref is not None}
-    lineage_heads = [c for c in survivors if c.ref not in superseded]
-    if not lineage_heads:
+    identity_matched = [
+        c
+        for c in candidates
+        if c.instrument_id == instrument_id
+        and c.venue_id == venue_id
+        and c.timeframe == timeframe
+        and c.regime_dimension == dimension
+        and c.definition_version == required_definition_version
+    ]
+    superseded = _lineage_superseded_targets(identity_matched)
+    lineage_heads = [c for c in identity_matched if c.ref not in superseded]
+    eligible = [
+        c for c in lineage_heads if c.analysis_window.window_end <= context_cutoff and c.ref not in invalidated_refs
+    ]
+    if not eligible:
         return None
 
     def _cmp(a: RegimeFact, b: RegimeFact) -> int:
@@ -221,7 +310,7 @@ def select_regime(
             a, b, lambda x: x.analysis_window.window_end, lambda x: x.analysis_window.window_start
         )
 
-    ordered = sorted(lineage_heads, key=cmp_to_key(_cmp))
+    ordered = sorted(eligible, key=cmp_to_key(_cmp))
     return ordered[0]
 
 
@@ -237,26 +326,29 @@ def select_feature(
     invalidated_refs: Set[EventRecordRef] = frozenset(),
 ) -> FeatureFact | None:
     """One founding Feature-type role (context.md §7.3/§8). Phase 2 winner =
-    the current lineage head, symmetric to `select_regime`."""
+    the current lineage head, symmetric to `select_regime`.
+
+    **CONTEXT-CORE-A-MAJ-02:** lineage resolved over the full identity-
+    matched candidate set, independent of and before the cutoff/
+    not-invalidated filters — see `select_regime`'s docstring for the full
+    rationale.
+    """
     _reject_conflicting_duplicates(candidates)
-    survivors = []
-    for c in candidates:
-        if c.instrument_id != instrument_id or c.venue_id != venue_id or c.timeframe != timeframe:
-            continue
-        if c.feature_type != feature_type:
-            continue
-        if c.definition_version != required_definition_version:
-            continue
-        if c.effective_window.window_end > context_cutoff:
-            continue
-        if c.ref in invalidated_refs:
-            continue
-        survivors.append(c)
-    if not survivors:
-        return None
-    superseded = {c.supersedes_ref for c in survivors if c.supersedes_ref is not None}
-    lineage_heads = [c for c in survivors if c.ref not in superseded]
-    if not lineage_heads:
+    identity_matched = [
+        c
+        for c in candidates
+        if c.instrument_id == instrument_id
+        and c.venue_id == venue_id
+        and c.timeframe == timeframe
+        and c.feature_type == feature_type
+        and c.definition_version == required_definition_version
+    ]
+    superseded = _lineage_superseded_targets(identity_matched)
+    lineage_heads = [c for c in identity_matched if c.ref not in superseded]
+    eligible = [
+        c for c in lineage_heads if c.effective_window.window_end <= context_cutoff and c.ref not in invalidated_refs
+    ]
+    if not eligible:
         return None
 
     def _cmp(a: FeatureFact, b: FeatureFact) -> int:
@@ -264,7 +356,7 @@ def select_feature(
             a, b, lambda x: x.effective_window.window_end, lambda x: x.effective_window.window_start
         )
 
-    ordered = sorted(lineage_heads, key=cmp_to_key(_cmp))
+    ordered = sorted(eligible, key=cmp_to_key(_cmp))
     return ordered[0]
 
 

@@ -44,3 +44,12 @@ class DuplicateFactReferenceError(ContextAggregatorError):
     `EventRecordRef` — context.md §10 requires `normalized_input_fact_refs`
     to contain exactly seven distinct elements; neither case is ever
     resolved by last-write-wins or silently deduplicated."""
+
+
+class MalformedLineageError(ContextAggregatorError):
+    """A role's supplied candidate set contains a correction-lineage shape
+    this core can positively detect as invalid: self-supersession (a fact's
+    `supersedes_ref` equals its own `ref`), or a fork (two distinct facts
+    both claim `supersedes_ref` on the same target — at most one direct
+    replacement per invalidated fact, context.md §12 rule 6). Fails closed
+    rather than guessing which candidate is the genuine lineage edge."""

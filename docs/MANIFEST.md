@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.444"
+manifest_version: "10.445"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -30416,6 +30416,126 @@ milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`,
 module-registry.yaml`, `docs/architecture/stream-registry.yaml`,
 `docs/architecture/engine/feature-context-architecture.md`, Constitution,
 or ADR file touched. `manifest_version` `"10.443"` -> `"10.444"`.
+
+## Context Aggregator deterministic core — bounded correction of 3 Review-A Majors (`CONTEXT-AGGREGATOR-CORE-001-CORR-001`)
+
+Bounded correction of `CONTEXT-AGGREGATOR-CORE-001`, remediating three
+ChatGPT Review A Majors (`REVISION_REQUIRED — 0 Blocker / 3 Major / 0
+Minor`, Risk `R1`, ADR Scope `ADR_NOT_REQUIRED`, no Product Owner decision
+required). Starting implementation remains valid in overall architecture
+and package boundary — this is a semantic correction, not a rollback or
+rewrite.
+
+**Fresh-verified before mutation:** boundary
+`60124a1f77811651f34f34314c983207d0759cc7`; all 8 pinned blobs
+(`evidence.py`, `selection.py`, `aggregation.py`, `context.md`,
+`candle.md`, `structure.md`, `regime.md`, `feature.md`) matched exactly.
+
+**`CONTEXT-CORE-A-MAJ-01` — computation-point Candle binding was lost.**
+`select_candle()` previously resolved across ALL same-scope Candle
+candidates via the Phase-2 total order, effectively always picking the
+newest eligible window — insufficient for context.md §6/§7.0/§11, where
+each authoritative Candle fact defines exactly ONE specific computation
+point. A correction targeting an older window (e.g. W1) could be silently
+misdirected to a newer, unrelated window (W2). **Fix:** `aggregate_context_
+candidate`/`select_candle` now require an explicit `target_computation_
+point_ref`, naming the exact visible Candle fact this call is computing
+Context for. The core locates that fact to determine its window, then
+resolves the current visible lineage head ONLY within that window — an
+unrelated later window never wins merely because its effective boundary is
+newer. A missing/invalid target fails closed (`None`), per the existing
+missing-role boundary — no new frontier/cursor authority invented.
+
+**`CONTEXT-CORE-A-MAJ-02` — superseded Regime/Feature fact could
+resurrect.** `select_regime()`/`select_feature()` previously filtered
+invalidated facts out FIRST, then built the `superseded` set only from the
+remaining survivors — so if a replacement B (superseding original A) later
+became invalidated with no further replacement C visible, B would drop out
+of the survivor set, the `superseded` set would no longer contain A's ref,
+and A could be wrongly resurrected as the "current" lineage head. This
+directly violates append-only correction semantics: once superseded, a
+fact is historical and must never resurface. **Fix:** the lineage-
+superseded set is now resolved over the FULL identity/scope/dimension/
+definition-version-matched candidate set, independent of and before the
+effective-time-cutoff and not-invalidated filters — mirrors regime.md
+§11's own "determine target window before excluding anything" principle.
+If the actual current lineage head is invalidated with no eligible
+replacement visible, the role resolves missing/pending (`None`) — never a
+fallback to a superseded fact. Also now fails closed (new
+`MalformedLineageError`) on the two malformed-lineage shapes this bounded
+consumer-side evidence can positively detect: self-supersession and fork
+(two facts both claiming to supersede the same target).
+
+**`CONTEXT-CORE-A-MAJ-03` — Structure effective-time interval was
+collapsed to a scalar `datetime`.** structure.md binds a Structure event's
+`effective_time` to the breaking Candle's own `effective_time`, which
+candle.md defines as an interval `[window_start, window_end)`, never a
+single instant. The prior `StructureFact.effective_time: datetime`
+representation lost the boundary-start component context.md §8's Phase-2
+tie-break and §10's normalization both require, using the same scalar
+value for both. **Fix:** `StructureFact.effective_time` is now
+`EffectiveWindow`. Phase-1 cutoff now checks `.window_end <= context_
+cutoff`; the Phase-2 tie-break and §10 canonical normalization now use the
+real `.window_end`/`.window_start` pair.
+
+**Changed source files:** `python/context-aggregator/src/context_
+aggregator/evidence.py` (`StructureFact.effective_time` type change),
+`selection.py` (`select_candle` target-ref binding; `select_regime`/
+`select_feature` full-lineage-graph resolution; new
+`_lineage_superseded_targets` helper with fork/self-supersession
+detection; Structure interval-aware cutoff/tie-break), `aggregation.py`
+(new required `target_computation_point_ref` parameter; interval-aware
+normalization tuple for Structure), `errors.py` (new
+`MalformedLineageError`), `__init__.py` (export it).
+
+**New regression tests (15):** in `tests/test_selection.py` —
+`test_candle_computation_point_binding_w1_correction_not_hijacked_by_
+later_w2` (the exact MAJ-01 mandatory scenario), `test_candle_computation_
+point_binding_normal_w2_computation`, `test_candle_computation_point_ref_
+not_found_fails_closed`; `test_regime_invalidated_replacement_with_no_
+further_replacement_yields_none` / `test_regime_chain_resolves_to_valid_
+current_head_c` / `test_regime_a_remains_superseded_even_though_b_is_
+filtered_by_invalidation` and the symmetric three for Feature (MAJ-02
+Cases 1/2/3, both roles); `test_regime_malformed_lineage_self_supersession_
+fails_closed`, `test_regime_malformed_lineage_fork_fails_closed`;
+`test_structure_tie_break_uses_interval_start_when_end_and_recorded_time_
+tie`, `test_structure_cutoff_checks_window_end_not_start_or_recorded_
+time`, `test_structure_no_cross_stream_sequence_comparison_with_distinct_
+intervals` (MAJ-03). Plus 2 new tests in `tests/test_aggregation.py`
+(`test_later_unrelated_candle_window_never_hijacks_requested_computation_
+point`, and the existing `test_extra_candidates_from_a_different_window_
+do_not_corrupt_result` re-purposed to assert against explicit target
+binding rather than total-order latest-window selection). `conftest.py`'s
+`make_structure` now builds an `EffectiveWindow` (kept `effective_minute`
+as zero-width-interval shorthand for existing callers); `full_valid_
+kwargs` now wires `target_computation_point_ref`.
+
+**Validation:** `pytest` 69/69 passed (was 54). `ruff check` clean.
+`mypy --strict` clean, 16 source files. `coverage` 97% (diagnostic only,
+no formal Chapter-13 Quality Gate claim).
+
+**Not self-closed:** the three findings are recorded as `CONTEXT-CORE-A-
+MAJ-01`/`-02`/`-03` — addressed/remediated by this correction, but closure
+belongs to a fresh ChatGPT Review A re-review, not claimed here.
+
+**Confirmation:** no `docs/domain/*.md` (context.md/candle.md/
+structure.md/regime.md/feature.md all fresh-verified byte-unchanged), no
+`module-registry.yaml`/`stream-registry.yaml`/Constitution/ADR file
+touched; no upstream module source touched; no Input Contract/Event
+Contract/frontier/publishing/Current-View/correction-publication work
+added; no Quality Tier assigned; no Strategy/Decision/Risk/Execution
+semantics introduced. **M2 unchanged (`BLOCKED`, parallel evidence lane).
+M3 remains `ACTIVE`** (core corrected, still NOT `DONE`). **M4 remains
+`QUEUED`.** Phase-3 Approval Gate not reached; `LIVE` remains
+`NOT_AUTHORIZED`.
+
+**Files changed:** `python/context-aggregator/src/context_aggregator/
+{evidence,selection,aggregation,errors,__init__}.py`,
+`python/context-aggregator/tests/{conftest,test_selection,test_
+aggregation}.py`, `python/context-aggregator/README.md`, `docs/project/
+milestone.md`, `docs/project/milestone-dashboard.html`,
+`docs/MANIFEST.md`, `docs/CHANGELOG.md`. `manifest_version` `"10.444"` ->
+`"10.445"`.
 
 ## Decision Log
 

@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+import dataclasses
 from datetime import timedelta
 from decimal import Decimal
 
 import pytest
-from conftest import BASE, make_candle, make_feature, make_regime, make_structure
+from conftest import BASE, make_candle, make_feature, make_regime, make_structure, ref
 
 from context_aggregator import (
+    ContextAggregatorError,
     DuplicateFactReferenceError,
     FeatureType,
     RegimeDimension,
@@ -205,6 +207,255 @@ def test_feature_type_discriminant_excludes_wrong_type() -> None:
     assert winner is None
 
 
+# --- Superseded Regime/Feature resurrection prevention (CONTEXT-CORE-A-MAJ-02) --
+
+
+def test_regime_invalidated_replacement_with_no_further_replacement_yields_none() -> None:
+    """Case 1: A original, B supersedes A, B invalidated, no C visible yet.
+    A must NEVER be returned merely because B (its only successor) is now
+    invalidated — the role resolves missing/pending (context.md §9)."""
+    a = make_regime("regime-a", start=0, end=60, recorded=10, stream_id="stream-regime")
+    b = make_regime("regime-b", start=0, end=60, recorded=20, supersedes=a.ref, stream_id="stream-regime")
+    winner = select_regime(
+        [a, b],
+        instrument_id="BTC-USD",
+        venue_id="binance",
+        timeframe="1h",
+        context_cutoff=BASE + timedelta(minutes=90),
+        dimension=RegimeDimension.VOLATILITY,
+        required_definition_version="regime-vol-v1",
+        invalidated_refs=frozenset({b.ref}),
+    )
+    assert winner is None
+
+
+def test_regime_chain_resolves_to_valid_current_head_c() -> None:
+    """Case 2: A original, B supersedes A, B invalidated, C supersedes B and
+    is eligible/current -> C must win."""
+    a = make_regime("regime-a", start=0, end=60, recorded=10, stream_id="stream-regime")
+    b = make_regime("regime-b", start=0, end=60, recorded=20, supersedes=a.ref, stream_id="stream-regime")
+    c = make_regime("regime-c", start=0, end=60, recorded=30, supersedes=b.ref, stream_id="stream-regime")
+    winner = select_regime(
+        [a, b, c],
+        instrument_id="BTC-USD",
+        venue_id="binance",
+        timeframe="1h",
+        context_cutoff=BASE + timedelta(minutes=90),
+        dimension=RegimeDimension.VOLATILITY,
+        required_definition_version="regime-vol-v1",
+        invalidated_refs=frozenset({b.ref}),
+    )
+    assert winner is c
+
+
+def test_regime_a_remains_superseded_even_though_b_is_filtered_by_invalidation() -> None:
+    """Case 3: even though B is excluded from the eligible/current-valid
+    output (invalidated), A must still be recognized as historically
+    superseded by B and never resurface — same fixture as Case 1, asserted
+    from the lineage-superseded-set angle rather than just the end result."""
+    a = make_regime("regime-a", start=0, end=60, recorded=10, stream_id="stream-regime")
+    b = make_regime("regime-b", start=0, end=60, recorded=20, supersedes=a.ref, stream_id="stream-regime")
+    winner = select_regime(
+        [a, b],
+        instrument_id="BTC-USD",
+        venue_id="binance",
+        timeframe="1h",
+        context_cutoff=BASE + timedelta(minutes=90),
+        dimension=RegimeDimension.VOLATILITY,
+        required_definition_version="regime-vol-v1",
+        invalidated_refs=frozenset({b.ref}),
+    )
+    assert winner is not a
+    assert winner is None
+
+
+def test_feature_invalidated_replacement_with_no_further_replacement_yields_none() -> None:
+    a = make_feature("feature-a", start=0, end=60, recorded=10, value=Decimal("1.0"), stream_id="stream-feature")
+    b = make_feature(
+        "feature-b",
+        start=0,
+        end=60,
+        recorded=20,
+        value=Decimal("2.0"),
+        supersedes=a.ref,
+        stream_id="stream-feature",
+    )
+    winner = select_feature(
+        [a, b],
+        instrument_id="BTC-USD",
+        venue_id="binance",
+        timeframe="1h",
+        context_cutoff=BASE + timedelta(minutes=90),
+        feature_type=FeatureType.VOLATILITY_METRIC,
+        required_definition_version="feat-vol-v1",
+        invalidated_refs=frozenset({b.ref}),
+    )
+    assert winner is None
+
+
+def test_feature_chain_resolves_to_valid_current_head_c() -> None:
+    a = make_feature("feature-a", start=0, end=60, recorded=10, value=Decimal("1.0"), stream_id="stream-feature")
+    b = make_feature(
+        "feature-b",
+        start=0,
+        end=60,
+        recorded=20,
+        value=Decimal("2.0"),
+        supersedes=a.ref,
+        stream_id="stream-feature",
+    )
+    c = make_feature(
+        "feature-c",
+        start=0,
+        end=60,
+        recorded=30,
+        value=Decimal("3.0"),
+        supersedes=b.ref,
+        stream_id="stream-feature",
+    )
+    winner = select_feature(
+        [a, b, c],
+        instrument_id="BTC-USD",
+        venue_id="binance",
+        timeframe="1h",
+        context_cutoff=BASE + timedelta(minutes=90),
+        feature_type=FeatureType.VOLATILITY_METRIC,
+        required_definition_version="feat-vol-v1",
+        invalidated_refs=frozenset({b.ref}),
+    )
+    assert winner is c
+    assert winner.value == Decimal("3.0")
+
+
+def test_feature_a_remains_superseded_even_though_b_is_filtered_by_invalidation() -> None:
+    a = make_feature("feature-a", start=0, end=60, recorded=10, value=Decimal("1.0"), stream_id="stream-feature")
+    b = make_feature(
+        "feature-b",
+        start=0,
+        end=60,
+        recorded=20,
+        value=Decimal("2.0"),
+        supersedes=a.ref,
+        stream_id="stream-feature",
+    )
+    winner = select_feature(
+        [a, b],
+        instrument_id="BTC-USD",
+        venue_id="binance",
+        timeframe="1h",
+        context_cutoff=BASE + timedelta(minutes=90),
+        feature_type=FeatureType.VOLATILITY_METRIC,
+        required_definition_version="feat-vol-v1",
+        invalidated_refs=frozenset({b.ref}),
+    )
+    assert winner is not a
+    assert winner is None
+
+
+def test_regime_malformed_lineage_self_supersession_fails_closed() -> None:
+    original = make_regime("regime-self", start=0, end=60, recorded=10, stream_id="stream-regime")
+    self_superseding = dataclasses.replace(original, supersedes_ref=original.ref)
+    with pytest.raises(ContextAggregatorError):
+        select_regime(
+            [self_superseding],
+            instrument_id="BTC-USD",
+            venue_id="binance",
+            timeframe="1h",
+            context_cutoff=BASE + timedelta(minutes=90),
+            dimension=RegimeDimension.VOLATILITY,
+            required_definition_version="regime-vol-v1",
+        )
+
+
+def test_regime_malformed_lineage_fork_fails_closed() -> None:
+    a = make_regime("regime-a", start=0, end=60, recorded=10, stream_id="stream-regime")
+    b1 = make_regime("regime-b1", start=0, end=60, recorded=20, supersedes=a.ref, stream_id="stream-regime")
+    b2 = make_regime("regime-b2", start=0, end=60, recorded=21, supersedes=a.ref, stream_id="stream-regime")
+    with pytest.raises(ContextAggregatorError):
+        select_regime(
+            [a, b1, b2],
+            instrument_id="BTC-USD",
+            venue_id="binance",
+            timeframe="1h",
+            context_cutoff=BASE + timedelta(minutes=90),
+            dimension=RegimeDimension.VOLATILITY,
+            required_definition_version="regime-vol-v1",
+        )
+
+
+# --- Structure effective-time interval (CONTEXT-CORE-A-MAJ-03) --------------
+
+
+def test_structure_tie_break_uses_interval_start_when_end_and_recorded_time_tie() -> None:
+    """Two Structure facts tied on recorded_time (Phase-2 primary criterion)
+    and tied on effective_time.window_end -- the interval START must decide
+    (criterion 2, DESC) rather than collapsing both facts to one scalar."""
+    later_start = make_structure(
+        "structure-later-start", start=30, end=60, recorded=10, stream_id="stream-structure"
+    )
+    earlier_start = make_structure(
+        "structure-earlier-start", start=0, end=60, recorded=10, stream_id="stream-structure"
+    )
+    winner = select_structure(
+        [earlier_start, later_start],
+        instrument_id="BTC-USD",
+        venue_id="binance",
+        timeframe="1h",
+        context_cutoff=BASE + timedelta(minutes=60),
+        required_definition_version="struct-v1",
+    )
+    assert winner is later_start  # window_start DESC picks the later start
+
+
+def test_structure_cutoff_checks_window_end_not_start_or_recorded_time() -> None:
+    """A Structure fact whose window_start is well before the cutoff but
+    whose window_end exceeds it must be rejected (no look-ahead); one whose
+    window_start exceeds a hypothetical earlier cutoff but window_end does
+    not exceed the real cutoff must be accepted."""
+    spans_the_cutoff = make_structure("structure-spans-cutoff", start=0, end=61, recorded=5)
+    winner = select_structure(
+        [spans_the_cutoff],
+        instrument_id="BTC-USD",
+        venue_id="binance",
+        timeframe="1h",
+        context_cutoff=BASE + timedelta(minutes=60),
+        required_definition_version="struct-v1",
+    )
+    assert winner is None  # window_end (61) > cutoff (60) -> rejected regardless of window_start/recorded_time
+
+    starts_late_ends_on_time = make_structure(
+        "structure-starts-late", start=59, end=60, recorded=5
+    )
+    winner2 = select_structure(
+        [starts_late_ends_on_time],
+        instrument_id="BTC-USD",
+        venue_id="binance",
+        timeframe="1h",
+        context_cutoff=BASE + timedelta(minutes=60),
+        required_definition_version="struct-v1",
+    )
+    assert winner2 is starts_late_ends_on_time  # window_end (60) <= cutoff (60) -> accepted
+
+
+def test_structure_no_cross_stream_sequence_comparison_with_distinct_intervals() -> None:
+    same_time = 61
+    a = make_structure(
+        "structure-a", start=10, end=70, recorded=same_time, stream_id="stream-x", sequence=999
+    )
+    b = make_structure(
+        "structure-b", start=10, end=70, recorded=same_time, stream_id="stream-a", sequence=1
+    )
+    winner = select_structure(
+        [a, b],
+        instrument_id="BTC-USD",
+        venue_id="binance",
+        timeframe="1h",
+        context_cutoff=BASE + timedelta(minutes=70),
+        required_definition_version="struct-v1",
+    )
+    assert winner is b  # "stream-a" < "stream-x" lexically, decides before sequence ever matters
+
+
 # --- Total-order tie-break: cross-stream sequence is never a global order ---
 
 
@@ -288,15 +539,81 @@ def test_duplicate_identical_redelivery_is_harmless() -> None:
 def test_candle_correction_lineage_only_current_head_survives() -> None:
     original = make_candle("candle-original", start=0, end=60)
     corrected = make_candle("candle-corrected", start=0, end=60, recorded=90, supersedes=original.ref)
+    # Caller names the (now-superseded) original ref as the computation point
+    # it observed; the core must still resolve to the CURRENT lineage head.
     winner = select_candle(
         [original, corrected],
         instrument_id="BTC-USD",
         venue_id="binance",
         timeframe="1h",
+        target_computation_point_ref=original.ref,
     )
     assert winner is corrected
 
 
 def test_candle_no_candidates_yields_missing() -> None:
-    winner = select_candle([], instrument_id="BTC-USD", venue_id="binance", timeframe="1h")
+    winner = select_candle(
+        [],
+        instrument_id="BTC-USD",
+        venue_id="binance",
+        timeframe="1h",
+        target_computation_point_ref=ref("candle-nonexistent"),
+    )
+    assert winner is None
+
+
+# --- Candle computation-point binding (CONTEXT-CORE-A-MAJ-01) ---------------
+
+
+def test_candle_computation_point_binding_w1_correction_not_hijacked_by_later_w2() -> None:
+    """context.md §6/§7.0/§11: each authoritative Candle fact defines exactly
+    ONE Context computation point. A later window (W2) visible in the same
+    candidate set must NEVER win merely because its effective boundary is
+    newer — the caller explicitly names W1's corrected fact as the target."""
+    w1_original = make_candle("candle-w1-original", start=0, end=60, recorded=61, stream_id="stream-candle")
+    w2 = make_candle("candle-w2", start=60, end=120, recorded=121, stream_id="stream-candle")
+    w1_corrected = make_candle(
+        "candle-w1-corrected",
+        start=0,
+        end=60,
+        recorded=200,
+        supersedes=w1_original.ref,
+        stream_id="stream-candle",
+    )
+    winner = select_candle(
+        [w1_original, w2, w1_corrected],
+        instrument_id="BTC-USD",
+        venue_id="binance",
+        timeframe="1h",
+        target_computation_point_ref=w1_corrected.ref,
+    )
+    assert winner is w1_corrected
+    assert winner.effective_window.window_start == w1_original.effective_window.window_start
+    assert winner.effective_window.window_end == w1_original.effective_window.window_end
+
+
+def test_candle_computation_point_binding_normal_w2_computation() -> None:
+    """A normal, independent request for W2's own computation point still
+    resolves correctly and is unaffected by W1's presence in the same set."""
+    w1 = make_candle("candle-w1", start=0, end=60, recorded=61, stream_id="stream-candle")
+    w2 = make_candle("candle-w2", start=60, end=120, recorded=121, stream_id="stream-candle")
+    winner = select_candle(
+        [w1, w2],
+        instrument_id="BTC-USD",
+        venue_id="binance",
+        timeframe="1h",
+        target_computation_point_ref=w2.ref,
+    )
+    assert winner is w2
+
+
+def test_candle_computation_point_ref_not_found_fails_closed() -> None:
+    w1 = make_candle("candle-w1", start=0, end=60)
+    winner = select_candle(
+        [w1],
+        instrument_id="BTC-USD",
+        venue_id="binance",
+        timeframe="1h",
+        target_computation_point_ref=ref("candle-never-supplied"),
+    )
     assert winner is None

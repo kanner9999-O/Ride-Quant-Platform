@@ -20,11 +20,14 @@ not implement" below for the exact list of deliberately open gaps.
 ## What this module owns (this slice)
 
 - `aggregate_context_candidate` (`aggregation.py`) — the public entrypoint.
-  Given, per role, an already cursor-visible candidate-fact set, it selects
-  the Eligible Upstream Fact for each of the seven required roles
-  (context.md §8's exact two-phase pipeline), enforces exact seven-role
-  cardinality with a fail-closed `None` result on any gap (§9), and
-  assembles an **eligible cursor-bounded Context aggregation candidate**
+  Given an explicit `target_computation_point_ref` (the exact visible
+  Candle fact this call computes Context for — context.md §6/§7.0/§11;
+  never inferred from "whichever window is newest") plus, per role, an
+  already cursor-visible candidate-fact set, it selects the Eligible
+  Upstream Fact for each of the seven required roles (context.md §8's exact
+  two-phase pipeline), enforces exact seven-role cardinality with a
+  fail-closed `None` result on any gap (§9), and assembles an **eligible
+  cursor-bounded Context aggregation candidate**
   (`ContextAggregationCandidate`, `values.py`) by copying upstream values
   verbatim (§17) — never recomputing Structure/Regime/Feature semantics.
 - `ContextSubjectScope`/`context_subject_id` (`scope.py`) — the five-field
@@ -33,14 +36,19 @@ not implement" below for the exact list of deliberately open gaps.
   representation this core needs (§6); explicitly not a registry.
 - Module-local consumer-side evidence views (`evidence.py`) for exactly the
   seven upstream fact roles (§7): Candle cutoff/cadence source, Structure,
-  the two Regime dimensions, the three founding Feature types.
+  the two Regime dimensions, the three founding Feature types. Structure's
+  `effective_time` is the `[window_start, window_end)` interval of its
+  breaking Candle (structure.md/candle.md), not a collapsed single instant.
 - The exact two-phase Eligible Upstream Fact selection pipeline
   (`selection.py`): Phase 1 per-candidate eligibility filtering (identity/
   scope match, required definition-version match, effective-time cutoff,
   role-specific validity-at-cursor), Phase 2 role-specific current
-  selection (Structure: max `recorded_time`; Regime/Feature: lineage head),
+  selection (Structure: max `recorded_time`; Regime/Feature: lineage head —
+  resolved over the full supplied lineage graph, so a once-superseded fact
+  never resurfaces merely because its successor later becomes invalidated),
   and the shared seven-criterion total-order tie-break — plus §10's
-  canonical input-fact normalization.
+  canonical input-fact normalization. Candle correction lineage is resolved
+  only within the caller-identified target computation point's own window.
 
 ## Terminology — "eligible cursor-bounded candidate", never "authoritative"
 
@@ -131,3 +139,11 @@ consumer-side `evidence.py` views of those contracts instead.
   order (`test_cross_stream_sequence_never_used_as_global_order`).
 - The same seven evidence facts, delivered in any incoming order, normalize
   to the identical computation identity (`test_incoming_order_independence`).
+- An explicitly requested computation point is never hijacked by an
+  unrelated, merely-newer Candle window in the same candidate set
+  (`test_candle_computation_point_binding_w1_correction_not_hijacked_by_later_w2`,
+  `test_later_unrelated_candle_window_never_hijacks_requested_computation_point`).
+- A superseded Regime/Feature fact never resurfaces merely because its
+  successor later becomes invalidated with no further replacement visible
+  (`test_regime_invalidated_replacement_with_no_further_replacement_yields_none`,
+  `test_feature_invalidated_replacement_with_no_further_replacement_yields_none`).

@@ -91,7 +91,9 @@ def make_candle(
 def make_structure(
     event_id: str = "structure-1",
     *,
-    effective_minute: int = 60,
+    effective_minute: int | None = None,
+    start: int = 60,
+    end: int = 60,
     recorded: int = 61,
     kind: StructureFactKind = StructureFactKind.BREAK_OF_STRUCTURE_DETECTED,
     orientation: StructureOrientation = StructureOrientation.BULLISH,
@@ -102,13 +104,20 @@ def make_structure(
     stream_id: str = "stream-structure",
     sequence: int = 1,
 ) -> StructureFact:
+    """`effective_minute` is shorthand for a zero-width interval
+    (`start == end == effective_minute`) — kept for callers that only care
+    about a single boundary point; pass `start`/`end` directly to construct
+    a genuine `[window_start, window_end)` interval (CONTEXT-CORE-A-MAJ-03)."""
+    if effective_minute is not None:
+        start = effective_minute
+        end = effective_minute
     return StructureFact(
         ref=ref(event_id, stream_id=stream_id, sequence=sequence),
         recorded_time=BASE + timedelta(minutes=recorded),
         instrument_id=instrument_id,
         venue_id=venue_id,
         timeframe=timeframe,
-        effective_time=BASE + timedelta(minutes=effective_minute),
+        effective_time=window(start, end),
         definition_version=definition_version,
         kind=kind,
         orientation=orientation,
@@ -178,10 +187,12 @@ def make_feature(
 def full_valid_kwargs(scope: ContextSubjectScope, definition: ContextDefinition) -> dict[str, object]:
     """A minimal, complete, valid seven-role candidate set that
     `aggregate_context_candidate` accepts and resolves to a full candidate."""
+    candle = make_candle()
     return dict(
         scope=scope,
         definition=definition,
-        candle_candidates=[make_candle()],
+        target_computation_point_ref=candle.ref,
+        candle_candidates=[candle],
         structure_candidates=[make_structure()],
         volatility_regime_candidates=[
             make_regime(

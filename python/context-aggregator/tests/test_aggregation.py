@@ -272,6 +272,10 @@ def test_candle_facts_never_appear_as_one_of_the_six_role_refs(
 def test_extra_candidates_from_a_different_window_do_not_corrupt_result(
     scope: ContextSubjectScope, definition: ContextDefinition
 ) -> None:
+    """CONTEXT-CORE-A-MAJ-01: an unrelated Candle window present in the
+    supplied candidate set must never hijack the explicitly requested
+    computation point (`target_computation_point_ref`, set by
+    `full_valid_kwargs` to the intended candle's own ref)."""
     kwargs = full_valid_kwargs(scope, definition)
     unrelated_earlier_candle = make_candle("candle-earlier-window", start=-120, end=-60, recorded=-59)
     candle_candidates = kwargs["candle_candidates"]
@@ -279,5 +283,20 @@ def test_extra_candidates_from_a_different_window_do_not_corrupt_result(
     kwargs["candle_candidates"] = [*candle_candidates, unrelated_earlier_candle]
     result = aggregate_context_candidate(**kwargs)  # type: ignore[arg-type]
     assert result is not None
-    # Total-order picks the LATEST window_end among survivors deterministically.
     assert result.context_cutoff_source_ref == candle_candidates[0].ref
+
+
+def test_later_unrelated_candle_window_never_hijacks_requested_computation_point(
+    scope: ContextSubjectScope, definition: ContextDefinition
+) -> None:
+    """Same MAJ-01 regression, with the unrelated window LATER instead of
+    earlier -- total order would have picked it under the old defect."""
+    kwargs = full_valid_kwargs(scope, definition)
+    candle_candidates = kwargs["candle_candidates"]
+    assert isinstance(candle_candidates, list)
+    unrelated_later_candle = make_candle("candle-later-window", start=120, end=180, recorded=181)
+    kwargs["candle_candidates"] = [*candle_candidates, unrelated_later_candle]
+    result = aggregate_context_candidate(**kwargs)  # type: ignore[arg-type]
+    assert result is not None
+    assert result.context_cutoff_source_ref == candle_candidates[0].ref
+    assert result.effective_window == candle_candidates[0].effective_window

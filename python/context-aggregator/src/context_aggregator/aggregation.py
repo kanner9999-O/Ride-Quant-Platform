@@ -8,6 +8,12 @@ fail-closed `None` result on any gap (§9), and assembles an eligible
 cursor-bounded `ContextAggregationCandidate` by copying upstream values
 verbatim (§17) — never recomputing Structure/Regime/Feature semantics.
 
+**Explicit computation-point binding (CONTEXT-CORE-A-MAJ-01):** the caller
+MUST pass `target_computation_point_ref`, naming the exact visible Candle
+fact this aggregation attempt is for. This core resolves the Candle role
+ONLY for that fact's own window — an unrelated, merely-newer Candle window
+never wins instead (see `select_candle`'s docstring).
+
 See `selection.py`'s module docstring for the explicit cursor-visibility
 boundary this core respects (recorded-time visibility is the caller's
 responsibility; every other Context-owned predicate is enforced here).
@@ -49,6 +55,7 @@ def aggregate_context_candidate(
     *,
     scope: ContextSubjectScope,
     definition: ContextDefinition,
+    target_computation_point_ref: EventRecordRef,
     candle_candidates: Sequence[CandleFact],
     structure_candidates: Sequence[StructureFact],
     volatility_regime_candidates: Sequence[RegimeFact],
@@ -66,6 +73,9 @@ def aggregate_context_candidate(
     """Assemble one eligible cursor-bounded Context aggregation candidate,
     or return `None` per context.md §9's `missing_input_policy` if any of
     the seven required roles cannot be resolved.
+
+    `target_computation_point_ref` names the exact visible Candle fact this
+    call is computing Context for — required, not inferred (MAJ-01).
 
     Every `*_candidates` argument must already be cursor-visible (Boundary D
     — this core does not self-certify recorded-time visibility). Every
@@ -85,6 +95,7 @@ def aggregate_context_candidate(
         instrument_id=scope.instrument_id,
         venue_id=scope.venue_id,
         timeframe=scope.timeframe,
+        target_computation_point_ref=target_computation_point_ref,
     )
     if candle_winner is None:
         return None
@@ -181,7 +192,11 @@ def aggregate_context_candidate(
 
     bounded = (
         (candle_winner.effective_window.window_start, candle_winner.effective_window.window_end, candle_winner.ref),
-        (structure_winner.effective_time, structure_winner.effective_time, structure_winner.ref),
+        (
+            structure_winner.effective_time.window_start,
+            structure_winner.effective_time.window_end,
+            structure_winner.ref,
+        ),
         (
             volatility_regime_winner.analysis_window.window_start,
             volatility_regime_winner.analysis_window.window_end,

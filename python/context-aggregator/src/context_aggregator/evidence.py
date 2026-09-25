@@ -98,15 +98,23 @@ class CandleFact:
 class StructureFact:
     """Consumer-side view of exactly one of `break-of-structure-detected` /
     `change-of-character-detected` / `structure-recomputed` (context.md
-    §7.1). `effective_time` is a single point (structure.md §2), not a
-    window."""
+    §7.1).
+
+    `effective_time` is the `[window_start, window_end)` interval of the
+    breaking/evidentiary Candle (structure.md: "effective_time của break =
+    effective_time của Candle cuối cùng trong breaking_candle_refs") — a
+    Candle `effective_time` is itself an interval (candle.md §1: "effective_
+    time là interval [window_start, window_end)"), never a single instant.
+    Collapsing it to one `datetime` would lose the boundary-start component
+    §8's Phase 2 tie-break and §10's normalization both require.
+    """
 
     ref: EventRecordRef
     recorded_time: datetime
     instrument_id: str
     venue_id: str
     timeframe: str
-    effective_time: datetime
+    effective_time: EffectiveWindow
     definition_version: str
     kind: StructureFactKind
     orientation: StructureOrientation

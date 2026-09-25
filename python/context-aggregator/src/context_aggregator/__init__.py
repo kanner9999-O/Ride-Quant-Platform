@@ -20,6 +20,7 @@ from .errors import (
     ContextAggregatorError,
     DuplicateFactReferenceError,
     InvalidContextTypeError,
+    MalformedLineageError,
     RegimeClassTypeMismatchError,
     ScopeDefinitionMismatchError,
 )
@@ -54,6 +55,7 @@ __all__ = [
     "FeatureFact",
     "FeatureType",
     "InvalidContextTypeError",
+    "MalformedLineageError",
     "RegimeClassTypeMismatchError",
     "RegimeDimension",
     "RegimeFact",
