@@ -2,6 +2,30 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-25 — context-aggregator: CONTEXT-CORE-A-MAJ-02 residual closed (cross-window supersession fails closed)
+
+Starting `main == origin/main == 4eca6a7a5075da70dbf36036d974515810dad615`, fresh-verified, working tree clean. `selection.py`/`evidence.py`/`aggregation.py`/`milestone.md`/`context.md`/`regime.md`/`feature.md` all fresh-verified exact before mutation.
+
+Narrowly-scoped correction closing the remaining `CONTEXT-CORE-A-MAJ-02` residual only. `CONTEXT-CORE-A-MAJ-01`/`-03` are `CLOSED` and NOT reopened or touched (confirmed via diff: `evidence.py`/`aggregation.py` byte-unchanged; `select_candle`/`select_structure`/`StructureFact` untouched in `selection.py`).
+
+ChatGPT re-review of `CONTEXT-AGGREGATOR-CORE-001-CORR-001`: `REVISION_REQUIRED — 0 Blocker / 1 Major / 0 Minor`, Risk `R1`, ADR Scope `ADR_NOT_REQUIRED`.
+
+**Residual:** `_lineage_superseded_targets()` validated self-supersession and fork, but not that a correction replacement targets the SAME computation window as the fact it supersedes (regime.md/feature.md invariant) — a malformed cross-window edge could wrongly exclude the correct target while the malformed successor was itself later filtered ineligible, permitting an unrelated independent window to win as a stale fallback.
+
+**Fix:** new optional `window_of` accessor on `_lineage_superseded_targets()`; when the named `supersedes_ref` target is present in the same identity-matched set and its window differs from the successor's, raises `MalformedLineageError` immediately — never resurrects, never lets an unrelated window win, never silently reinterprets the edge. Wired only for `select_regime`/`select_feature`. `select_candle` (MAJ-01) unaffected — not passed this parameter.
+
+Target-absent `supersedes_ref` (target not in the supplied set) remains unchecked — explicitly out of scope, no historical-event-log integrity verification invented.
+
+7 new regression tests: mandatory Cases A (both-sides-present fails closed), B (independent valid window not hijacked by the malformed edge), C (genuine same-window correction unaffected), plus target-absent boundary — symmetric for both Regime and Feature. Cases D/E already covered by CORR-001's existing tests, reconfirmed passing.
+
+`pytest` 76/76 passed (was 69); `ruff check` clean; `mypy --strict` clean; `coverage` 98% (diagnostic only).
+
+Not self-closed — the residual is addressed/remediated, closure belongs to a fresh ChatGPT Review A re-review.
+
+No domain contract, module-registry, Constitution, or ADR file touched; no upstream module source touched. **M2 unchanged (`BLOCKED`, parallel lane). M3 remains `ACTIVE`** (core corrected, not `DONE`). **M4 remains `QUEUED`.** Phase-3 Approval Gate not reached; LIVE remains `NOT_AUTHORIZED`.
+
+---
+
 ## [Unreleased] — 2026-09-25 — context-aggregator: bounded correction of 3 Review-A Majors (computation-point binding, lineage resurrection, Structure interval)
 
 Starting `main == origin/main == 60124a1f77811651f34f34314c983207d0759cc7`, fresh-verified, working tree clean. All 8 pinned blobs (`evidence.py`, `selection.py`, `aggregation.py`, `context.md`, `candle.md`, `structure.md`, `regime.md`, `feature.md`) fresh-verified exact before mutation.

@@ -11,6 +11,7 @@ from context_aggregator import (
     ContextAggregatorError,
     DuplicateFactReferenceError,
     FeatureType,
+    MalformedLineageError,
     RegimeDimension,
     StructureFactKind,
     StructureOrientation,
@@ -381,6 +382,155 @@ def test_regime_malformed_lineage_fork_fails_closed() -> None:
             dimension=RegimeDimension.VOLATILITY,
             required_definition_version="regime-vol-v1",
         )
+
+
+# --- Cross-window supersession fails closed (CONTEXT-CORE-A-MAJ-02 residual) --
+
+
+def test_regime_cross_window_supersession_fails_closed() -> None:
+    """Case A: A(W1), B(W2, supersedes=A) -- regime.md requires a
+    replacement to target the exact same analysis_window as the fact it
+    supersedes. Both sides of the malformed edge are present -> fail
+    closed, never silently accepted as a valid correction."""
+    a = make_regime("regime-a", start=0, end=60, recorded=10, stream_id="stream-regime")
+    b = make_regime("regime-b", start=60, end=120, recorded=20, supersedes=a.ref, stream_id="stream-regime")
+    with pytest.raises(MalformedLineageError):
+        select_regime(
+            [a, b],
+            instrument_id="BTC-USD",
+            venue_id="binance",
+            timeframe="1h",
+            context_cutoff=BASE + timedelta(minutes=120),
+            dimension=RegimeDimension.VOLATILITY,
+            required_definition_version="regime-vol-v1",
+        )
+
+
+def test_regime_cross_window_malformed_successor_cannot_induce_stale_fallback() -> None:
+    """Case B: D(W0) is a valid, independent, eligible window. A(W1) is
+    valid. B(W2, supersedes=A) is malformed (wrong window) and, on top of
+    that, ineligible at the given cutoff. The malformed edge must fail
+    closed -- it must NEVER cause D to silently win as if B/A were simply
+    absent, and A must never resurface either."""
+    d = make_regime("regime-d", start=-120, end=-60, recorded=1, stream_id="stream-regime")
+    a = make_regime("regime-a", start=0, end=60, recorded=10, stream_id="stream-regime")
+    b = make_regime("regime-b", start=60, end=120, recorded=20, supersedes=a.ref, stream_id="stream-regime")
+    with pytest.raises(MalformedLineageError):
+        select_regime(
+            [d, a, b],
+            instrument_id="BTC-USD",
+            venue_id="binance",
+            timeframe="1h",
+            context_cutoff=BASE + timedelta(minutes=90),  # < W2.end (120) -> B ineligible even if well-formed
+            dimension=RegimeDimension.VOLATILITY,
+            required_definition_version="regime-vol-v1",
+        )
+
+
+def test_regime_same_window_correction_remains_valid() -> None:
+    """Case C: A(W1), B(W1, supersedes=A) -- a genuinely same-window
+    correction must remain unaffected by the new cross-window check."""
+    a = make_regime("regime-a", start=0, end=60, recorded=10, stream_id="stream-regime")
+    b = make_regime("regime-b", start=0, end=60, recorded=20, supersedes=a.ref, stream_id="stream-regime")
+    winner = select_regime(
+        [a, b],
+        instrument_id="BTC-USD",
+        venue_id="binance",
+        timeframe="1h",
+        context_cutoff=BASE + timedelta(minutes=90),
+        dimension=RegimeDimension.VOLATILITY,
+        required_definition_version="regime-vol-v1",
+    )
+    assert winner is b
+
+
+def test_feature_cross_window_supersession_fails_closed() -> None:
+    a = make_feature("feature-a", start=0, end=60, recorded=10, value=Decimal("1.0"), stream_id="stream-feature")
+    b = make_feature(
+        "feature-b",
+        start=60,
+        end=120,
+        recorded=20,
+        value=Decimal("2.0"),
+        supersedes=a.ref,
+        stream_id="stream-feature",
+    )
+    with pytest.raises(MalformedLineageError):
+        select_feature(
+            [a, b],
+            instrument_id="BTC-USD",
+            venue_id="binance",
+            timeframe="1h",
+            context_cutoff=BASE + timedelta(minutes=120),
+            feature_type=FeatureType.VOLATILITY_METRIC,
+            required_definition_version="feat-vol-v1",
+        )
+
+
+def test_feature_cross_window_malformed_successor_cannot_induce_stale_fallback() -> None:
+    d = make_feature("feature-d", start=-120, end=-60, recorded=1, value=Decimal("0.0"), stream_id="stream-feature")
+    a = make_feature("feature-a", start=0, end=60, recorded=10, value=Decimal("1.0"), stream_id="stream-feature")
+    b = make_feature(
+        "feature-b",
+        start=60,
+        end=120,
+        recorded=20,
+        value=Decimal("2.0"),
+        supersedes=a.ref,
+        stream_id="stream-feature",
+    )
+    with pytest.raises(MalformedLineageError):
+        select_feature(
+            [d, a, b],
+            instrument_id="BTC-USD",
+            venue_id="binance",
+            timeframe="1h",
+            context_cutoff=BASE + timedelta(minutes=90),
+            feature_type=FeatureType.VOLATILITY_METRIC,
+            required_definition_version="feat-vol-v1",
+        )
+
+
+def test_feature_same_window_correction_remains_valid() -> None:
+    a = make_feature("feature-a", start=0, end=60, recorded=10, value=Decimal("1.0"), stream_id="stream-feature")
+    b = make_feature(
+        "feature-b",
+        start=0,
+        end=60,
+        recorded=20,
+        value=Decimal("2.0"),
+        supersedes=a.ref,
+        stream_id="stream-feature",
+    )
+    winner = select_feature(
+        [a, b],
+        instrument_id="BTC-USD",
+        venue_id="binance",
+        timeframe="1h",
+        context_cutoff=BASE + timedelta(minutes=90),
+        feature_type=FeatureType.VOLATILITY_METRIC,
+        required_definition_version="feat-vol-v1",
+    )
+    assert winner is b
+    assert winner.value == Decimal("2.0")
+
+
+def test_regime_target_absent_supersedes_ref_unchecked() -> None:
+    """A `supersedes_ref` naming a target NOT present in the supplied
+    candidate set is left unchecked (target-absent case, out of this WP's
+    scope) -- the successor is simply evaluated on its own merits."""
+    absent_target_ref = ref("regime-never-supplied", stream_id="stream-regime")
+    b = make_regime("regime-b", start=0, end=60, recorded=20, supersedes=absent_target_ref, stream_id="stream-regime")
+    winner = select_regime(
+        [b],
+        instrument_id="BTC-USD",
+        venue_id="binance",
+        timeframe="1h",
+        context_cutoff=BASE + timedelta(minutes=90),
+        dimension=RegimeDimension.VOLATILITY,
+        required_definition_version="regime-vol-v1",
+    )
+    assert winner is b
 
 
 # --- Structure effective-time interval (CONTEXT-CORE-A-MAJ-03) --------------

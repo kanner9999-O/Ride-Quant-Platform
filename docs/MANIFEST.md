@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.445"
+manifest_version: "10.446"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -30536,6 +30536,112 @@ aggregation}.py`, `python/context-aggregator/README.md`, `docs/project/
 milestone.md`, `docs/project/milestone-dashboard.html`,
 `docs/MANIFEST.md`, `docs/CHANGELOG.md`. `manifest_version` `"10.444"` ->
 `"10.445"`.
+
+## Context Aggregator — CONTEXT-CORE-A-MAJ-02 residual closed (`CONTEXT-AGGREGATOR-CORE-001-CORR-002`)
+
+Narrowly-scoped correction closing the remaining residual of
+`CONTEXT-CORE-A-MAJ-02` only. `CONTEXT-CORE-A-MAJ-01` and
+`CONTEXT-CORE-A-MAJ-03` are `CLOSED` and were NOT reopened or modified by
+this transaction (confirmed via diff — `evidence.py`/`aggregation.py`
+byte-unchanged; `select_candle`/`select_structure`/`StructureFact`
+untouched in `selection.py`).
+
+**Re-review verdict on `CONTEXT-AGGREGATOR-CORE-001-CORR-001`:**
+`REVISION_REQUIRED — 0 Blocker / 1 Major / 0 Minor`, Risk `R1`, ADR Scope
+`ADR_NOT_REQUIRED`, no Product Owner decision required.
+
+**Fresh-verified before mutation:** boundary
+`4eca6a7a5075da70dbf36036d974515810dad615`; `selection.py`, `evidence.py`,
+`aggregation.py`, `milestone.md`, and authority `context.md`/`regime.md`/
+`feature.md` all matched pinned blobs exactly.
+
+**Residual defect:** `_lineage_superseded_targets()` validated
+self-supersession and fork, but not the producer-contract invariant that a
+correction replacement must target the exact SAME computation window as
+the fact it supersedes — regime.md requires the same `(regime_subject_id,
+analysis_window)`; feature.md requires the same `(feature_subject_id,
+effective_window)`. A malformed cross-window `supersedes_ref` edge could
+cause the correctly-targeted fact to be wrongly excluded from
+consideration (added to the `superseded` set despite the edge being
+invalid) while the malformed successor was itself later filtered out as
+effective-time-ineligible — permitting an unrelated, independent, older
+window to silently win as a stale fallback, or the original fact to be
+lost entirely without any signal that the input was malformed.
+
+**Fix:** `_lineage_superseded_targets()` gained an optional `window_of`
+accessor parameter (`Callable[[_S], EffectiveWindow] | None = None`). When
+supplied, and the named `supersedes_ref` target is present within the same
+bounded (identity/scope/dimension-or-type/definition-version-matched)
+candidate set, the successor's and the target's window boundaries
+(`window_start` and `window_end`) must match exactly — a mismatch raises
+`MalformedLineageError` immediately, before the edge is ever added to the
+`superseded` set. This means the malformed candidate is never silently
+treated as a valid correction, the wrongly-targeted fact is never excluded
+on its basis, and the exception propagates before eligibility filtering
+ever runs — so no unrelated window can win as a stale fallback in its
+place. `select_regime` passes `window_of=lambda c: c.analysis_window`;
+`select_feature` passes `window_of=lambda c: c.effective_window`.
+`select_candle` (MAJ-01) is deliberately NOT passed this parameter — its
+existing target-ref-bound, single-window-scoped-before-lineage-resolution
+behavior already structurally prevents this class of defect and remains
+completely unchanged.
+
+**Target-absent case (explicitly out of scope):** a `supersedes_ref`
+naming a target NOT present in the supplied candidate set is left
+unchecked — this bounded consumer-side evidence cannot positively detect a
+violation for a fact it was never given, and this correction does not
+invent historical-event-log integrity verification to close that gap.
+
+**Preserved unchanged:** self-supersession/fork detection; the
+already-fixed rule that a validly-superseded fact never resurrects merely
+because its successor later becomes invalidated with no replacement
+visible; legitimate independent windows (a malformed edge only ever fails
+its own lineage — it never globally suppresses an unrelated window that
+was never party to the malformed edge).
+
+**New tests (7):** `test_regime_cross_window_supersession_fails_closed` /
+`test_feature_cross_window_supersession_fails_closed` (mandatory Case A —
+both sides of the malformed edge present, fails closed);
+`test_regime_cross_window_malformed_successor_cannot_induce_stale_
+fallback` / `test_feature_cross_window_malformed_successor_cannot_induce_
+stale_fallback` (mandatory Case B — independent valid window D present,
+malformed B/A edge, asserts `MalformedLineageError` is raised, NOT `D`);
+`test_regime_same_window_correction_remains_valid` / `test_feature_same_
+window_correction_remains_valid` (mandatory Case C — genuine same-window
+correction unaffected); `test_regime_target_absent_supersedes_ref_
+unchecked` (target-absent boundary). Mandatory Cases D (pending-correction
+regression) and E (valid 3-fact chain) were already covered by
+`CONTEXT-AGGREGATOR-CORE-001-CORR-001`'s existing same-window tests —
+reconfirmed passing unchanged under the new check.
+
+**Validation:** `pytest` 76/76 passed (was 69). `ruff check` clean.
+`mypy --strict` clean, 16 source files. `coverage` 98% (diagnostic only,
+no formal Chapter-13 Quality Gate claim).
+
+**Not self-closed:** the `CONTEXT-CORE-A-MAJ-02` residual is
+addressed/remediated by this correction, but closure belongs to a fresh
+ChatGPT Review A re-review.
+
+**Confirmation:** `docs/domain/context.md`/`regime.md`/`feature.md` all
+fresh-verified byte-unchanged before mutation and untouched; no
+`module-registry.yaml`/`stream-registry.yaml`/Constitution/ADR file
+touched; no upstream module source touched; no Input Contract/Event
+Contract/frontier/publishing/Current-View/correction-publication work
+added; no Quality Tier assigned. **`CONTEXT-CORE-A-MAJ-01` and
+`CONTEXT-CORE-A-MAJ-03` confirmed unchanged** — `evidence.py`/
+`aggregation.py` byte-identical to the CORR-001 boundary; `select_candle`/
+`select_structure`/`StructureFact` untouched in `selection.py` (only
+`_lineage_superseded_targets`, `select_regime`, `select_feature` and their
+docstrings changed). **M2 unchanged (`BLOCKED`, parallel evidence lane).
+M3 remains `ACTIVE`** (core corrected, still NOT `DONE`). **M4 remains
+`QUEUED`.** Phase-3 Approval Gate not reached; `LIVE` remains
+`NOT_AUTHORIZED`.
+
+**Files changed:** `python/context-aggregator/src/context_aggregator/
+selection.py`, `python/context-aggregator/tests/test_selection.py`,
+`docs/project/milestone.md`, `docs/project/milestone-dashboard.html`,
+`docs/MANIFEST.md`, `docs/CHANGELOG.md`. Exactly 6 files — no other source
+file touched. `manifest_version` `"10.445"` -> `"10.446"`.
 
 ## Decision Log
 

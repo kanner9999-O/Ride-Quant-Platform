@@ -38,7 +38,7 @@ from context_aggregator.evidence import (
     StructureFact,
     StructureFactKind,
 )
-from context_aggregator.refs import EventRecordRef
+from context_aggregator.refs import EffectiveWindow, EventRecordRef
 
 
 class _Referenced(Protocol):
@@ -80,7 +80,11 @@ class _Supersedes(Protocol):
 _S = TypeVar("_S", bound=_Supersedes)
 
 
-def _lineage_superseded_targets(candidates: Sequence[_S]) -> set[EventRecordRef]:  # noqa: UP047
+def _lineage_superseded_targets(  # noqa: UP047
+    candidates: Sequence[_S],
+    *,
+    window_of: Callable[[_S], EffectiveWindow] | None = None,
+) -> set[EventRecordRef]:
     """The full set of refs ever pointed to by some OTHER candidate's
     `supersedes_ref`, computed over the WHOLE supplied candidate set —
     never restricted to currently-valid/non-invalidated survivors. A fact
@@ -89,15 +93,22 @@ def _lineage_superseded_targets(candidates: Sequence[_S]) -> set[EventRecordRef]
     correction (CONTEXT-CORE-A-MAJ-02) — mirrors regime.md §11's own
     target-window-before-exclusion ordering principle.
 
-    Also fails closed on the two malformed-lineage shapes this bounded,
+    Also fails closed on the malformed-lineage shapes this bounded,
     consumer-side evidence set can actually detect: self-supersession (a
-    fact's `supersedes_ref` equals its own `ref`) and a fork (two distinct
+    fact's `supersedes_ref` equals its own `ref`), a fork (two distinct
     facts both claim to supersede the same target — at most one direct
     replacement per invalidated fact, context.md §12 rule 6/regime.md rule
-    6). Broken-target and cross-role/cross-window lineage inconsistencies
-    are NOT detectable from this bounded evidence alone and are not
-    invented here.
+    6), and — when `window_of` is supplied and the named target is present
+    in `candidates` — a cross-window supersession edge (the producer-
+    contract invariant that a correction replacement must target the SAME
+    computation window as the fact it supersedes; regime.md/feature.md:
+    replacement MUST use the exact same `analysis_window`/`effective_
+    window` as the superseded fact, CONTEXT-CORE-A-MAJ-02 residual). A
+    `supersedes_ref` naming a target NOT present in `candidates` is left
+    unchecked — this bounded evidence cannot positively detect a violation
+    for a fact it was never given.
     """
+    by_ref: dict[EventRecordRef, _S] = {c.ref: c for c in candidates} if window_of is not None else {}
     superseded: set[EventRecordRef] = set()
     claimed_by: dict[EventRecordRef, EventRecordRef] = {}
     for c in candidates:
@@ -110,6 +121,16 @@ def _lineage_superseded_targets(candidates: Sequence[_S]) -> set[EventRecordRef]
         if prior_claimant is not None and prior_claimant != c.ref:
             raise MalformedLineageError((prior_claimant, c.ref, target))
         claimed_by[target] = c.ref
+        if window_of is not None:
+            target_candidate = by_ref.get(target)
+            if target_candidate is not None:
+                successor_window = window_of(c)
+                target_window = window_of(target_candidate)
+                if (
+                    successor_window.window_start != target_window.window_start
+                    or successor_window.window_end != target_window.window_end
+                ):
+                    raise MalformedLineageError((c.ref, target))
         superseded.add(target)
     return superseded
 
@@ -285,7 +306,14 @@ def select_regime(
     successor is removed from consideration permanently; it can never
     resurface merely because that successor later becomes invalidated with
     no replacement visible yet (that case resolves to `None` — role
-    missing/pending, §9 — never a fallback to the superseded fact).
+    missing/pending, §9 — never a fallback to the superseded fact). A
+    `supersedes_ref` edge whose target is present but targets a DIFFERENT
+    `analysis_window` (regime.md: replacement MUST use the exact same
+    `(regime_subject_id, analysis_window)` as the fact it supersedes) is a
+    malformed lineage edge — fails closed via `MalformedLineageError`
+    rather than either resurrecting the mis-targeted fact or silently
+    letting an unrelated window win in its place (CONTEXT-CORE-A-MAJ-02
+    residual).
     """
     _reject_conflicting_duplicates(candidates)
     identity_matched = [
@@ -297,7 +325,7 @@ def select_regime(
         and c.regime_dimension == dimension
         and c.definition_version == required_definition_version
     ]
-    superseded = _lineage_superseded_targets(identity_matched)
+    superseded = _lineage_superseded_targets(identity_matched, window_of=lambda c: c.analysis_window)
     lineage_heads = [c for c in identity_matched if c.ref not in superseded]
     eligible = [
         c for c in lineage_heads if c.analysis_window.window_end <= context_cutoff and c.ref not in invalidated_refs
@@ -331,7 +359,9 @@ def select_feature(
     **CONTEXT-CORE-A-MAJ-02:** lineage resolved over the full identity-
     matched candidate set, independent of and before the cutoff/
     not-invalidated filters — see `select_regime`'s docstring for the full
-    rationale.
+    rationale, including the cross-window malformed-edge fail-closed
+    behavior (feature.md: replacement MUST use the exact same
+    `(feature_subject_id, effective_window)` as the fact it supersedes).
     """
     _reject_conflicting_duplicates(candidates)
     identity_matched = [
@@ -343,7 +373,7 @@ def select_feature(
         and c.feature_type == feature_type
         and c.definition_version == required_definition_version
     ]
-    superseded = _lineage_superseded_targets(identity_matched)
+    superseded = _lineage_superseded_targets(identity_matched, window_of=lambda c: c.effective_window)
     lineage_heads = [c for c in identity_matched if c.ref not in superseded]
     eligible = [
         c for c in lineage_heads if c.effective_window.window_end <= context_cutoff and c.ref not in invalidated_refs
