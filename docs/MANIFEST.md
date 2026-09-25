@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.451"
+manifest_version: "10.452"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -31286,6 +31286,118 @@ touched. `manifest_version` `"10.450"` -> `"10.451"`.
 
 **Next governed action:** Fresh ChatGPT Review A re-review of `ADR-046` v0.5 corrected Draft
 candidate.
+
+## ADR-046 v0.5 — Product Owner approval (`ADR-046-APPROVAL-001`)
+
+**Governed atomic approval transaction under [Chapter 11 §11.6](../constitution/11-adr-process.md)
+— records an already-made governance decision. Not another semantic correction, not a new
+architecture decision, not a Quality-Gate re-evaluation.**
+
+**Fresh boundary verification:** HEAD confirmed exactly `d9aad86f5d0f13ff92ebb53cdbb1630568312607`,
+identical to `origin/main` — no drift. Confirmed `docs/adr/ADR-046.md` matched pinned blob
+`3f32e73076db0d69bb9fb7f10580031093dc3431` exactly before this transaction; frontmatter
+confirmed `version: "0.5"`, `status: Draft`, `approved_by: null`. Fresh-read
+[Chapter 11 v2.4](../constitution/11-adr-process.md) §11.3–§11.6 and
+[ADR-045](../adr/ADR-045.md) (Approved, controlling) to confirm the exact current approval
+convention before mutation.
+
+**Final Review A (ChatGPT, `AI Technical Architect`) on `ADR-046` v0.5** at boundary
+`d9aad86f5d0f13ff92ebb53cdbb1630568312607`, blob `3f32e73076db0d69bb9fb7f10580031093dc3431`:
+`CLEAN — 0 Blocker / 0 Major / 0 Minor`, Risk `R2`, ADR Scope `ADR_REQUIRED`. Closed
+`MAJ-R4-01` and `MAJ-R4-02` (both `CLOSED — REVIEW A VALIDATED`) — confirmed all ten prior
+findings (`MAJ-01`–`MAJ-04`, `MIN-01`–`MIN-02`, `MAJ-R2-01`–`MAJ-R2-03`, `MAJ-R3-01`) remain
+`CLOSED — REVIEW A VALIDATED`, none reopened. No unresolved Review-A finding remained at
+approval time.
+
+**Optional R2 cross-check:** Review A communicated the optional advisory cross-check option per
+[Chapter 11 §11.5](../constitution/11-adr-process.md); the Product Owner explicitly chose
+`PROCEED WITHOUT CROSS-CHECK` — a valid choice, historical governance context only, never an
+eligibility gate, never fabricated as a Claude review/Review B/Mode A-B/execution-isolation
+evidence. Its absence is not an approval defect.
+
+**Product Owner decision (verbatim):** "APPROVE ADR-046". Decision timestamp:
+`2026-09-25T15:25+07:00`.
+
+**ADR-046 frontmatter transition:** `version: "0.5"` unchanged (approval never bumps version);
+`status: Draft -> Approved`; `reviewers: [ChatGPT]` unchanged (Claude never added — no
+cross-check was performed); `approved_by: null -> Product Owner`; `approved_at: null ->
+"2026-09-25T15:25+07:00"`; `last_review: "2026-09-25"` unchanged (already consistent with the
+final Review A date); `next_review` remains `null` (not invented); `depends_on: []`,
+`addresses: []`, `resolves: []`, `supersedes: []` all unchanged — ADR-046 has no dependency, OQ,
+or supersession relation, so none is fabricated. A final Review-A evidence row was added to the
+existing review table (fifth row, this final `CLEAN` verdict); the "Disposition"/"Current
+governance routing"/"Risk Classification"/"Accepted risks" prose sections were updated to
+reflect the completed approval — no Decision/Alternatives/Consequences content was touched.
+Per [Chapter 11 §11.3](../constitution/11-adr-process.md), `docs/adr/ADR-046.md` is now
+immutable byte-for-byte — any future change requires a superseding ADR.
+
+**No OQ/dependency/supersession transition** — ADR-046 has `depends_on: []`, `addresses: []`,
+`resolves: []`, `supersedes: []`; none is fabricated by this approval, consistent with
+[Chapter 11 §11.4](../constitution/11-adr-process.md)/§11.6.
+
+**ADR-046 current lifecycle state (this transaction):**
+
+```text
+ADR-046:                 Approved / current authority for the Context
+                          computation-cursor and temporal
+                          eligible-upstream-supersession architecture
+                          decision — canonical Chapter-8 Replay Cursor
+                          as computation_cursor; Cursor -> Context
+                          projection record anti-look-ahead relation;
+                          COVERS_CONTEXT knowledge non-regression;
+                          universal invalidation coverage prerequisite
+                          (Decision item 3a); temporal eligible-upstream
+                          role-resolution supersession; direct-
+                          correction integration; per-role minimal-
+                          complete causal sets; Case A/Case B
+                          replacement-cursor semantics; authority-
+                          neutral Context Projection framing.
+```
+
+**Approval does not itself perform any follow-on consequence.** This transaction does NOT:
+amend `docs/domain/context.md`; author the Context Input Contract; publish Context Event
+Contracts; create Context output streams; modify `docs/architecture/stream-registry.yaml`;
+modify `docs/architecture/module-registry.yaml`; assign a Context Quality Tier; implement a
+cursor-aware Context runtime; implement Current View; implement publishing/correction runtime;
+modify `python/context-aggregator/**`; start Strategy/Decision/Risk/Execution; close M3; alter
+M2's Quality-Gate state; reach the Phase-3 Approval Gate; or authorize LIVE. ADR-046 approval
+means the architecture prerequisite is now Approved authority for subsequent bounded
+implementation/governance transactions — it does not mean its consequences have already been
+implemented.
+
+**Confirmed unchanged by this transaction:** `docs/domain/context.md`,
+`docs/architecture/engine/feature-context-architecture.md`,
+`docs/architecture/module-registry.yaml`, `docs/architecture/stream-registry.yaml`, any Input/
+Event Contract, all production source/tests/tooling, every existing Approved ADR, and every
+Constitution chapter (Chapter 11 fresh-read only, not amended).
+
+**M2 unchanged (`BLOCKED`, parallel evidence lane). M3 remains `ACTIVE`** — Context
+deterministic core remains `REVIEW A VALIDATED — CLEAN`; `ADR-046` is now `APPROVED`; the durable
+cursor/temporal-supersession architecture prerequisite is `RESOLVED BY ADR-046`; the Context
+Input Contract remains `NOT AUTHORED`; Context runtime/publishing remains `NOT IMPLEMENTED`; the
+next bounded governed work is the versioned `context.md` amendment implementing the Approved
+`ADR-046` semantics — not performed by this transaction. **M4 remains `QUEUED`.** Phase-3
+Approval Gate `NOT REACHED`; `LIVE` remains `NOT_AUTHORIZED`.
+
+**No STOP condition triggered** — starting HEAD matched exactly; the reviewed ADR blob matched
+exactly; `ADR-046` was `Draft`/`approved_by: null` before this transaction (not already
+Approved); the final Review-A v0.5 evidence is representable under the existing current-template
+review-table convention (fifth row, mirroring `ADR-045`'s own final-approval-row pattern); no
+conflicting `ADR-046` lifecycle state existed in MANIFEST prior to this transaction; no OQ/
+supersession transition was required (`ADR-046` has none); no semantic defect was found in the
+candidate — this transaction records the decision only, it does not repair or re-review
+architecture semantics.
+
+**Files changed:** `docs/adr/ADR-046.md` (frontmatter approval metadata + final Review-A
+evidence + disposition/routing/risk-classification/accepted-risks prose only — no Decision/
+Alternatives/Consequences content touched), plus deterministic bookkeeping:
+`docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`,
+`docs/CHANGELOG.md`. No Context code, Domain Contract, Input Contract, Event Contract, Stream
+Registry, Module Registry, Constitution file, or any other existing Approved ADR touched.
+`manifest_version` `"10.451"` -> `"10.452"`.
+
+**Next governed action:** Fresh ChatGPT verification of the `ADR-046` approval boundary, then
+bounded derivation of the versioned `context.md` amendment implementing Approved `ADR-046`.
 
 ## Decision Log
 

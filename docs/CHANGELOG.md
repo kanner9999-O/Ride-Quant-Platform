@@ -2,6 +2,30 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-25 — ADR-046 v0.5: Product Owner approval
+
+Starting `main == origin/main == d9aad86f5d0f13ff92ebb53cdbb1630568312607`, fresh-verified, working tree clean. `ADR-046.md` fresh-verified exact (blob `3f32e73076db0d69bb9fb7f10580031093dc3431`, `version: "0.5"`, `status: Draft`, `approved_by: null`) before mutation.
+
+Governed atomic approval transaction under Chapter 11 §11.6, recording an already-made governance decision. Not a semantic correction, not a new architecture decision.
+
+Final Review A (ChatGPT, `AI Technical Architect`) on `ADR-046` v0.5, boundary `d9aad86f5d0f13ff92ebb53cdbb1630568312607`: `CLEAN — 0 Blocker / 0 Major / 0 Minor`, Risk `R2`. Closed `MAJ-R4-01` and `MAJ-R4-02` (both `CLOSED — REVIEW A VALIDATED`); confirmed all ten prior findings remain closed, none reopened. No unresolved Review-A finding remained.
+
+Optional R2 cross-check: Product Owner explicitly chose `PROCEED WITHOUT CROSS-CHECK` (advisory only, never an eligibility gate, not fabricated as any independent-review evidence).
+
+Product Owner decision (verbatim): "APPROVE ADR-046" — decision timestamp `2026-09-25T15:25+07:00`.
+
+`ADR-046` frontmatter: `version: "0.5"` unchanged; `status: Draft → Approved`; `reviewers: [ChatGPT]` unchanged; `approved_by: null → Product Owner`; `approved_at: null → "2026-09-25T15:25+07:00"`. Final Review-A evidence row added to the existing review table; disposition/governance-routing/risk-classification/accepted-risks prose updated to reflect completed approval — no Decision/Alternatives/Consequences content touched. `depends_on`/`addresses`/`resolves`/`supersedes` all remain `[]` — no OQ/dependency/supersession transition (ADR-046 has none).
+
+`docs/adr/ADR-046.md` is now immutable byte-for-byte under Chapter 11 §11.3.
+
+Approval performs no follow-on consequence: `context.md` not amended, Context Input Contract not authored, no Event Contracts/streams/registry/runtime/code changed, M3 not closed, M2 unchanged.
+
+**M2 unchanged (`BLOCKED`). M3 remains `ACTIVE`** — Context deterministic core remains `REVIEW A VALIDATED — CLEAN`; `ADR-046` is now `APPROVED`; the durable cursor/temporal-supersession architecture prerequisite is `RESOLVED BY ADR-046`; Context Input Contract remains `NOT AUTHORED`; Context runtime/publishing remains `NOT IMPLEMENTED`. **M4 remains `QUEUED`.** Phase-3 Approval Gate `NOT REACHED`; LIVE remains `NOT_AUTHORIZED`.
+
+Next governed action: fresh ChatGPT verification of the ADR-046 approval boundary, then bounded derivation of the versioned `context.md` amendment implementing Approved ADR-046.
+
+---
+
 ## [Unreleased] — 2026-09-25 — ADR-046: bounded correction, round 4 (v0.4 → v0.5)
 
 Starting `main == origin/main == e8e26c27ec8a476e0bff7daa70313eae0a2a993f`, fresh-verified, working tree clean. `ADR-046.md` fresh-verified exact (blob `2ddd2345474a2f161042a89c4e5c47c22a48b3a1`) before mutation.
