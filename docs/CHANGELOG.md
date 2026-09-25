@@ -2,6 +2,28 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-25 — context.md v0.4: bounded correction of v0.3 ADR-046 amendment
+
+Starting `main == origin/main == 3d52c286b35c05ed1cf7cdc8055cfb3e2d96128b`, fresh-verified, working tree clean. `context.md` fresh-verified exact (blob `c2ba2360f09c5b9a6cbec1a582a26ee1d1e40de1`, `version: "0.3"`, `status: Draft`); `ADR-046.md` fresh-verified exact (blob `6d81164b6c9323e12d81238a8fcdbc7fd276c6c0`, `status: Approved`, unaffected) before mutation.
+
+Bounded correction of `docs/domain/context.md` remediating two findings from fresh ChatGPT Review A of the v0.3 `ADR-046` amendment candidate: `REVISION_REQUIRED — 0 Blocker / 2 Major / 0 Minor`, Risk `R2`, ADR Scope `ADR_NOT_REQUIRED`. Not a redesign of ADR-046 semantics, not a Product Owner approval.
+
+`context.md` `version: "0.3" → "0.4"`; `status` stays `Draft`.
+
+**CONTEXT-DC-A-MAJ-01** (full-cursor visibility incorrectly globalized to Context output records) — v0.3's §14 predicate, and its global "every 'visible' in §4/§8/§12/§13/§15" equivalence, was incorrectly globalized to also govern visibility of Context's own OUTPUT records (`MarketContextSnapshot`/`MarketContextFactInvalidated`/replacement/`MarketContextCurrentView` traversal), when `ADR-046` Decision item 4 only defines visibility for an UPSTREAM event at a Context `computation_cursor`. Corrected: §14's predicate retitled "Upstream input event visibility" and scoped to exactly five uses (§8 candidate inputs; upstream correction/invalidation events examined resolving producer-domain lineage; records establishing temporal eligible-upstream supersession; `K_context(R)`; `COVERS_CONTEXT` proof) — explicitly not defining Context output-record visibility, a separate output-history-visibility concept; §8's duplicate global claim narrowed to its own step-4 upstream usage; §12 gains a clarifying sentence; §13 gains a new paragraph stating its own "visible" language is output-history visibility at the governing read/replay boundary, not the §14 predicate — no new output cursor schema/stream/Event Contract authored; §15 gains a new bullet separating historical input reconstruction from output-record visibility.
+
+**CONTEXT-DC-A-MAJ-02** (compound causation branch internally contradictory) — §4's branch (c) was described as "(a) + (b)," contradicting the correctly-stated `{B, I_B}` example already present in the same invariant, since `I_B` targets `B`, not necessarily `C`'s old cited ref `A`. Corrected: branch (c) redefined in both §4's description and its invariant as a genuine compound role-state transition whose cause set contains exactly and only the direct causal predecessors/prerequisites required, regardless of old/new ref — `affected_upstream_roles`/flat `causation_refs`/`invalidated_fact_ref`/deterministic attribution/no new payload field/Chapter 6 §6.7 direct-causality requirement/coverage-vs-causation separation all preserved unchanged.
+
+New v0.4 correction banner added; both findings recorded `addressed/remediated pending fresh Review A re-review`, not self-closed.
+
+No STOP condition triggered — no new Context output cursor schema, no Context output stream/Event Contract authoring, no Chapter 8/ADR-046 change required. `docs/adr/ADR-046.md` fresh-verified byte-identical. Every other v0.3 ADR-046 transcription semantic preserved unchanged.
+
+**M2 unchanged (`BLOCKED`). M3 remains `ACTIVE`** (deterministic core remains Review-A-validated CLEAN; ADR-046 remains APPROVED; context.md is now a v0.4 corrected Draft candidate pending fresh Review A re-review). **M4 remains `QUEUED`.** Phase-3 Approval Gate NOT REACHED; LIVE remains `NOT_AUTHORIZED`.
+
+Next governed action: fresh ChatGPT Review A re-review of context.md v0.4 corrected ADR-046 amendment candidate, followed by R2 routing if CLEAN.
+
+---
+
 ## [Unreleased] — 2026-09-25 — context.md v0.3: Domain Contract amendment implementing Approved ADR-046
 
 Starting `main == origin/main == 303da07ea176437476eaabbd69ba55ed96334f0d`, fresh-verified, working tree clean. `ADR-046.md` fresh-verified exact (blob `6d81164b6c9323e12d81238a8fcdbc7fd276c6c0`, `status: Approved`); `context.md` fresh-verified exact (blob `f9274d5749768151748b9dfa2713118a4fd77791`, `version: "0.2"`, `status: Draft`) before mutation.

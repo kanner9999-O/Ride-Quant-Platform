@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.453"
+manifest_version: "10.454"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -31614,6 +31614,154 @@ Registry, Module Registry, Constitution file, or any Approved ADR touched. `mani
 
 **Next governed action:** Fresh ChatGPT Review A of `context.md` v0.3 ADR-046 amendment delta,
 followed by Risk Classification and next routing.
+
+## `context.md` v0.4 — bounded correction of v0.3 against fresh Review A (`CONTEXT-DOMAIN-ADR046-AMEND-001-CORR-001`)
+
+**Bounded correction of [`docs/domain/context.md`](../domain/context.md) remediating the two
+findings from fresh ChatGPT Review A of the v0.3 `ADR-046` amendment candidate. Not a redesign of
+`ADR-046` semantics, not a Product Owner approval transaction.**
+
+**Fresh boundary verification:** HEAD confirmed exactly `3d52c286b35c05ed1cf7cdc8055cfb3e2d96128b`,
+identical to `origin/main` — no drift. Confirmed `docs/domain/context.md` matched pinned blob
+`c2ba2360f09c5b9a6cbec1a582a26ee1d1e40de1` exactly (`version: "0.3"`, `status: Draft`) before this
+transaction. Confirmed `docs/adr/ADR-046.md` matched pinned blob
+`6d81164b6c9323e12d81238a8fcdbc7fd276c6c0` exactly (`version: "0.5"`, `status: Approved`) —
+unaffected by this correction, and reconfirmed byte-identical after this transaction.
+
+**Review A verdict:** ChatGPT (`AI Technical Architect`) reviewed `context.md` v0.3 at this
+boundary and returned `REVISION_REQUIRED — 0 Blocker / 2 Major / 0 Minor`. **Risk Classification:**
+`R2` — this Domain Contract delta changes Event Schema and replay/cursor semantics;
+[`ADR-045`](../adr/ADR-045.md) explicitly classifies materially-applicable Event Schema/replay
+semantics changes as `R2`. **ADR Scope:** `ADR_NOT_REQUIRED` — the correction only aligns the
+Domain Contract with already-Approved `ADR-046`; no independent architecture choice is required.
+No DTR issued; no Product Owner action requested while Review A findings remain open.
+
+**`context.md` frontmatter transition:** `version: "0.3" -> "0.4"`; `status` stays `Draft` — NOT
+Approved/Locked/Consolidated Stable; `reviewers`/`approved_by`/`approved_at` left untouched per
+current lifecycle convention (no mechanical requirement found to add reviewer evidence to
+frontmatter at this stage).
+
+**`CONTEXT-DC-A-MAJ-01` — full-cursor visibility incorrectly globalized to Context output
+records.** v0.3's §14 predicate — and its accompanying global claim that every occurrence of
+"visible tại R"/"visible" in §4/§8/§12/§13/§15 equals the same three-leg predicate — was
+incorrectly globalized to also govern visibility of Context's own OUTPUT records
+(`MarketContextSnapshot`/`MarketContextFactInvalidated`/replacement/`MarketContextCurrentView`
+traversal). `ADR-046` Decision item 4 defines full visibility specifically for "an upstream event
+`E` visible at Context `computation_cursor R`" — it does not redefine every occurrence of event
+visibility in the entire Domain Contract. The §14 predicate is defined against
+`computation_cursor.input_contract_ref`'s universe, which consists of Context's UPSTREAM input
+streams (`market-data-ingestion-candle`, `structure-engine-structure`, `raw-regime-engine-regime`,
+`feature-engine-feature`) — but §13 Current View reasons about whether Context's own OUTPUT
+records are visible to the read/replay boundary resolving Context output history. Those are
+Context OUTPUT records, not upstream inputs selected by Context's own computation Input Contract;
+applying the upstream predicate to them would require a Context output event to belong to
+Context's own upstream Input Contract universe, semantically wrong and currently impossible
+because the Context output stream itself is not even authored yet.
+
+**Corrected:** §14's predicate retitled "Upstream input event visibility — full cursor
+visibility" and explicitly scoped, via a new "Phạm vi CHÍNH XÁC" paragraph, to exactly five uses:
+(1) §8 candidate inputs (Phase 1 bước 2); (2) upstream correction/invalidation events examined
+while resolving producer-domain lineage at R (§8 bước 4 —
+`StructureFactInvalidated`/`RegimeFactInvalidated`/`FeatureFactInvalidated`/Candle
+correction-lineage evidence); (3) records used to establish temporal eligible-upstream
+supersession (§8); (4) `K_context(R)`; (5) the `COVERS_CONTEXT` proof. The predicate explicitly
+does NOT define visibility of `MarketContextSnapshot`, `MarketContextFactInvalidated`, a
+replacement Context output record, or `MarketContextCurrentView`'s own output-history traversal —
+that is **output-history visibility**, a separate concept, governed by §13. §8's own duplicate
+global claim (at its step-4 "visible tại R" clarification) was narrowed to confirm only its own
+actual upstream usage (the four upstream correction/invalidation event types examined in step 4),
+removing the sweeping "§4/§8/§12/§13/§15" equivalence. §12 ("Cursor semantics cho correction
+lineage") gains a new clarifying paragraph: upstream-state visibility used during a Case B rerun
+(or belonging to `K_context(R)`) is the §14 predicate; any statement about the Context
+invalidation/replacement OUTPUT record itself becoming visible in event history is not that
+upstream-input predicate. §13 gains a new lead paragraph stating explicitly that its own
+"visible"/"visible tại cursor" language is output-history visibility at the governing
+read/replay boundary used to rebuild the view — NOT §14's upstream-input predicate — with no new
+output cursor schema, Context output stream, or Event Contract authored, and every existing
+target-window/lineage/`PENDING_CORRECTION`/no-fallback semantic preserved unchanged. §15 gains a
+new bullet explicitly separating (1) historical Context INPUT reconstruction (uses each record's
+own `computation_cursor` and §14's full upstream-input predicate) from (2) whether Context OUTPUT
+records are visible to replay/current-view traversal (output-history visibility, §13) — the two
+concepts are never conflated.
+
+**`CONTEXT-DC-A-MAJ-02` — compound causation branch internally contradictory.** v0.3's §4
+description and invariant described causation branch (c) as "(a) cộng (b)" — i.e., a direct
+correction/invalidation of one of `C`'s seven old cited refs, plus a later-visible new winner. But
+Approved `ADR-046` Decision item 7 permits the compound form `A = old stored winner; B =
+later-visible successor/new fact; I_B = later invalidation of B; minimal direct cause set = {B,
+I_B}` — and `I_B` targets `B`, which was not necessarily one of `C`'s seven old refs. The v0.3
+invariant already contained this correct `{B, I_B}` example elsewhere in the same sentence, so
+§4 contradicted itself: branch (c) cannot normatively mean only "old-ref correction + later
+winner" when the document's own worked example shows the invalidation targeting the new fact `B`,
+not the old ref `A`.
+
+**Corrected:** branch (c) redefined, in both §4's description and its invariant, as a genuine
+**compound role-state transition** whose minimal-complete direct-cause set contains exactly and
+only the direct causal predecessors/prerequisites genuinely required to prove the new
+role-resolution state — regardless of whether each element of that set targets an old or a new
+ref. Branch (c) is now explicitly stated as NOT merely "branch (a) plus branch (b)"; the
+`{B, I_B}` example is retained and clarified (`I_B` targets `B`, not necessarily `A`). Preserved
+unchanged throughout: `affected_upstream_roles` shape; flat, canonical, deduplicated
+`causation_refs`; `invalidated_fact_ref` separately required; one-or-more refs per affected role;
+deterministic role attribution from governed event type + role discriminant + target/ref
+relationship; no new role-map payload field; no generic `context_changed` cause;
+[Chapter 6 §6.7](../constitution/06-identity-model.md) direct-causality requirement (every
+`causation_refs` member remains a genuine direct domain causal predecessor/prerequisite);
+coverage-vs-causation separation (§14, unchanged). `causation_refs` was not turned into an
+audit/evidence bag.
+
+**New v0.4 correction banner** added to the document's version-history block (following the
+existing convention), recording the Review A verdict (boundary/blob pinned,
+`REVISION_REQUIRED — 0/2/0`, Risk `R2`, ADR Scope `ADR_NOT_REQUIRED`) and both findings as
+`addressed/remediated pending fresh Review A re-review` — neither marked `CLOSED`, not
+self-reviewed, not self-approved.
+
+**No STOP condition triggered:** separating upstream-input visibility from Context
+output-history visibility required no new Context output cursor schema, no Context output
+stream/Event Contract authoring, no change to `ADR-046`, and no change to
+[Chapter 8](../constitution/08-event-model.md); the compound causation form remained fully
+representable within the existing `affected_upstream_roles` + flat `causation_refs` structure,
+requiring no new payload field; no other genuinely new architecture choice was discovered.
+
+**Post-correction internal-consistency validation (performed this transaction):** no sentence
+globally equates every use of `visible` in §13 with Context computation-input visibility; §8's
+upstream input and correction visibility still uses all three legs, unchanged; `K_context(R)`
+still contains only Context-relevant upstream records; §13 can now reason about Context output
+records without requiring those records to belong to the Context upstream Input Contract; no
+Context output stream/schema was invented; §4's description and invariant now agree on the
+`{B, I_B}` compound semantics, with `I_B` explicitly not required to target `A`; every
+`causation_refs` member remains a direct causal predecessor/prerequisite; no other `ADR-046`
+semantic was weakened — `computation_cursor` required on both record types, the
+`Cursor → Context projection record` anti-look-ahead relation, full three-leg UPSTREAM
+visibility, `COVERS_CONTEXT` and its six proof conditions, the universal invalidation coverage
+precondition, temporal supersession, Candle exclusion, Case A, Case B, the coverage chain,
+`computation_cursor` excluded from computation identity, the fail-closed referenced-artifact
+boundary, and authority-neutral framing are all preserved unchanged; `docs/adr/ADR-046.md`
+fresh-verified byte-identical, `6d81164b6c9323e12d81238a8fcdbc7fd276c6c0`. All 22 top-level
+section headers confirmed present, sequential, unchanged in title (no renumbering); code-fence
+markers balanced (38 pairs); frontmatter parses cleanly (`version: "0.4"`, `status: Draft`).
+
+**Confirmed unchanged by this transaction:** `docs/adr/ADR-046.md` (fresh-verified byte-identical),
+every other existing Approved/Locked authority, `docs/architecture/module-registry.yaml`,
+`docs/architecture/stream-registry.yaml`, any Input/Event Contract, `python/context-aggregator/**`
+(deterministic core remains `REVIEW A VALIDATED — CLEAN`), every Constitution chapter,
+`docs/architecture/engine/feature-context-architecture.md`.
+
+**M2 unchanged (`BLOCKED`, parallel evidence lane). M3 remains `ACTIVE`** — Context deterministic
+core remains `REVIEW A VALIDATED — CLEAN`; `ADR-046` remains `APPROVED`; `context.md` is now a
+**`v0.4` corrected Draft candidate implementing `ADR-046`**, pending fresh Review A re-review;
+Context Input Contract remains `NOT AUTHORED`; Context runtime/publication remains `NOT
+IMPLEMENTED`. **M4 remains `QUEUED`.** Phase-3 Approval Gate `NOT REACHED`; `LIVE` remains
+`NOT_AUTHORIZED`.
+
+**Files changed:** `docs/domain/context.md` only (substantive edit), plus deterministic
+bookkeeping: `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`,
+`docs/MANIFEST.md`, `docs/CHANGELOG.md`. No Context code, Input Contract, Event Contract, Stream
+Registry, Module Registry, Constitution file, or any Approved ADR touched. `manifest_version`
+`"10.453"` -> `"10.454"`.
+
+**Next governed action:** Fresh ChatGPT Review A re-review of `context.md` v0.4 corrected
+`ADR-046` amendment candidate, followed by `R2` routing if `CLEAN`.
 
 ## Decision Log
 

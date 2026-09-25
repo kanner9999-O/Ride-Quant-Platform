@@ -1,7 +1,7 @@
 ---
 id: context
 title: Market Context
-version: "0.3"
+version: "0.4"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -52,6 +52,8 @@ Cộng một **read model tùy chọn** (`MarketContextCurrentView`) — project
 Fresh ADR Scope Gate cho CHÍNH amendment v0.3 này: **`ADR_NOT_REQUIRED`** — transcription thuần túy của architecture authority đã Approved, không semantic choice độc lập nào được author ở đây. Risk Classification/Review A cho v0.3 candidate này **CHƯA thực hiện**, không tự finalize bởi transaction này — `context.md` giữ nguyên `status: Draft`.
 
 **Authority-neutral clarification (`ADR-046`, v0.3) — KHÔNG resolve terminology tension đã tồn tại.** `ADR-046` (Approved) tường minh KHÔNG đổi `module_type: projection`/`owns_authoritative_state: false` (`module-registry.yaml`, fresh-verified byte-unchanged) và KHÔNG resolve terminology tension đã preserve giữa văn bản legacy của CHÍNH tài liệu này (ví dụ §17's "Context là một authoritative market-state snapshot") và phân loại Type-2 Projection của [Chapter 7 §7.4](../constitution/07-module-taxonomy.md). `computation_cursor`/durable cursor evidence mà v0.3 thêm vào CHỈ cấp **record-integrity và replay-boundary evidence** — KHÔNG biến Context thành nguồn authoritative cho Candle/Structure/Regime/Feature/Strategy/Decision/Risk hay bất kỳ domain concept nào khác ngoài chính những gì Context tự aggregate. Terminology tension này VẪN preserve, chưa resolve, và amendment v0.3 này KHÔNG âm thầm quyết định nó — bất kỳ rewrite thuật ngữ legacy nào (ví dụ §17) đòi hỏi một transaction riêng, có kiểm soát, governed rõ ràng — KHÔNG phải một side-effect của việc transcribe `ADR-046`. Prose MỚI do v0.3 thêm vào dùng thuật ngữ trung lập **"Context projection record"** khi cần mô tả `MarketContextSnapshot`/`MarketContextFactInvalidated`; văn bản lịch sử KHÔNG bị rewrite chỉ vì lý do thuật ngữ.
+
+**v0.4 — bounded correction of v0.3 against fresh ChatGPT Review A (`CONTEXT-DOMAIN-ADR046-AMEND-001-CORR-001`)**, addressed/remediated pending fresh Review A re-review (not self-closed by the correction executor — closure is a Review A re-review determination, never asserted here): ChatGPT Review A (`AI Technical Architect`) reviewed v0.3 (reviewed boundary `3d52c286b35c05ed1cf7cdc8055cfb3e2d96128b`, reviewed blob `c2ba2360f09c5b9a6cbec1a582a26ee1d1e40de1`) and returned **`REVISION_REQUIRED — 0 Blocker / 2 Major / 0 Minor`**, Risk `R2`, ADR Scope `ADR_NOT_REQUIRED`. This v0.4 addresses: `CONTEXT-DC-A-MAJ-01` (§14's full-cursor-visibility predicate — and its global "every 'visible' in §4/§8/§12/§13/§15" equivalence — was incorrectly globalized to also govern visibility of Context's own OUTPUT records (`MarketContextSnapshot`/`MarketContextFactInvalidated`/replacement/`MarketContextCurrentView` traversal), when `ADR-046` Decision item 4 only defines visibility for an UPSTREAM event at a Context `computation_cursor` — corrected: §14's predicate narrowed explicitly to upstream input/correction-lineage/temporal-supersession/`K_context`/`COVERS_CONTEXT` use only, §8's duplicate global claim narrowed to its own actual §8-step-4 upstream usage, §12 gains a one-sentence clarification distinguishing upstream-state visibility during rerun from output-record visibility, §13 gains an explicit output-history-visibility boundary statement — no new output cursor schema/stream/Event Contract authored, all target-window/lineage/`PENDING_CORRECTION`/no-fallback semantics preserved — §15 gains a distinguishing bullet separating historical input reconstruction from output-record visibility); `CONTEXT-DC-A-MAJ-02` (§4's compound causation branch (c) was described as "(a) cộng (b)," internally contradicting the correctly-stated `{B, I_B}` example already present in the same invariant, since `I_B` targets `B` — not necessarily `C`'s old cited ref `A` — corrected: branch (c) redefined as a genuine compound role-state transition whose cause set contains exactly and only the direct causal predecessors/prerequisites required to prove the new role-resolution state, regardless of whether each element targets an old or new ref; `affected_upstream_roles`/flat `causation_refs`/`invalidated_fact_ref`/one-or-more-refs-per-role/deterministic attribution/no new payload field/no generic `context_changed` cause/Chapter 6 §6.7 direct-causality requirement/coverage-vs-causation separation all preserved unchanged). **No change to any other ADR-046 semantic** — `computation_cursor` requirement, the anti-look-ahead relation, full three-leg UPSTREAM visibility, `COVERS_CONTEXT`, its six proof conditions, the universal invalidation coverage precondition, temporal supersession, Candle exclusion, Case A, Case B, the coverage chain, `computation_cursor` excluded from computation identity, the fail-closed referenced-artifact boundary, and authority-neutral framing all preserved unchanged. This v0.4 candidate still requires a fresh Review A before further routing; **not self-reviewed, not self-approved**, and no Product Owner decision is requested or recorded by this transaction. `CONTEXT-DC-A-MAJ-01`/`CONTEXT-DC-A-MAJ-02`: **addressed/remediated pending fresh Review A re-review** — not self-closed.
 
 ## 1. Logical Market Context Subject — `kind: entity`
 
@@ -213,11 +215,19 @@ domain_context_id: context-projection
 description: >
   Phủ định MỘT MarketContextSnapshot lịch sử cụ thể — thuần túy ghi nhận "fact này không còn
   hợp lệ", KHÔNG tự nó tuyên bố giá trị mới. Nguyên nhân thuộc đúng MỘT trong ba dạng đã pin ở
-  invariants dưới (ADR-046 Decision item 7) cho MỖI role bị ảnh hưởng: (a) một correction/
-  invalidation event trực tiếp của MỘT HOẶC NHIỀU trong bảy ref mà fact bị invalidate đã cite
-  (§3); (b) một upstream fact later-visible tự nó trở thành §8 winner mới tại R_later theo §8's
-  temporal eligible-upstream supersession — ref cũ KHÔNG bắt buộc từng bị invalidate trực tiếp;
-  hoặc (c) cả (a) và (b) khi transition compound. KHÔNG có nguyên nhân `context_changed` chung
+  invariants dưới (ADR-046 Decision item 7) cho MỖI role bị ảnh hưởng: (a) một hoặc nhiều
+  correction/invalidation event trực tiếp làm role ref hiện tại (thuộc bảy ref C đang cite, §3)
+  không còn hợp lệ hoặc unresolved theo producer-domain semantics; (b) một upstream fact
+  later-visible tự nó trở thành §8 winner mới tại R_later theo §8's temporal eligible-upstream
+  supersession — ref cũ KHÔNG bắt buộc từng bị invalidate trực tiếp; hoặc (c) một compound
+  role-state transition đòi hỏi NHIỀU direct causal prerequisite genuine để chứng minh trạng thái
+  role mới — ví dụ một successor `B` later-visible (nhánh b) MÀ CHÍNH `B` sau đó lại bị invalidate
+  (`I_B`), khiến role kết thúc missing/pending tại `R_later` MÀ KHÔNG resurrect ref cũ `A`;
+  minimal-complete direct-cause set cho case này là `{B, I_B}` — `I_B` nhắm CHÍNH `B`, KHÔNG bắt
+  buộc nhắm `A` (v0.4, `CONTEXT-DC-A-MAJ-02`). Nhánh (c) KHÔNG đơn thuần là "nhánh (a) cộng nhánh
+  (b)" — tiêu chí đúng là: tập cause chứa ĐÚNG VÀ ĐỦ mọi direct domain causal predecessor/
+  prerequisite genuine cần thiết để chứng minh role-resolution state mới, bất kể mỗi phần tử của
+  tập đó nhắm ref cũ hay ref mới nào. KHÔNG có nguyên nhân `context_changed` chung
   chung nào được phát minh thêm. Nếu NHIỀU role bị ảnh hưởng đồng thời
   bởi cùng một correction gốc, chỉ phát ĐÚNG MỘT MarketContextFactInvalidated cho fact đó —
   causation_refs liệt kê đủ mọi nguyên nhân dưới dạng nhiều phần tử, affected_upstream_roles
@@ -230,7 +240,7 @@ invariants:
   - "envelope.subject_ref PHẢI BẰNG HỆT subject_ref của invalidated_fact_ref (F) — cùng context_id, subject_kind, subject_type, subject_id, VÀ toàn bộ scope. Cấm target một fact thuộc subject KHÁC."
   - "envelope.effective_time PHẢI BẰNG HỆT effective_window của invalidated_fact_ref (F) — [window_start, window_end) giống hệt. Cấm target một fact đúng subject nhưng SAI window."
   - "payload.invalidated_fact_ref PHẢI resolve đúng CHÍNH XÁC bản ghi event F — dùng event_record_ref (Chapter 8 §8.2.3)."
-  - "payload.affected_upstream_roles PHẢI không rỗng, các phần tử duy nhất (không trùng lặp). MỖI phần tử PHẢI có một minimal-complete deterministic direct-cause SET tương ứng trong causation_refs (một hoặc nhiều ref — KHÔNG bắt buộc đúng một, ADR-046 Decision item 7), thuộc đúng MỘT trong ba nhánh: (a) correction/invalidation event trực tiếp của role đó (context_cutoff_source → CandleCorrected; structure → StructureFactInvalidated hoặc StructureRecomputed; volatility_regime/directional_persistence_regime → RegimeFactInvalidated; volatility_metric_feature/directional_persistence_metric_feature/distance_to_last_confirmed_swing_feature → FeatureFactInvalidated); (b) later-visible authoritative fact tự nó trở thành §8 winner mới tại R_later (structure-recomputed/break-of-structure-detected/change-of-character-detected/regime-classified/feature-computed đúng role) — role cũ KHÔNG bắt buộc từng bị invalidate; hoặc (c) cả (a) và (b) khi transition compound (ví dụ successor B cộng invalidation của chính B, {B, I_B}, khi role kết thúc missing/pending, §8). Attribution role→cause-set là deterministic từ governed event type + role discriminant (regime_dimension/feature_type khi áp dụng) + target/ref relationship (invalidated_fact_ref/supersedes_fact_ref khi có mặt) — KHÔNG từ thứ tự phần tử trong causation_refs."
+  - "payload.affected_upstream_roles PHẢI không rỗng, các phần tử duy nhất (không trùng lặp). MỖI phần tử PHẢI có một minimal-complete deterministic direct-cause SET tương ứng trong causation_refs (một hoặc nhiều ref — KHÔNG bắt buộc đúng một, ADR-046 Decision item 7), thuộc đúng MỘT trong ba nhánh: (a) một hoặc nhiều correction/invalidation event trực tiếp của role đó (context_cutoff_source → CandleCorrected; structure → StructureFactInvalidated hoặc StructureRecomputed; volatility_regime/directional_persistence_regime → RegimeFactInvalidated; volatility_metric_feature/directional_persistence_metric_feature/distance_to_last_confirmed_swing_feature → FeatureFactInvalidated); (b) later-visible authoritative fact tự nó trở thành §8 winner mới tại R_later (structure-recomputed/break-of-structure-detected/change-of-character-detected/regime-classified/feature-computed đúng role) — role cũ KHÔNG bắt buộc từng bị invalidate; hoặc (c) compound role-state transition (v0.4, `CONTEXT-DC-A-MAJ-02`) — tập cause chứa ĐÚNG VÀ ĐỦ mọi direct domain causal predecessor/prerequisite genuine cần thiết để chứng minh role-resolution state mới, bất kể mỗi phần tử nhắm ref cũ hay ref mới nào (ví dụ successor B later-visible cộng invalidation của CHÍNH B, {B, I_B}, khi role kết thúc missing/pending tại R_later — I_B nhắm B, KHÔNG bắt buộc nhắm ref cũ A, §8). Nhánh (c) KHÔNG PHẢI đơn thuần "nhánh (a) cộng nhánh (b)" — tiêu chí là completeness/directness của tập cause, KHÔNG PHẢI một công thức cố định ghép hai nhánh kia. Attribution role→cause-set là deterministic từ governed event type + role discriminant (regime_dimension/feature_type khi áp dụng) + target/ref relationship (invalidated_fact_ref/supersedes_fact_ref khi có mặt) — KHÔNG từ thứ tự phần tử trong causation_refs."
   - "causation_refs PHẢI trỏ: invalidated_fact_ref (bắt buộc, đúng một, PHẢI trùng payload.invalidated_fact_ref); VÀ minimal-complete direct-cause set (một hoặc nhiều ref mỗi role, xem trên) cho MỖI role liệt kê trong affected_upstream_roles — union/dedup vào đúng MỘT flat causation_refs array — không thiếu, không thừa, không trùng lặp. Mọi phần tử PHẢI là genuine direct domain causal predecessor/prerequisite (Chapter 6 §6.7, Chapter 8 §8.2.3) — KHÔNG BAO GIỜ dùng causation_refs như một evidence bag chung; coverage evidence (K_context(R_new) - K_context(R_old), §14) KHÔNG được đưa vào đây chỉ vì nó visible tại R_later."
   - "invalidated_fact_ref PHẢI trỏ một MarketContextSnapshot CHƯA từng nhận MarketContextFactInvalidated khác — một fact chỉ bị invalidate đúng một lần."
   - "Đúng một MarketContextSnapshot có thể trỏ supersedes_fact_ref về invalidated_fact_ref này (§3 rule — cấm fork)."
@@ -404,7 +414,7 @@ Với một computation point tại `context_cutoff` (§11), `computation_cursor
 
 Một candidate KHÔNG qua được bước nào thì bị loại NGAY khỏi tập survivor — không đánh giá các bước sau CHO CHÍNH candidate đó. **Bước 3 áp dụng ĐỘC LẬP với bước 2.** Kết thúc Phase 1: mỗi role có một **tập survivor** (có thể rỗng, một phần tử, hoặc nhiều phần tử).
 
-**"Visible tại R" trong bước 4 (v0.3, ADR-046) resolve về ĐÚNG full-cursor-visibility predicate của bước 2/§14** — KHÔNG một scalar `recorded_time`-only shorthand yếu hơn. Tài liệu này KHÔNG dùng hai nghĩa "visible" cạnh tranh nhau trong cùng một selection pipeline: mọi lần cụm từ "visible tại R"/"visible" xuất hiện (§4, §8, §12, §13, §15) đều là CHÍNH XÁC ba-leg predicate đã pin tại §14.
+**"Visible tại R" trong bước 4 (v0.3, ADR-046) resolve về ĐÚNG full-cursor-visibility predicate của bước 2/§14** — KHÔNG một scalar `recorded_time`-only shorthand yếu hơn; bước 4 xét CHÍNH XÁC các upstream correction/invalidation event (`StructureFactInvalidated`/`RegimeFactInvalidated`/`FeatureFactInvalidated`/Candle correction lineage) khi resolve producer-domain lineage tại R — đúng phạm vi upstream-input mà §14 định nghĩa (xem "Phạm vi CHÍNH XÁC" tại §14, v0.4 correction, `CONTEXT-DC-A-MAJ-01`). Trong §8, mọi lần cụm từ "visible tại R"/"visible" xuất hiện đều là CHÍNH XÁC predicate ba-leg này — KHÔNG hai nghĩa "visible" cạnh tranh nhau trong cùng một selection pipeline. Predicate này KHÔNG tự động áp dụng cho visibility của CHÍNH Context output record (`MarketContextSnapshot`/`MarketContextFactInvalidated`) trong lineage của nó — đó là output-history visibility, xem §13.
 
 ### Phase 2 — Role-specific current selection (CHỈ chạy trên tập survivor của Phase 1, không bao giờ tham chiếu ngược Phase 1 hay loại thêm candidate theo tiêu chí Phase 1)
 
@@ -607,6 +617,8 @@ C2
 
 Bổ sung, KHÔNG thay thế mười invariant + hai paragraph trên — TẤT CẢ vẫn giữ nguyên hiệu lực nguyên vẹn.
 
+**Phạm vi visibility trong mục này (v0.4 correction, `CONTEXT-DC-A-MAJ-01`).** Mọi visibility của UPSTREAM state dùng khi rerun §8 (ví dụ tại `R_replacement`, mục C dưới đây) hoặc thuộc `K_context(R)` LÀ ĐÚNG predicate ba-leg §14. Bất kỳ phát biểu nào về việc CHÍNH Context invalidation/replacement OUTPUT record (fact `MarketContextFactInvalidated`/`MarketContextSnapshot` mới) trở nên visible trong event history KHÔNG PHẢI predicate upstream-input đó — đó là output-history visibility, xem §13.
+
 **A. Precondition trước MỌI invalidation.** Trước khi một `MarketContextFactInvalidated` publish như một current-valid lineage transition: `R_later COVERS_CONTEXT R_original` (định nghĩa canonical §14, precondition pin tại §4) BẮT BUỘC đúng — với `R_original = C.computation_cursor` (C = fact bị invalidate) và `R_later` = `computation_cursor` của chính invalidation đó.
 
 **B. Case A — cùng re-evaluation boundary.** Khi replacement được phát sinh từ ĐÚNG kết quả §8 đã evaluate tại `R_later` (không có cursor advance nào giữa invalidation và replacement):
@@ -634,6 +646,8 @@ K_context(R_original) ⊆ K_context(R_later) ⊆ K_context(R_replacement)
 Đây là **transitive set inclusion cho MỘT Context lineage** — kết hợp precondition mục A (`R_later COVERS_CONTEXT R_original`) với mục C (`R_replacement COVERS_CONTEXT R_later`). KHÔNG PHẢI một platform-wide Replay-Cursor total order, KHÔNG PHẢI một ordering relation giữa các stream event độc lập ([ADR-009](../adr/ADR-009.md) không đổi). Với Case A, chain thu gọn về đúng quan hệ mục A đã chứng minh (`R_replacement == R_later`).
 
 ## 13. `MarketContextCurrentView` — validity rules và deterministic total order
+
+**Phạm vi visibility tại mục này (v0.4 correction, `CONTEXT-DC-A-MAJ-01`) — output-history visibility, KHÔNG PHẢI §14's Context-upstream-input full-cursor predicate.** Mọi cụm từ "visible"/"visible tại cursor" trong mục này nói về visibility của CHÍNH Context OUTPUT record (`MarketContextSnapshot`/`MarketContextFactInvalidated`) tại governing read/replay boundary dùng để rebuild view — KHÔNG PHẢI predicate ba-leg upstream-input mà §14 định nghĩa cho universe của Context's OWN `computation_cursor.input_contract_ref` (universe đó chứa upstream stream Context TIÊU THỤ để compute, KHÔNG chứa CHÍNH Context output — Context output stream chưa được author, §16/§21). Cơ chế/schema cursor cụ thể cho output-record visibility này VẪN thuộc [Chapter 8](../constitution/08-event-model.md) nói chung và future Context output-stream topology khi được author — KHÔNG được định nghĩa mới ở correction này, KHÔNG author Context output stream/Event Contract nào ở đây. Toàn bộ target-window, lineage, `PENDING_CORRECTION`, và no-fallback semantics dưới đây giữ nguyên KHÔNG đổi.
 
 **Bước 0 — row existence precondition:** nếu `context_subject_id` CHƯA từng có `MarketContextSnapshot` visible tại cursor → **KHÔNG có row nào tồn tại** — `GetCurrentContext` trả `NOT_FOUND`/`ABSENT`. Không materialize placeholder.
 
@@ -687,7 +701,7 @@ market_time                    — PROHIBITED (§2)
 
 **Không dùng `event_time`.**
 
-**Full cursor visibility (v0.3, ADR-046 — định nghĩa DUY NHẤT tại đây; §4/§8/§12/§13/§15 CHỈ tham chiếu, không lặp lại).** Một upstream event `U` **full-cursor-visible** tại `computation_cursor R` khi và chỉ khi CẢ BA leg dưới đây đều đúng:
+**Upstream input event visibility — full cursor visibility (v0.3, ADR-046 Decision item 4; định nghĩa DUY NHẤT tại đây; §4/§8/§12/§15 tham chiếu ĐÚNG phạm vi upstream của nó, không lặp lại — xem "Phạm vi CHÍNH XÁC" ngay dưới).** Một upstream event `U` tham gia Context input selection/correction-state evaluation là **full-cursor-visible** tại Context `computation_cursor R` khi và chỉ khi CẢ BA leg dưới đây đều đúng:
 
 ```text
 1. Stream-universe membership — U.stream_id thuộc valid included-stream universe của
@@ -699,7 +713,21 @@ market_time                    — PROHIBITED (§2)
    boundary).
 ```
 
-Bất kỳ leg nào fail → `U` KHÔNG full-cursor-visible tại `R`. Mọi cụm từ "visible tại R"/"visible" xuất hiện xuyên tài liệu này (§4, §8, §12, §13, §15) đều resolve về ĐÚNG định nghĩa ba-leg này — KHÔNG một shorthand `recorded_time`-only yếu hơn, KHÔNG hai nghĩa "visible" cạnh tranh nhau trong cùng một selection pipeline.
+Bất kỳ leg nào fail → `U` KHÔNG full-cursor-visible tại `R`.
+
+**Phạm vi CHÍNH XÁC của định nghĩa này (v0.4 correction, `CONTEXT-DC-A-MAJ-01`) — ADR-046 Decision item 4 chỉ định nghĩa visibility của MỘT upstream event tại Context `computation_cursor`, KHÔNG redefine mọi occurrence của "visible" trong toàn bộ Domain Contract.** Predicate ba-leg này áp dụng cho — và CHỈ cho:
+
+```text
+1. Ứng viên input tại §8 (Phase 1 bước 2).
+2. Upstream correction/invalidation event được xét khi resolve producer-domain lineage tại R
+   (§8 bước 4 — StructureFactInvalidated/RegimeFactInvalidated/FeatureFactInvalidated/Candle
+   correction-lineage evidence).
+3. Record dùng để xác lập temporal eligible-upstream supersession (§8).
+4. K_context(R).
+5. Chứng minh COVERS_CONTEXT.
+```
+
+Predicate này KHÔNG tự động định nghĩa visibility của `MarketContextSnapshot`, `MarketContextFactInvalidated`, replacement Context output record, hay `MarketContextCurrentView`'s own output-history traversal (§13) — đó là **output-history visibility**, một khái niệm khác, xem §13. Khi `visible`/`visible tại R` nói về một upstream event, đó LUÔN LÀ predicate ba-leg này (KHÔNG một shorthand `recorded_time`-only yếu hơn, KHÔNG hai nghĩa "visible" cạnh tranh nhau trong cùng một selection pipeline). Khi `visible` nói về CHÍNH `MarketContextSnapshot`/`MarketContextFactInvalidated`/replacement trong lineage của nó (§3, §4 phần liên quan tới chính output record, §12, §13), đó LÀ output-history visibility — hai khái niệm này KHÔNG được conflate.
 
 **Input eligibility — hai điều kiện ĐỘC LẬP, cả hai PHẢI đúng cho MỌI role fact (v0.3 — thay thế công thức scalar `(a)` cũ bằng full cursor visibility; đúng nguyên tắc `feature.md` §12, ngăn RA-B3-MAJ-01-style defect ngay từ v0.1):**
 
@@ -784,6 +812,7 @@ Chứng minh coverage KHÔNG BAO GIỜ so `sequence` xuyên stream identity khá
 - **Không in-place mutation ở bất kỳ đâu** — mọi lineage member (kể cả đã bị supersede) giữ nguyên vĩnh viễn trong log.
 - **Effective-time vs recorded-time tách bạch trung thực** — đúng T-vs-T+n discipline xuyên suốt `candle.md`/`swing.md`/`structure.md`/`regime.md`/`feature.md`.
 - **Cursor-correct pending correction** — replay giữa invalidation và replacement thấy đúng `PENDING_CORRECTION` (§13), không âm thầm dùng giá trị cũ.
+- **Hai khái niệm visibility tách biệt (v0.4 correction, `CONTEXT-DC-A-MAJ-01`) — không conflate.** (1) Historical Context INPUT reconstruction dùng `computation_cursor` riêng của từng record VÀ §14's full upstream-input predicate (bullet "No look-ahead" ngay dưới). (2) Việc Context OUTPUT record (`MarketContextSnapshot`/`MarketContextFactInvalidated`) có visible với replay/current-view traversal hay không LÀ output-history visibility (§13, bullet "Cursor-correct pending correction" trên) — KHÔNG PHẢI §14's predicate. Hai khái niệm này độc lập, không được dùng thay thế lẫn nhau.
 - **No look-ahead qua batch recomputation (v0.3 — dùng đúng `computation_cursor` thực tế, ADR-046):** historical Backtest/Replay tại một recorded cursor MUỘN PHẢI reconstruct MỖI `MarketContextSnapshot` chỉ dùng fact thỏa **CẢ HAI** điều kiện tại đúng `computation_cursor` của CHÍNH fact đó (§14): full-cursor-visible (§14, ba leg — KHÔNG chỉ scalar recorded-time) VÀ effective-time eligible (§8). Một fact effective muộn hơn (Structure/Regime/Feature/Candle) **KHÔNG BAO GIỜ** được "nhảy vào" một computation point sớm hơn mà nó effective-time ineligible tại điểm đó.
 - **Cùng một chuỗi computation xuyên Backtest/Replay/Paper/Live** — deterministic given `(context_definition_version, upstream causal ancestry)` — bắt buộc SINH RA đủ MỌI computation point giống nhau ở mọi mode, bao gồm cùng tập bảy Eligible fact tại cùng computation point.
 - **Warm-up/missing-input deterministic** — áp dụng đồng nhất mọi mode.
