@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.442"
+manifest_version: "10.443"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -30248,6 +30248,61 @@ EVID-08  BLOCKED_BY_EXTERNAL_DEPENDENCY        (Strategy/Decision/Risk Gateway/E
 **ADR Scope / Risk:** `ADR_NOT_REQUIRED`. Risk: `R1`.
 
 **Files changed:** `docs/governance/quality-gate/feature-engine-m2-scope-derivation-001.json` (new), `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md` (stale rows reconciled, new §10 appended), `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — exactly 6 files. No `src/`, `tests/`, `tooling/`, dependency, `feature-engine-evid05b-formal-evidence-001.md`, `feature-engine-evid07-property-based-mechanism-candidate-001.md`, `feature-engine-evid03-closure-001.json`, Testing Convention, ADR, or Constitution file touched. No Quality-Gate finding remediated. No critical-path re-sequencing. `manifest_version` `"10.441"` -> `"10.442"`.
+
+## Ride project critical-path correction (`RIDE-CRITICAL-PATH-CORRECTION-001`) — project tracking / orchestration correction only — M3/M4 redefined, M2 preserved as parallel evidence lane
+
+**Objective:** correct the Ride project milestone/critical-path model so it matches already-Locked Phase-3 authority and removes the artificial operational dependency currently encoded in M3/M4. PROJECT TRACKING / ORCHESTRATION CORRECTION ONLY — does NOT change Chapter-12 Approval semantics, Chapter-13 Quality-Gate semantics, waive any Feature Engine Quality-Gate finding, implement any downstream module, or grant any approval.
+
+**Central correction:** there is no authoritative standalone Feature Engine Module Approval Gate under current Chapter 12 / Chapter 13. Feature Engine's remaining Quality-Gate evidence (M2) may remain `BLOCKED` while bounded Phase-3 development continues downstream per Chapter 14 §14.2.
+
+**Boundary:** starting `main == origin/main == cb4c514f2b11747ef4483910bce13a3ead628c5d`, fresh-verified, working tree clean, no drift. All 9 pinned artifact/authority blobs fresh-verified exact before mutation: `feature-engine-m2-scope-derivation-001.json`, `docs/project/milestone.md`, Chapter 13/14 (Constitution), Phase-3 rules, Lean Ride Operating Model, `module-registry.yaml`, `feature-context-architecture.md`, `docs/domain/context.md`. `docs/constitution/12-approval-gates.md` fresh-read for content.
+
+**Authority Finding 1 — no Feature Engine Module Approval Gate:** Chapter 12 §12.2 defines only a `Phase Approval Gate — prerequisite aggregation` at the Product Owner **phase** decision boundary (quality gates are one of eight eligibility prerequisite items, §12.2(5)). Chapter 13 §13.1 is explicit: `Quality Gate pass ≠ Product Owner approval`; `Quality Gate → sinh eligibility evidence`; `Approval Gate → consume evidence đó`; Quality Gate never approves, locks, or decides phase transition. `phase-3-rules.md` §11's own gate-path model confirms a **single phase-level Approval Gate at the end** (`Phase 3 module/artifact implementation → Quality Gate theo Tier cho từng module/artifact → Phase-wide BCC → Phase-level Gate review(s) → Product Owner Phase 3 Approval Gate decision`), not a per-module gate inserted between each adjacent Chapter-14 node. No other controlling authority (Lean Ride Operating Model, module-registry.yaml, ADR-045) defines a separate Feature Engine module Approval Gate — the sole generic phrase found (`docs/constitution/00-governance.md`'s "Phase/Module Approval Gate decisions") is a Product-Owner-reservation category, not a process definition. **Conclusion:** the prior `milestone.md` M3 entry (`Feature Engine — Module Approval`, citing Chapter 12 §12.2) was a project-tracking/orchestration modeling error, not backed by the cited authority. **This is NOT permission to waive Feature Engine Quality Gates.**
+
+**Authority Finding 2 — downstream development order:** Chapter 14 §14.2 sequence fresh-verified: `Data Layer → Structure Engine & Raw Regime Engine → Feature Engine → Context Projection → Strategy → Decision → Risk Gateway → Execution` — matches expected exactly. Phase-3 Rules require implementation to follow this order (dependency-STATE verification, per G-VERIFY-001, before authoring a module out of order) but introduce no mandatory per-module Product Owner Approval Gate. **Conclusion:** Feature Engine M2 may remain externally `BLOCKED` while the primary implementation critical path advances to the next legitimate Chapter-14 node.
+
+**Authority Finding 3 — next node:** `module-registry.yaml`'s `context-aggregator` entry fresh-verified: `module_type: projection`, `depends_on: [market-data-ingestion, structure-engine, raw-regime-engine, feature-engine]`, `status: candidate`. No `context-aggregator` executable implementation directory exists anywhere in the repository (direct directory inspection). **Conclusion:** the immediate primary-path target is Context Projection / `context-aggregator` — implementation MUST NOT begin in this transaction; a separate, subsequent WP fresh-derives implementation readiness, contract boundary, applicable Quality Gates, blockers, and first implementation slice.
+
+**Milestone correction:**
+
+```text
+M0 — Lean Ride Operating Model v1.1 Adoption:        DONE (unchanged)
+M1 — Feature Engine EVID-03 Closure:                 DONE (unchanged)
+M2 — Feature Engine Remaining Quality-Gate Closure:  BLOCKED (unchanged
+  acceptance boundary: EVID-04/EVID-06/EVID-08 all CLOSED — PASS
+  required) — reclassified as a PARALLEL evidence lane, no longer the
+  primary-path blocker; NOT weakened, closed, waived, or reinterpreted.
+  Expected to become progressively unblockable as downstream
+  capabilities become real (EVID-04 <- Decision path; EVID-06
+  remaining half <- Risk Gateway path; EVID-08 <- full Strategy/
+  Decision/Risk/Execution path) — each finding still requires its own
+  separate, governed evidence evaluation; no auto-close on downstream
+  code appearance.
+M3 — WAS "Feature Engine — Module Approval" (QUEUED, depends on M2,
+  cited Chapter 12 §12.2 without supporting authority) — SUPERSEDED.
+  NOW "Context Projection / context-aggregator" — ACTIVE. Depends on
+  the existing upstream executable/contract boundary (market-data-
+  ingestion, structure-engine, raw-regime-engine, feature-engine — all
+  already implemented) — explicitly NOT on M2 reaching PASS.
+  Acceptance criteria NOT invented; scope/implementation readiness to
+  be fresh-derived in the next separately-scoped WP. Implementation
+  NOT STARTED.
+M4 — WAS "Feature Engine -> Downstream Phase-3 Unlock / Integration"
+  (PROVISIONAL, depends on M3) — SUPERSEDED. NOW "Strategy -> Decision
+  -> Risk Gateway -> Execution downstream Phase-3 chain" — QUEUED.
+  Depends on M3. Exact module/WP decomposition NOT invented; NOT
+  implemented or fully designed by this transaction.
+```
+
+**Current-state terminology correction (live tracking prose only — `docs/project/milestone.md` §4's current-state table):** "Feature Engine NOT APPROVED" replaced with "Feature Engine Chapter-13 Quality Gate is not fully PASS: M2 remains BLOCKED on EVID-04/EVID-06/EVID-08"; "Phase-3 module approval NOT GRANTED" replaced with "Phase-3 Approval Gate has not been reached / granted". Historical artifacts and historical per-transaction prose (the "Completed" work-package-lane rows, prior evidence artifacts) are preserved byte-unchanged — older wording in those rows is left as-is, not rewritten. **No Constitution defect claimed. No Chapter 12/13 change claimed.**
+
+**Review / routing:** ChatGPT, AI Technical Architect — `CLEAN — 0 Blocker / 0 Major / 0 Minor`, Risk `R1`, ADR Scope `ADR_NOT_REQUIRED` — changes no Constitution, ADR, Quality-Gate applicability, dependency graph, module taxonomy, product scope, or Approval authority; corrects an operational project-tracking model that currently contradicts existing Locked authority. No Product Owner decision required. This is NOT a milestone acceptance decision.
+
+**Confirmation:** no production `src/**`, test, tooling, or dependency file changed. No Constitution/ADR/module-registry modification. `EVID-04`/`EVID-06`/`EVID-08` unaltered — no Quality-Gate finding remediated, waived, or reinterpreted. `context-aggregator`/Strategy/Decision/Risk Gateway/Execution Engine NOT implemented. Phase-3 Approval Gate NOT opened; no module approved; Phase 3 NOT approved; `LIVE` remains `NOT_AUTHORIZED`.
+
+**ADR Scope / Risk:** `ADR_NOT_REQUIRED`. Risk: `R1`.
+
+**Files changed:** `docs/project/ride-critical-path-correction-001.json` (new), `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — exactly 5 files. No `src/`, `tests/`, `tooling/`, dependency, Constitution, ADR, `module-registry.yaml`, `feature-engine-m2-scope-derivation-001.json`, `feature-engine-chapter13-remediation-plan-001.md`, or any Condition-1/2/3 evidence file touched. No critical-path/downstream implementation performed. `manifest_version` `"10.442"` -> `"10.443"`.
 
 ## Decision Log
 

@@ -2,6 +2,34 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-25 — project: Ride critical-path correction — M3/M4 redefined, M2 preserved as parallel evidence lane
+
+Starting `main == origin/main == cb4c514f2b11747ef4483910bce13a3ead628c5d`, fresh-verified, working tree clean, no drift. All 9 pinned artifact/authority blobs fresh-verified exact before mutation.
+
+PROJECT TRACKING / ORCHESTRATION CORRECTION ONLY. No Chapter-12 Approval semantics, Chapter-13 Quality-Gate semantics, Feature Engine Quality-Gate finding, downstream module, or approval changed/implemented/granted.
+
+**Central correction:** there is no authoritative standalone Feature Engine Module Approval Gate under current Chapter 12 / Chapter 13. Feature Engine's remaining Quality-Gate evidence (M2) may remain `BLOCKED` while bounded Phase-3 development continues downstream per Chapter 14 §14.2.
+
+**Authority Finding 1:** Chapter 12 §12.2 defines only a phase-level Phase Approval Gate (quality gates are one input item among several). Chapter 13 §13.1 explicit: `Quality Gate pass ≠ Product Owner approval` -- never approves/locks/decides phase transition. `phase-3-rules.md` §11's own gate-path model confirms a single phase-level Approval Gate at the end, not a per-module gate between adjacent Chapter-14 nodes. No controlling authority defines a separate Feature Engine module Approval Gate. This is NOT permission to waive Feature Engine Quality Gates.
+
+**Authority Finding 2:** Chapter 14 §14.2 sequence fresh-verified matches expected exactly (`Data Layer -> Structure Engine & Raw Regime Engine -> Feature Engine -> Context Projection -> Strategy -> Decision -> Risk Gateway -> Execution`). Phase-3 Rules require dependency-STATE verification, not upstream Quality-Gate PASS, before authoring a module out of order.
+
+**Authority Finding 3:** `module-registry.yaml`'s `context-aggregator` entry fresh-verified (`module_type: projection`, depends on market-data-ingestion/structure-engine/raw-regime-engine/feature-engine, `status: candidate`); no implementation directory exists anywhere in the repository.
+
+**Milestone correction:** M0/M1 preserved (`DONE`/`DONE`). **M2 preserved unchanged** (`BLOCKED`, acceptance boundary `EVID-04`/`EVID-06`/`EVID-08` all `CLOSED — PASS` required) but reclassified as a **parallel evidence lane**, no longer the primary-path blocker -- NOT weakened, closed, waived, or reinterpreted. Prior M3 (`Feature Engine — Module Approval`, citing Chapter 12 §12.2 without supporting authority) superseded -- redefined **M3 — Context Projection / `context-aggregator`**, `QUEUED -> ACTIVE`, depends on the existing upstream executable/contract boundary (NOT M2 reaching `PASS`); implementation NOT started. Prior M4 superseded -- redefined **M4 — Strategy → Decision → Risk Gateway → Execution downstream Phase-3 chain**, `PROVISIONAL -> QUEUED`, depends on M3; decomposition NOT invented.
+
+**Current-state terminology corrected** (live tracking prose only, `milestone.md` §4): "Feature Engine NOT APPROVED" -> "Feature Engine Chapter-13 Quality Gate is not fully PASS: M2 remains BLOCKED on EVID-04/EVID-06/EVID-08"; "Phase-3 module approval NOT GRANTED" -> "Phase-3 Approval Gate has not been reached / granted". Historical artifacts/prose left byte-unchanged. No Constitution defect claimed; no Chapter 12/13 change claimed.
+
+Review: ChatGPT, AI Technical Architect -- `CLEAN — 0 Blocker / 0 Major / 0 Minor`, Risk `R1`, ADR Scope `ADR_NOT_REQUIRED`. No Product Owner decision required; NOT a milestone acceptance decision.
+
+No `src/`/`test`/`tooling`/dependency change; no Constitution/ADR/module-registry modification. `EVID-04`/`EVID-06`/`EVID-08` unaltered. `context-aggregator`/Strategy/Decision/Risk Gateway/Execution NOT implemented. Phase-3 Approval Gate NOT opened; no module approved; Phase 3 NOT approved. `LIVE` remains `NOT_AUTHORIZED`.
+
+`manifest_version` `"10.442"` -> `"10.443"`.
+
+**Files changed (5):** `ride-critical-path-correction-001.json` (new), `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md`.
+
+---
+
 ## [Unreleased] — 2026-09-24 — feature-engine: M2 scope derived and reconciled — M2 ACTIVE -> BLOCKED (EVID-04/EVID-06-remaining/EVID-08 externally blocked)
 
 Starting `main == origin/main == 01b05e73221474caf303b1a37fe886bf7366980d`, fresh-verified, working tree clean, no drift. All 10 pinned artifact/authority blobs fresh-verified exact before mutation.

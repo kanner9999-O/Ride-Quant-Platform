@@ -54,9 +54,9 @@ project-level acceptance boundary genuinely changes.
 |---|---|---|---|---|
 | M0 | Lean Ride Operating Model v1.1 Adoption | `DONE` | — | No |
 | M1 | Feature Engine — P3-FEATURE-QG-EVID-03 Closure | `DONE` | M0 | No |
-| M2 | Feature Engine — Remaining Quality-Gate Closure | `BLOCKED` | M1 | No |
-| M3 | Feature Engine — Module Approval | `QUEUED` | M2 | No |
-| M4 | Feature Engine → Downstream Phase-3 Unlock / Integration | `PROVISIONAL` | M3 | No |
+| M2 | Feature Engine — Remaining Quality-Gate Closure (parallel evidence lane, NOT the primary-path blocker) | `BLOCKED` | M1 | No |
+| M3 | Context Projection / `context-aggregator` | `ACTIVE` | upstream executable/contract boundary (M0; NOT M2) | No |
+| M4 | Strategy → Decision → Risk Gateway → Execution downstream Phase-3 chain | `QUEUED` | M3 | No |
 
 ### M0 — Lean Ride Operating Model v1.1 Adoption
 
@@ -72,10 +72,10 @@ See §4 for full detail.
 
 ### M2 — Feature Engine — Remaining Quality-Gate Closure
 
-- **State:** `BLOCKED` (fresh-derived and reconciled this transaction,
+- **State:** `BLOCKED` (fresh-derived and reconciled,
   `FE-EVID03-COND2-M2-SCOPE-001`; was `ACTIVE`)
 - **Depends on:** M1 (`DONE`)
-- **Acceptance condition (now derived, not invented):** all remaining
+- **Acceptance condition (derived, not invented):** all remaining
   current Feature Engine Chapter-13 blocking findings closed —
   `EVID-04 = CLOSED — PASS`, `EVID-06 = CLOSED — PASS`,
   `EVID-08 = CLOSED — PASS`. `EVID-03`, `EVID-05`, and `EVID-07` are
@@ -92,35 +92,97 @@ See §4 for full detail.
   honestly closed by any Feature-Engine-local coding/test work today.
   No fake Feature-local substitute is authorized. Full derivation:
   `docs/governance/quality-gate/feature-engine-m2-scope-derivation-001.json`.
+- **Relationship to the primary implementation path (critical-path
+  correction, `RIDE-CRITICAL-PATH-CORRECTION-001`, this transaction):**
+  M2 is a **parallel evidence lane**, no longer treated as the sole
+  blocker of the Phase-3 primary implementation path. It is expected to
+  become progressively unblockable as downstream capabilities become
+  real (`EVID-04` ← Decision path; `EVID-06` remaining half ← Risk
+  Gateway path; `EVID-08` ← full Strategy/Decision/Risk/Execution
+  path) — each finding still requires its own separate, governed
+  evidence evaluation; M2 does NOT auto-close when downstream code
+  merely appears. M3/M4 do not depend on M2 reaching `PASS`.
 - **PO action required:** No.
 
-### M3 — Feature Engine — Module Approval
+### M3 — Context Projection / `context-aggregator`
+
+- **State:** `ACTIVE` (redefined this transaction,
+  `RIDE-CRITICAL-PATH-CORRECTION-001`; supersedes the prior
+  `Feature Engine — Module Approval` project-tracking entry — see §3.1
+  below for why)
+- **Depends on:** the existing upstream executable/contract boundary
+  (`market-data-ingestion`, `structure-engine`, `raw-regime-engine`,
+  `feature-engine` — all already implemented) required by
+  Chapter-14/module-registry ordering. **Explicitly NOT dependent on M2
+  reaching `PASS`.**
+- **Acceptance condition:** NOT invented by this transaction. Scope /
+  implementation readiness to be fresh-derived in the next
+  separately-scoped WP. See §4a for current derived facts
+  (module-registry entry, implementation-existence verification).
+- **Implementation status:** `NOT STARTED`. Implementation MUST NOT
+  begin in this transaction.
+- **PO action required:** No.
+
+### §3.1 — Why M3/M4 were redefined (critical-path correction)
+
+**Prior project-tracking definition (superseded, not a Constitution
+defect):** M3 was previously tracked as `Feature Engine — Module
+Approval`, citing Chapter 12 §12.2, with M4 depending on it. Fresh
+verification (`RIDE-CRITICAL-PATH-CORRECTION-001`, Review A CLEAN —
+0/0/0, Risk `R1`, ADR Scope `ADR_NOT_REQUIRED`) found this was a
+**project-tracking / orchestration modeling error**, not a defect in
+Chapter 12 or Chapter 13 (neither chapter changed; neither is
+reinterpreted to weaken Quality-Gate requirements):
+
+- Chapter 12 §12.2 defines only a **Phase Approval Gate** —
+  prerequisite aggregation at the Product Owner **phase** decision
+  boundary (quality gates are one input item among several, §12.2(5)).
+  It does not define a separate, standalone Feature Engine (or any
+  other single-module) Approval Gate.
+- Chapter 13 §13.1 is explicit: `Quality Gate pass ≠ Product Owner
+  approval`; `Quality Gate → sinh eligibility evidence`; `Approval
+  Gate → consume evidence đó`. Quality Gate never approves, locks, or
+  decides phase transition.
+- `docs/governance/phases/phase-3-rules.md` §11's own gate-path model
+  confirms: `Phase 3 module/artifact implementation → Quality Gate
+  theo Tier cho từng module/artifact → Phase-wide BCC → Phase-level
+  Gate review(s) → Product Owner Phase 3 Approval Gate decision` — a
+  single phase-level Approval Gate at the end, not a per-module gate
+  inserted between each adjacent Chapter-14 node.
+- No other controlling authority (Lean Ride Operating Model v1.1,
+  module-registry.yaml, ADR-045) defines a separate Feature Engine
+  module Approval Gate either. The one generic phrase found —
+  `docs/constitution/00-governance.md`'s "Phase/Module Approval Gate
+  decisions" (a Product-Owner-reservation category) — reserves such a
+  decision to the Product Owner IF a governing authority ever defines
+  one; it does not itself define or create one.
+
+**Corrected model:** Feature Engine's remaining Quality-Gate evidence
+(M2) may remain `BLOCKED` while bounded Phase-3 development continues
+downstream per Chapter 14 §14.2's own dependency order. The false
+operational dependency `M2 → Feature Engine Module Approval →
+downstream unlock` is removed. M2 is not weakened, closed, waived, or
+reinterpreted — its own acceptance boundary (`EVID-04`/`EVID-06`/
+`EVID-08` all `CLOSED — PASS`) is unchanged.
+
+### M4 — Strategy → Decision → Risk Gateway → Execution downstream Phase-3 chain
 
 - **State:** `QUEUED`
-- **Depends on:** M2
-- **Acceptance condition:** Feature Engine reaches its existing governed
-  module-approval boundary (Chapter 12 §12.2) after all required
-  Quality-Gate obligations are satisfied/dispositioned. This register does
-  **not** grant, imply, or pre-authorize that approval.
-- **PO action required:** No.
-
-### M4 — Feature Engine → Downstream Phase-3 Unlock / Integration
-
-- **State:** `PROVISIONAL`
 - **Depends on:** M3
 - **Acceptance condition:** not yet detailed — no speculative downstream
-  implementation work is hard-coded here. Scope must be fresh-derived from
-  the authoritative Phase-3 roadmap/dependency graph (Chapter 14 §14.2)
-  after Feature Engine approval (M3).
+  implementation work is hard-coded here. Exact module/WP decomposition
+  remains to be fresh-derived as each roadmap boundary (Strategy,
+  Decision, Risk Gateway, Execution — Chapter 14 §14.2) is reached. This
+  milestone is NOT implemented or fully designed by this transaction.
 - **PO action required:** No.
 
-## 4. Current active milestone detail — M1 (DONE)
+## 4. Feature Engine — `P3-FEATURE-QG-EVID-03` Closure detail (M1, DONE — historical)
 
 **Feature Engine — `P3-FEATURE-QG-EVID-03` Closure** (`DONE`, depends on M0)
 
 | Item | Current state |
 |---|---|
-| Overall | `DONE` — `P3-FEATURE-QG-EVID-03` closed via Delegated Technical Resolution (`FE-EVID03-CLOSURE-001-DTR-001`), not a Product Owner approval. M2 (Feature Engine — Remaining Quality-Gate Closure) is now `BLOCKED` — its scope is derived (`EVID-04`/`EVID-06` remaining half/`EVID-08`, all `BLOCKED_BY_EXTERNAL_DEPENDENCY` on unimplemented downstream Phase-3 modules), not invented; no Feature-Engine-local remediation path exists today. |
+| Overall | `DONE` — `P3-FEATURE-QG-EVID-03` closed via Delegated Technical Resolution (`FE-EVID03-CLOSURE-001-DTR-001`), not a Product Owner approval. M2 (Feature Engine — Remaining Quality-Gate Closure) is `BLOCKED` — its scope is derived (`EVID-04`/`EVID-06` remaining half/`EVID-08`, all `BLOCKED_BY_EXTERNAL_DEPENDENCY` on unimplemented downstream Phase-3 modules), not invented; no Feature-Engine-local remediation path exists today. M2 is now a **parallel evidence lane**, not the primary-path blocker (critical-path correction, `RIDE-CRITICAL-PATH-CORRECTION-001`) — see §4a for M3 (Context Projection / `context-aggregator`), the current primary-path milestone. |
 | Condition 1 | `PASS — REVIEW A VALIDATED` — gated by the ACTIVATED recalibrated threshold-v3: Condition 1A (raw score ≥ `84.899201217193%`, MEASURED `85.393685812096%`, PASS) AND Condition 1B (18 pinned current-material identities individually resolved, MEASURED `18/18 KILLED`, PASS) — evidence-006, formally validated by distinct-principal ChatGPT Review A, recorded via `FE-EVID03-COND1-FORMAL-006-DTR-001` (Delegated Technical Resolution, NOT a Product Owner approval). Condition 1 is no longer the primary blocker. |
 | Condition 1 — unstable cases (current, evidence-006) | `0` — historical Evidence-005 figure of `9` is superseded at the current measurement boundary, not reopened |
 | Condition 1 — current survivor count (evidence-006) | `384` — historical Evidence-005 figure of `406` is superseded at the current measurement boundary |
@@ -128,8 +190,9 @@ See §4 for full detail.
 | Condition 2 | `170/170 — SATISFIED`. The final identity, `contracts.x__seal_verified_authority__mutmut_33`, is resolved via branch (c) `VERIFIED_TOOL_IDENTITY_CONTINUITY` (mapped uniquely to current successor `feature_engine.contracts.x__seal_verified_authority__mutmut_36`, KILLED), recorded as `DELEGATED TECHNICAL RESOLUTION — CLEAN` under ADR-045 (`FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001-APPLY-001`, `FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001-APPLY-DTR-001`) — not a Product Owner approval. |
 | Condition 3 | `SATISFIED — REVIEW A VALIDATED` (**DONE — not reopened by this WP**) |
 | `P3-FEATURE-QG-EVID-03` | `CLOSED — PASS — REVIEW A VALIDATED` — closed via `FE-EVID03-CLOSURE-001` (`DELEGATED TECHNICAL RESOLUTION — CLEAN`, Risk `R1`, ADR Scope `ADR_NOT_REQUIRED`), aggregating the three already-governed Condition 1/2/3 states above. NOT a Product Owner approval; NOT Feature Engine approval; NOT Phase-3 approval; NOT LIVE authorization — each remains a separate, not-yet-performed governed decision. |
-| Feature Engine approval | `NOT APPROVED` |
-| LIVE | `NOT AUTHORIZED` |
+| Feature Engine Chapter-13 Quality Gate | not fully `PASS` — M2 remains `BLOCKED` on `EVID-04`/`EVID-06`/`EVID-08` (see M3/M4 correction, §3). There is no separate standalone Feature Engine Module Approval Gate under current Chapter 12/13 authority — this row states Quality-Gate status only, not an approval lifecycle state. |
+| Phase-3 Approval Gate | not reached / not granted — a single phase-level decision (Chapter 12 §12.2), reached after Phase-3 module/artifact implementation and Quality Gate evidence accumulate; not a per-module gate. |
+| LIVE | `NOT_AUTHORIZED` |
 
 **Condition 1 — now a formal governed result.** As of
 `FE-EVID03-COND1-APPLY-001` (this transaction), Chapter 13 v1.8 §13.8.1
@@ -661,11 +724,37 @@ governed step: a separate, subsequent, bounded Work Package for Wave-6
 future formal measurement transaction to determine actual Condition-1B
 credit — neither initiated here.
 
+## 4a. Current active primary-path milestone detail — M3
+
+**Context Projection / `context-aggregator`** (`ACTIVE`, depends on the
+existing upstream executable/contract boundary — NOT on M2 reaching
+`PASS`)
+
+This section is new as of the critical-path correction transaction
+(`RIDE-CRITICAL-PATH-CORRECTION-001`) that redefined M3/M4 (§3). It
+does not grant, imply, or pre-authorize any implementation,
+Quality-Gate result, or approval — see §3's `### M3`/`### M4` entries
+for the full derivation and explicit non-claims.
+
+| Item | Current state |
+|---|---|
+| Purpose | Next legitimate primary-path Phase-3 module boundary after Feature Engine, per Chapter 14 §14.2's canonical dependency sequence (`Data Layer → Structure Engine & Raw Regime Engine → Feature Engine → Context Projection → Strategy → Decision → Risk Gateway → Execution`). |
+| module-registry.yaml entry | `context-aggregator` — `module_type: projection`, `depends_on: [market-data-ingestion, structure-engine, raw-regime-engine, feature-engine]`, `status: candidate` (architecture-declared only). |
+| Implementation existence | Fresh-verified: no `context-aggregator` executable implementation directory exists anywhere in the repository. |
+| Implementation status | `NOT STARTED` by this transaction. Implementation MUST NOT begin here — a separate, subsequent WP fresh-derives implementation readiness, authoritative contract boundary, applicable Quality Gates, blockers, and first implementation slice. |
+| Acceptance criteria | NOT invented by this transaction — `Scope / implementation readiness to be fresh-derived in the next separately-scoped WP.` |
+| Dependency on M2 | **None.** M3 does not depend on M2 reaching `PASS`. Its dependency is the existing upstream executable/contract boundary (`market-data-ingestion`, `structure-engine`, `raw-regime-engine`, `feature-engine` — all already implemented) required by Chapter-14/module-registry ordering, per `phase-3-rules.md` §11's own gate-path model (Quality Gate evidence accumulates per-module/artifact; the Product Owner Approval Gate decision is phase-level, reached once, not a per-module gate between adjacent Chapter-14 nodes). |
+| Feature Engine Chapter-13 Quality Gate | not fully `PASS` (M2 `BLOCKED` on `EVID-04`/`EVID-06`/`EVID-08`) — unaffected by, and not a blocker of, M3's primary-path status. |
+| Phase-3 Approval Gate | not reached / not granted. |
+| Feature Engine approval / module approval | No standalone gate of this kind exists under current Chapter 12/13 authority (§3's `### M3` derivation) — this row is retained only to make explicit that none is claimed, granted, or implied. |
+| LIVE | `NOT_AUTHORIZED` |
+| PO action required now | No. |
+
 ## 5. Work Package lanes
 
 | Lane | Item | Status |
 |---|---|---|
-| Primary | *(none currently assigned)* | `FE-EVID03-COND1-WAVE5-001`, `FE-EVID03-COND1-AUDIT-001`, `FE-EVID03-COND1-MATERIAL-SET-DTR-001`, `FE-EVID03-COND1-THRESHOLD-RECAL-V2-001`, `FE-EVID03-COND1-WAVE6-001`, `FE-EVID03-COND1-WAVE6-CLASSIFICATION-DTR-001`, `FE-EVID03-COND1-THRESHOLD-RECAL-V3-001`, `FE-EVID03-COND1-FORMAL-EVID-006-001`, `FE-EVID03-COND1-FORMAL-006-DTR-001`, `FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001`, `FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001-CORR-001`, `FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001-ACTIVATION-001`, `FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001-APPLY-001`, `FE-EVID03-CLOSURE-001`, and `FE-EVID03-COND2-M2-SCOPE-001` (M2 scope derived: `EVID-03`/`EVID-05`/`EVID-07` already `CLOSED — PASS`, excluded from new work; `EVID-04`/`EVID-06` remaining half/`EVID-08` all `BLOCKED_BY_EXTERNAL_DEPENDENCY` on unimplemented downstream Phase-3 modules — no honest Feature-Engine-local remediation path exists today) are all COMPLETE. **M1 is `DONE`. M2 is now `BLOCKED`** — no Quality-Gate finding remediated this transaction. Condition 1/2/3 (EVID-03) unaffected. Feature Engine remains `NOT APPROVED`; Phase-3 module approval remains `NOT GRANTED`; LIVE remains `NOT_AUTHORIZED`. Next governed action: critical-path / milestone re-sequencing against Chapter 14 to remove the operational dependency cycle without weakening Quality-Gate requirements — a separate, subsequent orchestration decision, not initiated here. |
+| Primary | *(none currently assigned)* | `FE-EVID03-COND1-WAVE5-001`, `FE-EVID03-COND1-AUDIT-001`, `FE-EVID03-COND1-MATERIAL-SET-DTR-001`, `FE-EVID03-COND1-THRESHOLD-RECAL-V2-001`, `FE-EVID03-COND1-WAVE6-001`, `FE-EVID03-COND1-WAVE6-CLASSIFICATION-DTR-001`, `FE-EVID03-COND1-THRESHOLD-RECAL-V3-001`, `FE-EVID03-COND1-FORMAL-EVID-006-001`, `FE-EVID03-COND1-FORMAL-006-DTR-001`, `FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001`, `FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001-CORR-001`, `FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001-ACTIVATION-001`, `FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001-APPLY-001`, `FE-EVID03-CLOSURE-001`, `FE-EVID03-COND2-M2-SCOPE-001`, and `RIDE-CRITICAL-PATH-CORRECTION-001` (project-tracking/orchestration correction: no standalone Feature Engine Module Approval Gate exists under current Chapter 12/13 authority; M3 redefined `Context Projection / context-aggregator` (`ACTIVE`), M4 redefined `Strategy → Decision → Risk Gateway → Execution` (`QUEUED`), neither depends on M2 reaching `PASS`; M2 preserved unchanged as a parallel `BLOCKED` evidence lane) are all COMPLETE. **M1 `DONE`. M2 `BLOCKED` (parallel evidence lane). M3 `ACTIVE` (Context Projection / `context-aggregator`, implementation not started). M4 `QUEUED`.** No Quality-Gate finding remediated; no module implemented; no approval granted. Feature Engine Chapter-13 Quality Gate is not fully `PASS` (M2 blocked); Phase-3 Approval Gate not reached; LIVE remains `NOT_AUTHORIZED`. Next governed action: fresh Context Projection / `context-aggregator` implementation-readiness derivation and first bounded implementation WP — not initiated here. |
 | Deferred | `contracts.x__seal_verified_authority__mutmut_33` (TOOL_IDENTITY_DRIFT) | Deferred — no existing governed mechanism |
 | Completed | `RIDE-PROJECT-MILESTONE-DASHBOARD-001` | Tracking infrastructure only |
 | Completed | `FE-EVID03-COND1-STOP-001` | 9/9 mutants `REQUIRES_GOVERNED_PROTOCOL_DECISION`; §13.10 applicability question flagged for ChatGPT review |
@@ -702,34 +791,50 @@ credit — neither initiated here.
 | Completed | `FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001-APPLY-001` | Applied the already Product-Owner-APPROVED/EFFECTIVE Condition-2 branch (c) `VERIFIED_TOOL_IDENTITY_CONTINUITY` mechanism to exactly one historical identity: `contracts.x__seal_verified_authority__mutmut_33`, mapped uniquely to current successor `feature_engine.contracts.x__seal_verified_authority__mutmut_36` (KILLED — two independent isolated runs, corroborated by Evidence-006's own formal killed status). Fresh-verified before mutation: boundary `aae246532b7eac8c6e0bbdc15a120784b8bb7e99`; effective mechanism blob `f045be889d536c345d3f8154c17dd93fef07981c`; technical-evidence blob `a4f5ceb646e39a931a532af5fd324775a38c3bc5`; `contracts.py` source blob `0d2e39bffb705a2b1f903cd1a54b5f099ae6a686` (identical to the technical-evidence artifact's own current boundary — no source drift). All `C1`–`C12` verified PASS (exact reconstruction both sides, unique 1:1 mapping, no refactor, mutmut `3.7.0` provenance, per-identity-only credit, no raw-score adjustment). Review A: ChatGPT, **CLEAN — 0 Blocker / 0 Major / 0 Minor**, Risk `R1`, ADR Scope `ADR_NOT_REQUIRED`. ADR-045 `D1`–`D12` all `PASS` (D8: ChatGPT distinct from Claude, who authored/executed the underlying technical evidence; D10: no governing-artifact reservation, no Product Owner call-in for this specific application — R2/D10(a) applied only to the mechanism's own one-time activation, already completed). Governed outcome: **`DELEGATED TECHNICAL RESOLUTION — CLEAN`** (`FE-EVID03-COND2-TOOL-IDENTITY-CONTINUITY-001-APPLY-DTR-001`) — NOT a Product Owner approval; no Product Owner decision requested or required. **Condition 2: `169/170` → `170/170 — SATISFIED`.** New additive artifact `feature-engine-condition2-tool-identity-continuity-application-001.json`. `feature-engine-condition2-tool-identity-continuity-proposal-001.md` and `-technical-evidence-001.json` both fresh-verified byte-unchanged, not touched — branch (c)/`C1`–`C12` not redesigned. No `src/`/`test`/`tooling`/dependency change; no Condition-1/3 work; Condition 1 remains `PASS — REVIEW A VALIDATED`; Condition 3 remains `SATISFIED — REVIEW A VALIDATED`. **`P3-FEATURE-QG-EVID-03` NOT closed by this transaction** — remains `OPEN`, closure is a separate, not-yet-performed governed action. Feature Engine remains `NOT APPROVED`; LIVE remains `NOT_AUTHORIZED` |
 | Completed | `FE-EVID03-CLOSURE-001` | Recorded the separately-scoped governed closure of `P3-FEATURE-QG-EVID-03`, based exclusively on the three already-governed current Condition states — no new evidence produced, no condition re-evaluated. Fresh-verified before mutation: boundary `2ae0f3969ee3d377ed57d00cfb2b65d7c56c83f1`; `feature-engine-mutation-step9-formal-evidence-006.json` blob `460cf678a2c682c26540719da78ff798ce88705d`; `feature-engine-condition1-formal-measurement-006-review-a-dtr-001.json` blob `af911b9b5ccd18dc10b62afb0cdab4f85352f732`; `feature-engine-condition2-tool-identity-continuity-application-001.json` blob `09dfe07055fa10a1833a8d1fa6ab4a82ee289f1c`; `feature-engine-mutation-surface-completeness-evidence-003.json` blob `b306a9d78a1c7f5f70ffcd6e8b92489bd12df35b` — all matched exactly. Resolved the existing Condition-3 Review A closure record (`docs/MANIFEST.md`'s own `Condition-3 folded to SATISFIED — REVIEW A VALIDATED` section: CLEAN — 0 Blocker / 0 Major / 0 Minor, Risk `R1`, on `evidence-003.json`, 14/14 DETECTED faults, 9/9 target methods) — confirmed consistent, not redesigned, not rerun. Condition 1: `PASS — REVIEW A VALIDATED` (Condition 1A ≥ `84.899201217193%`, measured `85.393685812096%`, PASS; Condition 1B `18/18 KILLED`). Condition 2: `170/170 — SATISFIED`. Condition 3: `SATISFIED — REVIEW A VALIDATED`. Review A: ChatGPT, **CLEAN — 0 Blocker / 0 Major / 0 Minor**, Risk `R1`, ADR Scope `ADR_NOT_REQUIRED`. ADR-045 `D1`–`D12` all `PASS` (D8: ChatGPT distinct from Claude; D10: no governing-artifact reservation, no Product Owner call-in). Governed outcome: **`DELEGATED TECHNICAL RESOLUTION — CLEAN`** (`FE-EVID03-CLOSURE-001-DTR-001`) — NOT a Product Owner approval. **`P3-FEATURE-QG-EVID-03`: `OPEN` → `CLOSED — PASS — REVIEW A VALIDATED`.** **M1 (Feature Engine — `P3-FEATURE-QG-EVID-03` Closure): `ACTIVE` → `DONE`. M2 (Feature Engine — Remaining Quality-Gate Closure): `QUEUED` → `ACTIVE`** — M2's substantive scope NOT invented by this transaction; must be fresh-derived separately against current Chapter-13 authority. New additive artifact `feature-engine-evid03-closure-001.json`. Evidence-006, Condition-1 DTR, Condition-2 application, and Condition-3 evidence artifacts all fresh-verified byte-unchanged, not touched. No `src/`/`test`/`tooling`/dependency change; no Condition-1/2/3 redesign or rerun. **Feature Engine remains `NOT APPROVED`. Phase-3 module approval remains `NOT GRANTED`. LIVE remains `NOT_AUTHORIZED`.** No EVID-04 through EVID-08 closed |
 | Completed | `FE-EVID03-COND2-M2-SCOPE-001` | Bounded, repository-grounded scope derivation and tracking reconciliation for M2 (Feature Engine — Remaining Quality-Gate Closure). No Quality-Gate finding remediated. Fresh-verified before mutation: boundary `01b05e73221474caf303b1a37fe886bf7366980d`; all 10 pinned artifact/authority blobs matched exactly (`milestone.md`, `feature-engine-evid03-closure-001.json`, `feature-engine-chapter13-remediation-plan-001.md`, `feature-engine-evid05b-formal-evidence-001.md`, `feature-engine-evid07-property-based-mechanism-candidate-001.md`, Chapter 2/13/14, Phase-3 rules, module registry). **Fresh-verified current-state matrix:** `EVID-03 = CLOSED — PASS — REVIEW A VALIDATED`; `EVID-05 = CLOSED — PASS` (part (a) `SATISFIED`, part (b) `CLOSED — PASS`); `EVID-07 = CLOSED — PASS` (Hypothesis mechanism Approved/installed/pinned); `EVID-04 = BLOCKED_BY_EXTERNAL_DEPENDENCY` (no Decision Engine/Strategy Plugin Host); `EVID-06 = OPEN — PARTIALLY SATISFIED / BLOCKED_BY_EXTERNAL_DEPENDENCY` (Feature-local `SATISFIED — REVIEW A VALIDATED`, NOT reopened; platform risk-not-increased assertion blocked, no Risk Gateway); `EVID-08 = BLOCKED_BY_EXTERNAL_DEPENDENCY` (Strategy/Decision/Risk Gateway/Execution all unbuilt, strict superset of `EVID-04`). Repository implementation-existence verification (directories inspected, not declarations alone): `python/` contains only `feature-engine`/`raw-regime-engine`/`structure-engine`; `go/` contains only `market-data-ingestion`/`market-reference-service`; zero Decision/Strategy/Risk/Execution implementation directories; `module-registry.yaml`'s corresponding entries all carry `status: candidate`. Chapter 14 §14.2 dependency-order finding: `Data Layer → Structure Engine & Raw Regime Engine → Feature Engine → Context Projection → Strategy → Decision → Risk Gateway → Execution` — matches expected sequence exactly; `EVID-04`/`EVID-06`-remaining-half/`EVID-08` each depend on modules strictly downstream of Feature Engine. **M2 acceptance boundary derived:** `EVID-04 = CLOSED — PASS`, `EVID-06 = CLOSED — PASS`, `EVID-08 = CLOSED — PASS`; `EVID-03`/`EVID-05`/`EVID-07` excluded as already complete, NOT reopened; `EVID-01`/`EVID-02` not reopened. Explicit prohibition on fake Feature-local substitutes recorded (no stub/mock Decision/Risk/Execution; "Feature Engine emitted nothing" never substitutes for the platform risk-not-increased assertion). Reconciled two stale rows in `feature-engine-chapter13-remediation-plan-001.md` (`EVID-05`, `EVID-07` — struck through, corrected in place, referencing their own later governing artifacts) and appended an `EVID-03` closure note; new §10 section added. New additive artifact `feature-engine-m2-scope-derivation-001.json`. Review: ChatGPT, AI Technical Architect, **CLEAN — 0 Blocker / 0 Major / 0 Minor**, Risk `R1`, ADR Scope `ADR_NOT_REQUIRED` — no new Quality-Gate semantics/architecture/module dependency/invariant/schema/governance rule created; reconciles tracking against already-existing authority only. No Product Owner decision required. **M2: `ACTIVE` → `BLOCKED`** — reason: remaining closure depends on downstream Phase-3 capabilities not yet implemented; no honest Feature-Engine-local remediation path exists for `EVID-04`, `EVID-06`'s remaining half, or `EVID-08`. **M1 remains `DONE`. M3 remains `QUEUED`. M4 remains `PROVISIONAL`** — neither re-sequenced by this transaction. No `src/`/`test`/`tooling`/dependency change. Feature Engine remains `NOT APPROVED`; Phase-3 module approval remains `NOT GRANTED`; LIVE remains `NOT_AUTHORIZED` |
+| Completed | `RIDE-CRITICAL-PATH-CORRECTION-001` | Corrects the Ride project milestone/critical-path model so it matches already-Locked Phase-3 authority and removes the artificial operational dependency `M2 → Feature Engine Module Approval → downstream unlock`. PROJECT TRACKING / ORCHESTRATION CORRECTION ONLY — no Chapter-12/13 semantics changed, no Quality-Gate finding waived, no module implemented, no approval granted. Fresh-verified before mutation: boundary `cb4c514f2b11747ef4483910bce13a3ead628c5d`; all 9 pinned artifact/authority blobs matched exactly. **Authority Finding 1:** Chapter 12 §12.2 defines only a phase-level Phase Approval Gate (quality gates are one input item); Chapter 13 §13.1 is explicit (`Quality Gate pass ≠ Product Owner approval`; Quality Gate never approves/locks/decides phase transition); `phase-3-rules.md` §11's own gate-path model confirms a single phase-level Approval Gate at the end, not a per-module gate between adjacent Chapter-14 nodes; no other controlling authority (Lean Ride Operating Model, module-registry, ADR-045) defines a separate Feature Engine module Approval Gate — the sole generic phrase found (`docs/constitution/00-governance.md`'s "Phase/Module Approval Gate decisions") is a Product-Owner-reservation category, not a process definition. **Authority Finding 2:** Chapter 14 §14.2 sequence fresh-verified: `Data Layer → Structure Engine & Raw Regime Engine → Feature Engine → Context Projection → Strategy → Decision → Risk Gateway → Execution` — matches expected exactly; Phase-3 Rules require implementation to follow this order but introduce no mandatory per-module Product Owner Approval Gate. **Authority Finding 3:** `module-registry.yaml`'s `context-aggregator` entry fresh-verified (`module_type: projection`, `depends_on: [market-data-ingestion, structure-engine, raw-regime-engine, feature-engine]`, `status: candidate`); no `context-aggregator` executable implementation directory exists anywhere in the repository — confirmed via direct directory inspection. **Milestone correction:** M0/M1 preserved (`DONE`/`DONE`). M2 preserved unchanged (`BLOCKED`, acceptance boundary `EVID-04`/`EVID-06`/`EVID-08` all `CLOSED — PASS` required) but reclassified as a **parallel evidence lane**, no longer the primary-path blocker — NOT weakened, closed, waived, or reinterpreted. Prior M3 (`Feature Engine — Module Approval`, citing Chapter 12 §12.2 without supporting authority) superseded as a project-tracking entry — redefined **M3 — Context Projection / `context-aggregator`**, `QUEUED → ACTIVE`, depends on the existing upstream executable/contract boundary (NOT M2 reaching `PASS`); implementation criteria NOT invented, scope to be fresh-derived in the next separately-scoped WP; implementation NOT started. Prior M4 superseded — redefined **M4 — Strategy → Decision → Risk Gateway → Execution downstream Phase-3 chain**, `PROVISIONAL → QUEUED`, depends on M3; exact module/WP decomposition NOT invented. **Current-state terminology corrected:** "Feature Engine NOT APPROVED"/"Phase-3 module approval NOT GRANTED" replaced in current tracking prose (§4 table) with authority-accurate wording ("Feature Engine Chapter-13 Quality Gate is not fully PASS: M2 remains BLOCKED on EVID-04/EVID-06/EVID-08"; "Phase-3 Approval Gate has not been reached / granted") — historical artifacts and historical per-transaction prose left byte-unchanged; no Constitution defect claimed, no Chapter 12/13 change claimed. New additive artifact `docs/project/ride-critical-path-correction-001.json`. Review: ChatGPT, AI Technical Architect, **CLEAN — 0 Blocker / 0 Major / 0 Minor**, Risk `R1`, ADR Scope `ADR_NOT_REQUIRED` — changes no Constitution, ADR, Quality-Gate applicability, dependency graph, module taxonomy, product scope, or Approval authority; corrects an operational project-tracking model only. No Product Owner decision required; this is NOT a milestone acceptance decision. No `src/`/`test`/`tooling`/dependency change; no Constitution/ADR/module-registry modification; `EVID-04`/`EVID-06`/`EVID-08` unaltered; `context-aggregator`/Strategy/Decision/Risk Gateway/Execution NOT implemented; Phase-3 Approval Gate NOT opened; no module approved; Phase 3 NOT approved; LIVE remains `NOT_AUTHORIZED` |
 
 ## 6. PO dashboard snapshot
 
 ```text
-Current milestone:        M2 — Feature Engine Remaining Quality-Gate
-                           Closure (BLOCKED -- scope derived, not
-                           invented). M1 (Feature Engine EVID-03
-                           Closure): DONE.
-Primary blocker:          M2 is BLOCKED -- EVID-04, the remaining
+Current milestone:        M3 — Context Projection / context-aggregator
+                           (ACTIVE, implementation not started). M1
+                           (Feature Engine EVID-03 Closure): DONE. M2
+                           (Feature Engine Remaining Quality-Gate
+                           Closure): BLOCKED, now a PARALLEL evidence
+                           lane, no longer the primary-path blocker.
+Primary blocker:          None on the primary implementation path --
+                           M3 (Context Projection / context-aggregator)
+                           is ACTIVE, depending on the existing
+                           upstream executable/contract boundary
+                           (market-data-ingestion, structure-engine,
+                           raw-regime-engine, feature-engine -- all
+                           already implemented), NOT on M2 reaching
+                           PASS. M2 remains BLOCKED as a parallel
+                           evidence lane -- EVID-04, the remaining
                            (platform) half of EVID-06, and EVID-08 are
                            each BLOCKED_BY_EXTERNAL_DEPENDENCY on
                            downstream Phase-3 modules (Decision
                            Engine, Risk Gateway, Execution Engine)
                            that do not yet exist anywhere in the
                            repository -- no honest Feature-Engine-
-                           local remediation path exists today. Full
+                           local remediation path exists today; M2 is
+                           NOT weakened, closed, or waived. Full
                            derivation:
                            `feature-engine-m2-scope-derivation-
-                           001.json`. P3-FEATURE-QG-EVID-03 is CLOSED
-                           -- PASS -- REVIEW A VALIDATED
-                           (`FE-EVID03-CLOSURE-001`, DELEGATED
-                           TECHNICAL RESOLUTION -- CLEAN under
-                           ADR-045, not a Product Owner approval).
-                           Feature Engine remains NOT APPROVED;
-                           Phase-3 module approval remains NOT
-                           GRANTED; LIVE remains NOT_AUTHORIZED.
-                           Historical figures below
-                           (84.21%-84.56% / 42-ID gate) are superseded.
+                           001.json` +
+                           `ride-critical-path-correction-001.json`.
+                           There is no standalone Feature Engine
+                           Module Approval Gate under current Chapter
+                           12/13 authority (fresh-verified this
+                           transaction) -- the prior M3/M4 project-
+                           tracking entries encoded a nonexistent
+                           dependency, now corrected. Feature Engine
+                           Chapter-13 Quality Gate is not fully PASS
+                           (M2 BLOCKED on EVID-04/EVID-06/EVID-08);
+                           Phase-3 Approval Gate has not been reached;
+                           LIVE remains NOT_AUTHORIZED. Historical
+                           figures below (84.21%-84.56% / 42-ID gate)
+                           are superseded.
 Current primary WP:       (none currently assigned) -- Condition-1
                            formal measurement 006 and its Review A
                            DTR (`FE-EVID03-COND1-FORMAL-EVID-006-001`,
@@ -744,9 +849,11 @@ Current primary WP:       (none currently assigned) -- Condition-1
                            P3-FEATURE-QG-EVID-03 closed
                            (`FE-EVID03-CLOSURE-001`); M2 scope derived
                            and reconciled (`FE-EVID03-COND2-M2-SCOPE-
-                           001`) -- M1 DONE, M2 BLOCKED (EVID-04/
-                           EVID-06-remaining/EVID-08 externally
-                           blocked)
+                           001`); critical-path corrected
+                           (`RIDE-CRITICAL-PATH-CORRECTION-001`) -- M1
+                           DONE, M2 BLOCKED (parallel lane), M3 ACTIVE
+                           (Context Projection / context-aggregator,
+                           not started), M4 QUEUED
 ADR-045:                   v0.3, Approved / ACTIVE -- Delegated
                            Technical Resolution lane, self-contained
                            R0/R1/R2 definitions (X-MAJ-02), D8
@@ -1063,6 +1170,87 @@ M2 scope derivation        FE-EVID03-COND2-M2-SCOPE-001. Bounded,
                            change. Feature Engine remains NOT
                            APPROVED; Phase-3 module approval remains
                            NOT GRANTED; LIVE remains NOT_AUTHORIZED.
+Critical-path correction   RIDE-CRITICAL-PATH-CORRECTION-001. PROJECT
+(CORRECTION-001):          TRACKING / ORCHESTRATION CORRECTION ONLY --
+                           no Chapter-12/13 semantics changed, no
+                           Quality-Gate finding waived, no module
+                           implemented, no approval granted. Fresh-
+                           verified before mutation: boundary
+                           cb4c514f2b11747ef4483910bce13a3ead628c5d;
+                           all 9 pinned artifact/authority blobs
+                           matched exactly. Authority Finding 1:
+                           Chapter 12 SS12.2 defines only a phase-
+                           level Phase Approval Gate (quality gates
+                           are one input item, not a standalone
+                           module gate); Chapter 13 SS13.1 explicit
+                           (Quality Gate pass != Product Owner
+                           approval; never approves/locks/decides
+                           phase transition); phase-3-rules.md SS11's
+                           own gate-path model confirms a single
+                           phase-level Approval Gate at the end, not a
+                           per-module gate between adjacent Chapter-14
+                           nodes; no other controlling authority
+                           defines a separate Feature Engine module
+                           Approval Gate -- the sole generic phrase
+                           found (governance.md's "Phase/Module
+                           Approval Gate decisions") is a Product-
+                           Owner-reservation category, not a process
+                           definition. Authority Finding 2: Chapter 14
+                           SS14.2 sequence fresh-verified matches
+                           expected exactly; Phase-3 Rules require
+                           dependency-STATE verification (executable/
+                           contract boundary), not upstream Quality-
+                           Gate PASS, before authoring a module out of
+                           order. Authority Finding 3: module-
+                           registry.yaml's context-aggregator entry
+                           fresh-verified (module_type: projection,
+                           depends_on: market-data-ingestion/
+                           structure-engine/raw-regime-engine/
+                           feature-engine, status: candidate); no
+                           context-aggregator executable implementation
+                           directory exists anywhere in the repository.
+                           Milestone correction: M0/M1 preserved (DONE/
+                           DONE). M2 preserved unchanged (BLOCKED,
+                           acceptance boundary EVID-04/EVID-06/EVID-08
+                           all CLOSED -- PASS required) but reclassified
+                           as a PARALLEL evidence lane, no longer the
+                           primary-path blocker -- NOT weakened,
+                           closed, waived, or reinterpreted. Prior M3
+                           ("Feature Engine -- Module Approval", citing
+                           Chapter 12 SS12.2 without supporting
+                           authority) superseded as a project-tracking
+                           entry -- redefined M3 -- Context Projection /
+                           context-aggregator, QUEUED -> ACTIVE,
+                           depends on the existing upstream executable/
+                           contract boundary (NOT M2 reaching PASS);
+                           implementation criteria NOT invented;
+                           implementation NOT started. Prior M4
+                           superseded -- redefined M4 -- Strategy ->
+                           Decision -> Risk Gateway -> Execution
+                           downstream Phase-3 chain, PROVISIONAL ->
+                           QUEUED, depends on M3; exact module/WP
+                           decomposition NOT invented. Current-state
+                           terminology corrected in SS4's live tracking
+                           table ("Feature Engine NOT APPROVED"/
+                           "Phase-3 module approval NOT GRANTED" ->
+                           authority-accurate wording); historical
+                           artifacts and historical per-transaction
+                           prose left byte-unchanged. No Constitution
+                           defect claimed; no Chapter 12/13 change
+                           claimed. New artifact: ride-critical-path-
+                           correction-001.json. Review: ChatGPT, AI
+                           Technical Architect, CLEAN -- 0 Blocker / 0
+                           Major / 0 Minor, Risk R1, ADR Scope
+                           ADR_NOT_REQUIRED. No Product Owner decision
+                           required; this is NOT a milestone acceptance
+                           decision. No src/test/tooling/dependency
+                           change; no Constitution/ADR/module-registry
+                           modification; EVID-04/EVID-06/EVID-08
+                           unaltered; context-aggregator/Strategy/
+                           Decision/Risk Gateway/Execution NOT
+                           implemented; Phase-3 Approval Gate NOT
+                           opened; no module approved; Phase 3 NOT
+                           approved; LIVE remains NOT_AUTHORIZED.
 Last Review A:             CLEAN -- 0 Blocker / 0 Major / 0 Minor, Risk
                            R1 (on Candidate-005, boundary
                            1e4078c3...). Reviewer ChatGPT, AI Technical
@@ -1326,44 +1514,49 @@ Primary blocker (current): Condition 2 -- 169/170, the final 1/170
                            blocking. Condition 3 remains SATISFIED --
                            REVIEW A VALIDATED.
 PO decision required now: NO
-                           (Condition 1/2/3 (EVID-03) remain governed
-                           via Delegated Technical Resolution, never a
-                           Product Owner approval; EVID-03 is CLOSED
-                           -- PASS -- REVIEW A VALIDATED. M1 is DONE.
-                           M2's scope has now been fresh-derived and
-                           reconciled (FE-EVID03-COND2-M2-SCOPE-001,
-                           ChatGPT CLEAN -- 0/0/0, Risk R1, ADR Scope
-                           ADR_NOT_REQUIRED, no Product Owner decision
-                           required): EVID-03/EVID-05/EVID-07 are
-                           already CLOSED -- PASS (or PASS -- REVIEW A
-                           VALIDATED) and excluded from new M2 work;
-                           EVID-04, EVID-06's remaining (platform)
-                           half, and EVID-08 are each
-                           BLOCKED_BY_EXTERNAL_DEPENDENCY on
-                           unimplemented downstream Phase-3 modules
-                           (Decision Engine, Risk Gateway, Execution
-                           Engine -- fresh-verified: no implementation
-                           directory anywhere in the repository, all
-                           corresponding module-registry.yaml entries
-                           status: candidate). Per Chapter 14 SS14.2's
-                           own build sequence, none can be honestly
-                           closed by Feature-Engine-local work today --
-                           no fake Feature-local substitute is
-                           authorized. M2: ACTIVE -> BLOCKED. M1
-                           remains DONE; M3 remains QUEUED; M4 remains
-                           PROVISIONAL -- neither re-sequenced by this
-                           transaction (critical-path re-sequencing is
-                           a separate, subsequent orchestration
-                           decision). Feature Engine remains NOT
-                           APPROVED; Phase-3 module approval remains
-                           NOT GRANTED; LIVE remains NOT_AUTHORIZED --
-                           each a separate, not-yet-initiated governed
-                           decision. Next governed decision point:
-                           critical-path / milestone re-sequencing
-                           against Chapter 14 to remove the
-                           operational dependency cycle without
-                           weakening Quality-Gate requirements -- not
-                           initiated here.)
+                           (This is a PROJECT TRACKING / ORCHESTRATION
+                           CORRECTION only -- no Chapter-12/13
+                           semantics changed, no Quality-Gate finding
+                           waived, no module implemented, no approval
+                           granted, ADR Scope ADR_NOT_REQUIRED, Risk
+                           R1, ChatGPT Review A CLEAN -- 0/0/0. Fresh-
+                           verified: no authoritative standalone
+                           Feature Engine Module Approval Gate exists
+                           under current Chapter 12/13 (or any other
+                           controlling) authority -- the prior M3/M4
+                           project-tracking entries encoded a
+                           nonexistent module-approval dependency, now
+                           corrected. M2 (Feature Engine Remaining
+                           Quality-Gate Closure) remains BLOCKED,
+                           unweakened, unwaived, acceptance boundary
+                           unchanged (EVID-04/EVID-06/EVID-08 all
+                           CLOSED -- PASS required) -- reclassified
+                           only as a PARALLEL evidence lane, no longer
+                           the primary implementation-path blocker.
+                           M3 redefined: Context Projection /
+                           context-aggregator, QUEUED -> ACTIVE,
+                           depends on the existing upstream executable/
+                           contract boundary (NOT M2 reaching PASS);
+                           implementation criteria NOT invented,
+                           implementation NOT started. M4 redefined:
+                           Strategy -> Decision -> Risk Gateway ->
+                           Execution downstream Phase-3 chain,
+                           PROVISIONAL -> QUEUED, depends on M3;
+                           decomposition NOT invented. M0/M1 unchanged
+                           (DONE/DONE). Current-state terminology
+                           corrected (SS4 live tracking table only;
+                           historical artifacts/prose untouched):
+                           "Feature Engine NOT APPROVED" ->
+                           "Feature Engine Chapter-13 Quality Gate is
+                           not fully PASS: M2 remains BLOCKED on
+                           EVID-04/EVID-06/EVID-08"; "Phase-3 module
+                           approval NOT GRANTED" -> "Phase-3 Approval
+                           Gate has not been reached / granted". LIVE
+                           remains NOT_AUTHORIZED. Next governed
+                           decision point: fresh Context Projection /
+                           context-aggregator implementation-readiness
+                           derivation and first bounded implementation
+                           WP -- not initiated here.)
 ```
 
 ## 7. Update rules

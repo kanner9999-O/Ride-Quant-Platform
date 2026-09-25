@@ -1,0 +1,166 @@
+{
+ "artifact_id": "ride-critical-path-correction-001",
+ "wp_id": "RIDE-CRITICAL-PATH-CORRECTION-001",
+ "schema_note": "PROJECT TRACKING / ORCHESTRATION CORRECTION ONLY. Corrects the Ride project milestone/critical-path model so it matches already-Locked Phase-3 authority and removes the artificial operational dependency cycle currently encoded in the prior M3/M4 project-tracking entries. Does NOT change Chapter-12 Approval semantics, Chapter-13 Quality-Gate semantics, waive any Feature Engine Quality-Gate finding, implement any downstream module, or grant any approval.",
+ "central_correction": "There is no authoritative standalone 'Feature Engine Module Approval Gate' under current Chapter 12 / Chapter 13. Feature Engine's remaining Quality-Gate evidence (M2) may remain BLOCKED while bounded Phase-3 development continues downstream according to Chapter 14 §14.2.",
+ "boundary": {
+  "starting_state_verified": {
+   "main": "cb4c514f2b11747ef4483910bce13a3ead628c5d",
+   "origin_main": "cb4c514f2b11747ef4483910bce13a3ead628c5d",
+   "working_tree_clean": true,
+   "drift_detected": false
+  },
+  "fresh_verified_blobs": {
+   "docs/governance/quality-gate/feature-engine-m2-scope-derivation-001.json": "7540ade374c165456e9dc0bdb86c881e4380426c",
+   "docs/project/milestone.md": "68955edc1e302ca41965c12d84115540ac669cf0",
+   "docs/constitution/13-quality-gates.md": "acf4ab75eda1ea0613250ce3159669ea727e28ec",
+   "docs/constitution/14-roadmap.md": "f2cd722218bd80b40241e26530a1919811fedad9",
+   "docs/governance/phases/phase-3-rules.md": "2cb78e41dc2823b498a9be48f96f5369bab12294",
+   "docs/governance/lean-ride-operating-model-v1-candidate.md": "7c33d891d4d304f73c14e89ccd4362b9edd9f094",
+   "docs/architecture/module-registry.yaml": "8535f92efeb76ffb226791d201dc0b3fb71f06c0",
+   "docs/architecture/engine/feature-context-architecture.md": "0c08cd3518fd5d0aa97ba9d052c6bca587eb2162",
+   "docs/domain/context.md": "f9274d5749768151748b9dfa2713118a4fd77791"
+  },
+  "all_blobs_matched_exactly": true,
+  "note": "docs/constitution/12-approval-gates.md fresh-read for content (no blob pinned by the task); its own §12.2/§12.3 content is quoted verbatim below."
+ },
+ "authority_finding_1_no_feature_engine_module_approval_gate": {
+  "chapter_12_section_12_2": "Defines only a 'Phase Approval Gate — prerequisite aggregation' at the Product Owner PHASE decision boundary. Quality gates are one of eight eligibility prerequisite items (item 5: 'applicable quality gates ... đã pass'), never a standalone module-level gate. Section explicitly states it does not redefine internal rules owned by other chapters (§12.3 authority map).",
+  "chapter_13_section_13_1": "Explicit: 'Quality Gate pass ≠ Product Owner approval'; 'Quality Gate fail ≠ Product Owner rejection'; 'Quality Gate → sinh eligibility evidence'; 'Approval Gate → consume evidence đó (Chapter 12 §12.2(5))'. Quality Gate 'không approve, không lock, không quyết định phase transition' — it only supplies evidence to Chapter 12; Product Owner remains the sole decision authority.",
+  "phase_3_rules_section_11_gate_path_model": "docs/governance/phases/phase-3-rules.md §11 ('Gate-path controls') confirms the expected sequence to Phase 3's Approval Gate: 'Phase 3 module/artifact implementation -> Quality Gate theo Tier cho từng module/artifact -> Phase-wide Backward Consistency Check -> Phase-level Gate review(s) -> Product Owner Phase 3 Approval Gate decision' — a SINGLE phase-level Approval Gate at the end, not a per-module gate inserted between each adjacent Chapter-14 node. Quality Gate evidence accumulates per-module/artifact without itself gating downstream implementation.",
+  "other_authorities_checked": {
+   "lean_ride_operating_model_v1_candidate": "No 'module approval' or 'module-level approval' concept found.",
+   "module_registry_yaml": "No module-approval-gate declaration found; entries carry only 'status: candidate' lifecycle markers, unrelated to Approval Gate semantics.",
+   "adr_045": "Delegated Technical Resolution model; does not define a module approval gate — only routes decisions between DTR-eligible and Product-Owner-reserved categories."
+  },
+  "generic_reservation_phrase_found": "docs/constitution/00-governance.md's Product Owner Decision route listing includes 'Phase/Module Approval Gate decisions' as a reserved-decision CATEGORY (i.e., IF a governing authority ever defines a Module Approval Gate, that decision would be Product-Owner-reserved, non-delegatable) — this is a reservation rule, not a process definition. It does not itself create, define, or imply the existence of a standalone Feature Engine Module Approval Gate.",
+  "conclusion": "No controlling authority (Chapter 12, Chapter 13, Phase-3 Rules, Lean Ride Operating Model, module-registry.yaml, ADR-045) defines a separate, standalone Feature Engine (or any single-module) Approval Gate. The prior milestone.md M3 entry ('Feature Engine — Module Approval', citing Chapter 12 §12.2) was a project-tracking / orchestration modeling error, not backed by the cited authority.",
+  "explicit_non_claim": "This finding is NOT permission to waive Feature Engine Quality Gates. Quality-Gate evidence requirements (EVID-04/EVID-06/EVID-08) are entirely unaffected and unchanged."
+ },
+ "authority_finding_2_downstream_development_order": {
+  "chapter_14_section_14_2_sequence": "Data Layer -> Structure Engine & Raw Regime Engine (song song, doc lap) -> Feature Engine -> Context Projection -> Strategy -> Decision -> Risk Gateway -> Execution",
+  "matches_expected_sequence": true,
+  "phase_3_rules_requirement": "Phase-3 Rules §1 quotes this sequence verbatim (no redefinition authority) and §8 (anti-pattern list, item 8) requires: 'mọi transaction Phase 3 PHẢI verify trực tiếp dependency state (đúng G-VERIFY-001) trước khi author một module ngoài thứ tự' — i.e., verify DEPENDENCY STATE (upstream module's own executable/contract boundary), not upstream module's own Quality-Gate PASS status, before authoring a module out of order.",
+  "no_mandatory_per_module_approval_gate": "Confirmed via §11's own gate-path model (see authority_finding_1) — Quality Gate evidence accumulates per-module without a Product Owner Approval Gate required between each adjacent Chapter-14 node.",
+  "conclusion": "Feature Engine M2 may remain externally BLOCKED while the primary implementation critical path advances to the next legitimate Chapter-14 node (Context Projection), because dependency-STATE verification (executable/contract boundary), not Quality-Gate PASS, is what Phase-3 Rules actually require before authoring the next module."
+ },
+ "authority_finding_3_next_node_context_aggregator": {
+  "module_registry_entry": {
+   "module_id": "context-aggregator",
+   "name": "Context Aggregator",
+   "module_type": "projection",
+   "depends_on": [
+    "market-data-ingestion",
+    "structure-engine",
+    "raw-regime-engine",
+    "feature-engine"
+   ],
+   "status": "candidate"
+  },
+  "matches_expected": true,
+  "repository_implementation_existence_verification": {
+   "method": "Direct directory inspection across the repository, not architecture/domain declaration reading alone.",
+   "result": "No context-aggregator executable implementation directory exists anywhere in the repository."
+  },
+  "conclusion": "The immediate primary-path target after this tracking correction is Context Projection / context-aggregator. Implementation MUST NOT begin in this transaction — a separate, subsequent WP will fresh-derive its implementation readiness, authoritative contract boundary, applicable Quality Gates, blockers, and first implementation slice."
+ },
+ "milestone_correction": {
+  "M0": {
+   "state": "DONE",
+   "unchanged": true
+  },
+  "M1": {
+   "state": "DONE",
+   "unchanged": true
+  },
+  "M2": {
+   "state": "BLOCKED",
+   "unchanged_acceptance_boundary": [
+    "EVID-04 = CLOSED — PASS",
+    "EVID-06 = CLOSED — PASS",
+    "EVID-08 = CLOSED — PASS"
+   ],
+   "reclassification": "Now treated as a PARALLEL evidence lane, no longer the sole blocker of the Phase-3 primary implementation path.",
+   "not_weakened_closed_waived_or_reinterpreted": true,
+   "expected_progressive_unblock": {
+    "EVID-04": "unblocks via the Decision path",
+    "EVID-06_remaining_half": "unblocks via the Risk Gateway path",
+    "EVID-08": "unblocks via the full Strategy/Decision/Risk/Execution path"
+   },
+   "no_auto_close_on_downstream_code_appearance": "Each finding still requires its own separate, governed evidence evaluation before crediting closure."
+  },
+  "M3": {
+   "before": {
+    "name": "Feature Engine — Module Approval",
+    "state": "QUEUED",
+    "depends_on": "M2",
+    "cited_authority": "Chapter 12 §12.2 (not actually supporting this claim)"
+   },
+   "after": {
+    "name": "Context Projection / context-aggregator",
+    "state": "ACTIVE",
+    "depends_on": "existing upstream executable/contract boundary (market-data-ingestion, structure-engine, raw-regime-engine, feature-engine) — NOT M2 reaching PASS",
+    "acceptance_criteria": "NOT invented by this transaction; scope/implementation readiness to be fresh-derived in the next separately-scoped WP",
+    "implementation_status": "NOT STARTED"
+   },
+   "supersession_reason": "Prior definition encoded a nonexistent module-approval dependency not backed by cited or any other authority — a project-tracking/orchestration modeling error, not a Constitution defect. Chapter 12/13 did not change."
+  },
+  "M4": {
+   "before": {
+    "name": "Feature Engine → Downstream Phase-3 Unlock / Integration",
+    "state": "PROVISIONAL",
+    "depends_on": "M3"
+   },
+   "after": {
+    "name": "Strategy → Decision → Risk Gateway → Execution downstream Phase-3 chain",
+    "state": "QUEUED",
+    "depends_on": "M3",
+    "decomposition": "Exact module/WP decomposition remains to be fresh-derived as each roadmap boundary is reached; NOT implemented or fully designed by this transaction."
+   }
+  }
+ },
+ "current_state_terminology_correction": {
+  "rule": "Current tracking prose no longer presents 'Feature Engine NOT APPROVED' or 'Phase-3 module approval NOT GRANTED' as if these were authoritative standalone lifecycle states.",
+  "corrected_wording": {
+   "feature_engine": "Feature Engine Chapter-13 Quality Gate is not fully PASS: M2 remains BLOCKED on EVID-04/EVID-06/EVID-08.",
+   "phase_3": "Phase-3 Approval Gate has not been reached / granted."
+  },
+  "scope_of_correction": "docs/project/milestone.md §4's current-state table rows only (live tracking prose). Historical artifacts and historical per-transaction prose (the 'Completed' work-package-lane table rows, prior evidence artifacts) are preserved byte-unchanged — older wording in those rows is left as-is, not rewritten, per instruction.",
+  "no_constitution_defect_claimed": true,
+  "no_chapter_12_or_13_change_claimed": true
+ },
+ "review_disposition": {
+  "principal": "ChatGPT",
+  "role": "AI Technical Architect",
+  "verdict": "CLEAN — 0 Blocker / 0 Major / 0 Minor",
+  "risk_classification": "R1",
+  "adr_scope": "ADR_NOT_REQUIRED",
+  "reason": "The transaction changes no Constitution, ADR, Quality-Gate applicability, dependency graph, module taxonomy, product scope, or Approval authority. It corrects an operational project-tracking model that currently contradicts existing Locked authority.",
+  "product_owner_decision_required": false,
+  "explicit_non_claims": [
+   "NOT a milestone acceptance decision",
+   "NOT a Feature Engine approval",
+   "NOT a Phase-3 approval",
+   "NOT a LIVE authorization"
+  ]
+ },
+ "not_performed_by_this_transaction": [
+  "No Constitution modification.",
+  "No ADR modification.",
+  "No module-registry.yaml modification.",
+  "No M2 waiver, closure, or reinterpretation.",
+  "No alteration to EVID-04/EVID-06/EVID-08.",
+  "No context-aggregator implementation.",
+  "No Strategy implementation.",
+  "No Decision implementation.",
+  "No Risk Gateway implementation.",
+  "No Execution Engine implementation.",
+  "No Phase-3 Approval Gate opened.",
+  "No module approved.",
+  "No Phase 3 approval.",
+  "No LIVE authorization.",
+  "No Product Owner decision requested.",
+  "No rewriting of historical artifacts/historical transaction prose.",
+  "No production src/**, test, tooling, or dependency file changed."
+ ]
+}
