@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.449"
+manifest_version: "10.450"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -31006,6 +31006,148 @@ Event Contract, Stream Registry, Module Registry, Constitution file, or existing
 touched. `manifest_version` `"10.448"` -> `"10.449"`.
 
 **Next governed action:** Fresh ChatGPT Review A re-review of `ADR-046` v0.3 corrected Draft
+candidate.
+
+## ADR-046 bounded correction, round 3 — v0.3 → v0.4 (`ADR-046-CORR-003`)
+
+Narrowly-scoped correction of `docs/adr/ADR-046.md` remediating the single remaining Review-A
+Major found against v0.3: `REVISION_REQUIRED — 0 Blocker / 1 Major / 0 Minor`, Risk `R2`, ADR
+Scope `ADR_REQUIRED`, no Product Owner decision yet.
+
+Fresh-verified before mutation: boundary `140319279347782791ae1830b721474ca5d007c8`;
+`ADR-046.md` matched pinned blob `4a4959bbe847eb47f90acbf1ea97d848f83a8569` exactly.
+
+**All findings from v0.1 and v0.2 (nine total: `MAJ-01`–`MAJ-04`, `MIN-01`–`MIN-02`,
+`MAJ-R2-01`–`MAJ-R2-03`) are `CLOSED — REVIEW A VALIDATED` per round-3 Review A's own
+determination — not reopened by this transaction.** Core decision direction preserved
+unchanged throughout this correction as well.
+
+**`MAJ-R3-01` — Context knowledge boundary could regress.** v0.3's Case A/B rules proved a
+cursor individually valid ([Chapter 8](../constitution/08-event-model.md) §8.5 internal
+invariants, item 1a's anti-look-ahead relation), cause-set-visible (rule 4), and freshly
+recomputed (rules 5/6) — but never proved that Context-relevant knowledge already visible at
+the PRIOR canonical boundary remained visible at the new one. Concretely: at `R_later`,
+Context-visible knowledge could include `{A, B, X}` where `B` causes `C` to lose current-valid
+status; at `R_replacement`, `B` (the cause) remains visible but `X` (previously visible,
+Context-relevant, unrelated to the cause) is no longer visible. Under v0.3's rules this
+replacement is deterministic and cause-set-visible, yet is built from strictly LESS Context
+knowledge than the boundary it superseded — the identical gap exists one step earlier, between
+`R_original` and `R_later`.
+
+**Corrected:** new Decision item `1b`, "Context-scoped knowledge coverage —
+`COVERS_CONTEXT`," defines a bounded, Context-scoped, **partial** knowledge-coverage relation
+over canonical Chapter-8 cursors. It is explicitly **not** a platform-wide Replay-Cursor total
+order (never invented), not a new payload field, not a global cursor ordinal, and not a
+replacement for the canonical Replay Cursor or a causation set.
+
+`K_context(R)` is defined as a reasoning-only knowledge-set concept: the set of Context-relevant
+upstream event records fully visible at canonical `computation_cursor` R (Decision item 4's
+full visibility predicate), under R's own pinned Context Input Contract universe — every event
+family `context.md` §16 authorizes Context to consume (eligible candidates, losing candidates,
+corrections, invalidations), NOT merely the seven winning `normalized_input_fact_refs`.
+
+`R_new COVERS_CONTEXT R_old` iff `K_context(R_old) ⊆ K_context(R_new)` AND lifecycle/topology
+knowledge does not regress on the canonical Lifecycle Stream
+([Chapter 8](../constitution/08-event-model.md) §8.3.5) — `R_new`'s lifecycle_frontier position
+is at or beyond `R_old`'s own, using that SAME stream's own valid position ordering, never a
+cross-stream comparison.
+
+**Proving coverage — no new cursor field required**, using only existing canonical cursor
+evidence: (1) every Context input stream represented in `R_old`'s valid universe whose history
+is relevant remains represented in `R_new`'s valid universe; (2) using stable logical
+`stream_id` (§8.3.1), `R_new.stream_positions[stream_id]` is at or beyond
+`R_old.stream_positions[stream_id]` for every such stream — same-stream comparison only, never
+cross-stream `sequence` comparison (§8.3.3); (3) a stream retired between `R_old` and `R_new`
+follows §8.3.5's own existing Retained-in-Universe/terminal-position semantics — retirement
+never silently drops that stream's already-visible history from coverage; (4)
+`R_new.lifecycle_frontier` does not regress relative to `R_old.lifecycle_frontier` on the
+canonical Lifecycle Stream, both compared on the SAME stream only; (5) a later Input Contract or
+Stream Registry version is permitted under `R_new` ONLY if the resulting cursor still preserves
+visibility of every Context-relevant record visible at `R_old` — if `K_context(R_old)` is not a
+subset of `K_context(R_new)`, `R_new` does NOT cover `R_old` for that lineage transition, and
+this ADR does not permit that transition to author a new current-valid Context lineage result;
+an intentional knowledge-dropping reset requires its own separately governed semantics, never
+hidden inside ordinary cursor replacement. Coverage proof never compares `sequence` across
+different stream identities, never requires `stream_registry_version`/`contract_version`
+equality between the two cursors, and never constructs a scalar cursor rank.
+
+**Decision item 5 gains condition 7** (title updated to note `MAJ-R3-01`'s addition):
+`R_later COVERS_CONTEXT R_original` is required for any temporal invalidation, in addition to
+the existing six conditions. A historical, counterfactual, partially-regressed, or incomparable
+cursor that fails this coverage test MUST NOT author a temporal invalidation of the
+current-valid Context lineage head, even if conditions 1–6 otherwise hold — it may still be
+evaluated for historical/counterfactual replay analysis, but never for a current-valid
+invalidation transition.
+
+**Case B (Decision item 8) gains rule 10** (sub-rule count updated nine → ten throughout, both
+in live decision text and in cross-references): `R_replacement` MUST `COVERS_CONTEXT` `R_later`,
+in addition to rules 1–9. Rule 4's cause-set visibility remains necessary but is NOT sufficient
+by itself — a replacement that sees the invalidation's own cause set but has lost visibility of
+other, unrelated Context-relevant knowledge already known at `R_later` (e.g. `R_later` saw
+`{A, B, X}`, `R_replacement` sees only `{A, B}`) fails this rule and MUST NOT publish. A
+replacement that sees a strict superset (e.g. `{A, B, X, Y}`) satisfies this rule regardless of
+whether `Y` changes the final §8 result. The existing "Causation guardrail" paragraph is
+extended with one trailing sentence: rule 10's `COVERS_CONTEXT` requirement is a separate,
+additional evidentiary layer, not a relaxation of that guardrail — coverage never substitutes
+for causation, and `K_context(R_new) - K_context(R_old)` is never poured into `causation_refs`
+merely because rule 10 requires it be covered.
+
+**Coverage vs. causation — kept separate.** `K_context(R)`/`COVERS_CONTEXT` is
+knowledge-boundary correctness evidence proving non-regression, never *why* an invalidation
+occurred. `causation_refs` (Decision item 7, grounded in
+[Chapter 6](../constitution/06-identity-model.md) §6.7/[Chapter 8](../constitution/08-event-model.md)
+§8.2.3) is direct-causal-predecessor evidence proving *why*. Coverage is never reduced to a
+`causation_refs` question, and `causation_refs` is never expanded to contain every element of
+`K_context(R_new) - K_context(R_old)`; only the existing minimal-complete direct cause set from
+Decision item 7 belongs in `causation_refs`.
+
+**Input-Contract version transitions** remain permitted (adding streams, governed migration, a
+later Stream Registry version) — this item does not prohibit any legitimate future transition —
+but for a current Context lineage transition it must still satisfy `COVERS_CONTEXT`.
+
+**Consequences** updated: the item-(1) `context.md` amendment scope list now also includes
+adding the `COVERS_CONTEXT` relation and its role as an additional required precondition for
+temporal invalidation and Case-B replacement (Decision item 1b, Decision item 5 condition 7,
+Decision item 8 rule 10), and the Case-B ten-rule fresh-re-evaluation protocol.
+
+**Review table rewritten:** heading genericized (no longer tied to one specific finding ID); a
+third row records round-3 ChatGPT Review A (boundary
+`140319279347782791ae1830b721474ca5d007c8`, blob `4a4959bbe847eb47f90acbf1ea97d848f83a8569`,
+`REVISION_REQUIRED — 0/1/0`, Risk `R2`); "Disposition" rewritten for v0.4 — the nine prior
+findings are `CLOSED — REVIEW A VALIDATED` per round-3 Review A's own determination (the
+reviewer's own closure, never self-asserted by the correction executor), and `MAJ-R3-01` is
+`addressed/remediated pending fresh Review A re-review` — not marked `CLOSED` here. "Current
+governance routing" updated to reference the v0.4 candidate, with an added closing sentence that
+no Review B, Mode A/B, execution-isolation bookkeeping, or mandatory cross-check is required at
+any point in this routing.
+
+**No STOP condition triggered:** Context knowledge coverage is expressible entirely using the
+canonical Replay Cursor plus referenced Input Contract/Registry evidence already owned by
+Chapter 8; no Chapter 8 change was required; no platform-wide cursor total order was invented;
+no new payload field was required (item 1b is a reasoning-only relation over existing cursor
+fields); no module-taxonomy/dependency change; Context's same-lineage semantics were extended
+with a precondition, not redesigned.
+
+**Confirmed unchanged by this transaction:** `docs/domain/context.md`,
+`docs/architecture/engine/feature-context-architecture.md`,
+`docs/architecture/module-registry.yaml`, `docs/architecture/stream-registry.yaml`, any Input/
+Event Contract, all production source/tests/tooling, every existing Approved ADR (including
+`ADR-009`/`ADR-014`/`ADR-034`/`ADR-035`/`ADR-041`/`ADR-045`, fresh-verified byte-unchanged and
+untouched).
+
+**M2 unchanged (`BLOCKED`, parallel evidence lane). M3 remains `ACTIVE`** — Context
+deterministic core remains `REVIEW A VALIDATED — CLEAN`; `ADR-046` v0.4 corrected Draft
+candidate pending fresh Review A; Context runtime/Input Contract/publishing remains blocked on
+the `ADR-046` decision chain. **M4 remains `QUEUED`.** `ADR-046: Draft — NOT APPROVED`. Phase-3
+Approval Gate not reached; `LIVE` remains `NOT_AUTHORIZED`.
+
+**Files changed:** `docs/adr/ADR-046.md` only (substantive edit), plus deterministic
+bookkeeping: `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`,
+`docs/MANIFEST.md`, `docs/CHANGELOG.md`. No Context code, Domain Contract, Input Contract,
+Event Contract, Stream Registry, Module Registry, Constitution file, or existing Approved ADR
+touched. `manifest_version` `"10.449"` -> `"10.450"`.
+
+**Next governed action:** Fresh ChatGPT Review A re-review of `ADR-046` v0.4 corrected Draft
 candidate.
 
 ## Decision Log

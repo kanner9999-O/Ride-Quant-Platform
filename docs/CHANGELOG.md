@@ -2,6 +2,28 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-25 — ADR-046: bounded correction, round 3 (v0.3 → v0.4)
+
+Starting `main == origin/main == 140319279347782791ae1830b721474ca5d007c8`, fresh-verified, working tree clean. `ADR-046.md` fresh-verified exact (blob `4a4959bbe847eb47f90acbf1ea97d848f83a8569`) before mutation.
+
+Narrowly-scoped correction of `docs/adr/ADR-046.md` remediating the single remaining Review-A Major found against v0.3: `REVISION_REQUIRED — 0 Blocker / 1 Major / 0 Minor`, Risk `R2`, ADR Scope `ADR_REQUIRED`, no Product Owner decision yet.
+
+All findings from v0.1 and v0.2 (nine total: `MAJ-01`–`MAJ-04`, `MIN-01`–`MIN-02`, `MAJ-R2-01`–`MAJ-R2-03`) are `CLOSED — REVIEW A VALIDATED` per round-3 Review A's own determination — not reopened by this transaction. Core decision direction preserved unchanged.
+
+**MAJ-R3-01** (Context knowledge boundary could regress) — v0.3's Case A/B rules proved a cursor individually valid, cause-set-visible, and freshly recomputed, but never proved that Context-relevant knowledge already visible at the prior boundary remained visible at the new one — a cursor could gain the one new causally-relevant fact while silently losing visibility of other, unrelated Context-relevant knowledge, letting a new current-valid lineage head be built from strictly less knowledge than the boundary it superseded.
+
+Corrected: new Decision item `1b` defines a bounded, Context-scoped, **partial** knowledge-coverage relation `COVERS_CONTEXT` — reasoning-only, never a payload field, never a platform-wide Replay-Cursor total order, never an ADR-009 ordering change. `K_context(R)` = the set of Context-relevant upstream event records fully visible at cursor `R` under its own pinned Input Contract universe (eligible candidates, losing candidates, corrections, invalidations — not merely the seven winning `normalized_input_fact_refs`). `R_new COVERS_CONTEXT R_old` iff `K_context(R_old) ⊆ K_context(R_new)` AND lifecycle knowledge does not regress on the canonical Lifecycle Stream — proven entirely from existing cursor evidence (same-logical-`stream_id` position non-regression, §8.3.5 Retained-in-Universe semantics for retired streams, lifecycle-frontier non-regression, later Input-Contract/registry versions permitted only if prior visibility is preserved); no cross-stream `sequence` comparison, no registry/contract-version-equality requirement, no scalar cursor rank.
+
+Decision item 5 gains condition 7: `R_later COVERS_CONTEXT R_original` required for any temporal invalidation — a historical/counterfactual/partially-regressed/incomparable cursor MUST NOT author a current-valid invalidation. Case B (Decision item 8) gains rule 10: `R_replacement COVERS_CONTEXT R_later` required in addition to rules 1–9 — cause-set visibility (rule 4) remains necessary but is no longer sufficient alone; sub-rule count 9→10. Coverage-vs-causation separation made explicit: `K_context(R)`/`COVERS_CONTEXT` proves non-regression, `causation_refs` proves direct cause only, and `K_context(R_new) - K_context(R_old)` is never poured into `causation_refs`. Input-Contract version transitions remain permitted but must still satisfy `COVERS_CONTEXT`.
+
+No STOP condition triggered. No Context code, Domain Contract, Input Contract, Event Contract, Stream Registry, Module Registry, Constitution, or existing Approved ADR touched.
+
+**M2 unchanged (`BLOCKED`). M3 remains `ACTIVE`** (deterministic core remains Review-A-validated CLEAN; ADR-046 v0.4 pending fresh Review A). **M4 remains `QUEUED`.** `ADR-046: Draft — NOT APPROVED`. Phase-3 Approval Gate not reached; LIVE remains `NOT_AUTHORIZED`.
+
+Next governed action: fresh ChatGPT Review A re-review of ADR-046 v0.4 corrected Draft candidate.
+
+---
+
 ## [Unreleased] — 2026-09-25 — ADR-046: bounded correction, round 2 (v0.2 → v0.3)
 
 Starting `main == origin/main == e6ce28ad7b5aefd28f49e2c351e586641e6e1250`, fresh-verified, working tree clean. `ADR-046.md` fresh-verified exact (blob `e02d7777c8ac02dea8488fdc6e24e4b55a0c80bd`) before mutation.
