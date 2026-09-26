@@ -51,14 +51,25 @@
 #
 # Event Contract eligibility (which event TYPES may target each of the four included
 # streams) is deliberately NOT represented here (Chapter 8 §8.3.1's one-way declaration
-# rule) — that remains exclusively each event type's own Event Contract, none of which is
-# yet authored in this repository for Candle/Structure/Regime/Feature (same class of gap
-# already flagged for the three Feature Input Contracts and for context.md's own
+# rule) — that remains exclusively each event type's own Event Contract. Repository state,
+# fresh-read this transaction (v0.2 correction, CONTEXT-IC-A-MIN-01 — v0.1's blanket "none
+# authored" claim was factually stale at the reviewed boundary): upstream Event Contract
+# authority is PARTIALLY RESOLVED. Published Event Contracts exist for feature-computed
+# v1.0 and feature-fact-invalidated v1.0 (docs/architecture/event-contracts/, both
+# status: Published, both allowed_streams: [feature-engine-feature], both
+# merge_constraints.prerequisite_policy: causation_must_resolve_before_apply) — these
+# satisfy causal_closure_policy.dependency_authority: per_effect_event_contract ONLY for
+# feature-engine-feature's two event types. Required Candle/Structure/Regime Event
+# Contract authority remains completely absent/unresolved at this boundary — no Event
+# Contract exists targeting market-data-ingestion-candle, structure-engine-structure, or
+# raw-regime-engine-regime (same class of gap already flagged for context.md's own
 # computation_cursor fail-closed prerequisite, context.md §3/§16, ADR-046 §Consequences).
-# Until those Event Contracts exist and declare state-dependency classification, the
-# causal_closure_policy below is correctly *pinned as architecture* but not yet
-# *operationally provable* — this candidate does not close that gap, and does not claim
-# to.
+# Until Candle/Structure/Regime Event Contracts also exist and declare their own
+# state-dependency classification, causal_closure_policy below remains correctly *pinned
+# as architecture* but not yet *fully operationally provable* across all four
+# included_streams — this candidate does not close that remaining gap, and does not claim
+# to. Context authoritative publication is NOT operationally enabled by this partial
+# resolution.
 #
 # merge_policy — reused exactly, not invented: `deterministic-causal-topological-order` +
 # `[stream_id, sequence]` tie-break is Chapter 8's own single mandated interleave
@@ -100,14 +111,29 @@
 #      version pinning the current registry is authored/selected. This is never a retry
 #      condition — the cursor is never rewritten to a different registry while keeping
 #      this same input_contract_ref (Chapter 8 §8.5.2's Registry -> Contract invariant).
-#   3. For each of the four included_streams below (sequential direct, synchronous reads
-#      against each stream's own authoritative append-only log — never a cached,
-#      asynchronously-delivered, or notification-derived value, Chapter 8 §8.1's
-#      authoritative-source-is-the-log-not-transport rule): read current position into
-#      stream_positions[s]; confirm s is active under registry_version (Chapter 8
-#      §8.3.1). If any of the four is NOT active under registry_version, the cut cannot
-#      be constructed — integrity/topology mismatch, fail-safe (I-6), no cursor
-#      produced.
+#   3. For each of the four included_streams below (sequential, per-stream evaluation —
+#      v0.2 correction, CONTEXT-IC-A-MAJ-01, makes this step total over Chapter-8-valid
+#      genesis positions, per §8.5.3):
+#      3a. Validate s belongs to the valid cursor universe under registry_version — confirm
+#          s is active under registry_version (Chapter 8 §8.3.1). If s is NOT active under
+#          registry_version, the cut cannot be constructed — integrity/topology mismatch,
+#          fail-safe (I-6), no cursor produced.
+#      3b. If s has one or more committed event positions available at the capture
+#          boundary: a direct, synchronous read against s's own authoritative append-only
+#          log (never a cached, asynchronously-delivered, or notification-derived value,
+#          Chapter 8 §8.1's authoritative-source-is-the-log-not-transport rule) sets
+#          stream_positions[s] = that current committed event sequence.
+#      3c. If s belongs to the valid universe but has NO committed event yet:
+#          stream_positions[s] = StreamRegistry[registry_version].genesis_position —
+#          exactly as Chapter 8 §8.5.3 requires ("stream chưa có event dùng
+#          genesis_position tường minh", "vắng mặt là mơ hồ giữa 'chưa có event' và 'quên
+#          ghi'"). The stream key is NEVER omitted, NO sequence is fabricated, NO event is
+#          fabricated at genesis, and NO recorded_time is fabricated for a genesis
+#          position — genesis_position is a real position value from the pinned Stream
+#          Registry, not a placeholder invented by this protocol. For this proposed v1.0
+#          contract all four included_streams are active in the Genesis Registry v1.0
+#          (fresh-verified) — no new retirement/lifecycle policy is authored by this
+#          correction.
 #   4. Run causal-closure fixed-point resolution (below) — may extend stream_positions
 #      with further same-included-stream reads across any of the four streams; never
 #      touches platform-lifecycle.
@@ -124,17 +150,63 @@
 #      algorithm, never a numeric retry counter, wall-clock wait, or watermark).
 #   7. computation_cursor derivation from a CERTIFIED cut (context.md §3/§4/§14, Chapter 8
 #      §8.5): cursor.stream_positions = the closed (fixed-point) vector of directly-read
-#      positions across all four included_streams; cursor.lifecycle_frontier = L_before
+#      positions across all four included_streams (event-backed per step 3b, or
+#      genesis_position per step 3c — every included stream is always represented in this
+#      vector, never omitted, regardless of which); cursor.lifecycle_frontier = L_before
 #      (= L_after, post-certification); cursor.stream_registry_version = this contract's
 #      own pinned stream_registry_version (already proved equal to
-#      active_registry_at(L_before) by step 2a); cursor.recorded_time = max(recorded_time
-#      of the event each stream_positions[s] resolves to, recorded_time of the lifecycle
-#      event L_before resolves to when L_before.position.kind = event; when
-#      L_before.position.kind = genesis, cursor.recorded_time = max over stream_positions
-#      only — Chapter 8 §8.5's own genesis carve-out, no synthetic event or wall-clock
-#      value invented). No partial four-stream cursor may become authoritative — a cut
-#      that is not certified across all four streams under one coherent registry_version
-#      is never emitted as a computation_cursor.
+#      active_registry_at(L_before) by step 2a).
+#
+#      cursor.recorded_time — precise definition (v0.2 correction, CONTEXT-IC-A-MAJ-01,
+#      replaces v0.1's undefined-at-genesis shorthand):
+#
+#        T_position_events = { E.recorded_time | for included stream s, stream_positions[s]
+#                              refers to an actual committed EVENT E }
+#          — a stream_positions[s] entry set via step 3c (genesis_position) contributes NO
+#          element to this set: no event exists at that position, so no recorded_time is
+#          resolved, claimed, or fabricated for it.
+#
+#        T_lifecycle = { L_before.event.recorded_time }  when L_before.position.kind = event
+#                       {}                                when L_before.position.kind = genesis
+#          — Chapter 8 §8.5's own genesis carve-out; no synthetic event or wall-clock value
+#          is invented when the lifecycle frontier is itself at genesis.
+#
+#        cursor.recorded_time = max(T_position_events ∪ T_lifecycle)
+#
+#      Context-specific non-empty guarantee: a genuine Context computation point is
+#      Candle-driven (context.md §11) — the authoritative Candle event that creates/drives
+#      that computation point MUST already exist and be represented by an event-backed
+#      position on market-data-ingestion-candle whenever Context is actually evaluating
+#      that point. T_position_events is therefore guaranteed non-empty for any genuine
+#      Context computation attempt. If cut capture were attempted before any Candle
+#      computation-point event exists, there is no Context computation point to evaluate at
+#      all — no computation_cursor/output is produced in that case, by definition, not by a
+#      fallback rule. No wall-clock or synthetic genesis timestamp is ever substituted.
+#
+#      Worked warm-up example (valid, fully-determined cursor boundary; correctly NO
+#      snapshot due to missing analytical roles, not cursor failure):
+#        market-data-ingestion-candle : event-backed, sequence 25, recorded_time = T25
+#        structure-engine-structure   : genesis_position 0 (no event yet)
+#        raw-regime-engine-regime     : genesis_position 0 (no event yet)
+#        feature-engine-feature       : genesis_position 0 (no event yet)
+#        lifecycle_frontier           : genesis (no lifecycle event yet)
+#
+#        stream_positions = {market-data-ingestion-candle: 25, structure-engine-structure: 0,
+#                             raw-regime-engine-regime: 0, feature-engine-feature: 0}
+#        T_position_events = {T25}  (only the Candle position resolves to an actual event)
+#        T_lifecycle = {}           (lifecycle frontier is genesis)
+#        cursor.recorded_time = max({T25} ∪ {}) = T25
+#
+#      This IS a valid, fully-determined computation_cursor — no field undefined, no
+#      timestamp fabricated. context.md §8/§9 then correctly finds the Structure/Regime/
+#      Feature analytical roles missing (empty Phase-1 survivor sets for those roles) and
+#      emits NO MarketContextSnapshot for this computation point
+#      (missing_input_policy: NO_SNAPSHOT_WHEN_ANY_REQUIRED_ROLE_MISSING_OR_PENDING). This
+#      is valid warm-up, not cursor failure — the cursor itself is certified and complete;
+#      it is context.md's own role selection, entirely separate from this Input Contract,
+#      that correctly withholds a snapshot. No partial four-stream cursor may become
+#      authoritative — a cut that is not certified across all four streams under one
+#      coherent registry_version is never emitted as a computation_cursor.
 #
 # Deterministic causal closure — three-way classification, reused exactly (Chapter 8
 # §8.2.3/§8.3.4/§8.3.5's own already-Locked validation-chain pattern, identical to the
@@ -190,16 +262,79 @@
 # publication operationally legal. Even after this file exists, Context publication
 # remains fail-closed until at minimum: Context Input Contract v1.0 is actually Published
 # as an immutable snapshot; the referenced Stream Registry snapshot resolves; required
-# upstream Event Contract dependency authority resolves (Candle/Structure/Regime/Feature
-# Event Contracts, none authored yet); Context output Event Contracts/output stream are
-# separately governed and authored; and context-aggregator's runtime is implemented. This
-# file does not modify docs/adr/ADR-046.md, docs/architecture/stream-registry.yaml,
-# docs/architecture/module-registry.yaml, any existing Feature Input Contract or Input
-# Contract version snapshot, any Event Contract, docs/domain/context.md's own normative
-# semantics, or python/context-aggregator/**.
+# upstream Event Contract dependency authority resolves in full across all four
+# included_streams (v0.2 correction, CONTEXT-IC-A-MIN-01 — Published Feature Event
+# Contracts exist for feature-engine-feature's two event types only; Candle/Structure/
+# Regime Event Contract authority remains completely absent/unresolved at this boundary);
+# Context output Event Contracts/output stream are separately governed and authored; and
+# context-aggregator's runtime is implemented. This file does not modify
+# docs/adr/ADR-046.md, docs/architecture/stream-registry.yaml,
+# docs/architecture/module-registry.yaml, any existing Feature Input Contract/published
+# Event Contract or Input Contract version snapshot, docs/domain/context.md's own
+# normative semantics, or python/context-aggregator/**.
+#
+# v0.2 bounded correction (2026-09-26, ChatGPT Review A `REVISION_REQUIRED — 0 Blocker / 1
+# Major / 1 Minor`, Risk R2, ADR Scope ADR_NOT_REQUIRED, reviewed boundary
+# 7a47c8cb258d0c8595ac72621727c81f2db13981, reviewed blob
+# f9d81d6e5beb79e6c20bb697e1d9a69f39448b44) — CONTEXT-INPUT-CONTRACT-001-CORR-001,
+# addressed/remediated pending fresh Review A (not self-closed by the correction
+# executor — closure is a Review A re-review determination, never asserted here):
+#
+# `CONTEXT-IC-A-MAJ-01` (genesis-position recorded_time gap) — v0.1's step 7
+# cursor.recorded_time derivation was undefined when an included stream is represented by
+# genesis_position (no event exists at that position to resolve a recorded_time from),
+# even though Chapter 8 §8.5.3 explicitly requires every included stream still to be
+# represented in stream_positions via its own genesis_position when it has no event
+# visible yet — a valid Context warm-up state can have up to three of the four included
+# streams at genesis while Candle already has an event-backed position. Corrected: step 3
+# now states explicitly that a stream in the valid universe with no committed event yet
+# contributes StreamRegistry[registry_version].genesis_position (never an omitted key,
+# never a fabricated sequence/event/recorded_time); step 7's cursor.recorded_time formula
+# is now defined precisely as max(T_position_events ∪ T_lifecycle), where
+# T_position_events contains a recorded_time contribution ONLY from stream_positions
+# entries that resolve to an actual committed event (a genesis_position contributes none),
+# and T_lifecycle contains lifecycle_frontier's own event recorded_time only when its
+# position.kind = event (none when genesis) — full formal definitions and a worked
+# Candle-driven warm-up example (Candle event-backed at sequence 25, three analytical
+# streams at genesis, lifecycle at genesis, cursor.recorded_time = T25, then context.md
+# §8/§9 correctly finds missing analytical roles and emits NO MarketContextSnapshot) added
+# below. No wall-clock/synthetic timestamp is introduced; T_position_events is guaranteed
+# non-empty for any genuine Context computation attempt because a Context computation
+# point is Candle-driven — the authoritative Candle event creating that point always
+# contributes an event-backed market-data-ingestion-candle position. included_streams,
+# merge_policy, frontier_policy YAML values, causal_closure_policy, contract_id,
+# contract_version, stream_registry_version: unchanged.
+#
+# `CONTEXT-IC-A-MIN-01` (Event Contract inventory factually stale) — v0.1 stated no
+# Candle/Structure/Regime/Feature Event Contract exists in this repository; that was no
+# longer accurate at this reviewed boundary. Corrected: upstream Event Contract authority
+# is now stated as PARTIALLY RESOLVED — Published Feature Event Contracts exist for
+# feature-computed v1.0 and feature-fact-invalidated v1.0 (both status: Published, both
+# allowed_streams: [feature-engine-feature], both declaring
+# merge_constraints.prerequisite_policy: causation_must_resolve_before_apply), fresh-read
+# this transaction. These satisfy causal_closure_policy.dependency_authority:
+# per_effect_event_contract ONLY for the feature-engine-feature stream's two event types —
+# required Candle/Structure/Regime Event Contract authority remains completely
+# absent/unresolved at this boundary; no Event Contract exists targeting
+# market-data-ingestion-candle, structure-engine-structure, or raw-regime-engine-regime.
+# Context authoritative publication therefore remains NOT operationally enabled — the
+# fail-closed conclusion is unchanged, only the stated reason is now accurate.
+#
+# Potential inherited genesis-position wording gap observed in the reviewed Feature
+# frontier precedent (feature-context-architecture.md §4.6's own cursor.recorded_time
+# formula uses the same `max(recorded_time of the event each stream_positions[s]
+# resolves to, ...)` shorthand this Context candidate's own v0.1 inherited) — NOT
+# modified, NOT adjudicated, and NOT formally found defective by this Context-bounded
+# correction; if genuinely present, it requires a separate, fresh, Feature-bounded audit.
+# Not corrected here — out of this WP's file scope
+# (feature-context-architecture.md, all three Feature Input Contracts, and Feature
+# published Event Contract/Input Contract snapshots are not touched by this transaction).
+#
+# `CONTEXT-IC-A-MAJ-01`: addressed/remediated pending fresh Review A.
+# `CONTEXT-IC-A-MIN-01`: addressed/remediated pending fresh Review A.
 
 schema_version: 1
-version: "0.1"
+version: "0.2"
 status: Draft
 owner: Product Owner
 generated_at: "2026-09-26"

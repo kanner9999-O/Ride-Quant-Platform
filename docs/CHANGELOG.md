@@ -2,6 +2,28 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-26 — Context Input Contract v0.2: bounded correction (genesis-position + Event Contract inventory)
+
+Starting `main == origin/main == 7a47c8cb258d0c8595ac72621727c81f2db13981`, fresh-verified, working tree clean. `context-market-input.yaml` fresh-verified exact (blob `f9d81d6e5beb79e6c20bb697e1d9a69f39448b44`, `version: "0.1"`, `status: Draft`); `context.md` fresh-verified exact (blob `d7b2c07b82984958e52ede0d536cc443ade22577`, unaffected); `ADR-046.md` fresh-verified exact (blob `6d81164b6c9323e12d81238a8fcdbc7fd276c6c0`, unaffected); `stream-registry.yaml` fresh-verified exact (blob `4d67a8c3008231406f2038394fba6a7e98075bf4`, unaffected) before mutation.
+
+Bounded correction of `docs/architecture/input-contracts/context-market-input.yaml` (`version: "0.1" -> "0.2"`, `status` stays `Draft`) against fresh ChatGPT Review A: `REVISION_REQUIRED — 0 Blocker / 1 Major / 1 Minor`, Risk `R2`, ADR Scope `ADR_NOT_REQUIRED`. Does not publish the Input Contract, does not author Context Event Contracts, does not modify runtime.
+
+`CONTEXT-IC-A-MAJ-01` (genesis-position `recorded_time` gap): the cut-capture protocol's step 3 is now total over Chapter-8-valid genesis positions — every included stream is represented in `stream_positions` via a direct committed-event read or, per §8.5.3, its own `genesis_position` (never omitted, never fabricated). `cursor.recorded_time` is redefined precisely as `max(T_position_events ∪ T_lifecycle)`, where `T_position_events` collects only actual committed-event `recorded_time`s (a `genesis_position` entry contributes none) and `T_lifecycle` follows the existing lifecycle-frontier genesis carve-out. A Context-specific non-empty guarantee (Candle always contributes an event-backed position for any genuine computation point) and a full worked warm-up example (Candle at sequence 25/`T25`; Structure/Regime/Feature at `genesis_position 0`; `cursor.recorded_time = T25`; correctly NO snapshot emitted) are added. `included_streams`, `merge_policy`, `frontier_policy`, `causal_closure_policy`, `contract_id`, `contract_version`, `stream_registry_version` all unchanged.
+
+`CONTEXT-IC-A-MIN-01` (Event Contract inventory factually stale): corrected from a blanket "none authored" claim to the accurate, fresh-read state — upstream Event Contract authority is PARTIALLY RESOLVED. Published Event Contracts exist for `feature-computed` v1.0 and `feature-fact-invalidated` v1.0 (both `status: Published`, `allowed_streams: [feature-engine-feature]`), satisfying `causal_closure_policy.dependency_authority: per_effect_event_contract` only for `feature-engine-feature`'s two event types. Candle/Structure/Regime Event Contract authority remains completely absent/unresolved. Fail-closed conclusion unchanged: Context authoritative publication is NOT operationally enabled.
+
+`context.md` reviewed for the required factual-alignment condition and left byte-unchanged — its one existing factual paragraph makes no claim about Event Contract absence, so no correction applies.
+
+A potential inherited genesis-position wording gap in the reviewed Feature frontier precedent (`feature-context-architecture.md` §4.6) is noted but explicitly NOT modified and NOT adjudicated by this Context-bounded transaction; it would require a separate, fresh, Feature-bounded audit.
+
+Review-A history recorded (v0.2 correction banner): reviewer ChatGPT, `AI Technical Architect`, reviewed boundary `7a47c8cb258d0c8595ac72621727c81f2db13981`, reviewed blob `f9d81d6e5beb79e6c20bb697e1d9a69f39448b44`, verdict `REVISION_REQUIRED — 0 Blocker / 1 Major / 1 Minor`. `CONTEXT-IC-A-MAJ-01`/`CONTEXT-IC-A-MIN-01`: both `addressed/remediated pending fresh Review A`, not self-closed. ADR Scope `ADR_NOT_REQUIRED`; Risk `R2` unchanged. No STOP condition triggered.
+
+**M2 unchanged (`BLOCKED`). M3 remains `ACTIVE`** (deterministic core CLEAN; ADR-046 APPROVED; context.md v0.4 PO ACCEPTED; Context Input Contract v0.2 corrected Draft candidate — NOT PUBLISHED, pending fresh Review A; Event Contract/dependency-authority gap PARTIALLY RESOLVED only where Published artifacts exist). **M4 remains `QUEUED`.** Phase-3 Approval Gate NOT REACHED; LIVE remains `NOT_AUTHORIZED`.
+
+Next governed action: fresh ChatGPT Review A re-review of the Context Input Contract v0.2 corrected candidate, followed by Risk Classification/`R2` routing if CLEAN.
+
+---
+
 ## [Unreleased] — 2026-09-26 — Context-scoped Input Contract: first bounded candidate authored
 
 Starting `main == origin/main == 8d0492de5b0e7c2922f71d32954f3ef420786809`, fresh-verified, working tree clean. `context.md` fresh-verified exact (blob `440bf0942abdbb23dc28b5814a49750061aa7526`, `version: "0.4"`, `status: Draft`); `ADR-046.md` fresh-verified exact (blob `6d81164b6c9323e12d81238a8fcdbc7fd276c6c0`, unaffected); `stream-registry.yaml` fresh-verified exact (blob `4d67a8c3008231406f2038394fba6a7e98075bf4`, `registry_version: v1.0`) before mutation.

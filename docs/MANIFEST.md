@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.456"
+manifest_version: "10.457"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -32066,6 +32066,156 @@ Constitution file, or Approved ADR touched. No immutable `v1.0` snapshot created
 
 **Next governed action:** Fresh ChatGPT Review A of the Context Input Contract candidate and its
 factual `context.md` alignment, followed by Risk Classification and next routing.
+
+## Context Input Contract v0.2 — bounded correction of v0.1 against fresh Review A (`CONTEXT-INPUT-CONTRACT-001-CORR-001`)
+
+**Bounded correction of [`docs/architecture/input-contracts/context-market-input.yaml`](../architecture/input-contracts/context-market-input.yaml)
+remediating one Major and one Minor from fresh ChatGPT Review A of v0.1. Does not publish the
+Input Contract, does not author Context Event Contracts, does not modify runtime.**
+
+**Fresh boundary verification:** HEAD confirmed exactly `7a47c8cb258d0c8595ac72621727c81f2db13981`,
+identical to `origin/main` — no drift. Confirmed `context-market-input.yaml` matched pinned blob
+`f9d81d6e5beb79e6c20bb697e1d9a69f39448b44` exactly (`version: "0.1"`, `status: Draft`) before this
+transaction. Confirmed `docs/domain/context.md` matched pinned blob
+`d7b2c07b82984958e52ede0d536cc443ade22577` exactly (unaffected). Confirmed
+`docs/adr/ADR-046.md` matched pinned blob `6d81164b6c9323e12d81238a8fcdbc7fd276c6c0` exactly
+(unaffected). Confirmed `docs/architecture/stream-registry.yaml` matched pinned blob
+`4d67a8c3008231406f2038394fba6a7e98075bf4` exactly (unaffected). Fresh-read
+[Chapter 8](../constitution/08-event-model.md) §8.5.3's genesis_position requirement and fresh-
+enumerated the actual Event Contract inventory
+(`docs/architecture/event-contracts/feature-computed/v1.0.yaml`,
+`docs/architecture/event-contracts/feature-fact-invalidated/v1.0.yaml` — both confirmed
+`status: Published`, `allowed_streams: [feature-engine-feature]`,
+`merge_constraints.prerequisite_policy: causation_must_resolve_before_apply`; no other Event
+Contract artifact exists) before mutation.
+
+**Review A verdict:** `REVISION_REQUIRED — 0 Blocker / 1 Major / 1 Minor`, Risk `R2`, ADR Scope
+`ADR_NOT_REQUIRED`. `context-market-input.yaml` `version: "0.1" -> "0.2"`; `status` stays `Draft`.
+Proposed authoritative identity unchanged: `{contract_id: context-market-input,
+contract_version: v1.0}` — the immutable `v1.0` snapshot is still NOT published/minted by this
+transaction.
+
+**`CONTEXT-IC-A-MAJ-01` — genesis-position `recorded_time` gap.** v0.1's cut-capture step 7
+derived `cursor.recorded_time = max(recorded_time of the event each stream_positions[s] resolves
+to, ...)` — undefined whenever an included stream is represented by `genesis_position`, because
+no event exists at that position to resolve a `recorded_time` from. Chapter 8 §8.5.3 explicitly
+requires every included stream still to be represented in `stream_positions` via its own
+`genesis_position` when it has no event visible yet ("stream chưa có event dùng genesis_position
+tường minh... vắng mặt là mơ hồ giữa 'chưa có event' và 'quên ghi'") — a valid Context warm-up
+state can have up to three of the four included streams at genesis while Candle already has an
+event-backed position, since Context's `missing_input_policy` correctly withholds a snapshot
+without requiring the cursor boundary itself to be undefined.
+
+**Corrected:** step 3 of the cut-capture protocol is now total over Chapter-8-valid genesis
+positions — for each included stream, (3a) validate it belongs to the valid cursor universe under
+`registry_version`; (3b) if committed event positions exist, a direct synchronous read sets
+`stream_positions[s]` to the current committed event sequence; (3c) if the stream belongs to the
+valid universe but has no committed event yet, `stream_positions[s] =
+StreamRegistry[registry_version].genesis_position` exactly as §8.5.3 requires — the stream key is
+never omitted, no sequence/event/`recorded_time` is ever fabricated for a genesis position. Step 7's
+`cursor.recorded_time` is now defined precisely as `max(T_position_events ∪ T_lifecycle)`, where
+`T_position_events = {E.recorded_time | for included stream s, stream_positions[s] refers to an
+actual committed event E}` (a `genesis_position` entry contributes no element) and `T_lifecycle =
+{L_before.event.recorded_time}` when `lifecycle_frontier.position.kind = event`, `{}` when
+`genesis` (Chapter 8 §8.5's own genesis carve-out, unchanged). A **Context-specific non-empty
+guarantee** is stated explicitly: a genuine Context computation point is Candle-driven
+(`context.md` §11) — the authoritative Candle event creating that point always contributes an
+event-backed `market-data-ingestion-candle` position, so `T_position_events` is guaranteed
+non-empty for any genuine Context computation attempt; if cut capture were attempted before any
+Candle computation-point event exists, there is no Context computation point to evaluate at all —
+no `computation_cursor`/output is produced, by definition, never by a wall-clock or synthetic-
+timestamp fallback. A full worked example is added: Candle event-backed at sequence 25
+(`recorded_time = T25`), Structure/Regime/Feature all at `genesis_position 0`, lifecycle at
+genesis — `cursor.recorded_time = max({T25} ∪ {}) = T25`, a valid, fully-determined cursor, after
+which `context.md` §8/§9 correctly finds the three analytical roles missing and emits NO
+`MarketContextSnapshot` (`missing_input_policy:
+NO_SNAPSHOT_WHEN_ANY_REQUIRED_ROLE_MISSING_OR_PENDING`) — valid warm-up, not cursor failure.
+`included_streams`, `merge_policy`, `frontier_policy` YAML values, `causal_closure_policy`,
+`contract_id`, `contract_version`, `stream_registry_version`: all unchanged.
+
+**`CONTEXT-IC-A-MIN-01` — Event Contract inventory factually stale.** v0.1 stated, in substance,
+that no Candle/Structure/Regime/Feature Event Contract exists in this repository — false at the
+reviewed boundary. **Corrected:** the candidate now states upstream Event Contract authority is
+**PARTIALLY RESOLVED** — Published Event Contracts exist for `feature-computed` `v1.0` and
+`feature-fact-invalidated` `v1.0` (both `status: Published`, both `allowed_streams:
+[feature-engine-feature]`, both declaring `merge_constraints.prerequisite_policy:
+causation_must_resolve_before_apply`), fresh-read this transaction — these satisfy
+`causal_closure_policy.dependency_authority: per_effect_event_contract` ONLY for the
+`feature-engine-feature` stream's two event types. Required Candle/Structure/Regime Event
+Contract authority remains completely absent/unresolved at this boundary — no Event Contract
+exists targeting `market-data-ingestion-candle`, `structure-engine-structure`, or
+`raw-regime-engine-regime`. This correction is precise about what the two Published artifacts DO
+provide (their own `allowed_streams`/`merge_constraints` declarations) without inferring
+metadata they do not contain; the fail-closed conclusion is unchanged — Context authoritative
+publication remains **NOT operationally enabled** — only the stated reason is now accurate. The
+"Scope containment" paragraph's identical stale claim ("Candle/Structure/Regime/Feature Event
+Contracts, none authored yet") is corrected the same way.
+
+**`context.md` factual alignment reviewed, not modified.** The one factual paragraph added to
+`context.md` §16 in the prior transaction (`CONTEXT-INPUT-CONTRACT-001`) was reviewed against the
+required condition ("if it contains any statement that all upstream Event Contracts are absent,
+correct that statement only") — it contains no such statement (it addresses only the Input
+Contract candidate's own existence and its `v1.0` snapshot's non-publication status), so it is
+left byte-unchanged per the task's own explicit conditional. `docs/domain/context.md` confirmed
+byte-identical before and after this transaction, blob
+`d7b2c07b82984958e52ede0d536cc443ade22577` unchanged; `version: "0.4"`/`status: Draft` unaffected.
+
+**Review-A history recorded** (v0.2 correction banner, mirroring the reviewed Feature Input
+Contract correction-banner convention): reviewer ChatGPT, `AI Technical Architect`, reviewed
+boundary `7a47c8cb258d0c8595ac72621727c81f2db13981`, reviewed blob
+`f9d81d6e5beb79e6c20bb697e1d9a69f39448b44`, verdict `REVISION_REQUIRED — 0 Blocker / 1 Major / 1
+Minor`, Risk `R2`, ADR Scope `ADR_NOT_REQUIRED`. `CONTEXT-IC-A-MAJ-01`/`CONTEXT-IC-A-MIN-01`: both
+`addressed/remediated pending fresh Review A` — neither self-closed by the correction executor. No
+DTR issued.
+
+**Potential inherited Feature-precedent genesis-position wording gap — observed, not adjudicated.**
+The reviewed Feature frontier protocol at `feature-context-architecture.md` §4.6 appears to use
+the identical `max(recorded_time of the event each stream_positions[s] resolves to, ...)`
+shorthand this Context candidate's own v0.1 inherited. This transaction does **NOT** modify
+`feature-context-architecture.md`, any Feature Input Contract, or any Feature published snapshot,
+and does **NOT** formally adjudicate whether a genuine defect exists there — that would require a
+separate, fresh, Feature-bounded audit, out of this Context-bounded WP's scope.
+
+**ADR Scope confirmed:** `ADR_NOT_REQUIRED` — this correction applies existing Chapter 8 §8.5.3
+genesis-position semantics (already-Locked authority) and corrects repository-state evidence
+(the actual Event Contract inventory); no new architecture choice was required. **Risk:** `R2`,
+unchanged, for Review-A tracking (the candidate governs replay/frontier Input Contract
+semantics).
+
+**No STOP condition triggered:** Chapter 8 fully supports a deterministic genesis-position
+timestamp treatment without any new semantics (§8.5.3's own existing requirement, applied not
+redefined); no synthetic timestamp was required; no change to Chapter 8 or Stream Registry
+genesis semantics was needed; the Event Contract inventory revealed a factual staleness, not a
+new materially conflicting authority; no new architecture choice emerged.
+
+**Confirmed unchanged by this transaction:** `docs/adr/ADR-046.md` (fresh-verified
+byte-identical), `docs/domain/context.md` (fresh-verified byte-identical), every other existing
+Approved/Locked authority, `docs/architecture/stream-registry.yaml`,
+`docs/architecture/module-registry.yaml`, all three existing Feature Input Contracts and their
+published version snapshots, `feature-computed`/`feature-fact-invalidated` Event Contracts,
+`feature-context-architecture.md`, every Constitution chapter, `python/context-aggregator/**`, all
+production source/tests/tooling. No immutable `v1.0` snapshot exists at
+`docs/architecture/input-contract-versions/context-market-input/v1.0.yaml`.
+
+**M2 unchanged (`BLOCKED`, parallel evidence lane). M3 remains `ACTIVE`** — Context deterministic
+core remains `REVIEW A VALIDATED — CLEAN`; `ADR-046` remains `APPROVED`; `context.md` v0.4 remains
+`PO ACCEPTED`; Context Input Contract is now **`v0.2` corrected Draft candidate — NOT PUBLISHED —
+pending fresh Review A**; the Context Event Contract/upstream dependency-authority gap is
+**PARTIALLY RESOLVED only where actual Published artifacts exist (feature-engine-feature's two
+event types) — still insufficient for Context publication**; Context runtime/publication remains
+`NOT IMPLEMENTED`. **M4 remains `QUEUED`.** Phase-3 Approval Gate `NOT REACHED`; `LIVE` remains
+`NOT_AUTHORIZED`.
+
+**Files changed:** `docs/architecture/input-contracts/context-market-input.yaml` (substantive
+correction only — `docs/domain/context.md` reviewed but confirmed byte-unchanged, not part of
+this transaction's diff), plus deterministic bookkeeping: `docs/project/milestone.md`,
+`docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md`. No Stream
+Registry, Module Registry, existing Feature Input Contract/snapshot, Event Contract, Constitution
+file, or Approved ADR touched. No immutable `v1.0` snapshot created. `manifest_version`
+`"10.456"` -> `"10.457"`.
+
+**Next governed action:** Fresh ChatGPT Review A re-review of Context Input Contract v0.2
+corrected candidate, followed by `R2` routing if `CLEAN`.
 
 ## Decision Log
 
