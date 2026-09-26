@@ -2,6 +2,28 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-26 — Upstream Event-Contract state-dependency authority: derivation analysis
+
+Starting `main == origin/main == e1b4cf30aa7c70f9d7c60b1119de26baf1b09054`, fresh-verified, working tree clean. `context-market-input.yaml` fresh-verified exact (blob `ce74ddf6291abb2b1ed21938ca88050550fb2a0b`, `version: "0.3"`, `status: Draft`, Review A `CLEAN — 0/0/0`) before this analysis; unchanged after.
+
+Analysis/derivation transaction only (`CONTEXT-UPSTREAM-STATE-DEPENDENCY-DERIVATION-001`) — does not modify or version any Event Contract, does not publish any Event Contract, does not publish `context-market-input / v1.0`, does not modify any Domain Contract/Constitution/ADR, does not implement runtime.
+
+New file `docs/project/context-upstream-state-dependency-derivation-001.md` derives, from existing authoritative repository semantics only, the Chapter 8 §8.2.3 `dependency_authority: per_effect_event_contract` state-dependency classification (`STATE_DEPENDENCY` vs `EXTERNAL_NON_STATE_CAUSE`) for all 10 Context-authorized upstream event types across Candle/Structure/Regime/Feature, applying the intrinsic "does this effect need to read the cause's payload, or only proof it exists" test — never the rejected stream-membership shortcuts.
+
+Of 21 causation-ref categories analyzed: 17 mechanically derivable directly from each event's own Domain Contract text (including a clean illustration that Regime's unconditional invalidation policy and Structure's conditional one yield *different* classifications for structurally analogous `CandleCorrected`-triggered causes — exactly the kind of divergence the task warned not to paper over); 4 `UNRESOLVED` from two distinct causes — an architecture-framework gap in `CANDLE_CORRECTED`'s own lineage-supersession reference (Chapter 8's dichotomy does not explicitly address same-family, same-stream supersession references), and three categories genuinely requiring `docs/domain/swing.md`, deliberately excluded from this WP's own pinned reading boundary.
+
+8 of 10 event types have zero Published Event Contract artifact today (Candle/Structure/Regime). Feature's two event types have Published `v1.0` artifacts but adding the classification requires a new, separate version artifact — the immutable `v1.0` files are never edited; Compatibility Result cannot yet be evaluated (no reader/format conformance rule exists in the repository, and `ADR-038` itself declines to assume unknown-field tolerance) — this fact is recorded, not fabricated. Candle/Structure/Regime each independently require their own governed `compatibility_commitment` declaration before a first Event Contract can be evaluated as compatible (Chapter 10 §10.3.1) — the specific value is explicitly not chosen by this WP.
+
+ADR classification: the same-family lineage-supersession gap is assessed as a genuine `ADR_REQUIRED` candidate (cross-cutting, recurs across all four families); the `swing.md`-dependent categories require only a follow-on Swing-inclusive derivation WP, not an ADR; per-family compatibility-commitment choices and Feature's versioning Compatibility Result are ordinary governed decisions under already-Approved `ADR-038`/`ADR-039`. No ADR is created by this transaction.
+
+A smallest ordered follow-on WP sequence is proposed (architecture ADR if pursued → Swing-inclusive re-derivation → per-family compatibility-commitment decisions → first Event Contract authoring per family → Feature Event Contract versioning → fresh Review A of this derivation) — none of it executed here.
+
+**M2 unchanged (`BLOCKED`). M3 remains `ACTIVE`** (deterministic core CLEAN; ADR-046 APPROVED; context.md v0.4 PO ACCEPTED; Context Input Contract v0.3 unchanged — `REVIEW A CLEAN — R2 — PROCEED WITHOUT CROSS-CHECK — NOT PUBLISHED`; upstream Event Contract/state-dependency authority now analyzed, not yet remediated). **M4 remains `QUEUED`.** Phase-3 Approval Gate NOT REACHED; LIVE remains `NOT_AUTHORIZED`.
+
+Next governed action: fresh ChatGPT Review A of `CONTEXT-UPSTREAM-STATE-DEPENDENCY-DERIVATION-001` before any Event Contract authoring/versioning transaction.
+
+---
+
 ## [Unreleased] — 2026-09-26 — Context Input Contract v0.3: bounded correction (Event Contract existence vs state-dependency classification)
 
 Starting `main == origin/main == ed88b0fabf9648617e523e74cc0d7535a31dbe1c`, fresh-verified, working tree clean. `context-market-input.yaml` fresh-verified exact (blob `6f478dbf72c1edc705a1c80966619a83de722e9e`, `version: "0.2"`, `status: Draft`) before mutation. Fresh-read Chapter 8 §8.2.3/§8.3.4 and both Published Feature Event Contracts in full to independently verify the claimed gap.
