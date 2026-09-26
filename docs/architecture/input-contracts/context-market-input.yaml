@@ -1,0 +1,232 @@
+# Input Contract — Context Market profile (Chapter 8 §8.3.4)
+#
+# Context-scoped Input Contract instance for context_type: market_context
+# (docs/domain/context.md v0.4, PO ACCEPTED — GOVERNED BASIS FOR NEXT CONTEXT WORK, per
+# CONTEXT-DOMAIN-V04-PO-ACCEPTANCE-001). context.md itself remains status: Draft — the
+# embedded document's own lifecycle is unaffected by this artifact's existence (no
+# ADR-style lifecycle transition invented for Domain Contracts, same precedent as
+# feature.md throughout Package 0.2-B3). This Input Contract supplies the cross-mode input
+# scope + merge + frontier semantics that context.md's own computation_cursor.
+# input_contract_ref (ADR-046, Approved) pins — it does NOT replace or duplicate any
+# Context Domain Contract semantic.
+#
+# Single profile, not split by role (unlike Feature's candle/regime/swing-distance
+# profiles) — deliberate, derived from context.md v0.4 §7/§9, not invented here: for
+# context_type: market_context, EVERY valid MarketContextSnapshot requires the fixed
+# seven-role composition (one Candle cutoff source + Structure + two Regime dimensions +
+# three Feature types) whose event families map onto the SAME four upstream streams for
+# every computation point — there is no mutually-exclusive upstream_source selection axis
+# analogous to feature.md §6's "PHẢI chọn ĐÚNG MỘT" (candle | regime). One
+# computation_cursor must represent the complete Context knowledge boundary across all
+# four streams at once; splitting Context into per-role profiles would require four
+# partial cursors for what context.md §3/§4 defines as ONE atomic computation_cursor per
+# fact. This is therefore the single Context Input Contract identity — no second Context
+# contract_id exists or is reserved anywhere in this repository (verified before
+# authoring: no file under docs/architecture/input-contracts/ or elsewhere used
+# `context-market-input`, and no other Context-scoped Input Contract identity is cited by
+# any Approved/Draft authority).
+#
+# Derivation, not invention: context.md v0.4 §16's own authoritative upstream event-family
+# enumeration (candle-closed/candle-corrected for the cutoff-source role; break-of-
+# structure-detected/change-of-character-detected/structure-fact-invalidated/structure-
+# recomputed for the Structure role; regime-classified/regime-fact-invalidated for both
+# Regime dimensions; feature-computed/feature-fact-invalidated for all three Feature
+# types) maps onto exactly four Approved docs/architecture/stream-registry.yaml v1.0
+# streams — this contract's included_streams is the direct, mechanical transcription of
+# that mapping. No new architecture decision is made by this file. context.md v0.4 §16
+# itself already distinguishes this event-family enumeration from the Input Contract
+# artifact itself (ADR-046 Decision item 9) — this file IS that previously-deferred
+# artifact, authored now as a current/active candidate only.
+#
+# Explicitly excluded (context.md v0.4 §16's own "Không tiêu thụ" list, unaffected):
+# structure-engine-swing (Structure already consumes Swing internally — Context does not
+# go around Structure to re-consume it directly); any *-current-view stream (non-
+# authoritative read models, never a Context input); Strategy/Decision/Risk/Account/
+# Position/Execution/Order/Fill (do not exist or are out of Context's input authority);
+# Context's own future output stream (not yet authored, §21). platform-lifecycle and
+# platform-audit are NOT domain input streams and are correctly absent from
+# included_streams — platform-lifecycle participates only through the dedicated
+# lifecycle_frontier field (Chapter 8 §8.5's Dedicated Lifecycle Frontier design,
+# structurally identical treatment to all three existing Feature Input Contracts).
+#
+# Event Contract eligibility (which event TYPES may target each of the four included
+# streams) is deliberately NOT represented here (Chapter 8 §8.3.1's one-way declaration
+# rule) — that remains exclusively each event type's own Event Contract, none of which is
+# yet authored in this repository for Candle/Structure/Regime/Feature (same class of gap
+# already flagged for the three Feature Input Contracts and for context.md's own
+# computation_cursor fail-closed prerequisite, context.md §3/§16, ADR-046 §Consequences).
+# Until those Event Contracts exist and declare state-dependency classification, the
+# causal_closure_policy below is correctly *pinned as architecture* but not yet
+# *operationally provable* — this candidate does not close that gap, and does not claim
+# to.
+#
+# merge_policy — reused exactly, not invented: `deterministic-causal-topological-order` +
+# `[stream_id, sequence]` tie-break is Chapter 8's own single mandated interleave
+# algorithm (ADR-009 §2.1/§2.3), identical across all three existing Feature Input
+# Contracts (1- and 2-stream profiles alike) and this 4-stream Context profile — it is not
+# a per-contract choice, and no Context-specific global ordering is introduced. This
+# supplies only the deterministic RUN ORDERING Chapter 8 requires for a coherent capture;
+# it is entirely separate from, and does not redefine, context.md §8's own role-selection
+# Phase-1/Phase-2 algorithm or its Phase-2 tie-break total order (context.md §8, unaffected
+# by this file). recorded_time is never used as authoritative merge order; sequence is
+# never compared across different stream identities (Chapter 8 §8.3.3); no wall-clock
+# ordering is used anywhere in this policy.
+#
+# frontier_policy — reused exactly from the reviewed, corrected Feature Input Contract
+# protocol (feature-candle-input.yaml/feature-regime-input.yaml/
+# feature-swing-distance-input.yaml v0.2-v0.6 correction history, same values on every one
+# of those three files regardless of 1- or 2-stream included_streams cardinality) — no new
+# timeout, watermark, magic buffer count, cross-stream coordinator sequence, "best
+# effort" cursor, or partial-authoritative-output semantic is introduced for this 4-stream
+# consumer. The certified cut-capture protocol below is the SAME protocol, generalized
+# only in stream count (four sequential direct reads instead of one or two) — Chapter 8
+# does not require, and this candidate does not invent, a different merge/frontier policy
+# shape for a wider `included_streams` set.
+#
+# Context four-stream cut-capture protocol (identical structure/certification discipline
+# to feature-context-architecture.md §4.6's reviewed algorithm — reproduced here in full
+# because this file, unlike the three Feature Input Contracts, has no companion
+# feature-context-architecture.md-equivalent Context design-spec document to host it;
+# authoring such a document is out of this WP's file scope):
+#
+#   1. L_before := direct synchronous read of platform-lifecycle's current position
+#      (Chapter 8 §8.5: {stream_id: platform-lifecycle, position: {kind, sequence}}).
+#   2. registry_version := active_registry_at(L_before) — the already-Locked §8.3.1
+#      function, computed once, locked for the remainder of this capture attempt.
+#   2a. Registry-contract equality gate: registry_version MUST equal EXACTLY this
+#      contract's own stream_registry_version pin below. If they differ, this Input
+#      Contract instance is NOT applicable at this frontier — FAIL-SAFE / DEFER, no
+#      cursor, no authoritative output, until a Product-Owner-governed Input Contract
+#      version pinning the current registry is authored/selected. This is never a retry
+#      condition — the cursor is never rewritten to a different registry while keeping
+#      this same input_contract_ref (Chapter 8 §8.5.2's Registry -> Contract invariant).
+#   3. For each of the four included_streams below (sequential direct, synchronous reads
+#      against each stream's own authoritative append-only log — never a cached,
+#      asynchronously-delivered, or notification-derived value, Chapter 8 §8.1's
+#      authoritative-source-is-the-log-not-transport rule): read current position into
+#      stream_positions[s]; confirm s is active under registry_version (Chapter 8
+#      §8.3.1). If any of the four is NOT active under registry_version, the cut cannot
+#      be constructed — integrity/topology mismatch, fail-safe (I-6), no cursor
+#      produced.
+#   4. Run causal-closure fixed-point resolution (below) — may extend stream_positions
+#      with further same-included-stream reads across any of the four streams; never
+#      touches platform-lifecycle.
+#   5. L_after := a second direct synchronous read of platform-lifecycle's current
+#      position, performed AFTER step 4 completes.
+#   6. Certification check: L_after must equal L_before EXACTLY. If equal, the capture is
+#      CERTIFIED — no lifecycle event was appended anywhere across the entire sequential
+#      four-stream capture window, so every read in steps 3-4 is provably a snapshot
+#      under the SAME single registry_version locked in step 2 (already proven equal to
+#      this contract's own pin, step 2a). If L_after != L_before, RACE DETECTED: the
+#      entire capture attempt (steps 1-6) is discarded — no partial cursor, no stale
+#      stream_registry_version, no cursor emitted for this attempt — and the SAME
+#      protocol is retried from step 1 (a bounded structural retry of a deterministic
+#      algorithm, never a numeric retry counter, wall-clock wait, or watermark).
+#   7. computation_cursor derivation from a CERTIFIED cut (context.md §3/§4/§14, Chapter 8
+#      §8.5): cursor.stream_positions = the closed (fixed-point) vector of directly-read
+#      positions across all four included_streams; cursor.lifecycle_frontier = L_before
+#      (= L_after, post-certification); cursor.stream_registry_version = this contract's
+#      own pinned stream_registry_version (already proved equal to
+#      active_registry_at(L_before) by step 2a); cursor.recorded_time = max(recorded_time
+#      of the event each stream_positions[s] resolves to, recorded_time of the lifecycle
+#      event L_before resolves to when L_before.position.kind = event; when
+#      L_before.position.kind = genesis, cursor.recorded_time = max over stream_positions
+#      only — Chapter 8 §8.5's own genesis carve-out, no synthetic event or wall-clock
+#      value invented). No partial four-stream cursor may become authoritative — a cut
+#      that is not certified across all four streams under one coherent registry_version
+#      is never emitted as a computation_cursor.
+#
+# Deterministic causal closure — three-way classification, reused exactly (Chapter 8
+# §8.2.3/§8.3.4/§8.3.5's own already-Locked validation-chain pattern, identical to the
+# reviewed Feature Input Contract protocol):
+#   (1) VALID IN-SCOPE CAUSE, OUTSIDE CURRENT CURSOR CUT — the referenced event already
+#       exists and tuple-verifies in the authoritative log, but beyond what this cut has
+#       read so far -> extend via a direct synchronous read of that specific named
+#       (stream_id, sequence), then re-evaluate its own causation_refs the same way
+#       (iterate to fixed point).
+#   (2) VALID EXTERNAL NON-STATE CAUSE — a causation_ref pointing outside
+#       included_streams entirely (Chapter 8 §8.3.4's external-non-state-cause
+#       carve-out) — requires only an immutable committed/existence proof, never
+#       participates in frontier completeness, payload MUST NOT be read.
+#   (3) UNRESOLVABLE OR MISMATCHED REFERENCE — a direct read at the named
+#       (stream_id, sequence) returns no record, or a record whose event_id does not
+#       match -> INTEGRITY VIOLATION, fail-safe (I-6) immediately. A causation_ref can
+#       never legitimately point to a not-yet-committed event (Chapter 6 §6.7: a
+#       causation_ref is a direct domain causal predecessor — the cause must already have
+#       existed for the effect to have been produced at all); this is never classified as
+#       an ordinary late arrival.
+#   Termination is guaranteed (Chapter 8 §8.3.4's mandatory-DAG P_global, no cycles, every
+#   causation_refs set finite) — the fixed-point iteration visits each node at most once
+#   and halts. Authoritative-apply is permitted ONLY at the fixed point.
+#
+# Immutable v1.0 snapshot status — NOT YET PUBLISHED: no artifact exists at
+# docs/architecture/input-contract-versions/context-market-input/v1.0.yaml. The
+# input_contract_ref.contract_version: v1.0 pinned below is the PROPOSED first canonical
+# Published version identity under Approved ADR-041's v<major>.<minor> grammar — exactly
+# as the three Feature Input Contracts each defined their own proposed v1.0 content before
+# their own atomic publication transaction (2026-09-11T10:48:31+07:00). Until a governed
+# publication transaction creates that immutable, byte-identical snapshot,
+# `context-market-input / v1.0` is NOT a valid authoritative reference target — no Context
+# projection record's computation_cursor.input_contract_ref may cite it as durable
+# evidence (context.md v0.4's own fail-closed paragraphs, §3/§4, ADR-046 Decision item
+# 10). This file itself remains the mutable current/active-path candidate only (ADR-041)
+# — it is NOT Published, NOT Approved, and is never self-reviewed or self-approved by the
+# executor that authors or edits it.
+#
+# Context Domain Contract relation — this Input Contract does NOT decide, redefine, or
+# duplicate: the seven-role Eligible Upstream Fact selection algorithm (context.md §8);
+# context_cutoff derivation (context.md §6/§11); effective-time eligibility (context.md
+# §8 bước 3/§14); temporal eligible-upstream role-resolution supersession (context.md
+# §8); COVERS_CONTEXT and its six proof conditions (context.md §14); causation_refs
+# minimal-complete direct-cause-set semantics (context.md §4); Context correction lineage
+# Case A/Case B/coverage-chain behavior (context.md §12); or MarketContextSnapshot
+# computation identity (context.md §10 — this Input Contract's own contract_version is
+# likewise never part of that identity). All of the above remain governed exclusively by
+# docs/domain/context.md v0.4 (PO ACCEPTED) and Approved ADR-046. This file supplies only
+# the cross-mode authoritative input cut used by Context's own canonical
+# computation_cursor — nothing more.
+#
+# Scope containment — this candidate alone does NOT make Context authoritative
+# publication operationally legal. Even after this file exists, Context publication
+# remains fail-closed until at minimum: Context Input Contract v1.0 is actually Published
+# as an immutable snapshot; the referenced Stream Registry snapshot resolves; required
+# upstream Event Contract dependency authority resolves (Candle/Structure/Regime/Feature
+# Event Contracts, none authored yet); Context output Event Contracts/output stream are
+# separately governed and authored; and context-aggregator's runtime is implemented. This
+# file does not modify docs/adr/ADR-046.md, docs/architecture/stream-registry.yaml,
+# docs/architecture/module-registry.yaml, any existing Feature Input Contract or Input
+# Contract version snapshot, any Event Contract, docs/domain/context.md's own normative
+# semantics, or python/context-aggregator/**.
+
+schema_version: 1
+version: "0.1"
+status: Draft
+owner: Product Owner
+generated_at: "2026-09-26"
+
+input_contract_ref:
+  contract_id: context-market-input
+  contract_version: v1.0
+
+stream_registry_version: v1.0
+
+included_streams:
+  - market-data-ingestion-candle
+  - structure-engine-structure
+  - raw-regime-engine-regime
+  - feature-engine-feature
+
+merge_policy:
+  algorithm: deterministic-causal-topological-order
+  concurrent_tie_break: [stream_id, sequence]
+
+frontier_policy:
+  mechanism: registry-pinned-lifecycle-bracketed-direct-log-read
+  completeness_rule: gap-free-prefix-fixed-point-causal-closure-under-certified-registry-lifecycle-bracket
+  late_arrival_behavior: defer-to-later-cursor
+  buffer_limit_policy: fail-safe-abort-no-authoritative-output-on-resource-exhaustion
+  incomplete_frontier_behavior: integrity-fail-safe-or-lifecycle-race-retry-or-registry-mismatch-defer
+
+causal_closure_policy:
+  mode: declared-state-dependencies
+  dependency_authority: per_effect_event_contract

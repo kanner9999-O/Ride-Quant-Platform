@@ -2,6 +2,30 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-26 — Context-scoped Input Contract: first bounded candidate authored
+
+Starting `main == origin/main == 8d0492de5b0e7c2922f71d32954f3ef420786809`, fresh-verified, working tree clean. `context.md` fresh-verified exact (blob `440bf0942abdbb23dc28b5814a49750061aa7526`, `version: "0.4"`, `status: Draft`); `ADR-046.md` fresh-verified exact (blob `6d81164b6c9323e12d81238a8fcdbc7fd276c6c0`, unaffected); `stream-registry.yaml` fresh-verified exact (blob `4d67a8c3008231406f2038394fba6a7e98075bf4`, `registry_version: v1.0`) before mutation.
+
+Authors the first bounded current/active-path candidate for the Context-scoped Chapter-8 Input Contract required by Approved ADR-046, PO-accepted context.md v0.4, and Chapter 8 §8.3.4/§8.5. Not a publication transaction; not runtime; not an Event Contract transaction.
+
+New file: `docs/architecture/input-contracts/context-market-input.yaml` — `schema_version: 1`, `version: "0.1"`, `status: Draft`, mutable current/active-path candidate under ADR-041. Authored as exactly ONE Context Input Contract profile (unlike Feature's mutually-exclusive candle/regime/swing-distance profiles) — Context's fixed seven-role composition maps onto the same four upstream streams for every computation point, requiring one cursor across all four.
+
+`input_contract_ref: {contract_id: context-market-input, contract_version: v1.0}` — the proposed first canonical Published identity under ADR-041's grammar; no immutable snapshot exists yet at `docs/architecture/input-contract-versions/context-market-input/v1.0.yaml`, so this identity is NOT YET a valid authoritative reference target.
+
+`stream_registry_version: v1.0`. `included_streams`: exactly `market-data-ingestion-candle`, `structure-engine-structure`, `raw-regime-engine-regime`, `feature-engine-feature` — mechanically derived from context.md v0.4 §16, excluding `structure-engine-swing`/current-view streams/Strategy-Decision-Risk-Execution/Context's own output stream. `merge_policy` and `frontier_policy` reused exactly, unchanged, from the reviewed Feature Input Contract precedent (deterministic-causal-topological-order merge; registry-pinned-lifecycle-bracketed-direct-log-read frontier with fixed-point causal closure). Full four-stream cut-capture protocol (registry-contract equality gate, lifecycle-frontier bracket certification, fixed-point causal closure) documented in the file's own header comments, generalizing the reviewed Feature protocol to four streams.
+
+Event Contract gap stated explicitly — no Candle/Structure/Regime/Feature Event Contract exists yet; `causal_closure_policy` is pinned as architecture but not yet operationally provable.
+
+`context.md` factual alignment: one new, strictly non-normative paragraph added after §16 noting the candidate now exists, its proposed `v1.0` identity, and that the immutable snapshot is NOT Published — authoritative Context publication remains fail-closed. `version`/`status` unchanged; no normative semantic altered; prior PO acceptance not reinterpreted.
+
+ADR Scope: `ADR_NOT_REQUIRED`. Risk Classification not self-finalized — pending fresh Review A. No STOP condition triggered.
+
+**M2 unchanged (`BLOCKED`). M3 remains `ACTIVE`** (deterministic core CLEAN; ADR-046 APPROVED; context.md v0.4 PO ACCEPTED; Context Input Contract CANDIDATE AUTHORED — NOT PUBLISHED, pending fresh Review A). **M4 remains `QUEUED`.** Phase-3 Approval Gate NOT REACHED; LIVE remains `NOT_AUTHORIZED`.
+
+Next governed action: fresh ChatGPT Review A of the Context Input Contract candidate and its factual context.md alignment, followed by Risk Classification and next routing.
+
+---
+
 ## [Unreleased] — 2026-09-26 — context.md v0.4: Product Owner acceptance
 
 Starting `main == origin/main == 0d9f9583dc1598ca0397af13d130ca3218355b99`, fresh-verified, working tree clean. `context.md` fresh-verified exact (blob `962769516872c7770d15b376f576ec0b08233be9`, `version: "0.4"`, `status: Draft`); `ADR-046.md` fresh-verified exact (blob `6d81164b6c9323e12d81238a8fcdbc7fd276c6c0`, `status: Approved`, unaffected) before mutation.

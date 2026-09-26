@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.455"
+manifest_version: "10.456"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -31871,6 +31871,201 @@ Constitution file, or any Approved ADR touched. `manifest_version` `"10.454"` ->
 
 **Next governed action:** Fresh ChatGPT verification of the `context.md` v0.4 Product Owner
 acceptance boundary, then bounded Context-scoped Input Contract derivation and authoring.
+
+## Context-scoped Input Contract — first bounded candidate authored (`CONTEXT-INPUT-CONTRACT-001`)
+
+**Authors the first bounded current/active-path candidate for the Context-scoped Chapter-8
+Input Contract required by Approved [`ADR-046`](../adr/ADR-046.md), PO-accepted
+[`docs/domain/context.md`](../domain/context.md) v0.4, and
+[Chapter 8](../constitution/08-event-model.md) §8.3.4/§8.5. Not a publication transaction, not
+a runtime transaction, not an Event Contract transaction.**
+
+**Fresh boundary verification:** HEAD confirmed exactly `8d0492de5b0e7c2922f71d32954f3ef420786809`,
+identical to `origin/main` — no drift. Confirmed `docs/domain/context.md` matched pinned blob
+`440bf0942abdbb23dc28b5814a49750061aa7526` exactly (`version: "0.4"`, `status: Draft`,
+operational state `PO ACCEPTED — GOVERNED BASIS FOR NEXT CONTEXT WORK`) before this transaction.
+Confirmed `docs/adr/ADR-046.md` matched pinned blob `6d81164b6c9323e12d81238a8fcdbc7fd276c6c0`
+exactly (unaffected). Confirmed `docs/architecture/stream-registry.yaml` matched pinned blob
+`4d67a8c3008231406f2038394fba6a7e98075bf4` exactly, `registry_version: v1.0`, `status: Approved`
+— all seven streams present, four Context-relevant streams (`market-data-ingestion-candle`,
+`structure-engine-structure`, `raw-regime-engine-regime`, `feature-engine-feature`) confirmed
+`status: active`. Confirmed no existing `context-market-input` identity or file conflict — no
+file under `docs/architecture/input-contracts/` and no cited Context Input Contract identity
+anywhere in the repository used that ID before this transaction.
+
+**Contract cardinality — single profile, not split by role.** Unlike Feature's mutually
+exclusive `candle`/`regime`/`swing-distance` upstream-source profiles (`feature.md` §6: "PHẢI
+chọn ĐÚNG MỘT"), `context.md` v0.4 has no analogous mutually-exclusive selection axis — every
+valid `MarketContextSnapshot` for `context_type: market_context` requires the fixed seven-role
+composition mapping onto the SAME four upstream streams for every computation point. One
+`computation_cursor` must represent the complete Context knowledge boundary across all four
+streams at once. This candidate is therefore authored as exactly ONE Context Input Contract
+profile — no candle/structure/regime/feature split.
+
+**New file:** [`docs/architecture/input-contracts/context-market-input.yaml`](../architecture/input-contracts/context-market-input.yaml)
+— `schema_version: 1`, `version: "0.1"`, `status: Draft`, `owner: Product Owner`,
+`generated_at: "2026-09-26"`. Blob `f9d81d6e5beb79e6c20bb697e1d9a69f39448b44`. This is a mutable
+current/active-path candidate under [ADR-041](../adr/ADR-041.md) — it is NOT Published, NOT
+Approved, and is not an immutable historical version artifact.
+
+**`input_contract_ref`:** `{contract_id: context-market-input, contract_version: v1.0}` — the
+proposed first canonical Published version identity under ADR-041's `v<major>.<minor>` grammar,
+exactly mirroring how each of the three existing Feature Input Contracts defined their own
+proposed `v1.0` content before their own atomic publication transaction. No immutable snapshot
+exists yet at `docs/architecture/input-contract-versions/context-market-input/v1.0.yaml` — this
+is stated explicitly in the file's own header comments — so `context-market-input / v1.0` is NOT
+YET a valid authoritative reference target for any Context projection record.
+
+**`stream_registry_version: v1.0`** — pinned to the current canonical, Approved Stream Registry;
+this candidate does not modify the Stream Registry.
+
+**`included_streams`:** exactly `[market-data-ingestion-candle, structure-engine-structure,
+raw-regime-engine-regime, feature-engine-feature]` — the direct, mechanical transcription of
+`context.md` v0.4 §16's own authoritative upstream event-family enumeration onto the four
+Approved Stream Registry streams it maps to. Explicitly excludes `structure-engine-swing` (per
+`context.md` §16's own "Không tiêu thụ" list, unaffected), any `*-current-view` stream,
+Strategy/Decision/Risk/Account/Position/Execution/Order/Fill, and Context's own future output
+stream. `platform-lifecycle`/`platform-audit` are correctly absent from `included_streams` —
+`platform-lifecycle` participates only through the dedicated `lifecycle_frontier` field (Chapter
+8 §8.5's Dedicated Lifecycle Frontier design), identical treatment to all three existing Feature
+Input Contracts.
+
+**`merge_policy`:** `{algorithm: deterministic-causal-topological-order, concurrent_tie_break:
+[stream_id, sequence]}` — reused exactly, unchanged, from all three existing Feature Input
+Contracts (Chapter 8's own single mandated interleave algorithm, ADR-009 §2.1/§2.3, not a
+per-contract choice). No Context-specific global ordering invented; `recorded_time` is never
+used as authoritative merge order; `sequence` is never compared across different stream
+identities. This supplies only the deterministic run ordering Chapter 8 requires for a coherent
+capture — `context.md` §8's own role-selection Phase-1/Phase-2 algorithm and its own tie-break
+total order remain entirely separate and unchanged.
+
+**`frontier_policy`:** reused exactly, unchanged, from the reviewed, corrected Feature Input
+Contract protocol (`mechanism: registry-pinned-lifecycle-bracketed-direct-log-read`,
+`completeness_rule: gap-free-prefix-fixed-point-causal-closure-under-certified-registry-
+lifecycle-bracket`, `late_arrival_behavior: defer-to-later-cursor`, `buffer_limit_policy:
+fail-safe-abort-no-authoritative-output-on-resource-exhaustion`,
+`incomplete_frontier_behavior: integrity-fail-safe-or-lifecycle-race-retry-or-registry-mismatch-
+defer`) — identical values regardless of 1-, 2-, or 4-stream `included_streams` cardinality
+(confirmed by inspecting all three existing Feature Input Contracts, one 1-stream, one
+1-stream, one 2-stream). No new timeout, watermark, magic buffer count, cross-stream
+coordinator sequence, "best effort" cursor, or partial-authoritative-output semantic
+introduced.
+
+**Four-stream cut-capture protocol** — reproduced in full inside the new file's own header
+comments (generalizing only stream count, four sequential direct reads instead of one or two, no
+other change) from the reviewed algorithm at
+`docs/architecture/engine/feature-context-architecture.md` §4.6 (not itself edited by this
+transaction, out of this WP's allowed file scope): (1) `L_before` direct synchronous read of
+`platform-lifecycle`; (2) `registry_version := active_registry_at(L_before)`, locked for the
+capture attempt; (2a) registry-contract equality gate — `registry_version` must equal exactly
+this contract's own `stream_registry_version`, mismatch is fail-safe/defer, never a retry, cursor
+never rewritten to a different registry under the same `input_contract_ref`; (3) sequential
+direct synchronous reads of all four `included_streams`, each confirmed active under
+`registry_version`, any inactive stream is an integrity/topology mismatch, fail-safe; (4)
+causal-closure fixed-point resolution, may extend `stream_positions` across any of the four
+streams, never touches `platform-lifecycle`; (5) `L_after` second direct read of
+`platform-lifecycle` after closure; (6) certification check `L_after == L_before` exactly —
+equal means CERTIFIED, unequal means RACE DETECTED and the entire attempt is discarded and
+retried from step 1 (bounded structural retry, never a numeric counter/wall-clock
+wait/watermark); (7) `computation_cursor` derivation from the certified cut per Chapter 8 §8.5
+— `stream_positions` (closed fixed-point vector across all four streams), `lifecycle_frontier`
+(= `L_before` = `L_after`), `stream_registry_version` (this contract's own pin, already proved
+equal to `active_registry_at(L_before)`), `recorded_time` (max over resolved event/lifecycle
+`recorded_time`s, or max over `stream_positions` only under the genesis carve-out). No partial
+four-stream cursor may become authoritative.
+
+**Causal-closure policy:** `{mode: declared-state-dependencies, dependency_authority:
+per_effect_event_contract}` — reused exactly. Three-way classification preserved: (1) valid
+in-scope cause outside the current cut — extend via direct read, recurse to fixed point; (2)
+valid external non-state cause outside `included_streams` — existence-proof only, never extends
+frontier completeness; (3) unresolvable or mismatched reference — immediate integrity-violation
+fail-safe, never a "not-yet-arrived, wait" outcome (Chapter 6 §6.7: a `causation_ref` is a direct
+domain causal predecessor, the cause must already exist for the effect to have been produced).
+Termination guaranteed by Chapter 8 §8.3.4's mandatory-DAG `P_global` (no cycles, every
+`causation_refs` set finite).
+
+**Event Contract gap — stated explicitly, not closed by this transaction:** no Candle/Structure/
+Regime/Feature Event Contract exists in this repository yet declaring which event TYPES may
+target each of the four included streams (Chapter 8 §8.3.1's one-way declaration rule). Until
+those Event Contracts exist and declare state-dependency classification, `causal_closure_policy`
+above is correctly *pinned as architecture* but not yet *operationally provable* — the identical
+fail-closed posture already carried by the three Feature Input Contracts and by `context.md`'s
+own `computation_cursor` fail-closed prerequisite (§3/§4, ADR-046 §Consequences).
+
+**Context Domain Contract relation — explicitly preserved, not touched:** this Input Contract
+does not decide, redefine, or duplicate the seven-role Eligible Upstream Fact selection
+algorithm, `context_cutoff` derivation, effective-time eligibility, temporal eligible-upstream
+role-resolution supersession, `COVERS_CONTEXT` and its six proof conditions, `causation_refs`
+minimal-complete direct-cause-set semantics, Context correction lineage Case A/Case B/coverage
+chain, or `MarketContextSnapshot` computation identity — all remain governed exclusively by
+`context.md` v0.4/`ADR-046`. This file supplies only the cross-mode authoritative input cut used
+by Context's own canonical `computation_cursor`.
+
+**`context.md` factual alignment (strictly non-normative, single note, per current
+convention):** one new paragraph added immediately after §16's existing "artifact đó CHƯA được
+author ở v0.3 này" sentence, stating: a candidate current/active Context-scoped Input Contract
+now exists (`context-market-input.yaml`, `version: "0.1"`, `status: Draft`); its proposed first
+authoritative identity is `context-market-input / v1.0`; the immutable `v1.0` snapshot is NOT
+Published; authoritative Context publication therefore remains fail-closed exactly as already
+required. `context.md` `version: "0.4"`/`status: Draft` unchanged; no normative Context semantic
+altered; the prior Product Owner acceptance (`CONTEXT-DOMAIN-V04-PO-ACCEPTANCE-001`) is not
+reinterpreted. `context.md` blob changed from `440bf0942abdbb23dc28b5814a49750061aa7526` to
+`d7b2c07b82984958e52ede0d536cc443ade22577` (one additive paragraph only, confirmed via diff).
+
+**ADR Scope assessment:** `ADR_NOT_REQUIRED` — the four included streams are mechanically
+derived from PO-accepted `context.md` + current Stream Registry; `merge_policy`/`frontier_policy`/
+`causal_closure_policy` are reused exactly from already-governed Chapter-8/Feature precedent; no
+new module responsibility, event schema, topology, or cursor representation is introduced. Risk
+Classification is NOT self-finalized by this transaction — fresh ChatGPT Review A will classify
+it after authoring; no DTR issued.
+
+**No STOP condition triggered:** `context-market-input` did not conflict with any existing or
+reserved identity; the current Stream Registry contains exactly the expected four active
+upstream streams (plus `structure-engine-swing`/`platform-lifecycle`/`platform-audit`, all
+correctly excluded); the Feature frontier policy remains current controlling precedent
+(confirmed identical across all three existing Feature Input Contracts regardless of stream
+count); causal closure is fully representable by the existing policy; no stream-topology change,
+new Event Contract semantics, or new architecture decision was required.
+
+**Milestone state (this transaction):**
+
+```text
+Context deterministic core:     REVIEW A VALIDATED -- CLEAN (unchanged)
+ADR-046:                        APPROVED (unchanged, immutable blob
+                                 6d81164b6c9323e12d81238a8fcdbc7fd276c6c0)
+context.md v0.4:                PO ACCEPTED (unchanged, one additive
+                                 factual paragraph only)
+Context Input Contract:         CANDIDATE AUTHORED -- NOT PUBLISHED --
+                                 pending fresh Review A
+Context Event Contracts:        NOT AUTHORED
+Context output stream:          NOT AUTHORED
+Context runtime/publication:    NOT IMPLEMENTED
+```
+
+**Confirmed unchanged by this transaction:** `docs/adr/ADR-046.md` (fresh-verified
+byte-identical), every other existing Approved/Locked authority,
+`docs/architecture/stream-registry.yaml`, `docs/architecture/module-registry.yaml`, all three
+existing Feature Input Contracts and their published version snapshots, any Event Contract,
+`context.md`'s own normative semantics, every Constitution chapter, `python/context-aggregator/**`,
+all production source/tests/tooling.
+
+**M2 unchanged (`BLOCKED`, parallel evidence lane). M3 remains `ACTIVE`** — Context deterministic
+core remains `REVIEW A VALIDATED — CLEAN`; `ADR-046` remains `APPROVED`; `context.md` v0.4
+remains `PO ACCEPTED`; Context Input Contract is now **`CANDIDATE AUTHORED — NOT PUBLISHED`**,
+pending fresh Review A; Context Event Contracts remain `NOT AUTHORED`; Context output stream
+remains `NOT AUTHORED`; Context runtime/publication remains `NOT IMPLEMENTED`. **M4 remains
+`QUEUED`.** Phase-3 Approval Gate `NOT REACHED`; `LIVE` remains `NOT_AUTHORIZED`.
+
+**Files changed:** NEW `docs/architecture/input-contracts/context-market-input.yaml`
+(substantive), `docs/domain/context.md` (one strictly factual, non-normative alignment
+paragraph only), plus deterministic bookkeeping: `docs/project/milestone.md`,
+`docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md`. No Stream
+Registry, Module Registry, existing Feature Input Contract/snapshot, Event Contract,
+Constitution file, or Approved ADR touched. No immutable `v1.0` snapshot created.
+`manifest_version` `"10.455"` -> `"10.456"`.
+
+**Next governed action:** Fresh ChatGPT Review A of the Context Input Contract candidate and its
+factual `context.md` alignment, followed by Risk Classification and next routing.
 
 ## Decision Log
 
