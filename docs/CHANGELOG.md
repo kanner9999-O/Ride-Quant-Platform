@@ -2,6 +2,28 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-26 — Context Input Contract v0.3: bounded correction (Event Contract existence vs state-dependency classification)
+
+Starting `main == origin/main == ed88b0fabf9648617e523e74cc0d7535a31dbe1c`, fresh-verified, working tree clean. `context-market-input.yaml` fresh-verified exact (blob `6f478dbf72c1edc705a1c80966619a83de722e9e`, `version: "0.2"`, `status: Draft`) before mutation. Fresh-read Chapter 8 §8.2.3/§8.3.4 and both Published Feature Event Contracts in full to independently verify the claimed gap.
+
+Bounded correction of `docs/architecture/input-contracts/context-market-input.yaml` (`version: "0.2" -> "0.3"`, `status` stays `Draft`) against fresh ChatGPT Review A: `REVISION_REQUIRED — 0 Blocker / 1 Major / 0 Minor`, Risk `R2`, ADR Scope `ADR_NOT_REQUIRED`. Prior findings `CONTEXT-IC-A-MAJ-01`/`CONTEXT-IC-A-MIN-01` both `CLOSED — REVIEW A VALIDATED`. New finding `CONTEXT-IC-A-MAJ-02`. Does not publish the Input Contract, does not modify any Event Contract, does not implement runtime.
+
+`CONTEXT-IC-A-MAJ-02` (Event Contract artifact existence over-concluded into dependency-authority resolution): v0.2 correctly recognized that Published Event Contracts exist for `feature-computed` v1.0 and `feature-fact-invalidated` v1.0, but then claimed those artifacts satisfy `causal_closure_policy.dependency_authority: per_effect_event_contract` for `feature-engine-feature`'s two event types — not established by their actual content. Chapter 8 §8.2.3 requires each effect event's own Event Contract to classify `causation_refs` into STATE DEPENDENCY (in-scope, cursor-visible) vs EXTERNAL NON-STATE CAUSE (existence-proof only); `merge_constraints.prerequisite_policy: causation_must_resolve_before_apply` answers a different §8.3.4 ordering question, not this §8.2.3 classification question. Fresh full-file inspection of both Feature Event Contracts confirmed no such classification field/rule exists in either artifact — no STOP condition triggered (no missed authority found). Corrected: the candidate now distinguishes (A) artifact existence — RESOLVED for Feature — from (B) state-dependency classification — NOT YET FULLY RESOLVED for Feature as well as (C) Candle/Structure/Regime, whose artifact authority remains separately absent — concluding (D) overall PARTIALLY RESOLVED artifact inventory with per-effect classification NOT YET FULLY RESOLVED for any of the four `included_streams`; Context authoritative causal-closure execution remains FAIL-CLOSED. `causal_closure_policy` YAML left completely unchanged — this restores accurate interpretation of an already-Locked requirement, it does not select a new policy; `mode: full` was explicitly considered and rejected as out of scope.
+
+The v0.2 genesis-position fix (`CONTEXT-IC-A-MAJ-01`) and the Event-Contract-existence fix (`CONTEXT-IC-A-MIN-01`) are preserved unchanged in substance — not reverted, not reopened.
+
+`context.md` reviewed: its one factual paragraph makes no claim about Event Contract state at all, so it is unrelated to this correction and left completely byte-unchanged.
+
+Review-A history recorded: reviewer ChatGPT, `AI Technical Architect`, reviewed boundary `ed88b0fabf9648617e523e74cc0d7535a31dbe1c`, reviewed blob `6f478dbf72c1edc705a1c80966619a83de722e9e`, verdict as above. `CONTEXT-IC-A-MAJ-01`/`CONTEXT-IC-A-MIN-01`: `CLOSED — REVIEW A VALIDATED`. `CONTEXT-IC-A-MAJ-02`: `addressed/remediated pending fresh Review A`, not self-closed.
+
+The already-recorded potential inherited Feature-precedent genesis-wording gap note is preserved, unmodified. No Feature Event Contract correction is opened by this WP.
+
+**M2 unchanged (`BLOCKED`). M3 remains `ACTIVE`** (deterministic core CLEAN; ADR-046 APPROVED; context.md v0.4 PO ACCEPTED; Context Input Contract v0.3 corrected Draft candidate — NOT PUBLISHED, pending fresh Review A; Event Contract artifacts PARTIALLY PRESENT; per-effect state-dependency authority UNRESOLVED). **M4 remains `QUEUED`.** Phase-3 Approval Gate NOT REACHED; LIVE remains `NOT_AUTHORIZED`.
+
+Next governed action: fresh ChatGPT Review A re-review of Context Input Contract v0.3; if CLEAN, then route the unresolved upstream Event Contract/state-dependency-authority prerequisite before any v1.0 publication decision.
+
+---
+
 ## [Unreleased] — 2026-09-26 — Context Input Contract v0.2: bounded correction (genesis-position + Event Contract inventory)
 
 Starting `main == origin/main == 7a47c8cb258d0c8595ac72621727c81f2db13981`, fresh-verified, working tree clean. `context-market-input.yaml` fresh-verified exact (blob `f9d81d6e5beb79e6c20bb697e1d9a69f39448b44`, `version: "0.1"`, `status: Draft`); `context.md` fresh-verified exact (blob `d7b2c07b82984958e52ede0d536cc443ade22577`, unaffected); `ADR-046.md` fresh-verified exact (blob `6d81164b6c9323e12d81238a8fcdbc7fd276c6c0`, unaffected); `stream-registry.yaml` fresh-verified exact (blob `4d67a8c3008231406f2038394fba6a7e98075bf4`, unaffected) before mutation.

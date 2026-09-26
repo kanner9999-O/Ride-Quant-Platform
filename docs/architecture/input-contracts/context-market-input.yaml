@@ -52,24 +52,53 @@
 # Event Contract eligibility (which event TYPES may target each of the four included
 # streams) is deliberately NOT represented here (Chapter 8 §8.3.1's one-way declaration
 # rule) — that remains exclusively each event type's own Event Contract. Repository state,
-# fresh-read this transaction (v0.2 correction, CONTEXT-IC-A-MIN-01 — v0.1's blanket "none
-# authored" claim was factually stale at the reviewed boundary): upstream Event Contract
-# authority is PARTIALLY RESOLVED. Published Event Contracts exist for feature-computed
-# v1.0 and feature-fact-invalidated v1.0 (docs/architecture/event-contracts/, both
-# status: Published, both allowed_streams: [feature-engine-feature], both
-# merge_constraints.prerequisite_policy: causation_must_resolve_before_apply) — these
-# satisfy causal_closure_policy.dependency_authority: per_effect_event_contract ONLY for
-# feature-engine-feature's two event types. Required Candle/Structure/Regime Event
-# Contract authority remains completely absent/unresolved at this boundary — no Event
-# Contract exists targeting market-data-ingestion-candle, structure-engine-structure, or
-# raw-regime-engine-regime (same class of gap already flagged for context.md's own
-# computation_cursor fail-closed prerequisite, context.md §3/§16, ADR-046 §Consequences).
-# Until Candle/Structure/Regime Event Contracts also exist and declare their own
-# state-dependency classification, causal_closure_policy below remains correctly *pinned
-# as architecture* but not yet *fully operationally provable* across all four
-# included_streams — this candidate does not close that remaining gap, and does not claim
-# to. Context authoritative publication is NOT operationally enabled by this partial
-# resolution.
+# fresh-read this transaction (v0.3 correction, CONTEXT-IC-A-MAJ-02 — v0.2 correctly fixed
+# the stale "none authored" claim but then over-concluded artifact existence into full
+# dependency-authority resolution; corrected here to separate the two distinct
+# Chapter-8 questions, §8.2.3): upstream Event Contract authority is PARTIALLY RESOLVED,
+# and that resolution is itself two separate layers, not one.
+#
+# (A) ARTIFACT EXISTENCE / PARTIAL AUTHORITY — RESOLVED for Feature only: Published Event
+# Contracts genuinely exist for feature-computed v1.0 and feature-fact-invalidated v1.0
+# (docs/architecture/event-contracts/, both status: Published, both allowed_streams:
+# [feature-engine-feature]) and genuinely provide their own event identity/version,
+# allowed_streams, merge_constraints (prerequisite_policy: causation_must_resolve_before_
+# apply), payload/schema/invariants, and causation_refs requirements contained in those
+# artifacts (fresh-read in full this transaction).
+#
+# (B) STATE-DEPENDENCY CLASSIFICATION — NOT YET RESOLVED, including for Feature: Chapter 8
+# §8.2.3's controlling text for mode: declared-state-dependencies requires that "mỗi effect
+# event dùng chính event_contract_ref đã pin của nó để phân loại causation_refs nào là
+# state dependency" — i.e. each Event Contract must itself classify, per causation_ref,
+# STATE DEPENDENCY (in-scope, requires payload/cursor-visibility, per §8.3.4's P_run) vs
+# EXTERNAL NON-STATE CAUSE (existence/commitment proof only, never in-scope). Fresh
+# inspection of both Published Feature Event Contracts (this transaction) found no field or
+# rule performing that classification — merge_constraints.prerequisite_policy:
+# causation_must_resolve_before_apply answers only "must this prerequisite resolve before
+# effect apply", a Chapter 8 §8.3.4 ordering question; it does NOT answer "must this
+# prerequisite's payload/state be in this Input Contract's apply set", the distinct §8.2.3
+# in-scope/external question causal_closure_policy.dependency_authority:
+# per_effect_event_contract requires an answer to. No generic causation or merge rule in
+# either artifact is reinterpreted as that classification. Therefore:
+# per_effect_event_contract state-dependency classification is UNRESOLVED for the Context
+# Input Contract's own operational causal-closure proof — for feature-engine-feature's two
+# event types, NOT ONLY for Candle/Structure/Regime.
+#
+# (C) Candle/Structure/Regime Event Contract authority remains completely absent/
+# unresolved at this boundary — no Event Contract exists targeting
+# market-data-ingestion-candle, structure-engine-structure, or raw-regime-engine-regime
+# (same class of gap already flagged for context.md's own computation_cursor fail-closed
+# prerequisite, context.md §3/§16, ADR-046 §Consequences).
+#
+# (D) OVERALL RESULT — artifact existence is NOT collapsed into dependency-authority
+# resolution: Event Contract artifact inventory is PARTIALLY RESOLVED (Feature event
+# existence RESOLVED; Candle/Structure/Regime UNRESOLVED); the Chapter-8 per-effect
+# state-dependency classification causal_closure_policy.dependency_authority:
+# per_effect_event_contract requires is NOT YET FULLY RESOLVED for any of the four
+# included_streams. causal_closure_policy below remains correctly *pinned as architecture*
+# — this candidate does not change the policy choice, only accurately states its current
+# readiness. Context authoritative publication/causal-closure execution is NOT
+# operationally enabled — fail-closed.
 #
 # merge_policy — reused exactly, not invented: `deterministic-causal-topological-order` +
 # `[stream_id, sequence]` tie-break is Chapter 8's own single mandated interleave
@@ -263,12 +292,15 @@
 # remains fail-closed until at minimum: Context Input Contract v1.0 is actually Published
 # as an immutable snapshot; the referenced Stream Registry snapshot resolves; required
 # upstream Event Contract dependency authority resolves in full across all four
-# included_streams (v0.2 correction, CONTEXT-IC-A-MIN-01 — Published Feature Event
-# Contracts exist for feature-engine-feature's two event types only; Candle/Structure/
-# Regime Event Contract authority remains completely absent/unresolved at this boundary);
-# Context output Event Contracts/output stream are separately governed and authored; and
-# context-aggregator's runtime is implemented. This file does not modify
-# docs/adr/ADR-046.md, docs/architecture/stream-registry.yaml,
+# included_streams (v0.3 correction, CONTEXT-IC-A-MAJ-02 — Published Feature Event
+# Contracts exist for feature-engine-feature's two event types, but their existence alone
+# does not establish the Chapter 8 §8.2.3 per-effect state-dependency classification
+# causal_closure_policy.dependency_authority: per_effect_event_contract requires; that
+# classification is UNRESOLVED for feature-engine-feature as well as for Candle/Structure/
+# Regime, whose Event Contract artifact authority also remains completely
+# absent/unresolved at this boundary); Context output Event Contracts/output stream are
+# separately governed and authored; and context-aggregator's runtime is implemented. This
+# file does not modify docs/adr/ADR-046.md, docs/architecture/stream-registry.yaml,
 # docs/architecture/module-registry.yaml, any existing Feature Input Contract/published
 # Event Contract or Input Contract version snapshot, docs/domain/context.md's own
 # normative semantics, or python/context-aggregator/**.
@@ -330,11 +362,56 @@
 # (feature-context-architecture.md, all three Feature Input Contracts, and Feature
 # published Event Contract/Input Contract snapshots are not touched by this transaction).
 #
-# `CONTEXT-IC-A-MAJ-01`: addressed/remediated pending fresh Review A.
-# `CONTEXT-IC-A-MIN-01`: addressed/remediated pending fresh Review A.
+# `CONTEXT-IC-A-MAJ-01`: CLOSED — REVIEW A VALIDATED (fresh Review A on v0.2, reviewed
+# boundary ed88b0fabf9648617e523e74cc0d7535a31dbe1c, reviewed blob
+# 6f478dbf72c1edc705a1c80966619a83de722e9e, confirmed genuinely remediated).
+# `CONTEXT-IC-A-MIN-01`: CLOSED — REVIEW A VALIDATED (same fresh Review A, same boundary/
+# blob, confirmed genuinely remediated).
+#
+# v0.3 bounded correction (2026-09-26, ChatGPT Review A `REVISION_REQUIRED — 0 Blocker / 1
+# Major / 0 Minor`, Risk R2, ADR Scope ADR_NOT_REQUIRED, reviewed boundary
+# ed88b0fabf9648617e523e74cc0d7535a31dbe1c, reviewed blob
+# 6f478dbf72c1edc705a1c80966619a83de722e9e) — CONTEXT-INPUT-CONTRACT-001-CORR-002,
+# addressed/remediated pending fresh Review A (not self-closed by the correction executor
+# — closure is a Review A re-review determination, never asserted here):
+#
+# `CONTEXT-IC-A-MAJ-02` (Event Contract artifact existence over-concluded into
+# dependency-authority resolution) — v0.2 correctly recognized that Published Event
+# Contracts exist for feature-computed v1.0 and feature-fact-invalidated v1.0, but then
+# claimed those two artifacts "satisfy causal_closure_policy.dependency_authority:
+# per_effect_event_contract ONLY for feature-engine-feature's two event types" — a
+# conclusion not established by their actual content. Chapter 8 §8.2.3 requires that
+# mode: declared-state-dependencies's dependency_authority: per_effect_event_contract be
+# satisfied by each effect event's own pinned Event Contract performing an explicit
+# per-causation_ref classification: STATE DEPENDENCY (in-scope, cursor-visible, part of
+# P_run) vs EXTERNAL NON-STATE CAUSE (existence/commitment proof only). Fresh inspection of
+# both Published Feature Event Contracts (this transaction) found no field/rule performing
+# that classification — only causation_refs invariants (which refs must be present/resolve)
+# and merge_constraints.prerequisite_policy: causation_must_resolve_before_apply, which
+# answers a different Chapter 8 §8.3.4 question ("must this prerequisite resolve before
+# effect apply") than the §8.2.3 in-scope/external classification question
+# dependency_authority: per_effect_event_contract requires an answer to. Corrected: the
+# Event Contract eligibility paragraph above and this Scope containment paragraph now
+# distinguish (A) artifact existence — RESOLVED for feature-computed/feature-fact-
+# invalidated v1.0 — from (B) per-effect state-dependency classification — UNRESOLVED for
+# feature-engine-feature's two event types as well as for Candle/Structure/Regime, whose
+# artifact authority remains separately absent/unresolved (C). No exact existing
+# classification authority was found in either artifact that Review A missed (STOP
+# condition not triggered); no generic causation/merge rule is reinterpreted as that
+# classification. causal_closure_policy YAML (mode: declared-state-dependencies,
+# dependency_authority: per_effect_event_contract) is left completely unchanged — this
+# correction restores accurate interpretation of the already-Locked Chapter 8 requirement,
+# it does not select a new policy (changing to mode: full was explicitly considered and
+# rejected as an unrelated new architecture choice, out of this correction's scope).
+# included_streams, merge_policy, frontier_policy YAML values, contract_id,
+# contract_version, stream_registry_version, and the entire v0.2 genesis-position fix
+# (step 3a/3b/3c, T_position_events, T_lifecycle, cursor.recorded_time formula,
+# Candle-driven non-empty guarantee, warm-up example) are all unchanged.
+#
+# `CONTEXT-IC-A-MAJ-02`: addressed/remediated pending fresh Review A.
 
 schema_version: 1
-version: "0.2"
+version: "0.3"
 status: Draft
 owner: Product Owner
 generated_at: "2026-09-26"

@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.457"
+manifest_version: "10.458"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -32216,6 +32216,137 @@ file, or Approved ADR touched. No immutable `v1.0` snapshot created. `manifest_v
 
 **Next governed action:** Fresh ChatGPT Review A re-review of Context Input Contract v0.2
 corrected candidate, followed by `R2` routing if `CLEAN`.
+
+## Context Input Contract v0.3 — bounded correction of v0.2 against fresh Review A (`CONTEXT-INPUT-CONTRACT-001-CORR-002`)
+
+**Bounded correction of [`docs/architecture/input-contracts/context-market-input.yaml`](../architecture/input-contracts/context-market-input.yaml)
+remediating fresh ChatGPT Review A's one new Major on v0.2, after Review A closed both
+prior findings. Does not publish the Input Contract, does not modify any Event Contract,
+does not implement runtime.**
+
+**Fresh boundary verification:** HEAD confirmed exactly `ed88b0fabf9648617e523e74cc0d7535a31dbe1c`,
+identical to `origin/main` — no drift. Confirmed `context-market-input.yaml` matched pinned blob
+`6f478dbf72c1edc705a1c80966619a83de722e9e` exactly (`version: "0.2"`, `status: Draft`) before this
+transaction. Fresh-read Chapter 8 §8.2.3 and §8.3.4 (`docs/constitution/08-event-model.md`) and
+both Published Feature Event Contracts (`docs/architecture/event-contracts/feature-computed/
+v1.0.yaml`, `docs/architecture/event-contracts/feature-fact-invalidated/v1.0.yaml`) in full before
+mutation, to independently verify the claimed gap.
+
+**Review A verdict:** `REVISION_REQUIRED — 0 Blocker / 1 Major / 0 Minor`, Risk `R2`, ADR Scope
+`ADR_NOT_REQUIRED`. Prior findings: `CONTEXT-IC-A-MAJ-01 — CLOSED — REVIEW A VALIDATED`,
+`CONTEXT-IC-A-MIN-01 — CLOSED — REVIEW A VALIDATED`. New finding: `CONTEXT-IC-A-MAJ-02`.
+`context-market-input.yaml` `version: "0.2" -> "0.3"`; `status` stays `Draft`. Proposed
+authoritative identity unchanged: `{contract_id: context-market-input, contract_version: v1.0}` —
+the immutable `v1.0` snapshot is still NOT published/minted by this transaction.
+
+**`CONTEXT-IC-A-MAJ-02` — Event Contract artifact existence over-concluded into
+dependency-authority resolution.** v0.2 correctly recognized that Published Event Contracts exist
+for `feature-computed` v1.0 and `feature-fact-invalidated` v1.0, but then claimed those two
+artifacts "satisfy `causal_closure_policy.dependency_authority: per_effect_event_contract` ONLY
+for `feature-engine-feature`'s two event types" — a conclusion not established by their actual
+content. Chapter 8 §8.2.3's controlling text for `mode: declared-state-dependencies` requires that
+`dependency_authority: per_effect_event_contract` be satisfied by each effect event's own pinned
+Event Contract performing an explicit per-`causation_ref` classification: **STATE DEPENDENCY**
+(in-scope, must be cursor-visible, participates in `P_run`) vs **EXTERNAL NON-STATE CAUSE**
+(existence/commitment proof only, never in-scope) — this is exactly the in-scope/external
+distinction §8.2.3 and §8.3.4 both describe ("causation_ref IN-SCOPE → phải cursor-visible VÀ
+apply trước effect" / "causation_ref EXTERNAL → chỉ cần immutable committed/existence proof").
+Fresh inspection of both Published Feature Event Contracts (this transaction, full-file read)
+confirmed no field or rule anywhere in either artifact performs that classification —
+`merge_constraints.prerequisite_policy: causation_must_resolve_before_apply` answers only "must
+this prerequisite resolve before effect apply" (a Chapter 8 §8.3.4 ordering question); it does
+**not** answer "must this prerequisite's payload/state be in this Input Contract's apply set" (the
+distinct §8.2.3 in-scope/external classification question `dependency_authority:
+per_effect_event_contract` requires an answer to). No STOP condition triggered — no exact existing
+classification authority was found in either artifact that Review A missed; no generic causation
+or merge rule is reinterpreted as that classification.
+
+**Corrected:** the "Event Contract eligibility" paragraph and the "Scope containment" paragraph
+now distinguish four layers instead of collapsing them: **(A) artifact existence** —
+Published Event Contracts genuinely exist for `feature-computed`/`feature-fact-invalidated` v1.0
+and genuinely provide their own event identity/version, `allowed_streams`, `merge_constraints`,
+payload/schema/invariants, and `causation_refs` requirements — RESOLVED for Feature only; **(B)
+state-dependency classification** — NOT YET FULLY RESOLVED, including for
+`feature-engine-feature`'s two event types (not only for Candle/Structure/Regime, as v0.2
+incorrectly implied); **(C) Candle/Structure/Regime Event Contract artifact authority** — remains
+completely absent/unresolved, unchanged from v0.2; **(D) overall result** — Event Contract
+artifact inventory is PARTIALLY RESOLVED (Feature existence RESOLVED, Candle/Structure/Regime
+UNRESOLVED); Chapter-8 per-effect state-dependency classification needed by
+`causal_closure_policy` is NOT YET FULLY RESOLVED for any of the four `included_streams`; Context
+authoritative causal-closure execution remains FAIL-CLOSED / NOT OPERATIONALLY ENABLED. Artifact
+existence is never collapsed into dependency-authority resolution.
+
+**`causal_closure_policy` YAML left completely unchanged:** `mode: declared-state-dependencies`,
+`dependency_authority: per_effect_event_contract` — this correction restores accurate
+interpretation of the already-Locked Chapter 8 §8.2.3 requirement; it does not select a new
+policy. Changing to `mode: full` was explicitly considered and rejected as an unrelated new
+architecture/semantic choice, outside this correction's scope.
+
+**Genesis-position fix (`CONTEXT-IC-A-MAJ-01`) preserved unchanged in substance:** step 3a/3b/3c,
+`genesis_position` representation, no fabricated genesis timestamp, `T_position_events`,
+`T_lifecycle`, `cursor.recorded_time = max(T_position_events ∪ T_lifecycle)`, the Candle-driven
+non-empty guarantee, and the full worked warm-up example are all untouched by this transaction.
+
+**Prior Minor fix (`CONTEXT-IC-A-MIN-01`) preserved, not reverted:** the false "no Feature Event
+Contracts exist" claim is not reinstated — Feature Event Contracts DO exist; this correction adds
+the further, distinct point that their existence alone does not prove Chapter-8 state-dependency
+classification.
+
+**`docs/domain/context.md`: no change.** The one factual paragraph in §16 makes no claim about
+Event Contract state at all (only about the Input Contract candidate's own version/status/
+identity) — it is unrelated to `CONTEXT-IC-A-MAJ-02` and is left completely byte-unchanged;
+confirmed via fresh `git hash-object`, blob unchanged at `d7b2c07b82984958e52ede0d536cc443ade22577`,
+`version: "0.4"`/`status: Draft` unaffected.
+
+**Review-A history recorded:** reviewer ChatGPT, `AI Technical Architect`, reviewed boundary
+`ed88b0fabf9648617e523e74cc0d7535a31dbe1c`, reviewed blob
+`6f478dbf72c1edc705a1c80966619a83de722e9e`, verdict `REVISION_REQUIRED — 0 Blocker / 1 Major / 0
+Minor`. Prior findings `CONTEXT-IC-A-MAJ-01`/`CONTEXT-IC-A-MIN-01` recorded as `CLOSED — REVIEW A
+VALIDATED` per Review A's own determination (never self-closed by a correction executor). New
+finding `CONTEXT-IC-A-MAJ-02`: `addressed/remediated pending fresh Review A`, not self-closed.
+ADR Scope `ADR_NOT_REQUIRED`; Risk `R2` unchanged. No DTR issued.
+
+**Feature-precedent follow-up preserved:** the already-recorded note (potential inherited
+genesis-position wording gap in the reviewed Feature frontier precedent,
+`feature-context-architecture.md` §4.6) remains preserved, unmodified, unadjudicated. No Feature
+Event Contract correction is opened by this WP — if the Feature Event Contracts genuinely lack
+Chapter-8 state-dependency classification (as this transaction's fresh inspection found), that is
+a separate bounded upstream authority gap to route AFTER this candidate is accurately corrected,
+not addressed here.
+
+**No STOP condition triggered:** no exact existing Event Contract state-dependency classification
+authority was discovered (fresh inspection confirmed the gap is real); correcting the statement
+required no change to Chapter 8; `causal_closure_policy` was not changed; no Event Contract needed
+editing to make this candidate internally truthful (the candidate's own wording was the defect,
+not the Event Contracts); no new architecture choice emerged.
+
+**Confirmed unchanged by this transaction:** `docs/domain/context.md` (fresh-verified
+byte-identical), `docs/adr/ADR-046.md`, `docs/architecture/stream-registry.yaml`,
+`docs/architecture/module-registry.yaml`, both Published Feature Event Contracts
+(`feature-computed`/`feature-fact-invalidated` v1.0, read-only this transaction), all three
+existing Feature Input Contracts and their published snapshots, every Constitution chapter,
+`python/context-aggregator/**`, all production source/tests/tooling. No immutable `v1.0` snapshot
+exists at `docs/architecture/input-contract-versions/context-market-input/v1.0.yaml`.
+
+**M2 unchanged (`BLOCKED`, parallel evidence lane). M3 remains `ACTIVE`** — Context deterministic
+core remains `REVIEW A VALIDATED — CLEAN`; `ADR-046` remains `APPROVED`; `context.md` v0.4 remains
+`PO ACCEPTED`; Context Input Contract is now **`v0.3 corrected Draft candidate — NOT PUBLISHED —
+pending fresh Review A`**; Event Contract artifacts are `PARTIALLY PRESENT`; per-effect
+state-dependency authority is `UNRESOLVED`; Context runtime/publication remains
+`NOT IMPLEMENTED`. **M4 remains `QUEUED`.** Phase-3 Approval Gate `NOT REACHED`; `LIVE` remains
+`NOT_AUTHORIZED`.
+
+**Files changed:** `docs/architecture/input-contracts/context-market-input.yaml` (substantive
+correction only — `docs/domain/context.md` reviewed, confirmed byte-unchanged, not part of this
+transaction's diff), plus deterministic bookkeeping: `docs/project/milestone.md`,
+`docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`, `docs/CHANGELOG.md`. No Event
+Contract, Stream Registry, Module Registry, existing Feature Input Contract/snapshot,
+Constitution file, or Approved ADR touched. No immutable `v1.0` snapshot created.
+`manifest_version` `"10.457"` -> `"10.458"`.
+
+**Next governed action:** Fresh ChatGPT Review A re-review of Context Input Contract v0.3; if
+`CLEAN`, then route the unresolved upstream Event Contract/state-dependency-authority
+prerequisite before any `v1.0` publication decision.
 
 ## Decision Log
 
