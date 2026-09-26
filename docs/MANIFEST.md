@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.454"
+manifest_version: "10.455"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -31762,6 +31762,115 @@ Registry, Module Registry, Constitution file, or any Approved ADR touched. `mani
 
 **Next governed action:** Fresh ChatGPT Review A re-review of `context.md` v0.4 corrected
 `ADR-046` amendment candidate, followed by `R2` routing if `CLEAN`.
+
+## `context.md` v0.4 — Product Owner acceptance (`CONTEXT-DOMAIN-V04-PO-ACCEPTANCE-001`)
+
+**Governed transaction recording an already-made Product Owner decision — accepts
+[`docs/domain/context.md`](../domain/context.md) v0.4 as the governed Context Domain Contract
+basis implementing Approved [`ADR-046`](../adr/ADR-046.md). Introduces no new Context semantics;
+does not author the Context Input Contract.**
+
+**Fresh boundary verification:** HEAD confirmed exactly `0d9f9583dc1598ca0397af13d130ca3218355b99`,
+identical to `origin/main` — no drift. Confirmed `docs/domain/context.md` matched pinned blob
+`962769516872c7770d15b376f576ec0b08233be9` exactly (`version: "0.4"`, `status: Draft`) before
+this transaction. Confirmed `docs/adr/ADR-046.md` matched pinned blob
+`6d81164b6c9323e12d81238a8fcdbc7fd276c6c0` exactly (`version: "0.5"`, `status: Approved`) —
+unaffected by this transaction.
+
+**Final Review A** (ChatGPT, `AI Technical Architect`) on `context.md` v0.4, same boundary/blob:
+`CLEAN — 0 Blocker / 0 Major / 1 Minor`. `CONTEXT-DC-A-MAJ-01` and `CONTEXT-DC-A-MAJ-02`: both
+**`CLOSED — REVIEW A VALIDATED`**. **Risk Classification:** `R2` (Event Schema + replay/cursor
+semantics). **ADR Scope:** `ADR_NOT_REQUIRED` (the amendment faithfully implements already-
+Approved `ADR-046`). **Optional cross-check:** `PROCEED WITHOUT CROSS-CHECK` — no cross-check was
+executed; none fabricated.
+
+**Remaining Minor (non-blocking, does not gate Product Owner decision):** §4 contained a
+parenthetical grouping — inside the universal current-lineage invalidation coverage precondition
+invariant — that labeled compound causation branch `(c)` under the "direct correction" trigger
+class alongside branch `(a)`, even though branch `(c)` is formally a genuine compound role-state
+transition (potentially spanning both trigger classes), not a subtype of direct correction. The
+normative branch definition itself (§4's `affected_upstream_roles` invariant, corrected in the
+prior transaction) was already correct — only this one illustrative parenthetical mislabeled
+branch `(c)`'s trigger-class grouping. **Corrected in this same transaction** (byte-local,
+strictly non-semantic — no normative requirement changed; the universal precondition already
+applied "bất kể trigger class" regardless of this parenthetical's own labeling): the sentence now
+lists branch `(a)` under direct correction, branch `(b)` under temporal eligible-upstream
+supersession, and branch `(c)` under its own explicit "compound role-state transition kết hợp cả
+hai" label, rather than grouping `(c)` with `(a)`. `context.md` blob changed from
+`962769516872c7770d15b376f576ec0b08233be9` to `440bf0942abdbb23dc28b5814a49750061aa7526`;
+`version` remains `"0.4"` (not bumped for this wording-only correction, per current convention
+for byte-local non-semantic fixes).
+
+**Product Owner decision (verbatim):** "APPROVE context.md v0.4". Decision timestamp:
+`2026-09-26T09:31+07:00`.
+
+**Domain Contract lifecycle — no new lifecycle state invented.** Fresh-verified this transaction:
+no controlling Constitution authority (Chapter 4 §4.3 Domain Contract definition, Chapter 11 ADR
+process — which governs ADRs only, not Domain Contracts, Chapter 12 Approval Gates) maps "Product
+Owner acceptance of a Domain Contract amendment" to `status: Approved`/`Locked`/`Consolidated
+Stable` for the embedded document itself. Existing sibling Domain Contracts
+(`docs/domain/feature.md` v0.6, `docs/domain/regime.md` v0.2, `docs/domain/structure.md` v0.4,
+`docs/domain/candle.md` v0.4 — all fresh-verified this transaction) remain `status: Draft`,
+`approved_by: null`, `approved_at: null` despite having implemented multiple Approved ADRs and
+having passed governed Package-level acceptance in the past (e.g. `regime.md` §2's own historical
+note: "Package lifecycle state — KHÔNG phải document approval; `regime.md` `status: Draft`,
+`approved_by: null` không đổi"). This transaction follows the identical precedent: `context.md`
+frontmatter (`version: "0.4"`, `status: Draft`, `reviewers: []`, `approved_by: null`,
+`approved_at: null`) is **left entirely untouched** by this Product Owner acceptance — the
+acceptance is recorded here, in MANIFEST, and in project tracking, never inside the embedded
+document's own lifecycle metadata.
+
+**Context operational state (this transaction):**
+
+```text
+Context deterministic core:     REVIEW A VALIDATED -- CLEAN (unchanged)
+ADR-046:                        APPROVED (unchanged, immutable blob
+                                 6d81164b6c9323e12d81238a8fcdbc7fd276c6c0)
+Context Domain Contract v0.4:   PO ACCEPTED -- GOVERNED BASIS FOR NEXT
+                                 CONTEXT WORK
+Embedded document lifecycle:    Draft (unchanged -- no ADR-style
+                                 lifecycle transition invented)
+Context Input Contract:         NOT AUTHORED
+Context Event Contracts:        NOT AUTHORED
+Context output stream:          NOT AUTHORED
+Context runtime/publication:    NOT IMPLEMENTED
+```
+
+**Backward consistency confirmed:** Review A checked `context.md` v0.4 against relevant
+Approved/Locked authority (`ADR-046` Approved; Chapter 5; Chapter 6 §6.7; Chapter 7 §7.4;
+Chapter 8 §8.2.3/§8.3/§8.5; `ADR-009`) and found no blocking conflict. This transaction does NOT
+claim: the preserved legacy authority-terminology tension (`context.md` §17 vs.
+[Chapter 7 §7.4](../constitution/07-module-taxonomy.md) Type-2 Projection classification) is
+resolved; Context becomes an authoritative domain-state owner; `module_type` changes; or
+`owns_authoritative_state` changes. That preserved tension remains unchanged, exactly as
+`context.md`'s own "Authority-neutral clarification (ADR-046, v0.3)" paragraph already states.
+
+**No STOP condition triggered:** starting HEAD/blobs matched exactly; no controlling authority
+requires a different Domain Contract lifecycle transition (fresh-verified, see above); recording
+PO acceptance required no semantic modification beyond the one byte-local Minor wording
+correction identified above; no new architecture decision was discovered; no Input Contract
+semantics were chosen or required to complete this transaction.
+
+**Next primary-path work (not performed by this transaction):** Context-scoped Input Contract
+authoring, deriving from Approved `ADR-046`, this PO-accepted `context.md` v0.4, Chapter 8 Input
+Contract authority, the current Stream Registry, and upstream Event Contracts.
+
+**M2 unchanged (`BLOCKED`, parallel evidence lane). M3 remains `ACTIVE`** — Context deterministic
+core remains `REVIEW A VALIDATED — CLEAN`; `ADR-046` remains `APPROVED`; `context.md` v0.4 is now
+**`PO ACCEPTED — GOVERNED BASIS FOR NEXT CONTEXT WORK`** (embedded document lifecycle remains
+`Draft`); Context Input Contract remains `NOT AUTHORED`; Context Event Contracts remain `NOT
+AUTHORED`; Context output stream remains `NOT AUTHORED`; Context runtime/publication remains
+`NOT IMPLEMENTED`. **M4 remains `QUEUED`.** Phase-3 Approval Gate `NOT REACHED`; `LIVE` remains
+`NOT_AUTHORIZED`.
+
+**Files changed:** `docs/domain/context.md` (one byte-local, strictly non-semantic wording
+correction only — no version bump, no frontmatter change), plus deterministic bookkeeping:
+`docs/project/milestone.md`, `docs/project/milestone-dashboard.html`, `docs/MANIFEST.md`,
+`docs/CHANGELOG.md`. No Context Input Contract, Event Contract, Stream Registry, Module Registry,
+Constitution file, or any Approved ADR touched. `manifest_version` `"10.454"` -> `"10.455"`.
+
+**Next governed action:** Fresh ChatGPT verification of the `context.md` v0.4 Product Owner
+acceptance boundary, then bounded Context-scoped Input Contract derivation and authoring.
 
 ## Decision Log
 

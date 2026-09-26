@@ -2,6 +2,30 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-26 — context.md v0.4: Product Owner acceptance
+
+Starting `main == origin/main == 0d9f9583dc1598ca0397af13d130ca3218355b99`, fresh-verified, working tree clean. `context.md` fresh-verified exact (blob `962769516872c7770d15b376f576ec0b08233be9`, `version: "0.4"`, `status: Draft`); `ADR-046.md` fresh-verified exact (blob `6d81164b6c9323e12d81238a8fcdbc7fd276c6c0`, `status: Approved`, unaffected) before mutation.
+
+Governed transaction recording an already-made Product Owner decision — accepts `context.md` v0.4 as the governed Context Domain Contract basis implementing Approved ADR-046. No new Context semantics introduced; Context Input Contract not authored.
+
+Final Review A (ChatGPT, `AI Technical Architect`) on `context.md` v0.4: `CLEAN — 0 Blocker / 0 Major / 1 Minor`. `CONTEXT-DC-A-MAJ-01`/`CONTEXT-DC-A-MAJ-02`: both `CLOSED — REVIEW A VALIDATED`. Risk `R2`; ADR Scope `ADR_NOT_REQUIRED`; optional cross-check: `PROCEED WITHOUT CROSS-CHECK` (none executed, none fabricated).
+
+Remaining Minor (non-blocking): a parenthetical in §4's universal invalidation coverage precondition invariant mislabeled compound causation branch (c) as a subtype of "direct correction" trigger class alongside branch (a), though branch (c) is formally its own compound role-state transition. Corrected in this same transaction — byte-local, strictly non-semantic (no normative requirement changed): branch (c) now labeled under its own explicit "compound role-state transition" grouping. `version` stays `"0.4"` (not bumped for a wording-only fix).
+
+Product Owner decision (verbatim): "APPROVE context.md v0.4" — decision timestamp `2026-09-26T09:31+07:00`.
+
+No new Domain Contract lifecycle state invented — fresh-verified no controlling authority maps PO acceptance of a Domain Contract to `status: Approved`/`Locked`/`Consolidated Stable`; sibling Domain Contracts (feature.md, regime.md, structure.md, candle.md) remain `status: Draft` under the identical precedent. `context.md` frontmatter (`version`, `status`, `reviewers`, `approved_by`, `approved_at`) left entirely untouched.
+
+Context operational state: deterministic core `REVIEW A VALIDATED — CLEAN`; ADR-046 `APPROVED`; context.md v0.4 `PO ACCEPTED — GOVERNED BASIS FOR NEXT CONTEXT WORK`; embedded document lifecycle remains `Draft`; Context Input Contract/Event Contracts/output stream `NOT AUTHORED`; runtime/publication `NOT IMPLEMENTED`.
+
+No STOP condition triggered. `docs/adr/ADR-046.md` fresh-verified byte-identical throughout.
+
+**M2 unchanged (`BLOCKED`). M3 remains `ACTIVE`** (deterministic core CLEAN; ADR-046 APPROVED; context.md v0.4 PO ACCEPTED as governed basis; Context Input Contract next). **M4 remains `QUEUED`.** Phase-3 Approval Gate NOT REACHED; LIVE remains `NOT_AUTHORIZED`.
+
+Next governed action: fresh ChatGPT verification of the context.md v0.4 Product Owner acceptance boundary, then bounded Context-scoped Input Contract derivation and authoring.
+
+---
+
 ## [Unreleased] — 2026-09-25 — context.md v0.4: bounded correction of v0.3 ADR-046 amendment
 
 Starting `main == origin/main == 3d52c286b35c05ed1cf7cdc8055cfb3e2d96128b`, fresh-verified, working tree clean. `context.md` fresh-verified exact (blob `c2ba2360f09c5b9a6cbec1a582a26ee1d1e40de1`, `version: "0.3"`, `status: Draft`); `ADR-046.md` fresh-verified exact (blob `6d81164b6c9323e12d81238a8fcdbc7fd276c6c0`, `status: Approved`, unaffected) before mutation.
