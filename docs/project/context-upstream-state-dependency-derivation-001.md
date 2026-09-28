@@ -2,13 +2,13 @@
 id: context-upstream-state-dependency-derivation-001
 title: "Context Upstream Event-Contract State-Dependency Authority — Derivation"
 kind: analysis
-version: "0.2"
+version: "0.3"
 status: Draft
 owner: Product Owner
 generated_at: "2026-09-28"
 ---
 
-# CONTEXT-UPSTREAM-STATE-DEPENDENCY-DERIVATION-001 (v0.2 — corrected)
+# CONTEXT-UPSTREAM-STATE-DEPENDENCY-DERIVATION-001 (v0.3 — corrected)
 
 **Analysis / derivation artifact only.** Does not modify or version any Event Contract; does not
 publish any Event Contract; does not publish `context-market-input / v1.0`; does not modify any
@@ -16,18 +16,30 @@ Domain Contract, Constitution chapter, or ADR; does not implement runtime.
 
 ## 0. Boundary and fresh-verification record
 
-Starting HEAD `0b5f2181216d0d2d46d96b63e9c8f2dbf7c71769` — confirmed exact, `main == origin/main`,
-working tree clean before this transaction. Reviewed candidate blob (v0.1 of this artifact)
-`2c7fa6d62db0b30aecae0e5b4d77cb42ca22378e` — confirmed exact before mutation.
+Starting HEAD `69f8731e006e126cd06e81eaa73ee8e52b8ac9ed` — confirmed exact, `main == origin/main`,
+working tree clean before this transaction. Reviewed candidate blob (v0.2 of this artifact)
+`44fe265e0a6f6ad064c7e25066a7eb18778f0916` — confirmed exact before mutation.
 
 `docs/architecture/input-contracts/context-market-input.yaml` confirmed unchanged: `version:
 "0.3"`, `status: Draft`, blob `ce74ddf6291abb2b1ed21938ca88050550fb2a0b`, Review A `CLEAN — 0/0/0`,
 Risk `R2`, `PROCEED WITHOUT CROSS-CHECK`, `NOT PUBLISHED` — this transaction does not touch it.
 
-**Fresh Review A of v0.1:** `REVISION_REQUIRED — 0 Blocker / 2 Major / 0 Minor`, analysis-artifact
-Risk `R1`, ADR Scope `ADR_NOT_REQUIRED`. Findings `CONTEXT-SD-DERIV-A-MAJ-01`,
-`CONTEXT-SD-DERIV-A-MAJ-02` — both addressed/remediated in this v0.2, **not self-closed** (closure
-is a fresh Review A re-review determination).
+**Fresh-read this transaction (not previously pinned for this artifact):** `docs/adr/ADR-038.md`
+(Approved, `status: Approved`) in full, and Chapter 0 §4b (`docs/constitution/00-governance.md`)
+for the exact ADR Scope Rule table wording — both used to ground the `CONTEXT-SD-DERIV-A-MAJ-03`
+correction below.
+
+**Fresh Review A of v0.1 (prior correction round):** `REVISION_REQUIRED — 0 Blocker / 2 Major / 0
+Minor`. `CONTEXT-SD-DERIV-A-MAJ-01`, `CONTEXT-SD-DERIV-A-MAJ-02` — remediated by
+`CONTEXT-UPSTREAM-STATE-DEPENDENCY-DERIVATION-001-CORR-001` (v0.2).
+
+**Fresh Review A of v0.2 (this correction round):** `REVISION_REQUIRED — 0 Blocker / 1 Major / 2
+Minor`, analysis-artifact Risk `R1`, ADR Scope `ADR_NOT_REQUIRED` (for this correction transaction
+itself). Prior findings `CONTEXT-SD-DERIV-A-MAJ-01 — CLOSED — REVIEW A VALIDATED`,
+`CONTEXT-SD-DERIV-A-MAJ-02 — CLOSED — REVIEW A VALIDATED`, both confirmed genuinely remediated by
+Review A's own determination, neither reopened. New findings `CONTEXT-SD-DERIV-A-MAJ-03`,
+`CONTEXT-SD-DERIV-A-MIN-01`, `CONTEXT-SD-DERIV-A-MIN-02` — addressed/remediated in this v0.3,
+**not self-closed** (closure is a fresh Review A re-review determination).
 
 ## 1. What was wrong in v0.1, and the corrected test
 
@@ -56,18 +68,22 @@ needed to read from a cause to decide whether/how to emit the effect, before pub
 **separate, distinct question** — labeled `PRODUCER COMPUTATION DEPENDENCY` in the matrix below,
 never conflated with the classification column, `PROCESSOR APPLY-TIME STATE DEPENDENCY`.
 
-**The central finding this correction exposes, once the test is applied uniformly:** every one of
-the 10 Context-authorized upstream event types is `event_class: derived_fact` (confirmed for
-Feature's two Published Event Contracts; implied for Candle/Structure/Regime by the total absence
-of `decision_time`/`decision_context_cursor` anywhere in their own envelopes, per Chapter 8
-§8.2.1/§8.4's decision/non-decision split). A `derived_fact`'s own payload is asserted by its owning
-Domain Contract as the **complete, materialized, trusted result** of its producer's computation —
-`class`/`computed_metric` (Regime), `new_orientation`/`resulting_orientation` (Structure), `value`
-(Feature). No Domain Contract anywhere in this WP's boundary states that a downstream consumer must
-**re-read** a causal predecessor's own payload to correctly use an already-emitted derived fact —
-consumers use the fact's own materialized fields. Every causation_ref in this event set therefore
-exists for **lineage, precedence, and explainability (I-1)** — not for supplying apply-time state a
-consumer would otherwise lack.
+**The central finding this correction exposes, once the test is applied uniformly (corrected under
+`CONTEXT-SD-DERIV-A-MIN-01` — see §1.4):** what is actually authoritative, per event type, is not a
+platform-wide `event_class: derived_fact` generalization but the reviewed per-category Domain
+Contract semantics themselves. For `FEATURE_COMPUTED`/`FEATURE_FACT_INVALIDATED`, the Published
+Event Contracts explicitly declare `event_class: derived_fact`, confirmed by direct read. For the
+other 8 event types (Candle/Structure/Regime), no Event Contract yet exists, so no `event_class` has
+been authored for them — this is not decided, inferred, or needed by this analysis. **Regardless of
+whatever `event_class` those 8 event types are eventually assigned**, the per-category Domain
+Contract text reviewed in §2 already shows, event by event, that each effect's own payload is a
+complete result materialization — `class`/`computed_metric` (Regime), `new_orientation`/
+`resulting_orientation` (Structure), `value` (Feature) — and that no Domain Contract anywhere in
+this WP's boundary states a downstream consumer must **re-read** a causal predecessor's own payload
+to correctly use an already-emitted fact of any of these 10 types. Every causation_ref in this event
+set therefore exists for **lineage, precedence, and explainability (I-1)** — not for supplying
+apply-time state a consumer would otherwise lack. This is a per-category finding derived from each
+event's own reviewed semantics (§2), not a deduction from an unverified global `event_class` label.
 
 ### 1.2 `CONTEXT-SD-DERIV-A-MAJ-02` — false third shape / ADR escalation, corrected
 
@@ -95,6 +111,70 @@ of `swing.md`):
 
 These placements are used below wherever a Swing-sourced causation category is evaluated — no
 inference from the prior summary, direct citation of `swing.md`'s own text.
+
+### 1.4 `CONTEXT-SD-DERIV-A-MAJ-03` — compatibility-commitment governance routing, corrected
+
+v0.2 stated, in substance, that Candle/Structure/Regime `compatibility_commitment` values are
+ordinary bounded Product Owner decisions that do not require an ADR, because `ADR-038` already
+established the mechanism. **This was incorrect.** Fresh-read `ADR-038.md` (Approved) in full: its
+own exact scope classification is *"Scope classification — `ADR Required`."* Its own stated
+rationale: Chapter 10 §10.3.1 *"defines the valid choice space for a compatibility commitment
+(backward-only / forward-only / bidirectional / explicit no-commitment) and mandates that every
+published contract declare one, but does not itself select a value for any specific contract — that
+selection is a genuine semantic decision."* `ADR-038` further found Chapter 0 §4b's `>1`-module
+trigger *independently sufficient*, confirmed disjunctive, because a real, already-registered
+producer/consumer edge existed (`feature-engine` → `context-aggregator`, per `module-registry.yaml`
+and `context.md` §7.3/§8). Chapter 0 §4b itself lists *"thay đổi Event Schema"* and *"quyết định ảnh
+hưởng >1 module"* as independently `ADR Required` triggers.
+
+**`ADR-038`'s Decision text applies specifically, and only, to `feature-computed`/
+`feature-fact-invalidated`.** It does not pre-authorize a compatibility-commitment value, or a
+no-ADR-needed path, for Candle, Structure, or Regime Event Contracts — those are different
+`contract_id`s, with their own producer/consumer topology not evaluated by `ADR-038`.
+
+**Corrected governance state, for each of the 8 missing Context-required `contract_id`s:**
+
+```text
+compatibility_commitment value:     UNRESOLVED
+existing authority supplies choice space:  YES (Chapter 10 §10.3.1)
+existing authority selects value:          NO
+```
+
+Selecting a `compatibility_commitment` for any of these `contract_id`s is therefore an **`ADR
+Required` candidate**, on `ADR-038`'s own exact precedent, subject to actual downstream-impact
+verification for the `contract_id`(s) any proposed ADR's scope would include — not decided by this
+analysis WP.
+
+**Packaging is not predetermined.** `ADR-038` itself bundled two `contract_id`s
+(`feature-computed`/`feature-fact-invalidated`) into one governed ADR, because both shared the same
+producer/consumer relationship and the same reasoning applied coherently to both. This does **not**
+establish that one ADR must, or must not, cover all 8 missing `contract_id`s, one per family, or
+some other grouping. The correct governing principle: *compatibility declaration is per
+`contract_id`, but one bounded ADR **may** govern multiple `contract_id`s if its scope is explicit,
+every included `contract_id` is enumerated, the decision is semantically coherent across them, and
+downstream impact is assessed for every included `contract_id`.* Determining the smallest coherent
+ADR scope requires inspecting the actual producer/consumer topology for these 8 `contract_id`s
+against `module-registry.yaml`/`context.md`/the relevant Domain Contracts — an analysis this
+correction WP does **not** perform (see STOP conditions, §7). A dedicated, narrowly-scoped follow-on
+WP is recommended instead (§8). **No Product Owner compatibility-commitment decision should be
+requested before that candidate ADR has been authored and is Review-A-clean.**
+
+### 1.5 `CONTEXT-SD-DERIV-A-MIN-01` and `CONTEXT-SD-DERIV-A-MIN-02` — corrected
+
+**`CONTEXT-SD-DERIV-A-MIN-01`:** v0.2's unsupported claim that all 10 event types share
+`event_class: derived_fact` is removed (§1.1 above) and replaced by the narrower, actually-reviewed
+conclusion: regardless of the eventual `event_class` Candle/Structure/Regime Event Contracts are
+assigned when first authored, the per-category Domain Contract semantics reviewed in §2 already
+establish, event by event, that authoritative application of the already-emitted effect does not
+require re-reading the causal predecessor's domain payload — for all 20 non-vacuous categories.
+
+**`CONTEXT-SD-DERIV-A-MIN-02`:** v0.2's proposed follow-on sequence (§8) numbered compatibility
+decisions/Event Contract authoring ahead of "fresh ChatGPT Review A," while separately stating Review
+A must occur first — an internally inconsistent ordering. Corrected: this transaction's own fresh
+Review A of v0.2 is recorded as already performed at this boundary (§0); the sequence in §8 below is
+renumbered so a **fresh Review A of this v0.3** is explicitly step 1, and every other step is
+ordered strictly after it, including the newly-identified compatibility-ADR-scope-derivation step
+`CONTEXT-SD-DERIV-A-MAJ-03` requires.
 
 ## 2. Corrected derivation matrix
 
@@ -239,6 +319,13 @@ no cursor-visibility/apply-scope requirement).
 This total invalidates and replaces v0.1's `17 mechanically derivable / 4 UNRESOLVED` count, per
 the task's own instruction that it "must be recomputed," not patched.
 
+**Fresh Review A of v0.2 independently rechecked this corrected apply-time reasoning and found no
+causation category in the 10-event set requiring re-reading the predecessor's domain payload at
+authoritative apply time — the matrix and totals above are preserved unchanged by this v0.3
+correction.** Only §1.1's unsupported rationale (`CONTEXT-SD-DERIV-A-MIN-01`) and the compatibility-
+governance conclusion in §5/§6/§8 (`CONTEXT-SD-DERIV-A-MAJ-03`) are corrected in this round —
+producer-computation provenance is not reintroduced as the classification test anywhere below.
+
 ## 4. Event Contract artifact inventory — unaffected by the classification correction
 
 Classification (§2/§3) is now fully resolved for all 21 categories — this is a separate fact from
@@ -273,20 +360,30 @@ anywhere in this repository today; `ADR-038` itself declines to assume any unkno
 behavior. **Actual compatibility cannot be established without that concrete evidence — this fact
 is recorded, not a Compatibility Result, and none is fabricated.**
 
-**Candle/Structure/Regime compatibility-declaration state and granularity:** none of the three has
-ever declared a `compatibility_commitment` — no Event Contract of any kind exists for any of them.
-Chapter 10 §10.3.1's declaration requirement is framed per **published contract** — confirmed by
-direct inspection that each of Feature's two Published artifacts carries its **own**
-`compatibility_commitment` line (`feature-computed/v1.0.yaml` and `feature-fact-invalidated/v1.0.yaml`
-each declare it independently, even though `ADR-038`'s own Decision text bundled the rationale for
-both into one governed transaction). **The authority-supported granularity is per `contract_id`
-(per Event Contract artifact), not per family.** A single governed Product Owner decision *may*
-choose to declare the same value for multiple `contract_id`s in one transaction — exactly as
-`ADR-038` did for Feature's two — but that is a matter of how many artifacts one transaction bundles,
-never evidence that declaring one `contract_id`'s commitment automatically governs another,
-un-declared `contract_id` in the same family. Each of Candle's 2, Structure's 4, and Regime's 2
-relevant `contract_id`s requires its **own** stated `compatibility_commitment` before that artifact
-can be evaluated compatible. **This WP does not choose any of these values.**
+**Candle/Structure/Regime compatibility-declaration state, granularity, and governance route
+(corrected under `CONTEXT-SD-DERIV-A-MAJ-03` — see §1.4 for the full correction):** none of the
+three has ever declared a `compatibility_commitment` — no Event Contract of any kind exists for any
+of them. Chapter 10 §10.3.1's declaration requirement is framed per **published contract** —
+confirmed by direct inspection that each of Feature's two Published artifacts carries its **own**
+`compatibility_commitment` line. **The authority-supported granularity is per `contract_id` (per
+Event Contract artifact), not per family** — each of Candle's 2, Structure's 4, and Regime's 2
+relevant `contract_id`s requires its own stated value before that artifact can be evaluated
+compatible.
+
+**This is not an ordinary, un-escalated Product Owner decision.** `ADR-038` (Approved), fresh-read
+this transaction, is the exact controlling precedent for exactly this class of decision — and
+`ADR-038` itself classified selecting Feature's own compatibility commitment as `ADR Required`,
+precisely because Chapter 10 §10.3.1 supplies the choice space (backward-only / forward-only /
+bidirectional / explicit no-commitment) but never the value, and because a real producer/consumer
+relationship made Chapter 0 §4b's `>1`-module trigger independently sufficient. `ADR-038`'s Decision
+applies only to `feature-computed`/`feature-fact-invalidated` — it does not pre-authorize a value,
+or a no-ADR path, for any Candle/Structure/Regime `contract_id`. **Corrected state, for each of the
+8 missing `contract_id`s:** `compatibility_commitment` value `UNRESOLVED`; existing authority
+supplies the choice space (`YES`, Chapter 10 §10.3.1); existing authority selects the value (`NO`).
+Selecting any of these values is an **`ADR Required` candidate**, subject to actual downstream-impact
+verification, not an ordinary bounded governance decision. **This WP does not choose any of these
+values, and does not itself determine how many ADRs should package the 8 `contract_id`s** — see §1.4
+and §8 for the recommended, narrowly-scoped follow-on to determine that.
 
 ## 6. ADR classification — re-assessed after the corrected matrix
 
@@ -306,10 +403,20 @@ Same-stream sequence precedence and lineage/supersession meaning remain, respect
 Chapter 8 ordering invariant and ordinary Domain/Event Contract content — neither requires, nor
 motivates, a third classification value.
 
-**No ADR is required by this corrected derivation.** The per-`contract_id` `compatibility_commitment`
-declarations (§5) and Feature's own future versioning Compatibility Result remain ordinary, bounded
-Product Owner/governance decisions under already-Approved `ADR-038`/`ADR-039` — ordinary Event
-Contract governance, not a new architecture choice.
+**No ADR is required to resolve the classification matrix itself (§2/§3).** The classification
+question this WP was chartered to answer — `STATE_DEPENDENCY` vs `EXTERNAL_NON_STATE_CAUSE` per
+causation-ref category — is fully resolved by existing Domain Contract authority with no competing
+interpretation, for all 21 categories.
+
+**This is distinct from, and must not be conflated with, the compatibility-commitment governance
+question (`CONTEXT-SD-DERIV-A-MAJ-03`, §1.4/§5).** Selecting a `compatibility_commitment` for any of
+the 8 missing `contract_id`s **is** an `ADR Required` candidate, on `ADR-038`'s own exact precedent
+— Chapter 10 §10.3.1 supplies only the choice space, not the value, and `ADR-038`'s Decision does not
+extend to Candle/Structure/Regime. This is not this WP inventing an ADR requirement out of
+difficulty (the STOP condition against doing so, §7, is not violated) — it is this WP correcting a
+prior round's mistaken application of an existing, Approved, on-point precedent. Feature's own
+future versioning Compatibility Result remains separately gated on concrete reader/format/consumer
+evidence that does not yet exist (§5), not itself requiring a new ADR by this analysis.
 
 ## 7. STOP conditions — explicit disposition
 
@@ -319,34 +426,53 @@ Contract governance, not a new architecture choice.
 - **"Invent a third causal-closure class"** — not done; `CANDLE_CORRECTED`'s reference resolves
   within the existing two-category model (§2.2, §6).
 - **"Invent an ADR requirement merely because a classification is difficult"** — not done; no
-  category required a Product-Owner-level architectural choice once producer-computation
-  dependency was correctly separated from apply-time need.
+  classification category required a Product-Owner-level architectural choice once producer-
+  computation dependency was correctly separated from apply-time need. The `ADR Required`
+  conclusion for compatibility-commitment selection (§1.4/§5/§6, `CONTEXT-SD-DERIV-A-MAJ-03`) is a
+  different question from the classification matrix, and is not invented — it applies `ADR-038`'s
+  own already-Approved, exactly-on-point precedent, not a new architectural theory.
+- **"An existing Approved ADR already governs compatibility commitments for any of the eight missing
+  `contract_id`s"** — checked this transaction (fresh-read `ADR-038.md` in full): not triggered.
+  `ADR-038`'s Decision text is scoped explicitly to `feature-computed`/`feature-fact-invalidated`
+  only; no other Approved ADR addresses Candle/Structure/Regime Event Contract compatibility.
+- **"Actual producer/consumer topology is required to classify ADR scope"** — triggered; this
+  correction WP does **not** perform that topology analysis (§1.4/§8) — it is deferred to a
+  dedicated follow-on WP, per the task's own explicit instruction.
 
 No classification was left `UNRESOLVED` by omission; none was silently guessed.
 
 ## 8. Corrected smallest ordered follow-on WP sequence (not executed here)
 
-Recomputed from scratch, not carried over from v0.1:
+Recomputed to fix `CONTEXT-SD-DERIV-A-MIN-02`'s internally-inconsistent ordering: this v0.3's own
+fresh Review A is explicitly step 1, and every other step is strictly ordered after it (v0.2 had
+numbered compatibility decisions/Event Contract mutations ahead of "fresh ChatGPT Review A" while
+separately stating Review A must occur first).
 
-1. **Per-`contract_id` `compatibility_commitment` decisions** (Product Owner, one per artifact, not
-   one per family — §5): Candle's 2 relevant `contract_id`s, Structure's 4, Regime's 2. (The
-   previously-proposed cross-cutting architecture ADR is **removed** — `CONTEXT-SD-DERIV-A-MAJ-02`'s
-   correction eliminates the supposed framework gap it was meant to address.)
-2. **First Event Contract authoring, per `contract_id`** (governed authoring, Draft → Review A/
-   Independent Review B → Product Owner decision, per `ADR-039`): Candle (`candle-closed`,
-   `candle-corrected`), Structure (`break-of-structure-detected`, `change-of-character-detected`,
-   `structure-fact-invalidated`, `structure-recomputed`), Regime (`regime-classified`,
-   `regime-fact-invalidated`) — each declaring `causal_closure_policy`-relevant classification as
+1. **Fresh ChatGPT Review A re-review of this derivation (v0.3).** Required before any step below.
+2. **If CLEAN: bounded compatibility-ADR scope derivation** — a dedicated, narrowly-scoped follow-on
+   WP that inspects the actual producer/consumer topology for the 8 missing Event Contract
+   `contract_id`s (Candle ×2, Structure ×4, Regime ×2) against `module-registry.yaml`/`context.md`/
+   the relevant Domain Contracts, and determines the smallest coherent ADR candidate scope
+   (`CONTEXT-SD-DERIV-A-MAJ-03`, §1.4) — one ADR per `contract_id`, one per family, one for all 8, or
+   another grouping, decided by that dedicated analysis, not by this WP.
+3. **Author the required compatibility-commitment ADR candidate(s)** identified by step 2's scope.
+4. **Review A / Risk / governed ADR routing** for the authored candidate(s).
+5. **Only after applicable ADR approval: author the first Candle/Structure/Regime Event Contracts**
+   per `contract_id` (governed authoring, Draft → Review A/Independent Review B → Product Owner
+   decision, per `ADR-039`) — Candle (`candle-closed`, `candle-corrected`), Structure
+   (`break-of-structure-detected`, `change-of-character-detected`, `structure-fact-invalidated`,
+   `structure-recomputed`), Regime (`regime-classified`, `regime-fact-invalidated`) — each declaring
    `EXTERNAL_NON_STATE_CAUSE` for every one of its own causation-ref categories, per §2 above.
-3. **Feature Event Contract versioning** (`feature-computed`/`feature-fact-invalidated` `v1.0 →`
-   a new version, not decided here): adds the now-fully-resolved classification without editing the
-   immutable `v1.0` artifacts; a genuine Compatibility Result requires concrete reader/format
-   evidence this repository does not yet have.
-4. **Fresh ChatGPT Review A of this corrected derivation** — required **before** any of steps 1–3
-   are executed.
+6. **Separately resolve Feature's own future Event Contract versioning + Compatibility Result
+   prerequisites** (`feature-computed`/`feature-fact-invalidated` `v1.0 →` a new version, not
+   decided here; immutable `v1.0` artifacts never edited; genuine Compatibility Result requires
+   concrete reader/format evidence this repository does not yet have) — independent of steps 2–5.
+7. **After all required per-effect classification authority exists: update/re-review Context Input
+   Contract readiness**, and only then consider publication of `context-market-input / v1.0`.
 
-(The previously-proposed separate Swing-inclusive re-derivation WP is **removed** — `swing.md` is
-now fully incorporated in this same WP, and every category it was blocking is resolved in §2 above.)
+Steps 2–7 are **not** performed by this correction WP. (The previously-proposed separate
+Swing-inclusive re-derivation WP remains removed — `swing.md` is fully incorporated in the prior
+correction round, and every category it was blocking is resolved in §2 above.)
 
 ## 9. Context Input Contract state — unchanged
 
@@ -362,8 +488,12 @@ residual-risk acceptance is recorded by this transaction.
 
 M2: `BLOCKED` — parallel evidence lane. M3: `ACTIVE` — Context deterministic core `REVIEW A
 VALIDATED — CLEAN`; `ADR-046` `APPROVED`; `context.md` v0.4 `PO ACCEPTED`; Context Input Contract
-v0.3 `REVIEW A CLEAN — R2 — PROCEED WITHOUT CROSS-CHECK — NOT PUBLISHED`, unmutated; current
-blocker: correct upstream per-effect state-dependency derivation before Event Contract authority
-mutation — now **corrected and fully resolved** (0 `UNRESOLVED`, 0 `ADR_REQUIRED`), pending fresh
-Review A re-review of this v0.2. M4: `QUEUED`. Phase-3 Approval Gate: `NOT REACHED`. LIVE:
-`NOT_AUTHORIZED`.
+v0.3 `REVIEW A CLEAN — R2 — PROCEED WITHOUT CROSS-CHECK — NOT PUBLISHED`, unmutated; state-
+dependency derivation is now `v0.3 corrected candidate` — classification matrix `20
+EXTERNAL_NON_STATE_CAUSE / 1 VACUOUS / 0 STATE_DEPENDENCY / 0 UNRESOLVED`, independently re-verified
+by fresh Review A of v0.2 and preserved unchanged by this correction — pending fresh Review A
+re-review of this v0.3. Current blocker: compatibility-commitment ADR prerequisite (§1.4/§5/§6 —
+selecting `compatibility_commitment` for any of the 8 missing `contract_id`s is an `ADR Required`
+candidate on `ADR-038`'s own exact precedent, not yet authored) plus missing Event Contract
+authority (8 of 10 event types have zero Published artifact). M4: `QUEUED`. Phase-3 Approval Gate:
+`NOT REACHED`. LIVE: `NOT_AUTHORIZED`.

@@ -2,6 +2,24 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-28 — Upstream state-dependency derivation v0.3: bounded correction (compatibility-commitment governance routing)
+
+Starting `main == origin/main == 69f8731e006e126cd06e81eaa73ee8e52b8ac9ed`, fresh-verified, working tree clean. Derivation artifact (v0.2) fresh-verified exact (blob `44fe265e0a6f6ad064c7e25066a7eb18778f0916`) before this correction; `context-market-input.yaml` fresh-verified exact (blob `ce74ddf6291abb2b1ed21938ca88050550fb2a0b`, `version: "0.3"`, `status: Draft`) — unchanged after. Fresh-read `docs/adr/ADR-038.md` (Approved) in full and Chapter 0 §4b this transaction.
+
+Bounded correction of `docs/project/context-upstream-state-dependency-derivation-001.md` against fresh ChatGPT Review A: `REVISION_REQUIRED — 0 Blocker / 1 Major / 2 Minor`, analysis-artifact Risk `R1`, ADR Scope `ADR_NOT_REQUIRED`. Prior findings `CONTEXT-SD-DERIV-A-MAJ-01`/`CONTEXT-SD-DERIV-A-MAJ-02`: both `CLOSED — REVIEW A VALIDATED`. New findings `CONTEXT-SD-DERIV-A-MAJ-03`, `CONTEXT-SD-DERIV-A-MIN-01`, `CONTEXT-SD-DERIV-A-MIN-02`. Preserves the corrected apply-time classification matrix unchanged (`20 EXTERNAL_NON_STATE_CAUSE / 1 VACUOUS / 0 STATE_DEPENDENCY / 0 UNRESOLVED`) — fresh Review A independently rechecked the reasoning and found no category requiring re-reading a predecessor's domain payload at authoritative apply time.
+
+`CONTEXT-SD-DERIV-A-MAJ-03` (compatibility-commitment governance routing): v0.2 incorrectly concluded Candle/Structure/Regime `compatibility_commitment` values are ordinary bounded Product Owner decisions not requiring an ADR. `ADR-038`'s own exact scope classification is "Scope classification — ADR Required" — Chapter 10 §10.3.1 supplies the choice space but never selects a value for any specific contract, and `ADR-038`'s Decision applies only to `feature-computed`/`feature-fact-invalidated`, never pre-authorizing Candle/Structure/Regime. Corrected: for each of the 8 missing `contract_id`s, `compatibility_commitment` selection is now recorded `UNRESOLVED` and an `ADR Required` candidate, on `ADR-038`'s own precedent — not chosen here, and packaging (one ADR per `contract_id`, per family, or for all 8) is explicitly left to a dedicated, narrowly-scoped follow-on WP that inspects actual producer/consumer topology, which this correction WP does not perform.
+
+`CONTEXT-SD-DERIV-A-MIN-01` (unsupported `event_class` claim): v0.2's claim that all 10 event types share `event_class: derived_fact` — inferred for Candle/Structure/Regime merely from absent decision fields — is removed; only Feature's two Published Event Contracts actually declare it, Candle/Structure/Regime's is simply not yet authored. Classification totals unaffected — replaced by the narrower, actually-reviewed conclusion resting on each event's own per-category Domain Contract semantics, not a global label.
+
+`CONTEXT-SD-DERIV-A-MIN-02` (follow-on sequence ordering): v0.2's sequence numbered compatibility/Event Contract steps ahead of "fresh ChatGPT Review A" while stating Review A must occur first. Corrected: this v0.3's own fresh Review A is recorded as already performed; the follow-on sequence is renumbered with a fresh Review A of v0.3 as step 1, everything else (compatibility-ADR scope derivation, ADR authoring, ADR routing, first Event Contract authoring only after approval, Feature versioning, Context Input Contract readiness re-review) strictly ordered after it.
+
+**M2 unchanged (`BLOCKED`). M3 remains `ACTIVE`** (deterministic core CLEAN; ADR-046 APPROVED; context.md v0.4 PO ACCEPTED; Context Input Contract v0.3 unchanged — `REVIEW A CLEAN — R2 — PROCEED WITHOUT CROSS-CHECK — NOT PUBLISHED`; state-dependency derivation now v0.3 corrected candidate, matrix preserved, pending fresh Review A re-review; current blocker: compatibility-commitment ADR prerequisite plus missing Event Contract authority). **M4 remains `QUEUED`.** Phase-3 Approval Gate NOT REACHED; LIVE remains `NOT_AUTHORIZED`.
+
+Next governed action: fresh ChatGPT Review A re-review of state-dependency derivation v0.3; if CLEAN, derive the smallest coherent ADR scope for Candle/Structure/Regime Event Contract compatibility commitments before any Event Contract authoring.
+
+---
+
 ## [Unreleased] — 2026-09-28 — Upstream state-dependency derivation v0.2: bounded correction (apply-time classification test)
 
 Starting `main == origin/main == 0b5f2181216d0d2d46d96b63e9c8f2dbf7c71769`, fresh-verified, working tree clean. Derivation artifact (v0.1) fresh-verified exact (blob `2c7fa6d62db0b30aecae0e5b4d77cb42ca22378e`) before this correction; `context-market-input.yaml` fresh-verified exact (blob `ce74ddf6291abb2b1ed21938ca88050550fb2a0b`, `version: "0.3"`, `status: Draft`) — unchanged after.
