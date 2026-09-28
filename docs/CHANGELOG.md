@@ -2,6 +2,22 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-28 — Candle Event Contract v1.0 pair authored: candle-closed / candle-corrected (Draft candidates only)
+
+Starting `main == origin/main == fa248c85c0dc2b1a225084c6b5d534133776afb2`, fresh-verified, working tree clean. `docs/adr/ADR-047.md` matched pinned blob `c2289d8d9727c9e4a51198eb5756aee4122f1bc2` exactly (`v0.1`, `Approved`, immutable, `candle-closed`/`candle-corrected` → `backward_only`). State-dependency derivation and Context Input Contract both fresh-verified byte-identical — neither touched. Confirmed neither target contract existed at HEAD; `market-data-ingestion-candle` confirmed present in the Genesis Stream Registry (`status: Approved`, `registry_version: v1.0`).
+
+New files `docs/architecture/event-contracts/candle-closed/v1.0.yaml` and `docs/architecture/event-contracts/candle-corrected/v1.0.yaml` — Draft candidates only, `status: Draft`, `reviewers: []`, `approved_by: null`, `approved_at: null`, not published. `event_type`: `CANDLE_CLOSED`/`CANDLE_CORRECTED`. `event_class: observation` for both (governed-authored — authoritative market-data observation, not a derived fact, not a Decision; identical vocabulary shared with the Feature precedent's `derived_fact` distinction, no new term invented). `allowed_streams: [{stream_id: market-data-ingestion-candle}]` for both. `candle-closed` `merge_constraints: {}` (root event, `causation_refs: []` canonical, empty mapping is the truthful representation). `candle-corrected` `merge_constraints: {prerequisite_policy: causation_must_resolve_before_apply}` (Chapter 8 §8.3.4 precedent).
+
+Both `payload_shape`/`payload_semantics_and_invariants` fully self-contain candle.md §4/§5/§11/§12's relevant semantics — including the precedence-and-uniqueness rule guaranteeing a second non-identical authoritative close is never appended as a second `CandleClosed`, and the five-condition `complete_zero_volume` provenance test — without requiring a reader to consult `candle.md`. The Chapter 8 §8.2.3 causal-closure state-dependency classification (state-dependency derivation v0.4 §2.1/§2.2, already Review-A-validated, not re-derived) is encoded as a nested `causation_ref_state_dependency_classification` block inside `payload_semantics_and_invariants` — no new top-level Event Contract schema field invented. `candle-closed` → `VACUOUS`; `candle-corrected`'s corrected-fact reference → `EXTERNAL_NON_STATE_CAUSE`. `compatibility_commitment: backward_only` for both (Approved `ADR-047`, not re-decided). Format/reader-policy gap and the ADR-040 retention/runtime-usability gap both preserved honestly in each artifact's header comments — no runtime-readiness claimed.
+
+No STOP condition triggered. Candle Domain Contract, Context Input Contract, state-dependency derivation, compatibility scope derivation, Stream Registry, Module Registry, ADR-047, and every other existing ADR all confirmed byte-unchanged.
+
+**M2 unchanged (`BLOCKED`). M3 remains `ACTIVE`** — current authoring lane: Candle Event Contract v1.0 pair, both `DRAFT — NOT REVIEWED — NOT PUBLISHED — NOT RUNTIME-USABLE`; remaining: Structure 4, Regime 2, Feature 2 state-dependency/version evolution, Context Input publication readiness; runtime-wide blocker: retention/archive policy absent (ADR-040). **M4 remains `QUEUED`.** Phase-3 Approval Gate NOT REACHED; LIVE remains `NOT_AUTHORIZED`.
+
+Next governed action: fresh ChatGPT Review A of candle-closed/v1.0 and candle-corrected/v1.0 Draft candidates before any publication or downstream family authoring.
+
+---
+
 ## [Unreleased] — 2026-09-28 — ADR-047 Approved: Context-Upstream Event Contract Compatibility Commitments (backward_only, all 8 contract_ids)
 
 Starting `main == origin/main == c46e7f6b1f6b817311a0a7544427ec958507d4f5`, fresh-verified, working tree clean. `docs/adr/ADR-047.md` matched pinned reviewed candidate blob `aa5346151fc2a4d02705eb9c594276d738189c3c` exactly (`version: "0.1"`, `status: Draft`). Context Input Contract and state-dependency derivation both fresh-verified exact — neither touched.

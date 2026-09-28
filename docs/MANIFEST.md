@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.465"
+manifest_version: "10.466"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -33157,6 +33157,110 @@ registry, or production source/tests/tooling touched. `manifest_version` `"10.46
 
 **Next governed action:** Fresh ChatGPT verification of ADR-047 approval recording; if clean, derive
 and issue the bounded first Event Contract authoring sequence.
+
+## Candle Event Contract v1.0 pair — Draft candidates authored (`CONTEXT-UPSTREAM-EVENT-CONTRACT-CANDLE-001`)
+
+Fresh-verified before mutation: HEAD `fa248c85c0dc2b1a225084c6b5d534133776afb2`; `docs/adr/ADR-047.md`
+matched pinned blob `c2289d8d9727c9e4a51198eb5756aee4122f1bc2` exactly (`version: "0.1"`,
+`status: Approved`, immutable, establishing `candle-closed`/`candle-corrected` → `backward_only`);
+state-dependency derivation matched pinned blob `a8b10628f4c156f67b25d18868dec4d6434971d9` exactly
+(`version: "0.4"`); Context Input Contract matched pinned blob
+`ce74ddf6291abb2b1ed21938ca88050550fb2a0b` exactly (`v0.3`, `Draft`, `NOT PUBLISHED`) — none touched.
+Confirmed neither target file exists at HEAD; `docs/architecture/stream-registry.yaml` (Genesis,
+`status: Approved` v0.2, `registry_version: v1.0`) confirmed to contain `market-data-ingestion-candle`
+(`writer_authority.module_id: market-data-ingestion`, `status: active`). Fresh-read: `candle.md` v0.4
+(blob `17c3f9412924de577558dd9bad41c769b45eba22`), Chapter 8 §§8.1.1/8.2/8.3.1/8.3.4, `ADR-039`,
+`ADR-040`, `ADR-047`, `stream-registry.yaml`, `module-registry.yaml`, the state-dependency derivation,
+and both Published Feature Event Contracts as structural precedent only.
+
+**Authored two Draft candidates only — not published, not modified in place after this authoring:**
+
+- `docs/architecture/event-contracts/candle-closed/v1.0.yaml` — `contract_id: candle-closed`,
+  `contract_version: v1.0`, `status: Draft`, `reviewers: []`, `approved_by: null`,
+  `approved_at: null`, `last_review: null`. `event_type: CANDLE_CLOSED`. `event_class: observation`
+  (governed-authored — authoritative market-data observation, not a derived/computed fact, not a
+  Decision; matches Chapter 8 §8.3.1's own open-ended illustrative vocabulary, no new term invented).
+  `allowed_streams: [{stream_id: market-data-ingestion-candle}]` (Genesis Registry). `merge_constraints:
+  {}` (root event, `causation_refs: []` canonical per `candle.md` §2/§4 — empty mapping is the
+  truthful representation, no fabricated enum). `payload_shape` inlines `state`/`open`/`high`/`low`/
+  `close`/`volume`/`data_quality` (`complete`/`complete_zero_volume`). `payload_semantics_and_invariants`
+  fully self-contains: subject binding, the five-condition `complete_zero_volume` provenance test
+  (`candle.md` §12), and a condensed-but-complete precedence-and-uniqueness summary (`candle.md` §11)
+  guaranteeing a second non-identical authoritative close is never appended as a second CandleClosed.
+  `causation_ref_state_dependency_classification: {classification: VACUOUS, reason: "causation_refs is
+  canonically [] for this root event"}` — nested under `payload_semantics_and_invariants`, no new
+  top-level schema field invented, citing the state-dependency derivation v0.4 §2.1 as already-reviewed
+  authority, not re-derived. `compatibility_commitment: backward_only` (Approved `ADR-047`, not
+  re-decided). Provenance: `candle.md` v0.4 §1/§2/§4/§11/§12, drafting-history only, never required to
+  interpret the artifact.
+
+- `docs/architecture/event-contracts/candle-corrected/v1.0.yaml` — `contract_id: candle-corrected`,
+  `contract_version: v1.0`, `status: Draft`, `reviewers: []`, `approved_by: null`,
+  `approved_at: null`, `last_review: null`. `event_type: CANDLE_CORRECTED`. `event_class: observation`
+  (governed-authored — a later corrected authoritative observation for the SAME subject/window, not a
+  derived analytical computation and not a Decision; identical `event_class` to `candle-closed`,
+  correction lineage expressed via event type/`causation_refs`/payload semantics, no new vocabulary).
+  `allowed_streams: [{stream_id: market-data-ingestion-candle}]` (same stream as `candle-closed`, one
+  writer/one fact family, `ADR-036`). `merge_constraints: {prerequisite_policy:
+  causation_must_resolve_before_apply}` (`candle.md` §5's one non-empty-`causation_refs` exception,
+  Chapter 8 §8.3.4 precedent, identical shape already used by `feature-computed/v1.0.yaml`).
+  `payload_shape` inlines `state`/`open`/`high`/`low`/`close`/`volume`/`correction_reason` (optional).
+  `payload_semantics_and_invariants` fully self-contains: subject binding (identical scope required),
+  causation/lineage rule (`causation_refs` must point to the currently-authoritative fact, non-empty,
+  distinguishable provenance required), recorded_time ordering, anti-look-ahead, append-only/no-
+  mutation, `state` always `CLOSED`. `causation_ref_state_dependency_classification:
+  {categories: {corrected_fact: {classification: EXTERNAL_NON_STATE_CAUSE, apply_time_requirement:
+  ...}}}` — nested under `payload_semantics_and_invariants`, no new top-level schema field invented,
+  citing the state-dependency derivation v0.4 §2.2 as already-reviewed authority, not re-derived, not
+  classified `STATE_DEPENDENCY`, no third category introduced. `compatibility_commitment:
+  backward_only` (Approved `ADR-047`, not re-decided). Provenance: `candle.md` v0.4 §1/§2/§5/§10/§11,
+  drafting-history only, never required to interpret the artifact.
+
+**Format/reader-policy gap preserved honestly** — neither artifact assumes unknown-field tolerance or
+any concrete JSON Schema/Avro/Protobuf reader behavior; no cross-version delta compatibility
+classification performed (both are first `v1.0` publications, no prior version exists to compare
+against). **Retention/runtime-usability gap preserved honestly** — both artifacts' own header comments
+state that, even once later reviewed and Published, they must not be treated as fully §8.1.1-compliant
+usable `event_contract_ref` targets for real persisted events until the platform-wide retention/archive
+policy's concrete past-horizon archival mechanism (`ADR-040`, deferred) is separately established; no
+runtime-readiness claimed.
+
+**No STOP condition triggered:** neither target contract existed at HEAD; `candle.md` source
+blob/version unchanged from the version cited; `market-data-ingestion-candle` present in the Genesis
+Registry; `ADR-047` confirmed exactly `Approved`/`backward_only` for both; `observation` verified to
+faithfully classify both `CandleClosed` and `CandleCorrected`; no merge-constraint value beyond current
+authority was required; the reviewed causal-state-dependency classification was fully representable
+inside `payload_semantics_and_invariants` without a platform schema extension; self-containment
+required no change to Candle domain semantics; no architecture choice outside existing authority
+emerged.
+
+**Confirmed unchanged:** `docs/adr/ADR-047.md` (fresh-verified byte-identical, immutable), every other
+existing ADR, `docs/domain/candle.md` (fresh-verified byte-identical), every other Domain Contract,
+`docs/architecture/input-contracts/context-market-input.yaml` (fresh-verified byte-identical),
+`docs/project/context-upstream-state-dependency-derivation-001.md` (fresh-verified byte-identical),
+`docs/project/context-event-contract-compatibility-adr-scope-001.md`,
+`docs/architecture/stream-registry.yaml` (fresh-verified byte-identical),
+`docs/architecture/module-registry.yaml`, every Constitution chapter, both Published Feature Event
+Contracts, all production source/tests/tooling.
+
+**M2 unchanged (`BLOCKED`, parallel evidence lane). M3 remains `ACTIVE`** — `ADR-047` remains
+`APPROVED`; state-dependency derivation remains `v0.4`, `VALIDATED`; Context Input Contract v0.3
+remains `CLEAN` / `NOT PUBLISHED`; current authoring lane: Candle Event Contract v1.0 pair —
+`candle-closed/v1.0` `DRAFT`, `candle-corrected/v1.0` `DRAFT`, both `NOT REVIEWED`, `NOT PUBLISHED`,
+`NOT RUNTIME-USABLE`; remaining: Structure 4, Regime 2, Feature 2 state-dependency/version evolution,
+Context Input publication readiness; runtime-wide blocker: retention/archive policy absent (`ADR-040`).
+**M4 remains `QUEUED`.** Phase-3 Approval Gate `NOT REACHED`; LIVE remains `NOT_AUTHORIZED`.
+
+**Files changed:** `docs/architecture/event-contracts/candle-closed/v1.0.yaml` (new),
+`docs/architecture/event-contracts/candle-corrected/v1.0.yaml` (new), plus deterministic bookkeeping:
+`docs/MANIFEST.md`, `docs/CHANGELOG.md`, `docs/project/milestone.md`,
+`docs/project/milestone-dashboard.html`. No ADR, Domain Contract, Context Input Contract,
+state-dependency derivation, compatibility scope derivation, Stream Registry, Module Registry,
+Feature Event Contract, or production source/tests/tooling touched. `manifest_version` `"10.465"` ->
+`"10.466"`.
+
+**Next governed action:** Fresh ChatGPT Review A of `candle-closed/v1.0` and `candle-corrected/v1.0`
+Draft candidates before any publication or downstream family authoring.
 
 ## Decision Log
 

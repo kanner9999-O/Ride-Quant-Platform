@@ -1,0 +1,216 @@
+# Event Contract version-artifact — candle-closed v1.0 (DRAFT CANDIDATE)
+#
+# Referenced Authoritative Artifact (Chapter 8 §8.1.1). Canonical authority/self-containment model,
+# path/version grammar, and immutability discipline per Approved ADR-039 v0.1
+# (docs/adr/ADR-039.md). Retention/archive semantics (Class G: canonical path must remain live at
+# HEAD for the committed retention horizon; git history is content-identity/audit evidence only,
+# never a fallback resolver) per Approved ADR-040 v0.1 (docs/adr/ADR-040.md).
+#
+# STATUS: Draft candidate only — NOT Published, NOT reviewed, NOT approved. `status: Draft`,
+# `reviewers: []`, `approved_by: null`, `approved_at: null`, `last_review: null` below are exact and
+# not fabricated. This transaction does not transition Draft -> Published, does not add a reviewer,
+# and does not call this an authoritative Published snapshot.
+#
+# RUNTIME-USABILITY GAP (ADR-040, honestly preserved, not solved here): even once this candidate
+# is later reviewed and Published, it must NOT be treated as fully §8.1.1-compliant or as a usable
+# `event_contract_ref` target for a real, persisted authoritative event until the separately-governed
+# platform retention/archive policy's concrete past-horizon archival mechanism is established for
+# Class G artifacts (ADR-040 defers that mechanism; ADR-039's own Consequences item (0) already named
+# this exact prerequisite for Event Contract version-artifacts specifically). No claim of
+# runtime-readiness is made by this artifact.
+#
+# This is the FIRST version for contract_id: candle-closed — no prior Published Event Contract
+# snapshot exists for it (candle.md v0.4 declares event_contract_ref as a required envelope field,
+# per Chapter 8 §2, but pins no contract_version anywhere; context-map.yaml pins contract_id only).
+# Per ADR-039's "First authoritative version" rule, contract_version is fixed at v1.0 — no other
+# value is valid for a first publication.
+#
+# event_class / allowed_streams / merge_constraints below are GOVERNED-AUTHORED against current
+# higher authority (Chapter 8 §8.3.1/§8.3.4, Approved ADR-036/ADR-041 genesis Stream Registry
+# topology, Approved ADR-047 compatibility commitment) — NOT mechanically transcribed from
+# candle.md, which does not declare any of the three fields anywhere. Authority basis is cited
+# inline at each field. payload_shape / payload_semantics_and_invariants are transcribed and
+# governed-synthesized from candle.md v0.4 §1 (subject)/§2 (envelope, payload-relevant portions
+# only)/§4 (CandleClosed)/§11 (duplicate/correction/fail-closed precedence, condensed to exactly what
+# this event's own validation needs)/§12 (missing-data provenance conditions for
+# `complete_zero_volume`) and are fully self-contained here — a reader does not need to separately
+# consult candle.md to interpret this artifact's own meaning (ADR-039). candle.md's own envelope
+# fields (event_id, recorded_time, subject_ref, stream_ref, sequence, producer_ref, correlation_id,
+# causation_refs, related_event_refs, effective_time) remain Chapter 8 §8.2's own owned concept,
+# applied not redefined here — this artifact declares the PAYLOAD portion only, consistent with
+# Chapter 8 §8.2's own authority split ("Chapter 8 sở hữu envelope; Event Contract sở hữu payload
+# schema/semantic").
+#
+# STATE-DEPENDENCY CLASSIFICATION AUTHORITY: this artifact does not invent a new top-level Event
+# Contract schema field for Chapter 8 §8.2.3's causal-closure `dependency_authority:
+# per_effect_event_contract` classification (no such field is currently defined by Chapter 8). The
+# reviewed classification (`docs/project/context-upstream-state-dependency-derivation-001.md` v0.4,
+# Review A validated) is instead encoded structurally inside `payload_semantics_and_invariants`
+# below, keeping this artifact self-contained without a platform schema extension.
+#
+# Governed authoring transaction boundary: HEAD fa248c85c0dc2b1a225084c6b5d534133776afb2.
+
+contract_id: candle-closed
+contract_version: v1.0
+status: Draft
+reviewers: []
+approved_by: null
+approved_at: null
+last_review: null
+
+event_type: CANDLE_CLOSED
+# candle.md v0.4 §2 event_types table (PAST_TENSE_UPPER_SNAKE per Chapter 3 §3.2, referenced not
+# redefined here).
+
+event_class: observation
+# Governed-authored. Candle is authoritative market-data OBSERVATION, not a derived/computed
+# analytical fact — the opposite category from feature-computed/regime-classified/structure events
+# (already-established "derived_fact" precedent, feature-computed/v1.0.yaml), and definitionally not
+# a Decision (candle.md's own envelope §2 never declares decision_time/decision_context_cursor,
+# consistent with Chapter 8 §8.2.1/§8.4's Decision-specific cardinality rule not applying here).
+# CandleClosed is the final, authoritative OHLCV observation for a completed market-data window
+# (candle.md §4 description: "Quan sát OHLCV cuối cùng, authoritative, khi cửa sổ effective_time đã
+# đóng") — it reports what the venue/ingestion adapter directly observed, not a value computed from
+# other authoritative facts. This matches Chapter 8 §8.3.1's own worked illustrative example
+# verbatim ("event_class: decision | observation | ...", `MARKET_DATA_OBSERVED`), which is
+# explicitly open-ended, not a closed vocabulary — Chapter 0 §4b does not require an ADR merely to
+# select an accurate, already-precedented descriptive label for a non-decision event.
+#
+# No new event_class vocabulary (e.g. a distinct "raw_observation"/"market_data" term) is needed:
+# "observation" faithfully and completely describes CandleClosed without narrowing or overstating its
+# semantic.
+
+allowed_streams:
+  - stream_id: market-data-ingestion-candle
+# Governed-authored from docs/architecture/stream-registry.yaml (Genesis Registry, `status:
+# Approved` v0.2, `registry_version: v1.0`) + Chapter 8 §8.3.1 ("Event Contract chỉ được tham chiếu
+# stream, KHÔNG định nghĩa stream; eligibility khai báo MỘT CHIỀU tại Event Contract, KHÔNG ở Stream
+# Registry"). `market-data-ingestion-candle` is market-data-ingestion's sole registered stream in the
+# Genesis Registry (`writer_authority.module_id: market-data-ingestion`, `status: active`,
+# `genesis_position: 0`) — the one-stream-per-writer-fact-family topology Approved ADR-036 v0.3
+# fixes. `module-registry.yaml`'s own `market-data-ingestion` entry responsibilities text
+# ("Quan sát và ghi nhận Candle observed/closed/corrected từ venue") confirms market-data-ingestion
+# is the sole writer authority for all Candle events, CandleClosed included.
+
+merge_constraints: {}
+# Governed-authored per Chapter 8 §8.3.4's own authority split ("Input Contract sở hữu duy nhất
+# final merge policy — Event Contract KHÔNG định nghĩa merge order; nếu một họ event có yêu cầu
+# riêng, Event Contract chỉ khai báo constraint"). CandleClosed is a ROOT event — candle.md v0.4 §2
+# envelope table fixes `causation_refs: []` explicitly for CandleClosed ("causation_refs: {}...
+# PHẢI là [] tường minh cho root event (CandleObserved, CandleClosed, CandleDataGapObserved không
+# sửa fact nào trước)"). There is no causal prerequisite this event must resolve before application
+# — an empty mapping is the truthful representation under ADR-039's own illustrative shape; no
+# platform enum (e.g. a fabricated `none` value) is invented where current authority defines none.
+
+payload_shape:
+  state: {type: enum, value: CLOSED, required: true}
+  open: {type: decimal, required: true}
+  high: {type: decimal, required: true}
+  low: {type: decimal, required: true}
+  close: {type: decimal, required: true}
+  volume: {type: decimal, required: true}
+  data_quality: {type: enum, values: [complete, complete_zero_volume], required: true}
+
+payload_semantics_and_invariants:
+  description: >
+    The final, authoritative OHLCV observation for a completed market-data window of one Logical
+    Candle Subject (candle_subject_id — opaque, stable, resolved deterministically from exactly
+    {instrument_id, venue_id, timeframe, window_start, window_end} per Chapter 6 §6.1/§6.8; domain
+    logic must never parse it to infer scope fields). Marks the subject's transition to CLOSED —
+    either from PROVISIONAL (the common path, after one or more CandleObserved) or directly from
+    UNSEEN (valid for historical/closed-only ingestion — e.g. Backtest reading pre-closed vendor
+    data with no prior provisional WS stream; a CandleObserved must never be fabricated merely to
+    "pass through" PROVISIONAL first). Does not delete or overwrite any prior CandleObserved for the
+    same subject, if any exist — those remain in the append-only log (I-3).
+  subject_binding:
+    subject_kind: entity
+    subject_type: Candle
+    scope_fields: [instrument_id, venue_id, timeframe, window_start, window_end]
+    note: >
+      envelope.subject_ref.subject_id (candle_subject_id) and envelope.subject_ref.scope carry this
+      binding per Chapter 8 §8.2.2 — applied here, not redefined; envelope.effective_time equals the
+      subject's own [window_start, window_end) interval and never changes across any observation or
+      correction of the same subject.
+  data_quality_semantics:
+    complete: >
+      Standard case — the venue/producer directly confirmed a completed window with observed
+      trade/quote activity.
+    complete_zero_volume: >
+      Valid ONLY when ALL five of the following provenance conditions hold simultaneously (none may
+      be inferred from silence): (1) the authoritative source/producer EXPLICITLY confirmed a
+      completed, zero-volume window (the venue actually published "closed, no trade" — never
+      inferred from an absence of messages); (2) envelope.producer_ref resolves to the exact producer
+      that issued that confirmation in (1); (3) envelope.event_contract_ref resolves to an Event
+      Contract version that permits `complete_zero_volume` for this exact contract_id (this v1.0
+      version does); (4) envelope.source_identity is present whenever that source is capable of
+      retry/redelivery (Chapter 6 §6.6), to support correct dedup of a repeated confirmation; (5) the
+      ingestion adapter does NOT infer `complete_zero_volume` merely from receiving no trade/message
+      in the window — silence is never proof of a confirmed zero-volume close. If no source assertion
+      exists, no CandleClosed with `complete_zero_volume` may be emitted for that window at all — the
+      window must instead be represented as a data-quality gap condition (a separate, optional event
+      type, out of this artifact's own scope).
+  precedence_and_uniqueness:
+    rule: >
+      Exactly one authoritative CandleClosed exists for a given Logical Candle Subject prior to any
+      correction. A second, non-identical authoritative closed/correction source fact for the SAME
+      subject must NEVER be appended as a second, independent CandleClosed event under any
+      circumstance.
+    resolution_summary: >
+      When ingestion receives a closed or correction source fact for a subject already carrying an
+      authoritative CandleClosed (or a subsequent CandleCorrected), it resolves an idempotency
+      identity for the incoming fact (native source_identity, or a declared, deterministic,
+      versioned fallback — Chapter 6 §6.6) and applies exactly one of: (a) identity unresolvable ->
+      fail closed / quarantine, no CandleClosed appended, no dedup, no CandleCorrected emitted —
+      absent provenance is never treated as evidence of a valid correction; (b) same identity, same
+      payload -> duplicate delivery, zero additional business effect, no new event; (c) same
+      identity, different payload -> provenance integrity violation, fail closed / quarantine — never
+      silently reinterpreted as a correction; (d) different identity, same subject, authoritative
+      value changed -> emit CandleCorrected (see candle-corrected/v1.0.yaml), never a second
+      CandleClosed; (e) different identity, same payload -> duplicate-equivalent only if the source
+      contract explicitly declares equivalence semantics, otherwise quarantine pending
+      reconciliation. No branch of this resolution ever produces a second independent CandleClosed
+      for the same subject — the full deterministic algorithm and its exact step ordering are owned
+      by candle.md §11 (Domain Contract drafting provenance only; this summary is sufficient, and
+      self-contained, for validating THIS event's own uniqueness invariant without consulting it).
+  causation_ref_state_dependency_classification:
+    classification: VACUOUS
+    reason: "causation_refs is canonically [] for this root event"
+    authority: >
+      docs/project/context-upstream-state-dependency-derivation-001.md v0.4 §2.1 (Review A
+      validated, CLEAN — 0/0/1, blob a8b10628f4c156f67b25d18868dec4d6434971d9), applying Chapter 8
+      §8.2.3's causal-closure `dependency_authority: per_effect_event_contract` classification test
+      per event_contract_ref. Not re-derived here — cited as already-reviewed authority.
+  invariants:
+    - "envelope.causation_refs MUST be exactly [] — explicit empty set, not absent (root event, Chapter 8 §8.2.1)."
+    - "envelope.effective_time equals the subject's own [window_start, window_end) interval and is identical across every CandleObserved for the same subject, if any exist."
+    - "payload.data_quality MUST be declared explicitly — never defaulted to `complete` when unconfirmed."
+    - "payload.data_quality = complete_zero_volume is valid ONLY when all five provenance conditions above hold — see data_quality_semantics."
+    - "A second, non-identical authoritative closed/correction source fact for the same subject MUST be represented via CandleCorrected (or one of the non-CandleClosed resolution branches above), never as a second independent CandleClosed — see precedence_and_uniqueness."
+    - "This event does not itself carry any correction lineage reference — correction lineage begins at CandleCorrected (candle-corrected/v1.0.yaml), which this CandleClosed may later become the target of."
+
+compatibility_commitment: backward_only
+# Approved ADR-047 (docs/adr/ADR-047.md), Product Owner decision "APPROVE ADR-047"
+# (2026-09-28T14:44:39+07:00), Chapter 10 §10.3.1 — explicit policy commitment the platform adopts
+# for this contract_id: a consumer pinned to an older candle-closed Event Contract version must
+# still correctly read/validate data under a newer version; forward compatibility is NOT committed.
+# This value is not re-decided, re-evaluated, or re-derived here — cited as already-Approved
+# authority. No concrete schema delta exists yet for this first v1.0 version, so no compatibility
+# CLASSIFICATION of any delta is performed or claimed by this artifact (see header comment).
+
+provenance:
+  source: docs/domain/candle.md
+  source_version: "0.4"
+  source_status: Draft
+  source_sections: ["§1 Logical Candle Subject", "§2 Canonical event envelope (payload-relevant portions)", "§4 CandleClosed", "§11 Duplicate/correction/fail-closed precedence (summarized)", "§12 Missing data provenance conditions"]
+  source_blob: 17c3f9412924de577558dd9bad41c769b45eba22
+  drafted_at_commit: fa248c85c0dc2b1a225084c6b5d534133776afb2
+  note: >
+    Drafting-history citation ONLY (ADR-039 §"Canonical authority/source") — never required to
+    interpret this artifact's own meaning; payload_shape and payload_semantics_and_invariants above
+    are fully self-contained, including a condensed but complete summary of the §11
+    duplicate/correction precedence algorithm's outcome (not its full step-by-step mechanics, which
+    remain candle.md's own drafting-history content, deferred to Engineering Foundation/Phase 1 per
+    candle.md §17 for the fallback-idempotency-key syntax specifically). event_class, allowed_streams,
+    and merge_constraints were governed-authored directly against Chapter 8 §8.3.1/§8.3.4, Approved
+    ADR-036/ADR-041, Approved ADR-047, and this repository's own established terminology — NOT
+    mechanically transcribed from candle.md, which does not declare any of the three fields anywhere.

@@ -1,0 +1,230 @@
+# Event Contract version-artifact — candle-corrected v1.0 (DRAFT CANDIDATE)
+#
+# Referenced Authoritative Artifact (Chapter 8 §8.1.1). Canonical authority/self-containment model,
+# path/version grammar, and immutability discipline per Approved ADR-039 v0.1
+# (docs/adr/ADR-039.md). Retention/archive semantics (Class G: canonical path must remain live at
+# HEAD for the committed retention horizon; git history is content-identity/audit evidence only,
+# never a fallback resolver) per Approved ADR-040 v0.1 (docs/adr/ADR-040.md).
+#
+# STATUS: Draft candidate only — NOT Published, NOT reviewed, NOT approved. `status: Draft`,
+# `reviewers: []`, `approved_by: null`, `approved_at: null`, `last_review: null` below are exact and
+# not fabricated. This transaction does not transition Draft -> Published, does not add a reviewer,
+# and does not call this an authoritative Published snapshot.
+#
+# RUNTIME-USABILITY GAP (ADR-040, honestly preserved, not solved here): even once this candidate
+# is later reviewed and Published, it must NOT be treated as fully §8.1.1-compliant or as a usable
+# `event_contract_ref` target for a real, persisted authoritative event until the separately-governed
+# platform retention/archive policy's concrete past-horizon archival mechanism is established for
+# Class G artifacts (ADR-040 defers that mechanism; ADR-039's own Consequences item (0) already named
+# this exact prerequisite for Event Contract version-artifacts specifically). No claim of
+# runtime-readiness is made by this artifact.
+#
+# This is the FIRST version for contract_id: candle-corrected — no prior Published Event Contract
+# snapshot exists for it (candle.md v0.4 declares event_contract_ref as a required envelope field,
+# per Chapter 8 §2, but pins no contract_version anywhere; context-map.yaml pins contract_id only).
+# Per ADR-039's "First authoritative version" rule, contract_version is fixed at v1.0 — no other
+# value is valid for a first publication.
+#
+# event_class / allowed_streams / merge_constraints below are GOVERNED-AUTHORED against current
+# higher authority (Chapter 8 §8.3.1/§8.3.4, Approved ADR-036/ADR-041 genesis Stream Registry
+# topology, Approved ADR-047 compatibility commitment) — NOT mechanically transcribed from
+# candle.md, which does not declare any of the three fields anywhere. Authority basis is cited
+# inline at each field. payload_shape / payload_semantics_and_invariants are transcribed and
+# governed-synthesized from candle.md v0.4 §1 (subject)/§2 (envelope, payload-relevant portions
+# only)/§5 (CandleCorrected)/§10 (correction/consumer-obligation semantics)/§11 (duplicate/
+# correction/fail-closed precedence, condensed to exactly what this event's own validation needs)
+# and are fully self-contained here — a reader does not need to separately consult candle.md to
+# interpret this artifact's own meaning (ADR-039). candle.md's own envelope fields (event_id,
+# recorded_time, subject_ref, stream_ref, sequence, producer_ref, correlation_id, causation_refs,
+# related_event_refs, effective_time) remain Chapter 8 §8.2's own owned concept, applied not
+# redefined here — this artifact declares the PAYLOAD portion only, consistent with Chapter 8
+# §8.2's own authority split ("Chapter 8 sở hữu envelope; Event Contract sở hữu payload
+# schema/semantic").
+#
+# STATE-DEPENDENCY CLASSIFICATION AUTHORITY: this artifact does not invent a new top-level Event
+# Contract schema field for Chapter 8 §8.2.3's causal-closure `dependency_authority:
+# per_effect_event_contract` classification (no such field is currently defined by Chapter 8). The
+# reviewed classification (`docs/project/context-upstream-state-dependency-derivation-001.md` v0.4,
+# Review A validated) is instead encoded structurally inside `payload_semantics_and_invariants`
+# below, keeping this artifact self-contained without a platform schema extension.
+#
+# Governed authoring transaction boundary: HEAD fa248c85c0dc2b1a225084c6b5d534133776afb2.
+
+contract_id: candle-corrected
+contract_version: v1.0
+status: Draft
+reviewers: []
+approved_by: null
+approved_at: null
+last_review: null
+
+event_type: CANDLE_CORRECTED
+# candle.md v0.4 §2 event_types table (PAST_TENSE_UPPER_SNAKE per Chapter 3 §3.2, referenced not
+# redefined here).
+
+event_class: observation
+# Governed-authored. CandleCorrected is a LATER, corrected authoritative OBSERVATION for the SAME
+# Candle subject/window (candle.md §5 description: "Sửa một CandleClosed... đã publish, khi venue
+# gửi correction muộn") — it is not a derived analytical computation over other authoritative facts
+# (unlike feature-computed/regime-classified/structure events, which read multiple upstream facts to
+# produce a new conclusion), and it is definitionally not a Decision (no decision_time/
+# decision_context_cursor anywhere in candle.md's own envelope §2). The correction still originates
+# from the venue/producer's own observation of the market-data window — it replaces a prior
+# observation with a corrected one of the SAME underlying fact, never computing a new value from
+# other domain facts. This is the identical event_class as candle-closed/v1.0.yaml — both are Candle
+# observation events, differing only in whether they are the first or a later authoritative
+# observation for the subject; correction lineage itself is expressed through event type (this one),
+# `causation_refs`, and payload semantics below, not through a separate `event_class` value.
+#
+# No new platform-wide event_class vocabulary (e.g. "correction" or "observation_correction") is
+# introduced: `observation` already faithfully and completely describes CandleCorrected without a new
+# term, consistent with Chapter 8 §8.3.1's own open-ended `event_class` worked example.
+
+allowed_streams:
+  - stream_id: market-data-ingestion-candle
+# Governed-authored from docs/architecture/stream-registry.yaml (Genesis Registry, `status:
+# Approved` v0.2, `registry_version: v1.0`) + Chapter 8 §8.3.1 ("Event Contract chỉ được tham chiếu
+# stream, KHÔNG định nghĩa stream; eligibility khai báo MỘT CHIỀU tại Event Contract, KHÔNG ở Stream
+# Registry"). `market-data-ingestion-candle` is market-data-ingestion's sole registered stream in the
+# Genesis Registry (`writer_authority.module_id: market-data-ingestion`, `status: active`,
+# `genesis_position: 0`) — same one-writer-one-fact-family stream as candle-closed/v1.0.yaml, per
+# Approved ADR-036 v0.3's topology (all Candle event types share this one fact family, one stream).
+
+merge_constraints:
+  prerequisite_policy: causation_must_resolve_before_apply
+# Governed-authored per Chapter 8 §8.3.4's own authority split ("Input Contract sở hữu duy nhất
+# final merge policy — Event Contract KHÔNG định nghĩa merge order; nếu một họ event có yêu cầu
+# riêng, Event Contract chỉ khai báo constraint") and worked example (identical
+# `prerequisite_policy: causation_must_resolve_before_apply` value shown for
+# ARBITRAGE_DECISION_CREATED, and already reused identically by feature-computed/v1.0.yaml).
+# candle.md v0.4 §5 fixes `causation_refs` as the ONE exception to Candle's root-event pattern
+# ("ngoại lệ duy nhất: causation_refs KHÔNG rỗng") — every CandleCorrected must point exactly to the
+# fact it corrects, and that direct corrected fact must resolve before this event may be applied, per
+# Chapter 8 §8.3.4's own P_causation/P_global DAG requirement (cause ≺ effect). No additional
+# Candle-specific merge constraint beyond this baseline was identified: recorded_time ordering and
+# same-subject/same-window invariants are already fully captured as payload/envelope invariants
+# below, not as a cross-stream merge constraint Input Contract would need beyond standard
+# causal-topological ordering.
+
+payload_shape:
+  state: {type: enum, value: CLOSED, required: true}
+  open: {type: decimal, required: true}
+  high: {type: decimal, required: true}
+  low: {type: decimal, required: true}
+  close: {type: decimal, required: true}
+  volume: {type: decimal, required: true}
+  correction_reason: {type: string, required: false}
+
+payload_semantics_and_invariants:
+  description: >
+    A NEW event correcting a CandleClosed or a prior CandleCorrected already published for the SAME
+    Logical Candle Subject, when the venue delivers a corrected authoritative value after the fact
+    (candle.md's own example: a 10:00 candle corrected at 10:07). Does NOT mutate the original
+    record — append-only (I-3). Does NOT move the subject out of CLOSED; it is a self-transition
+    CLOSED -> CLOSED (candle.md §1), replacing the fact currently in effect for query/projection
+    purposes only, never rewriting history. This is also the mandatory representation for a second,
+    non-identical authoritative closed source fact for the same subject — such a fact is NEVER
+    appended as a second independent CandleClosed (see candle-closed/v1.0.yaml's own
+    precedence_and_uniqueness section); it must always be represented as CandleCorrected instead.
+  subject_binding:
+    subject_kind: entity
+    subject_type: Candle
+    scope_fields: [instrument_id, venue_id, timeframe, window_start, window_end]
+    note: >
+      envelope.subject_ref carries this binding per Chapter 8 §8.2.2, applied here not redefined.
+      envelope.subject_ref.subject_id (candle_subject_id) and every scope field MUST be identical to
+      the fact being corrected — a correction never targets a different window or subject; changing
+      any of the five qualifying scope fields identifies a DIFFERENT Logical Candle Subject entirely
+      (candle.md §1), never a correction of the current one.
+  causation_and_lineage:
+    rule: >
+      envelope.causation_refs MUST point exactly to the CandleClosed or CandleCorrected event
+      currently authoritative for this subject at the moment this correction is emitted — never to a
+      fact that has already itself been superseded (no skipping ahead in the correction lineage),
+      and never empty (the one explicit exception to Candle's root-event pattern, candle.md §5).
+    provenance_requirement: >
+      A correction requires its own distinguishable provenance — either a genuinely different,
+      resolvable source identity (Chapter 6 §6.6) from the fact it corrects, or an explicitly
+      source-contract-declared correction identity (e.g. a venue-issued amendment code). Absent
+      distinguishable provenance, the incoming fact must be treated per candle-closed/v1.0.yaml's own
+      precedence_and_uniqueness resolution (duplicate / fail-closed / quarantine), never emitted as a
+      CandleCorrected merely on suspicion of a correction.
+  temporal_and_replay_semantics:
+    effective_time: >
+      envelope.effective_time (the subject's [window_start, window_end) interval) is IDENTICAL to
+      the fact being corrected — a correction describes the same window again, it never creates a new
+      one, and the subject's candle_subject_id never changes.
+    recorded_time_ordering: >
+      envelope.recorded_time MUST be strictly later than the recorded_time of the fact currently
+      being corrected — a correction cannot be recorded before the fact it corrects existed.
+    no_look_ahead: >
+      Replay at any cursor positioned before this correction's own recorded_time MUST NOT observe
+      this CandleCorrected (Chapter 5 §5.1/§5.3 anti-look-ahead) — a replay run bounded before this
+      event's recorded_time sees only the fact being corrected, exactly as Live would have at that
+      same point in time.
+  append_only_and_state:
+    no_mutation: >
+      This is a new, independent event record. No mechanism anywhere mutates or removes the original
+      CandleClosed/CandleCorrected being corrected — it remains permanently in the append-only log
+      (I-3), available for audit/no-repaint verification.
+    state_invariant: >
+      payload.state is always CLOSED — a correction never produces a different subject state; the
+      Logical Candle Subject's own state machine self-transitions CLOSED -> CLOSED for every
+      correction (candle.md §1), it never re-enters PROVISIONAL or any other state.
+  causation_ref_state_dependency_classification:
+    categories:
+      corrected_fact:
+        classification: EXTERNAL_NON_STATE_CAUSE
+        apply_time_requirement: >
+          Authoritative application of CandleCorrected does not require re-reading the corrected
+          predecessor's domain payload/state (its old open/high/low/close/volume/data_quality
+          values); the effect carries the complete replacement OHLCV/state itself (payload_shape
+          above is fully self-sufficient), and the predecessor reference in causation_refs is
+          required only for identity/existence/lineage/causal precedence (tuple consistency, Chapter
+          8 §8.2.3) — never for its value content.
+    authority: >
+      docs/project/context-upstream-state-dependency-derivation-001.md v0.4 §2.2 (Review A
+      validated, CLEAN — 0/0/1, blob a8b10628f4c156f67b25d18868dec4d6434971d9), applying Chapter 8
+      §8.2.3's causal-closure `dependency_authority: per_effect_event_contract` classification test
+      per event_contract_ref. Not re-derived here — cited as already-reviewed authority. Not
+      classified STATE_DEPENDENCY, and no third classification category is introduced.
+  invariants:
+    - "envelope.causation_refs MUST NOT be empty — points exactly to the fact currently being corrected (see causation_and_lineage)."
+    - "envelope.effective_time is identical to the fact being corrected — see temporal_and_replay_semantics."
+    - "envelope.recorded_time is strictly later than the corrected fact's own recorded_time — see temporal_and_replay_semantics."
+    - "Replay before this event's recorded_time never observes it — see no_look_ahead."
+    - "This event never mutates the original record; the original remains in the append-only log — see append_only_and_state."
+    - "payload.state is always CLOSED, never any other value — see append_only_and_state."
+    - "envelope.subject_ref (subject_id and all five scope fields) is identical to the fact being corrected — see subject_binding."
+    - "This is the sole valid representation for a second, non-identical authoritative closed source fact for the same subject — never a second independent CandleClosed."
+
+compatibility_commitment: backward_only
+# Approved ADR-047 (docs/adr/ADR-047.md), Product Owner decision "APPROVE ADR-047"
+# (2026-09-28T14:44:39+07:00), Chapter 10 §10.3.1 — explicit policy commitment the platform adopts
+# for this contract_id: a consumer pinned to an older candle-corrected Event Contract version must
+# still correctly read/validate data under a newer version; forward compatibility is NOT committed.
+# This value is not re-decided, re-evaluated, or re-derived here — cited as already-Approved
+# authority. No concrete schema delta exists yet for this first v1.0 version, so no compatibility
+# CLASSIFICATION of any delta is performed or claimed by this artifact (see header comment).
+
+provenance:
+  source: docs/domain/candle.md
+  source_version: "0.4"
+  source_status: Draft
+  source_sections: ["§1 Logical Candle Subject", "§2 Canonical event envelope (payload-relevant portions)", "§5 CandleCorrected", "§10 Correction/consumer-obligation semantics", "§11 Duplicate/correction/fail-closed precedence (summarized)"]
+  source_blob: 17c3f9412924de577558dd9bad41c769b45eba22
+  drafted_at_commit: fa248c85c0dc2b1a225084c6b5d534133776afb2
+  note: >
+    Drafting-history citation ONLY (ADR-039 §"Canonical authority/source") — never required to
+    interpret this artifact's own meaning; payload_shape and payload_semantics_and_invariants above
+    are fully self-contained, including a condensed but complete summary of the §11
+    duplicate/correction precedence algorithm's outcome for this event type specifically (not its
+    full step-by-step mechanics, which remain candle.md's own drafting-history content). §10's
+    consumer_obligation semantics (a consumer receiving CandleCorrected must invalidate/recompute
+    every derived fact with causal ancestry including the corrected Candle fact) is
+    context-map.yaml-relationship-level obligation text belonging to each consuming module's own
+    Domain Contract, not this Event Contract's own payload semantic, and is therefore not duplicated
+    here. event_class, allowed_streams, and merge_constraints were governed-authored directly
+    against Chapter 8 §8.3.1/§8.3.4, Approved ADR-036/ADR-041, Approved ADR-047, and this
+    repository's own established terminology — NOT mechanically transcribed from candle.md, which
+    does not declare any of the three fields anywhere.
