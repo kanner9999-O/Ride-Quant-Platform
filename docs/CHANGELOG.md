@@ -2,6 +2,26 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-28 — Upstream state-dependency derivation v0.2: bounded correction (apply-time classification test)
+
+Starting `main == origin/main == 0b5f2181216d0d2d46d96b63e9c8f2dbf7c71769`, fresh-verified, working tree clean. Derivation artifact (v0.1) fresh-verified exact (blob `2c7fa6d62db0b30aecae0e5b4d77cb42ca22378e`) before this correction; `context-market-input.yaml` fresh-verified exact (blob `ce74ddf6291abb2b1ed21938ca88050550fb2a0b`, `version: "0.3"`, `status: Draft`) — unchanged after.
+
+Bounded correction of `docs/project/context-upstream-state-dependency-derivation-001.md` against fresh ChatGPT Review A: `REVISION_REQUIRED — 0 Blocker / 2 Major / 0 Minor`, analysis-artifact Risk `R1`, ADR Scope `ADR_NOT_REQUIRED`. Re-derives the COMPLETE matrix from first principles, not patching only the prior `UNRESOLVED` rows.
+
+`CONTEXT-SD-DERIV-A-MAJ-01` (wrong classification layer): v0.1 conflated "producer read cause payload to compute effect" with "cause is a STATE_DEPENDENCY for authoritative application of the effect." Chapter 8 §8.2.3's controlling test is run/apply-time: does a processor authoritative-applying the already-emitted effect need to read the cause's own payload, or only identity/existence/precedence already available. Applying this corrected test uniformly across all 21 causation-ref categories — now with `docs/domain/swing.md` freshly read and incorporated as pinned authority (confirming exact payload-vs-envelope/subject_ref placements for `SwingConfirmed`/`SwingInvalidated`) — produced a full recomputation: 0 `STATE_DEPENDENCY` (down from 8, all misclassified via the producer/apply conflation), 20 `EXTERNAL_NON_STATE_CAUSE` (up from 9), 1 `VACUOUS` (`CANDLE_CLOSED`, unchanged), 0 `UNRESOLVED` (down from 4). The central finding: every one of the 10 event types is `event_class: derived_fact` with a fully self-contained, materialized payload — no Domain Contract requires a downstream consumer to re-read a causal predecessor's payload to use an already-emitted derived fact.
+
+`CONTEXT-SD-DERIV-A-MAJ-02` (false third shape / ADR escalation): `CANDLE_CORRECTED`'s corrected-fact reference, re-evaluated with the same apply-time test, classifies cleanly as `EXTERNAL_NON_STATE_CAUSE` within the existing two-category model — no third causal-reference shape, no cross-cutting architecture ADR required. The previously-proposed ADR is withdrawn.
+
+Event Contract artifact inventory preserved truthfully (8 of 10 event types still have zero Published artifact; Feature's two Published `v1.0` artifacts remain immutable, still declare no classification) — "classification mechanically derivable" is explicitly distinguished from "Event Contract authority already exists." Versioning/compatibility conclusions retained only where actually supported: Feature `v1.0` stays immutable, version choice not decided, compatibility not characterized as non-breaking absent concrete reader/format evidence; Candle/Structure/Regime each require their own per-`contract_id` `compatibility_commitment` declaration (granularity confirmed per-artifact, not per-family, by direct inspection of Feature's two artifacts) — values not chosen here.
+
+Corrected smallest ordered follow-on sequence (recomputed, not carried over): per-`contract_id` compatibility-commitment decisions → first Event Contract authoring per `contract_id` → Feature Event Contract versioning → fresh Review A of this corrected derivation before any of the above. The previously-proposed architecture ADR and separate Swing-inclusive derivation WP are both withdrawn — superseded by this transaction's own corrected, fully-resolved analysis.
+
+**M2 unchanged (`BLOCKED`). M3 remains `ACTIVE`** (deterministic core CLEAN; ADR-046 APPROVED; context.md v0.4 PO ACCEPTED; Context Input Contract v0.3 unchanged — `REVIEW A CLEAN — R2 — PROCEED WITHOUT CROSS-CHECK — NOT PUBLISHED`; upstream state-dependency derivation now corrected and fully resolved, 0 UNRESOLVED, pending fresh Review A re-review). **M4 remains `QUEUED`.** Phase-3 Approval Gate NOT REACHED; LIVE remains `NOT_AUTHORIZED`.
+
+Next governed action: fresh ChatGPT Review A re-review of the corrected state-dependency derivation before any Event Contract authoring/versioning transaction.
+
+---
+
 ## [Unreleased] — 2026-09-26 — Upstream Event-Contract state-dependency authority: derivation analysis
 
 Starting `main == origin/main == e1b4cf30aa7c70f9d7c60b1119de26baf1b09054`, fresh-verified, working tree clean. `context-market-input.yaml` fresh-verified exact (blob `ce74ddf6291abb2b1ed21938ca88050550fb2a0b`, `version: "0.3"`, `status: Draft`, Review A `CLEAN — 0/0/0`) before this analysis; unchanged after.

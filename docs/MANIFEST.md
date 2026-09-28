@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.459"
+manifest_version: "10.460"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -32477,6 +32477,140 @@ per-family `compatibility_commitment` Product Owner decisions for Candle/Structu
 first Event Contract authoring per family under `ADR-039`; (5) Feature Event Contract versioning
 (`v1.0 → v1.1`/new major); (6) fresh ChatGPT Review A of `CONTEXT-UPSTREAM-STATE-DEPENDENCY-DERIVATION-001`
 before any Event Contract authoring/versioning transaction.
+
+## Upstream state-dependency derivation v0.2 — bounded correction against fresh Review A (`CONTEXT-UPSTREAM-STATE-DEPENDENCY-DERIVATION-001-CORR-001`)
+
+**Bounded correction of [`docs/project/context-upstream-state-dependency-derivation-001.md`](../project/context-upstream-state-dependency-derivation-001.md)
+remediating fresh ChatGPT Review A's two Majors. Re-derives the COMPLETE matrix from first
+principles — does not preserve prior classifications merely because they existed. Does not modify
+Event Contracts, Input Contracts, Domain Contracts, ADRs, Constitution, registries, or runtime.**
+
+**Fresh boundary verification:** HEAD confirmed exactly `0b5f2181216d0d2d46d96b63e9c8f2dbf7c71769`,
+identical to `origin/main`. Confirmed the derivation artifact (v0.1) matched pinned blob
+`2c7fa6d62db0b30aecae0e5b4d77cb42ca22378e` exactly before mutation. Confirmed
+`context-market-input.yaml` matched pinned blob `ce74ddf6291abb2b1ed21938ca88050550fb2a0b` exactly
+(`version: "0.3"`, `status: Draft`, Review A `CLEAN — 0/0/0`, Risk `R2`, `PROCEED WITHOUT
+CROSS-CHECK`, `NOT PUBLISHED`) — unchanged after.
+
+**Review A verdict:** `REVISION_REQUIRED — 0 Blocker / 2 Major / 0 Minor`, analysis-artifact Risk
+`R1`, ADR Scope `ADR_NOT_REQUIRED`. Findings `CONTEXT-SD-DERIV-A-MAJ-01`, `CONTEXT-SD-DERIV-A-MAJ-02`.
+
+**`CONTEXT-SD-DERIV-A-MAJ-01` (wrong classification layer):** v0.1 repeatedly treated "producer
+read cause payload to compute/validate effect" as equivalent to "cause is a `STATE_DEPENDENCY` for
+authoritative application of the effect." Chapter 8 §8.2.3's controlling text is run/apply-time:
+*"nếu processor cần payload/state của một causation_ref A thì stream của A BẮT BUỘC thuộc input
+scope... Causal predecessor không phải state-input của consumer hiện tại thì không bị ép vào
+scope."* Corrected test applied uniformly to all 21 causation-ref categories: (1) what does the
+effect's own payload/subject_ref/envelope already materialize; (2) to authoritative-apply the
+effect, must a processor read the CAUSE's own domain payload; (3) or does it need only identity/
+existence/precedence/envelope-binding already available without reading cause payload — only (2)
+establishes `STATE_DEPENDENCY`. Producer computation dependency and processor apply-time state
+dependency are now explicit, separate matrix columns, never conflated again.
+
+**Central finding exposed by the corrected test:** every one of the 10 Context-authorized upstream
+event types is `event_class: derived_fact` (confirmed for Feature's Published artifacts; implied
+for Candle/Structure/Regime by the total absence of `decision_time`/`decision_context_cursor`). A
+`derived_fact`'s own payload is its owning Domain Contract's asserted complete, materialized,
+trusted result. No Domain Contract in this WP's boundary requires a downstream consumer to re-read
+a causal predecessor's own payload to correctly use an already-emitted derived fact. Re-deriving
+all 21 categories from scratch (not patching only the prior `UNRESOLVED` rows, per the task's own
+instruction) produced: **0 `STATE_DEPENDENCY`** (down from v0.1's 8 — all 8 were misclassified via
+the producer/apply conflation), **20 `EXTERNAL_NON_STATE_CAUSE`** (up from v0.1's 9), **1
+`VACUOUS`** (`CANDLE_CLOSED`, unchanged), **0 `UNRESOLVED`** (down from v0.1's 4). This total is
+recomputed, not patched, per the task's explicit instruction that the prior `17/21` count was
+invalidated by the Review A finding.
+
+**`CONTEXT-SD-DERIV-A-MAJ-02` (false third shape / ADR escalation):** v0.1 treated
+`CANDLE_CORRECTED`'s corrected-fact reference as a possible third causal-reference category
+(same-family/same-stream/lineage) and proposed a cross-cutting architecture ADR. Re-evaluated with
+the identical apply-time test used for every other category: it classifies `EXTERNAL_NON_STATE_CAUSE`
+cleanly within the existing two-category model — the new OHLCV values are supplied directly in the
+correction's own payload, never derived from the old fact, and only identity/envelope-consistency
+(tuple consistency, required uniformly regardless of classification) is read at apply time.
+Same-stream sequence precedence (Chapter 8 §8.3.2/§8.3.3) is a separate ordering invariant; lineage
+meaning is ordinary Domain/Event Contract content — neither creates a third causal-closure class.
+**The proposed architecture ADR is withdrawn; no ADR is required by this corrected derivation.**
+
+**`docs/domain/swing.md` fresh-read and incorporated as pinned authority** (not previously pinned,
+now confirmed): `SwingConfirmed.pivot_price`/`confirmation_evidence` — payload (§4);
+`SwingInvalidated.invalidation_cause`/`invalidation_reason` — payload (§5); `swing_id` —
+`subject_ref.subject_id` (§2), not payload; `swing_revision` —
+`subject_ref.scope.revision_ref.swing_revision` (§2), not payload; pivot/effective time — bound to
+canonical `envelope.effective_time` (§2/§7), not payload. Every category previously `UNRESOLVED`
+for lack of `swing.md` (`STRUCTURE_FACT_INVALIDATED.swing_invalidated`,
+`FEATURE_FACT_INVALIDATED.SwingInvalidated`/`eligible_swing_selection_superseded`, and the
+Swing-evidence sub-category of `FEATURE_COMPUTED.input_fact_refs`) is now fully resolved to
+`EXTERNAL_NON_STATE_CAUSE` — the separate Swing-inclusive re-derivation WP previously proposed is
+**withdrawn**, since `swing.md` is fully incorporated in this same corrected transaction.
+
+**Event Contract artifact inventory preserved, truthful, unaffected by the classification
+correction:** 8 of 10 event types still have zero Published Event Contract today (Candle/
+Structure/Regime); Feature's two Published `v1.0` artifacts remain immutable and still declare no
+state-dependency classification field/rule. "Classification mechanically derivable" is explicitly
+distinguished from "Event Contract authority already exists" — even a fully-resolved,
+uniformly-`EXTERNAL_NON_STATE_CAUSE` classification still requires each artifact to actually
+declare it.
+
+**Versioning/compatibility — retained conclusions only, per the task's explicit instruction not to
+over-claim:** Feature `v1.0` remains immutable, unedited; a new version artifact is required to add
+the classification, but this WP does **not** decide `v1.1` vs a new major, and does **not**
+characterize the addition as non-breaking merely because it appears additive — Chapter 10 §10.3.1's
+concrete reader/format/consumer conformance rule still does not exist anywhere in this repository,
+so actual compatibility still cannot be established; this fact is recorded, no Compatibility Result
+is fabricated. Candle/Structure/Regime: Chapter 10 §10.3.1's declaration requirement is framed per
+published contract — confirmed by direct inspection that each of Feature's two artifacts declares
+its own `compatibility_commitment` independently (even though `ADR-038`'s Decision bundled both
+into one governed transaction). **The authority-supported granularity is per `contract_id`, not per
+family** — each of Candle's 2, Structure's 4, and Regime's 2 relevant `contract_id`s requires its
+own declared value; this WP does not choose any of them and does not assume one family-level
+declaration governs multiple `contract_id`s absent an explicit governed decision doing so.
+
+**No architecture-level unresolved choice was exposed by the corrected analysis; no ADR is
+required.** All three STOP conditions (existing source still insufficient; invent a third causal-
+closure class; invent an ADR requirement merely because difficult) given explicit disposition —
+none triggered, none silently resolved by guessing.
+
+**Corrected smallest ordered follow-on WP sequence (recomputed, not carried over):** (1) per-
+`contract_id` `compatibility_commitment` Product Owner decisions (Candle ×2, Structure ×4, Regime
+×2) — the previously-proposed architecture ADR is removed; (2) first Event Contract authoring per
+`contract_id` under `ADR-039`, each declaring `EXTERNAL_NON_STATE_CAUSE` for every one of its own
+causation-ref categories per this corrected derivation; (3) Feature Event Contract versioning
+(version choice and Compatibility Result not decided here); (4) fresh ChatGPT Review A of this
+corrected derivation, required before steps 1–3. The previously-proposed separate Swing-inclusive
+derivation WP is removed — `swing.md` is now fully incorporated in this same WP.
+
+**Review-A history recorded:** reviewer ChatGPT, `AI Technical Architect`, reviewed boundary
+`0b5f2181216d0d2d46d96b63e9c8f2dbf7c71769`, reviewed artifact blob
+`2c7fa6d62db0b30aecae0e5b4d77cb42ca22378e`, verdict `REVISION_REQUIRED — 0 Blocker / 2 Major / 0
+Minor`. `CONTEXT-SD-DERIV-A-MAJ-01`/`CONTEXT-SD-DERIV-A-MAJ-02`: both `addressed/remediated pending
+fresh Review A`, not self-closed. Analysis-artifact Risk `R1` unchanged; ADR Scope `ADR_NOT_REQUIRED`
+unchanged.
+
+**Confirmed unchanged by this transaction:** `docs/architecture/input-contracts/context-market-input.yaml`
+(fresh-verified byte-identical, blob `ce74ddf6291abb2b1ed21938ca88050550fb2a0b`, `version: "0.3"`,
+`status: Draft`, `NOT PUBLISHED`), every Domain Contract (including `docs/domain/swing.md`, read-only
+this transaction), every Event Contract, `docs/architecture/stream-registry.yaml`,
+`docs/architecture/module-registry.yaml`, every Constitution chapter, every ADR, all production
+source/tests/tooling. No PO approval of Context Input Contract v0.3 recorded; no publication
+authorization recorded; no residual-risk acceptance recorded — only the already-made R2 advisory
+choice `PROCEED WITHOUT CROSS-CHECK` for v0.3 is persisted.
+
+**M2 unchanged (`BLOCKED`, parallel evidence lane). M3 remains `ACTIVE`** — Context deterministic
+core remains `REVIEW A VALIDATED — CLEAN`; `ADR-046` remains `APPROVED`; `context.md` v0.4 remains
+`PO ACCEPTED`; Context Input Contract v0.3 remains `REVIEW A CLEAN — R2 — PROCEED WITHOUT
+CROSS-CHECK — NOT PUBLISHED`, completely unmutated; current blocker: correct upstream per-effect
+state-dependency derivation before Event Contract authority mutation — now **corrected and fully
+resolved** (0 `UNRESOLVED`, 0 `ADR_REQUIRED`), pending fresh Review A re-review. **M4 remains
+`QUEUED`.** Phase-3 Approval Gate `NOT REACHED`; `LIVE` remains `NOT_AUTHORIZED`.
+
+**Files changed:** `docs/project/context-upstream-state-dependency-derivation-001.md` (substantive
+correction), plus deterministic bookkeeping: `docs/MANIFEST.md`, `docs/CHANGELOG.md`,
+`docs/project/milestone.md`, `docs/project/milestone-dashboard.html`. No Event Contract, Input
+Contract, Domain Contract, Stream Registry, Module Registry, Constitution chapter, ADR, or
+production source/tests/tooling touched. `manifest_version` `"10.459"` -> `"10.460"`.
+
+**Next governed action:** Fresh ChatGPT Review A re-review of the corrected state-dependency
+derivation before any Event Contract authoring/versioning transaction.
 
 ## Decision Log
 

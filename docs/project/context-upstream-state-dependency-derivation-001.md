@@ -2,13 +2,13 @@
 id: context-upstream-state-dependency-derivation-001
 title: "Context Upstream Event-Contract State-Dependency Authority — Derivation"
 kind: analysis
-version: "0.1"
+version: "0.2"
 status: Draft
 owner: Product Owner
-generated_at: "2026-09-26"
+generated_at: "2026-09-28"
 ---
 
-# CONTEXT-UPSTREAM-STATE-DEPENDENCY-DERIVATION-001
+# CONTEXT-UPSTREAM-STATE-DEPENDENCY-DERIVATION-001 (v0.2 — corrected)
 
 **Analysis / derivation artifact only.** Does not modify or version any Event Contract; does not
 publish any Event Contract; does not publish `context-market-input / v1.0`; does not modify any
@@ -16,432 +16,354 @@ Domain Contract, Constitution chapter, or ADR; does not implement runtime.
 
 ## 0. Boundary and fresh-verification record
 
-Starting HEAD `e1b4cf30aa7c70f9d7c60b1119de26baf1b09054` — confirmed exact, `main == origin/main`,
-working tree clean before this transaction.
+Starting HEAD `0b5f2181216d0d2d46d96b63e9c8f2dbf7c71769` — confirmed exact, `main == origin/main`,
+working tree clean before this transaction. Reviewed candidate blob (v0.1 of this artifact)
+`2c7fa6d62db0b30aecae0e5b4d77cb42ca22378e` — confirmed exact before mutation.
 
-Pinned source blobs, fresh-verified exact before analysis:
+`docs/architecture/input-contracts/context-market-input.yaml` confirmed unchanged: `version:
+"0.3"`, `status: Draft`, blob `ce74ddf6291abb2b1ed21938ca88050550fb2a0b`, Review A `CLEAN — 0/0/0`,
+Risk `R2`, `PROCEED WITHOUT CROSS-CHECK`, `NOT PUBLISHED` — this transaction does not touch it.
 
-| File | Blob |
+**Fresh Review A of v0.1:** `REVISION_REQUIRED — 0 Blocker / 2 Major / 0 Minor`, analysis-artifact
+Risk `R1`, ADR Scope `ADR_NOT_REQUIRED`. Findings `CONTEXT-SD-DERIV-A-MAJ-01`,
+`CONTEXT-SD-DERIV-A-MAJ-02` — both addressed/remediated in this v0.2, **not self-closed** (closure
+is a fresh Review A re-review determination).
+
+## 1. What was wrong in v0.1, and the corrected test
+
+### 1.1 `CONTEXT-SD-DERIV-A-MAJ-01` — wrong classification layer
+
+v0.1 repeatedly treated *"producer read cause payload to compute/validate effect"* as equivalent
+to *"cause is a STATE_DEPENDENCY for authoritative application of the effect."* Chapter 8 does not
+define the classification that way. The controlling text (§8.2.3, line-for-line):
+
+> *"Với mọi event B mà contract authoritative-apply, nếu processor **cần payload/state** của một
+> `causation_ref` A thì stream của A **BẮT BUỘC** thuộc input scope + cursor universe của contract
+> đó. Causal predecessor **không phải state-input** của consumer hiện tại thì không bị ép vào
+> scope — chỉ cần xác minh identity/existence."*
+
+**Corrected test, applied uniformly to every causation-ref category below:**
+
+1. What does the **effect event's own** payload/subject_ref/envelope already materialize?
+2. To **authoritative-apply** that effect (accept it as valid, fold it into a consumer's own
+   state/view, use it for whatever purpose downstream consumers legitimately have) — must a
+   processor **read** the **cause's own domain payload**?
+3. Or does the processor need only: canonical identity, existence/commit proof, causal
+   precedence, or envelope/subject binding **already available without reading cause payload**?
+
+Only (2) establishes `STATE_DEPENDENCY`. Producer-side computation dependency (what the **producer**
+needed to read from a cause to decide whether/how to emit the effect, before publication) is a
+**separate, distinct question** — labeled `PRODUCER COMPUTATION DEPENDENCY` in the matrix below,
+never conflated with the classification column, `PROCESSOR APPLY-TIME STATE DEPENDENCY`.
+
+**The central finding this correction exposes, once the test is applied uniformly:** every one of
+the 10 Context-authorized upstream event types is `event_class: derived_fact` (confirmed for
+Feature's two Published Event Contracts; implied for Candle/Structure/Regime by the total absence
+of `decision_time`/`decision_context_cursor` anywhere in their own envelopes, per Chapter 8
+§8.2.1/§8.4's decision/non-decision split). A `derived_fact`'s own payload is asserted by its owning
+Domain Contract as the **complete, materialized, trusted result** of its producer's computation —
+`class`/`computed_metric` (Regime), `new_orientation`/`resulting_orientation` (Structure), `value`
+(Feature). No Domain Contract anywhere in this WP's boundary states that a downstream consumer must
+**re-read** a causal predecessor's own payload to correctly use an already-emitted derived fact —
+consumers use the fact's own materialized fields. Every causation_ref in this event set therefore
+exists for **lineage, precedence, and explainability (I-1)** — not for supplying apply-time state a
+consumer would otherwise lack.
+
+### 1.2 `CONTEXT-SD-DERIV-A-MAJ-02` — false third shape / ADR escalation, corrected
+
+v0.1 treated `CANDLE_CORRECTED`'s corrected-fact reference as a possible third causal-reference
+shape (same-family/same-stream/lineage) requiring an architecture ADR. Re-evaluated below (§2.2)
+with the identical apply-time test used for every other category: the corrected-fact reference
+resolves cleanly to `EXTERNAL_NON_STATE_CAUSE` under the existing two-category model. Same-stream
+sequence precedence (Chapter 8 §8.3.2/§8.3.3) is a separate ordering invariant; lineage/supersession
+meaning is ordinary Domain/Event Contract semantic content. Neither creates, nor requires, a third
+causal-closure class. **No ADR is required for this reason** (re-assessed fully in §6).
+
+### 1.3 `docs/domain/swing.md` — fresh-read, now pinned authority
+
+Fresh-read in full this transaction (not previously pinned). Confirmed exact placements (§2, §4, §5
+of `swing.md`):
+
+- `SwingConfirmed.pivot_price` — **payload** (§4 payload block, top-level field).
+- `SwingConfirmed.confirmation_evidence` (`pivot_candle_ref`/`left_evidence_refs`/`right_evidence_refs`)
+  — **payload** (§4 payload block).
+- `SwingInvalidated.invalidation_cause`/`invalidation_reason` — **payload** (§5 payload block).
+- `swing_id` — `subject_ref.subject_id` (§2), **not payload**.
+- `swing_revision` — `subject_ref.scope.revision_ref.swing_revision` (§2), **not payload**.
+- `pivot_effective_time` — bound to `envelope.effective_time` (§2/§7: *"effective_time... LUÔN LUÔN
+  = pivot_effective_time"*), **envelope, not payload**.
+
+These placements are used below wherever a Swing-sourced causation category is evaluated — no
+inference from the prior summary, direct citation of `swing.md`'s own text.
+
+## 2. Corrected derivation matrix
+
+Same 10 event types, no others: `CANDLE_CLOSED`, `CANDLE_CORRECTED`, `BREAK_OF_STRUCTURE_DETECTED`,
+`CHANGE_OF_CHARACTER_DETECTED`, `STRUCTURE_FACT_INVALIDATED`, `STRUCTURE_RECOMPUTED`,
+`REGIME_CLASSIFIED`, `REGIME_FACT_INVALIDATED`, `FEATURE_COMPUTED`, `FEATURE_FACT_INVALIDATED`.
+
+### 2.1 `CANDLE_CLOSED`
+
+Fresh-reconfirmed `candle.md` §4: `causation_refs: []` (root event — no fact it corrects, nothing
+to classify). **Classification: `VACUOUS`.** No causation-ref category exists.
+
+### 2.2 `CANDLE_CORRECTED`
+
+Exactly one category, `candle.md` §5: *"causation_refs PHẢI trỏ chính xác event đang được sửa."*
+
+| Item | Content |
 |---|---|
-| `docs/domain/candle.md` | `17c3f9412924de577558dd9bad41c769b45eba22` |
-| `docs/domain/structure.md` | `78964dfb6852bbac3fa1e034d64b4fc8031c3fef` |
-| `docs/domain/regime.md` | `edd1584377f1db84269e7b1dfdd4926d0ce01c70` |
-| `docs/domain/feature.md` | `fcdb052484a00400a575dbf6baba3a7f99ae42de` |
-| `docs/constitution/08-event-model.md` | `4a27db556e6ee8f9b7ac085194a10c63677b035f` |
-| `docs/adr/ADR-038.md` | `ef931de871786ccd27119528b680d4d85e06c9f2` |
-| `docs/adr/ADR-039.md` | `717904b8fd75104a681805c0c94ab7c9b19e878f` |
-| `docs/architecture/input-contracts/context-market-input.yaml` | `ce74ddf6291abb2b1ed21938ca88050550fb2a0b` |
+| Cause category | Corrected-fact ref (the `CandleClosed`/`CandleCorrected` this correction replaces) |
+| Exact source | `candle.md` §5/§10/§11 |
+| Producer computation dependency | Producer reads the referenced fact's `effective_time`/`recorded_time` (envelope) to bind the correction to the same window and enforce ordering (§5 invariants); the **new OHLCV values themselves are supplied directly** by the venue-provided correction, never derived from the old fact's OHLC |
+| What the effect already materializes | The complete new `open`/`high`/`low`/`close`/`volume` (§5 payload) — a full, self-sufficient replacement value |
+| What apply requires from cause | Only identity (which prior fact is superseded, for lineage/explainability) and the envelope-consistency facts already required uniformly by tuple consistency (§8.2.3) — no OHLC value of the old fact is read to use the new one |
+| Cause payload/state read at apply? | **No** |
+| Classification | **`EXTERNAL_NON_STATE_CAUSE`** |
+| Authority | `candle.md` §5 (new payload self-contained); Chapter 8 §8.2.3 (tuple consistency applies uniformly, is not itself STATE_DEPENDENCY evidence) |
+| Confidence | High — no third causal-reference shape needed; same two-category model applies |
 
-Also fresh-read in full: Chapter 6 §6.7 (`docs/constitution/06-identity-model.md`), Chapter 10
-(`docs/constitution/10-compatibility-capability-contract.md`, particularly §10.3/§10.3.1/§10.4),
-`docs/adr/ADR-040.md`, `docs/architecture/stream-registry.yaml` (confirmed `registry_version: v1.0`,
-`status: Approved`, all four Context-relevant streams `status: active`, `genesis_position: 0`), and
-both Published Feature Event Contracts (`docs/architecture/event-contracts/feature-computed/v1.0.yaml`,
-`docs/architecture/event-contracts/feature-fact-invalidated/v1.0.yaml`).
+### 2.3 `BREAK_OF_STRUCTURE_DETECTED` / 2.4 `CHANGE_OF_CHARACTER_DETECTED`
 
-**Explicit boundary limitation, stated up front:** `docs/domain/swing.md` is **not** among this WP's
-pinned fresh-read sources. Any classification question whose answer depends on Swing's own
-payload-vs-envelope schema (e.g. whether a specific field on `SwingConfirmed`/`SwingInvalidated` is
-payload or envelope/subject-scope) is **not mechanically derivable within this WP's boundary** and is
-marked `UNRESOLVED` below with that reason stated explicitly — never guessed. This is itself a
-governed finding of this WP (see §5.C).
+`structure.md` §3/§4/§6/§6a/§7. Both share the same two categories.
 
-## 1. Authority framework applied
+| Cause category | Producer computation dependency | What the effect already materializes | What apply requires from cause | Read cause payload at apply? | Classification | Authority |
+|---|---|---|---|---|---|---|
+| `broken_swing_ref.swing_confirmed_event_ref` (`swing-confirmed`) | §6's break criterion table compares `candle.high/low/close` against `broken_swing.pivot_price` — the **producer** reads this to decide whether/how to emit BOS/CHoCH at all | `broken_swing_ref` itself: `{swing_id, swing_revision, direction}` (§6a) — the pivot's **identity**, not its price. `prior_orientation`/`new_orientation` (the conclusion) are separately materialized | Identity/verification only — `swing_confirmed_event_ref` is explicitly a "**verification field**" per `structure.md` §6a ("xác minh đúng bản ghi vật lý"), i.e. existence/tuple-consistency, not a value a consumer re-reads to use BOS/CHoCH | **No** | **`EXTERNAL_NON_STATE_CAUSE`** | `structure.md` §6a (verification-field framing, explicit) |
+| `breaking_candle_refs` (`candle-closed`/`candle-corrected`) | Same break criterion table — producer reads Candle OHLC to decide the break | BOS/CHoCH's own payload never copies Candle OHLC — only the reference and the conclusion (`new_orientation`) | Existence/precedence proof only — a consumer already has `new_orientation` and does not need to re-verify the break arithmetic to use the fact | **No** | **`EXTERNAL_NON_STATE_CAUSE`** | `structure.md` §3/§4 payload shape (no OHLC field materialized) |
 
-Chapter 8 §8.2.3 (fresh-read, controlling): `mode: declared-state-dependencies` requires
-`dependency_authority: per_effect_event_contract` — *"mỗi effect event dùng chính `event_contract_ref`
-đã pin của nó để phân loại `causation_refs` nào là state dependency; chỉ những cause đó bắt buộc
-trong scope... Classification KHÔNG được nằm trong code processor."* §8.3.4 supplies the intrinsic
-test applied throughout this derivation:
+Both event types: mechanically derivable, **corrected from `STATE_DEPENDENCY` (v0.1) to
+`EXTERNAL_NON_STATE_CAUSE`** — the v0.1 conclusion conflated the producer's gating computation with
+apply-time need, exactly `CONTEXT-SD-DERIV-A-MAJ-01`'s finding.
 
-```
-causation_ref IN-SCOPE (STATE_DEPENDENCY) → phải cursor-visible VÀ apply trước effect
-causation_ref EXTERNAL (EXTERNAL_NON_STATE_CAUSE) → chỉ cần immutable committed/existence proof;
-                                                     KHÔNG áp rule cursor visibility; cấm đọc payload
-```
+### 2.5 `STRUCTURE_FACT_INVALIDATED`
 
-**The intrinsic question actually asked, per causation-ref category, per event type:** does
-authoritative application of *this effect event* need to **read** the causal predecessor's own
-domain **payload/value** (a business quantity used to compute or validate this effect's own
-payload), or does it only need **proof the predecessor exists** (and, separately, envelope-level
-tuple-consistency — which Chapter 8 §8.2.3 already requires uniformly for *every* `causation_refs`
-element, regardless of STATE_DEPENDENCY/EXTERNAL_NON_STATE_CAUSE classification, and is therefore
-never itself evidence for classifying one way or the other)?
+`structure.md` §5/§10. Four categories, all re-evaluated from scratch.
 
-**Two shortcuts explicitly rejected throughout, per the task's own discipline:**
-- "cause is one of Context's four included streams → therefore STATE_DEPENDENCY" — **not used**.
-- "cause is outside Context's four streams → therefore EXTERNAL_NON_STATE" — **not used**.
+| Cause category | Producer computation dependency | What the effect already materializes | What apply requires from cause | Read cause payload at apply? | Classification | Authority |
+|---|---|---|---|---|---|---|
+| `invalidated_fact_ref` (the BOS/CHoCH being invalidated) | Producer/emission-time invariants (§5) require reading the target's own `broken_swing_ref`/`breaking_candle_refs`/`prior_orientation` **to validate that the emitted `invalidation_cause` is legitimate** — this is a constraint on what a **correct producer** may legitimately emit, not on what a consumer must verify after the fact | `StructureFactInvalidated`'s own payload is exactly `{invalidated_fact_ref, invalidation_cause, invalidation_reason}` — no orientation/level data copied in | A consumer applying (accepting, marking obsolete) this invalidation needs only to know **which** fact is invalidated — identity, not the invalidated fact's own business content | **No** | **`EXTERNAL_NON_STATE_CAUSE`** | `structure.md` §5 payload shape (no business content materialized here); the v0.1 `STATE_DEPENDENCY` conclusion rested on the producer's own emission-time legitimacy checks, the exact conflation `CONTEXT-SD-DERIV-A-MAJ-01` identifies |
+| cause (a) `SwingInvalidated` | Producer matches `swing_id`/`swing_revision` (§5 invariant) — these live in `SwingInvalidated`'s **`subject_ref`/`subject_ref.scope.revision_ref`** (`swing.md` §2), **not its payload** (`swing.md` §5 payload is only `invalidation_cause`/`invalidation_reason`) | Same as above — no Swing content copied into `StructureFactInvalidated`'s own payload | Existence + subject/envelope identity match only — confirmed now that `swing.md` places the matched fields outside payload entirely | **No** | **`EXTERNAL_NON_STATE_CAUSE`** | `swing.md` §2/§5 (fresh-read this transaction) — resolved, was `UNRESOLVED` in v0.1 for lack of `swing.md` |
+| cause (b) `CandleCorrected` | Producer re-evaluates the break criterion against the corrected OHLC (§5 invariant) **to decide whether to emit** this invalidation at all | No OHLC copied into `StructureFactInvalidated`'s own payload | Same as (a)/`invalidated_fact_ref` — existence/identity only | **No** | **`EXTERNAL_NON_STATE_CAUSE`** | `structure.md` §5 payload shape; same corrected reasoning as `invalidated_fact_ref` |
+| cause (c) `chained_invalidation` (prior `StructureFactInvalidated` in cascade) | Producer traverses the dependency-forward chain (§10) to determine emission order | Payload is `{invalidated_fact_ref, invalidation_cause, invalidation_reason}` — no orientation data | Existence/commit-order proof only (§10 step 7: no descendant causation to an uncommitted invalidation) | **No** | **`EXTERNAL_NON_STATE_CAUSE`** | `structure.md` §10 (already the v0.1 conclusion here — unchanged, now clearly consistent with the other three categories rather than an outlier) |
 
-Classification below is derived solely from what each event's own Domain Contract says its
-authoritative application actually reads.
+**Event summary:** all 4 of 4 categories mechanically derivable, all `EXTERNAL_NON_STATE_CAUSE`.
+The `swing_invalidated` category, `UNRESOLVED` in v0.1 for lack of `swing.md`, is now fully
+resolved. No category remains `UNRESOLVED`.
 
-## 2. Event set analyzed
+### 2.6 `STRUCTURE_RECOMPUTED`
 
-Exactly the 10 event types context.md §16 authorizes as Context upstream input:
+`structure.md` §5a. One category, unchanged in substance from v0.1 (it was already reasoned on the
+existence/completeness basis, not producer-computation-provenance, so the correction does not
+change its conclusion — re-verified here for completeness).
 
-| Family | Event types | Producer stream |
+| Cause category | Producer computation dependency | What the effect already materializes | What apply requires from cause | Read cause payload at apply? | Classification | Authority |
+|---|---|---|---|---|---|---|
+| Full `StructureFactInvalidated` set of the cascade | Producer must enumerate the complete set to know the cascade is finished before recomputing (§5a) | `resulting_orientation` is computed by refolding Swing/Candle facts pinned via `payload.input_cursor_ref` — a mechanism entirely separate from `causation_refs` | Only proof the cascade's invalidation set is complete (§5a invariant: none of the affected facts may be missing) — never the referenced facts' own payload (which carries no orientation data at all) | **No** | **`EXTERNAL_NON_STATE_CAUSE`** | `structure.md` §5a (`input_cursor_ref` is the actual computation input, not the causation set) |
+
+**Event summary:** mechanically derivable, unchanged conclusion.
+
+### 2.7 `REGIME_CLASSIFIED`
+
+`regime.md` §3/§6/§8a/§10. Two categories, re-evaluated.
+
+| Cause category | Producer computation dependency | What the effect already materializes | What apply requires from cause | Read cause payload at apply? | Classification | Authority |
+|---|---|---|---|---|---|---|
+| `candle_evidence_refs` | `metric_formula_id` (§6) reads these Candles' own OHLCV to **compute** `computed_metric`/`class` — a **producer**-side dependency | `class` and `computed_metric` are already fully materialized in `RegimeClassified`'s own payload (§3) | A consumer uses `class`/`computed_metric` directly — no need to re-derive them from Candle OHLC | **No** | **`EXTERNAL_NON_STATE_CAUSE`** | `regime.md` §3/§6 (result fully materialized) — **corrected from `STATE_DEPENDENCY` (v0.1)**, which had conflated the metric formula's producer-side read with apply-time need |
+| `RegimeFactInvalidated` ref (replacement case) | Producer must confirm the invalidation exists/is visible before emitting a replacement (§3 rule 2/4/7) | `class`/`computed_metric` of the replacement are recomputed solely from `candle_evidence_refs`, never from the referenced `RegimeFactInvalidated`'s own payload (`{invalidated_fact_ref, invalidation_reason}`) | Existence/visibility proof only | **No** | **`EXTERNAL_NON_STATE_CAUSE`** | `regime.md` §3 invariants (unchanged from v0.1 — this category was already reasoned correctly there) |
+
+**Event summary:** both categories mechanically derivable, both `EXTERNAL_NON_STATE_CAUSE`.
+
+### 2.8 `REGIME_FACT_INVALIDATED`
+
+`regime.md` §4/§10. Two categories — **unchanged conclusions from v0.1**, since that analysis was
+already reasoned on the envelope-vs-payload/unconditional-policy basis, not producer-computation
+provenance; re-verified here under the corrected test for completeness.
+
+| Cause category | Producer computation dependency | What the effect already materializes | What apply requires from cause | Read cause payload at apply? | Classification | Authority |
+|---|---|---|---|---|---|---|
+| `invalidated_fact_ref` | Producer inherits `subject_ref`/`effective_time` (envelope, not payload) from the target (§4 binding rule); invalidates **unconditionally** whenever an affecting `CandleCorrected` exists (§10), never re-validating `class`/`computed_metric` | `{invalidated_fact_ref, invalidation_reason}` only | Existence + envelope binding, already available without reading the target's own `class`/`computed_metric` payload | **No** | **`EXTERNAL_NON_STATE_CAUSE`** | `regime.md` §4/§10 |
+| `CandleCorrected` (direct cause) | Producer's unconditional policy needs only the **identity** of which Candle was corrected (does it appear in some `RegimeClassified`'s evidence?), never its new value, since invalidation fires regardless of whether the value changed | Same as above | Identity/existence only | **No** | **`EXTERNAL_NON_STATE_CAUSE`** | `regime.md` §10 (explicit unconditional trigger) |
+
+**Event summary:** both categories mechanically derivable, unchanged, both `EXTERNAL_NON_STATE_CAUSE`.
+
+### 2.9 `FEATURE_COMPUTED`
+
+`feature.md` §3/§6/§7. Two categories, re-evaluated (the Swing-evidence sub-category of
+`input_fact_refs` is now fully resolvable with `swing.md` pinned).
+
+| Cause category | Producer computation dependency | What the effect already materializes | What apply requires from cause | Read cause payload at apply? | Classification | Authority |
+|---|---|---|---|---|---|---|
+| `input_fact_refs` (Candle and/or Regime and/or Swing evidence, `feature_type`-dependent) | §7.1/§7.2 formulas read Candle-evidence OHLC; §7.3 (`distance_to_last_confirmed_swing`) reads the winning `SwingConfirmed.pivot_price` (confirmed **payload**, `swing.md` §4) and a reference Candle — all **producer**-side reads to compute `value` | `value` (the computed result) is fully materialized in `FeatureComputed`'s own payload (§3), regardless of `feature_type` | A consumer (Strategy/Context/any downstream) uses `value` directly — it does not re-derive it from Candle OHLC, Regime `class`, or Swing `pivot_price` | **No** | **`EXTERNAL_NON_STATE_CAUSE`** for every evidence sub-category (Candle, Regime, Swing alike) | `feature.md` §3 (`value` fully materialized); `swing.md` §4 (confirms `pivot_price` is payload, and confirms it is not re-read downstream of `FeatureComputed`'s own materialized `value`) — **corrected from `STATE_DEPENDENCY` (v0.1)**, and the Swing sub-category is now **resolved** (was pending `swing.md` in v0.1) rather than field-level-deferred |
+| `FeatureFactInvalidated` ref (replacement case) | Producer confirms the invalidation is visible before emitting a replacement | `value` of the replacement is recomputed solely from `input_fact_refs`, never from the referenced `FeatureFactInvalidated`'s own payload | Existence/visibility proof only | **No** | **`EXTERNAL_NON_STATE_CAUSE`** | `feature.md` §3 invariants (unchanged from v0.1) |
+
+**Event summary:** both categories mechanically derivable, both `EXTERNAL_NON_STATE_CAUSE`, no
+remaining Swing-dependent field-level deferral.
+
+### 2.10 `FEATURE_FACT_INVALIDATED`
+
+`feature.md` §4/§9a. Five categories, all re-evaluated; the two Swing-dependent categories
+(`UNRESOLVED` in v0.1) are now resolved using `swing.md`.
+
+| Cause category | Producer computation dependency | What the effect already materializes | What apply requires from cause | Read cause payload at apply? | Classification | Authority |
+|---|---|---|---|---|---|---|
+| `invalidated_fact_ref` | Producer inherits `subject_ref`/`effective_time` from the target; invalidates unconditionally per `feature.md` §3's explicit adoption of `regime.md` §10's policy | `{invalidated_fact_ref, invalidation_cause, invalidation_reason, computation_cursor, computation_dependency_content_evidence}` — no re-copy of the target's `value` | Existence + envelope binding only | **No** | **`EXTERNAL_NON_STATE_CAUSE`** | `feature.md` §3 invariant citing `regime.md` §10 (unchanged from v0.1) |
+| cause (a) `CandleCorrected` | Same unconditional-trigger reasoning as Regime | Same as above | Identity/existence only | **No** | **`EXTERNAL_NON_STATE_CAUSE`** | `feature.md` §4 description + §3 policy invariant (unchanged) |
+| cause (b) `RegimeFactInvalidated` | Same unconditional-trigger reasoning | Same as above | Identity/existence only | **No** | **`EXTERNAL_NON_STATE_CAUSE`** | `feature.md` §4/§3 (unchanged) |
+| cause (c) `SwingInvalidated` | Producer matches `swing_id`/`swing_revision` (subject_ref/scope fields per `swing.md` §2, not payload) to decide whether this cause legitimately applies | Same `FeatureFactInvalidated` payload as above | Existence + subject/envelope identity match only | **No** | **`EXTERNAL_NON_STATE_CAUSE`** | `swing.md` §2/§5 (fresh-read) — **resolved**, was `UNRESOLVED` in v0.1 |
+| cause (d) `eligible_swing_selection_superseded` (winning `SwingConfirmed`) | Producer evaluates §9a's full cursor-visibility predicate + 5-step filter pipeline + 8-criterion total order against the winning `SwingConfirmed`'s own fields — `pivot_price` (payload, `swing.md` §4), `pivot_effective_time` (bound to **envelope** `effective_time`, `swing.md` §2/§7), `recorded_time`/`sequence`/`stream_ref` (envelope) — **entirely to decide whether this invalidation may legitimately be emitted at all** | `FeatureFactInvalidated`'s own payload does not copy the winning `SwingConfirmed`'s `pivot_price` or `confirmation_evidence` — only `invalidated_fact_ref`/`invalidation_cause`/`computation_cursor` | A consumer accepting this already-emitted invalidation needs only to know that a winning `SwingConfirmed` reference exists (identity/lineage) — it does not need to re-verify the total-order computation or read `pivot_price` to use the fact that the prior `FeatureComputed` is now superseded | **No** | **`EXTERNAL_NON_STATE_CAUSE`** | `swing.md` §2/§4 (fresh-read, confirms exact payload/envelope placement); `feature.md` §4 (payload shape confirms no re-copy) — **resolved**, was `UNRESOLVED` in v0.1; the producer-side total-order evaluation is real but is, per §1.1's corrected test, a producer computation dependency, not an apply-time one |
+
+**Event summary:** all 5 of 5 categories mechanically derivable, all `EXTERNAL_NON_STATE_CAUSE`. No
+category remains `UNRESOLVED`.
+
+## 3. Corrected totals
+
+| Metric | v0.1 (superseded) | v0.2 (corrected) |
 |---|---|---|
-| Candle | `CANDLE_CLOSED`, `CANDLE_CORRECTED` | `market-data-ingestion-candle` |
-| Structure | `BREAK_OF_STRUCTURE_DETECTED`, `CHANGE_OF_CHARACTER_DETECTED`, `STRUCTURE_FACT_INVALIDATED`, `STRUCTURE_RECOMPUTED` | `structure-engine-structure` |
-| Regime | `REGIME_CLASSIFIED`, `REGIME_FACT_INVALIDATED` | `raw-regime-engine-regime` |
-| Feature | `FEATURE_COMPUTED`, `FEATURE_FACT_INVALIDATED` | `feature-engine-feature` |
+| Total causation-ref categories | 21 | 21 |
+| `STATE_DEPENDENCY` | 8 | **0** |
+| `EXTERNAL_NON_STATE_CAUSE` | 9 | **20** |
+| `VACUOUS` | 1 (implicit, `CANDLE_CLOSED`) | 1 (`CANDLE_CLOSED`) |
+| `UNRESOLVED` | 4 | **0** |
 
-No other event family (CandleObserved, CandleDataGapObserved, Swing events, current-view records,
-Context output events, Strategy/Decision/Risk/Execution) is in scope.
+**Every one of the 20 non-vacuous categories, across all 10 event types, classifies
+`EXTERNAL_NON_STATE_CAUSE`.** This is not a rounding artifact of applying one rule loosely — it
+follows mechanically, category by category, from the same single structural fact restated in §1.1:
+every event in this set is a `derived_fact` whose own payload is a complete materialized result: no
+Domain Contract in this WP's boundary (now including `swing.md`) requires a downstream authoritative
+application of any of these 10 event types to re-read a causal predecessor's own payload. Every
+`causation_refs` element in this set exists for lineage/precedence/explainability (I-1), satisfying
+`EXTERNAL_NON_STATE_CAUSE`'s own definition exactly (existence/commitment proof, no payload read,
+no cursor-visibility/apply-scope requirement).
 
-## 3. Derivation matrix
+This total invalidates and replaces v0.1's `17 mechanically derivable / 4 UNRESOLVED` count, per
+the task's own instruction that it "must be recomputed," not patched.
 
-For each event, the 12 requested items are folded into: canonical identity + Domain Contract
-source + Event Contract artifact status (items 1–6); then, per causation-ref category, the
-classification table (items 7–8); then a per-event summary (items 9–12).
+## 4. Event Contract artifact inventory — unaffected by the classification correction
 
-### 3.1 `CANDLE_CLOSED`
+Classification (§2/§3) is now fully resolved for all 21 categories — this is a separate fact from
+**whether an Event Contract artifact exists to declare it**. Preserved, truthful inventory:
 
-- Canonical contract concept ID: `candle-closed`. `event_type: CANDLE_CLOSED`. Producer stream:
-  `market-data-ingestion-candle`. Source: `candle.md` §4.
-- Event Contract artifact status: **absent** (no Event Contract exists for any Candle event type).
-  Potential path under ADR-039: `docs/architecture/event-contracts/candle-closed/v1.0.yaml`.
-- `candle.md` §4: *"causation_refs: [] (root event — không sửa một fact nào trước)."*
-- **`causation_refs: []` — normatively root.** No causal predecessor exists to classify.
+- **8 of 10** Context-upstream effect event types have **no Published Event Contract** today:
+  `CANDLE_CLOSED`, `CANDLE_CORRECTED` (Candle family, zero artifacts); `BREAK_OF_STRUCTURE_DETECTED`,
+  `CHANGE_OF_CHARACTER_DETECTED`, `STRUCTURE_FACT_INVALIDATED`, `STRUCTURE_RECOMPUTED` (Structure
+  family, zero artifacts); `REGIME_CLASSIFIED`, `REGIME_FACT_INVALIDATED` (Regime family, zero
+  artifacts).
+- `FEATURE_COMPUTED`/`FEATURE_FACT_INVALIDATED`: Published, immutable, `v1.0`
+  (`docs/architecture/event-contracts/feature-computed/v1.0.yaml`,
+  `docs/architecture/event-contracts/feature-fact-invalidated/v1.0.yaml`) — neither artifact
+  contains the state-dependency classification field/rule this WP derives (confirmed by direct
+  read, unchanged from the prior WP's finding).
 
-**Classification: `VACUOUS`** (no causation-ref category exists — do not invent one).
-Mechanically derivable: **YES** (trivial — root-event cardinality is Chapter 8 §8.2.1's own
-already-Locked rule, applied not reinterpreted). Already satisfies `per_effect_event_contract`:
-**N/A** (nothing to classify) — but the Event Contract artifact itself still does not exist.
-Blocking gap: **artifact missing**. Next action: author first Candle Event Contract(s) under
-ADR-039 (§4.D below).
+**"Classification mechanically derivable" is not "Event Contract authority already exists."** Even
+though every category's correct value is now known, no Event Contract for any of the 10 event types
+currently *declares* it — Chapter 8 §8.2.3 requires the artifact itself to carry the classification
+("mỗi effect event dùng chính `event_contract_ref` đã pin của nó để phân loại"), not merely for the
+value to be derivable by an external analysis document.
 
-### 3.2 `CANDLE_CORRECTED`
+## 5. Versioning / compatibility — retained conclusions only
 
-- Canonical contract concept ID: `candle-corrected`. Producer stream: `market-data-ingestion-candle`.
-  Source: `candle.md` §5/§10/§11.
-- Event Contract artifact status: **absent**. Potential path:
-  `docs/architecture/event-contracts/candle-corrected/v1.0.yaml`.
-- `candle.md` §5: *"causation_refs KHÔNG rỗng"* — exactly one category: a reference to the
-  `CandleClosed`/`CandleCorrected` fact being corrected ("`causation_refs` PHẢI trỏ chính xác event
-  đang được sửa").
+**Feature (`feature-computed`/`feature-fact-invalidated` v1.0):** immutable, **remains unedited**.
+Adding the now-fully-resolved classification (a declaration that every one of its `causation_refs`
+categories is `EXTERNAL_NON_STATE_CAUSE`) requires a new, separate version artifact. This WP does
+**not** decide `v1.1` vs a new major, and does **not** characterize the addition as non-breaking
+merely because it appears additive — Chapter 10 §10.3.1 explicitly defers the concrete
+reader/format/consumer conformance rule needed to actually determine that, and no such rule exists
+anywhere in this repository today; `ADR-038` itself declines to assume any unknown-field-tolerance
+behavior. **Actual compatibility cannot be established without that concrete evidence — this fact
+is recorded, not a Compatibility Result, and none is fabricated.**
 
-| Category | Referenced family | Why carried | Payload/state needed by this effect's own application? | Proposed classification | Authority |
-|---|---|---|---|---|---|
-| corrected-fact ref | `candle-closed`/`candle-corrected` (same family, same stream) | Identifies which prior fact this correction replaces (§11 precedence algorithm, Bước 4) | The new OHLCV values are supplied **directly** in this event's own payload (venue-provided correction), never derived from the old fact's OHLC. The only reads against the referenced fact are `effective_time` and `recorded_time` — both **envelope** fields (candle.md §2), used for envelope-consistency binding ("effective_time KHÔNG đổi", "recorded_time PHẢI mới hơn"), not domain payload | `UNRESOLVED` | Chapter 8 §8.2.3's STATE_DEPENDENCY/EXTERNAL_NON_STATE_CAUSE dichotomy is framed around **cross-stream** value inputs (its own worked example: `ARBITRAGE_DECISION_CREATED` depending on two quote streams + risk state). A same-family, same-stream **lineage-supersession** reference — "which prior record does this one replace" — is a third causal-reference shape existing authority does not explicitly address. Envelope-consistency reads (tuple consistency, §8.2.3) are required uniformly regardless of classification and are therefore not themselves evidence either way. More than one legitimate reading exists → STOP triggered, not guessed |
+**Candle/Structure/Regime compatibility-declaration state and granularity:** none of the three has
+ever declared a `compatibility_commitment` — no Event Contract of any kind exists for any of them.
+Chapter 10 §10.3.1's declaration requirement is framed per **published contract** — confirmed by
+direct inspection that each of Feature's two Published artifacts carries its **own**
+`compatibility_commitment` line (`feature-computed/v1.0.yaml` and `feature-fact-invalidated/v1.0.yaml`
+each declare it independently, even though `ADR-038`'s own Decision text bundled the rationale for
+both into one governed transaction). **The authority-supported granularity is per `contract_id`
+(per Event Contract artifact), not per family.** A single governed Product Owner decision *may*
+choose to declare the same value for multiple `contract_id`s in one transaction — exactly as
+`ADR-038` did for Feature's two — but that is a matter of how many artifacts one transaction bundles,
+never evidence that declaring one `contract_id`'s commitment automatically governs another,
+un-declared `contract_id` in the same family. Each of Candle's 2, Structure's 4, and Regime's 2
+relevant `contract_id`s requires its **own** stated `compatibility_commitment` before that artifact
+can be evaluated compatible. **This WP does not choose any of these values.**
 
-**Event summary:** mechanically derivable: **NO** (1 of 1 category UNRESOLVED). Already satisfies
-`per_effect_event_contract`: **NO**. Blocking gap: artifact missing **and** classification
-semantic unresolved. Next action: see §6 ADR classification — this is the primary candidate for
-architecture-level clarification, since the identical ambiguity recurs verbatim in
-`CANDLE_CORRECTED`'s counterparts across Structure/Regime/Feature (§3.5, §3.7, §3.9 below).
+## 6. ADR classification — re-assessed after the corrected matrix
 
-### 3.3 `BREAK_OF_STRUCTURE_DETECTED` and 3.4 `CHANGE_OF_CHARACTER_DETECTED`
+No `UNRESOLVED` classification category remains (§3). No genuinely architecture-level unresolved
+choice was exposed by the corrected analysis: the apply-time test (§1.1), applied identically to
+all 21 categories using only each event's own already-authored Domain Contract text (now including
+`swing.md`), produced a single, uniform, mechanically consistent answer with no competing
+interpretation requiring a Product-Owner-level architectural decision.
 
-Structurally identical causation shape (`structure.md` §3/§4/§6/§6a/§7) — analyzed together.
+**`CONTEXT-SD-DERIV-A-MAJ-02`'s specific question — is `CANDLE_CORRECTED`'s corrected-fact
+reference a genuine third causal-reference shape requiring an ADR — is answered NO** (§2.2): it
+classifies `EXTERNAL_NON_STATE_CAUSE` under the ordinary two-category model, the same as every
+same-family lineage reference examined in this WP (`STRUCTURE_FACT_INVALIDATED.invalidated_fact_ref`,
+`REGIME_FACT_INVALIDATED.invalidated_fact_ref`, `FEATURE_FACT_INVALIDATED.invalidated_fact_ref`, the
+`RegimeFactInvalidated`/`FeatureFactInvalidated` supersede refs in `REGIME_CLASSIFIED`/`FEATURE_COMPUTED`).
+Same-stream sequence precedence and lineage/supersession meaning remain, respectively, an ordinary
+Chapter 8 ordering invariant and ordinary Domain/Event Contract content — neither requires, nor
+motivates, a third classification value.
 
-- Canonical contract concept IDs: `break-of-structure-detected`, `change-of-character-detected`.
-  Producer stream: `structure-engine-structure`.
-- Event Contract artifact status: **absent** for both. Potential paths:
-  `docs/architecture/event-contracts/break-of-structure-detected/v1.0.yaml`,
-  `.../change-of-character-detected/v1.0.yaml`.
-- `structure.md` §3/§4: *"causation_refs PHẢI chứa: `broken_swing_ref.swing_confirmed_event_ref`;
-  VÀ `breaking_candle_refs` cung cấp bằng chứng break."*
+**No ADR is required by this corrected derivation.** The per-`contract_id` `compatibility_commitment`
+declarations (§5) and Feature's own future versioning Compatibility Result remain ordinary, bounded
+Product Owner/governance decisions under already-Approved `ADR-038`/`ADR-039` — ordinary Event
+Contract governance, not a new architecture choice.
 
-| Category | Referenced family | Why carried | Payload/state needed? | Proposed classification | Authority |
-|---|---|---|---|---|---|
-| `swing_confirmed_event_ref` (via `broken_swing_ref`) | `swing-confirmed` | Identifies the Eligible Swing level being broken (§6a) | §6's break criterion table literally compares `candle.high/low/close` against **`broken_swing.pivot_price`** — a value read from the referenced `SwingConfirmed` fact's own payload, directly gating whether this effect event may even be emitted | `STATE_DEPENDENCY` | `structure.md` §6 (pinned, self-contained — this dependency is asserted by Structure's own Domain Contract, independent of Swing's internal schema, so no `swing.md` read is required to establish it) |
-| `breaking_candle_refs` | `candle-closed`/`candle-corrected` | Provides the authoritative Candle(s) confirming the break | Same break criterion table reads `candle.high`/`candle.low`/`candle.close` directly from the referenced Candle fact's own payload | `STATE_DEPENDENCY` | `structure.md` §6, `candle.md` §3/§4 payload |
+## 7. STOP conditions — explicit disposition
 
-**Event summary (both event types):** mechanically derivable: **YES**, both categories, high
-confidence. Already satisfies `per_effect_event_contract`: **NO** — no Event Contract artifact
-exists. Blocking gap: artifact missing only (classification itself is clear). Next action:
-first-publication Structure Event Contract authoring under ADR-039 (§4.D).
+- **"Existing source still does not establish whether apply-time cause payload/state is required"**
+  — not triggered for any of the 21 categories; every one resolves via the same uniform,
+  mechanically-applied test once `swing.md` is included.
+- **"Invent a third causal-closure class"** — not done; `CANDLE_CORRECTED`'s reference resolves
+  within the existing two-category model (§2.2, §6).
+- **"Invent an ADR requirement merely because a classification is difficult"** — not done; no
+  category required a Product-Owner-level architectural choice once producer-computation
+  dependency was correctly separated from apply-time need.
 
-### 3.5 `STRUCTURE_FACT_INVALIDATED`
+No classification was left `UNRESOLVED` by omission; none was silently guessed.
 
-- Canonical contract concept ID: `structure-fact-invalidated`. Producer stream:
-  `structure-engine-structure`. Source: `structure.md` §5/§10.
-- Event Contract artifact status: **absent**. Potential path:
-  `docs/architecture/event-contracts/structure-fact-invalidated/v1.0.yaml`.
-- `structure.md` §5: *"causation_refs PHẢI trỏ: event BOS/CHoCH đang bị invalidate (bắt buộc, đúng
-  một); VÀ nguyên nhân — SwingInvalidated (a), CandleCorrected (b), hoặc StructureFactInvalidated
-  của fact mà nó phụ thuộc trong cascade (c)."*
+## 8. Corrected smallest ordered follow-on WP sequence (not executed here)
 
-| Category | Referenced family | Why carried | Payload/state needed? | Proposed classification | Authority |
-|---|---|---|---|---|---|
-| `invalidated_fact_ref` (the BOS/CHoCH being invalidated) | `break-of-structure-detected`/`change-of-character-detected` | Identifies the specific historical fact being negated | **All three** `invalidation_cause` legitimacy invariants (§5) require reading this referenced fact's own payload: cause `swing_invalidated` needs its `broken_swing_ref`; cause `breaking_candle_corrected` needs its `breaking_candle_refs`; cause `chained_invalidation` needs its `prior_orientation`. This is a genuine payload read on the invalidated fact itself, not merely identity/existence | `STATE_DEPENDENCY` | `structure.md` §5 invariants (all three, explicit) |
-| cause (a) `SwingInvalidated` | `swing-invalidated` | Proves the broken Swing level itself was invalidated | Validation requires matching `swing_id`/`swing_revision` — **whether these fields live in `SwingInvalidated`'s payload or in its `subject_ref`/scope is a `swing.md` fact this WP cannot verify** (swing.md not pinned) | `UNRESOLVED` | Requires `swing.md` — out of this WP's boundary (§0) |
-| cause (b) `CandleCorrected` | `candle-corrected` | Proves the breaking Candle was itself corrected | §5 invariant: *"invalidation_cause = breaking_candle_corrected CHỈ hợp lệ khi... payload đã sửa không còn thỏa break criterion (§9)"* — this **explicitly** requires reading `CandleCorrected`'s own new OHLC payload and re-evaluating the break formula | `STATE_DEPENDENCY` | `structure.md` §5 invariant (explicit, conditional re-validation) |
-| cause (c) `chained_invalidation` (prior `StructureFactInvalidated` in same cascade) | `structure-fact-invalidated` | Proves this fact's cascade-ordering precondition (§10 step 7: no descendant invalidation causation to an uncommitted invalidation) | The referenced `StructureFactInvalidated`'s own payload is `{invalidated_fact_ref, invalidation_cause, invalidation_reason}` only — no orientation data. The chaining *semantic* check reads `prior_orientation` from `invalidated_fact_ref` (already counted above), not from this reference. This reference itself proves only that the prior cascade step has already **committed** | `EXTERNAL_NON_STATE_CAUSE` | `structure.md` §10 step 7 (existence/commit-order proof only, intrinsic test applied directly — not a stream-membership shortcut) |
+Recomputed from scratch, not carried over from v0.1:
 
-**Event summary:** mechanically derivable: **3 of 4** categories (`invalidated_fact_ref`,
-`breaking_candle_corrected`, `chained_invalidation`); **1 of 4 UNRESOLVED** (`swing_invalidated`,
-requires `swing.md`). Already satisfies `per_effect_event_contract`: **NO** (artifact absent, and
-one category unresolved). Blocking gap: artifact missing + one classification category pending a
-Swing-inclusive re-derivation. Next action: (i) first-publication Structure Event Contract
-authoring for the 3 resolved categories; (ii) a follow-on Swing-inclusive derivation WP for the
-`swing_invalidated` category only.
-
-### 3.6 `STRUCTURE_RECOMPUTED`
-
-- Canonical contract concept ID: `structure-recomputed`. Producer stream: `structure-engine-structure`.
-  Source: `structure.md` §5a.
-- Event Contract artifact status: **absent**. Potential path:
-  `docs/architecture/event-contracts/structure-recomputed/v1.0.yaml`.
-- `structure.md` §5a: *"causation_refs PHẢI trỏ đủ MỌI StructureFactInvalidated thuộc cùng
-  cascade."*
-
-| Category | Referenced family | Why carried | Payload/state needed? | Proposed classification | Authority |
-|---|---|---|---|---|---|
-| full `StructureFactInvalidated` set of the cascade | `structure-fact-invalidated` | Proves the cascade is complete before recomputation | `resulting_orientation` is computed by **refolding** Swing/Candle facts pinned via `payload.input_cursor_ref` — a completely separate mechanism from `causation_refs`. The referenced `StructureFactInvalidated` events' own payload (`invalidated_fact_ref`/`invalidation_cause`/`invalidation_reason`) is never read to compute `resulting_orientation`; only their **existence as a complete set** (§5a invariant: none of the affected facts may be missing from causation) is required | `EXTERNAL_NON_STATE_CAUSE` | `structure.md` §5a (explicit: recomputation input is `input_cursor_ref`, not the causation set's own payload) |
-
-**Event summary:** mechanically derivable: **YES** (1 of 1). Already satisfies
-`per_effect_event_contract`: **NO** (artifact absent). Blocking gap: artifact missing only. Next
-action: first-publication Structure Event Contract authoring.
-
-### 3.7 `REGIME_CLASSIFIED`
-
-- Canonical contract concept ID: `regime-classified`. Producer stream: `raw-regime-engine-regime`.
-  Source: `regime.md` §3/§8/§8a/§10.
-- Event Contract artifact status: **absent**. Potential path:
-  `docs/architecture/event-contracts/regime-classified/v1.0.yaml`.
-- `regime.md` §3: *"causation_refs KHÔNG BAO GIỜ rỗng: (a) original — toàn bộ candle_evidence_refs;
-  (b) replacement — candle_evidence_refs đã cập nhật VÀ chính RegimeFactInvalidated đang được
-  supersede."*
-
-| Category | Referenced family | Why carried | Payload/state needed? | Proposed classification | Authority |
-|---|---|---|---|---|---|
-| `candle_evidence_refs` | `candle-closed`/`candle-corrected` | The Candle window this classification is computed over | `payload.computed_metric` is directly computed by `metric_formula_id` (§6) operating on these Candles' own OHLCV payload; `class` is derived from `computed_metric` against `class_thresholds`. Genuine, formula-level payload dependency | `STATE_DEPENDENCY` | `regime.md` §6 (metric formula reads Candle evidence), §3 invariants |
-| `RegimeFactInvalidated` ref (replacement case only) | `regime-fact-invalidated` | Proves the fact this replacement supersedes has actually been invalidated (lineage precondition, §3/§10 rule 2/4/7) | `class`/`computed_metric` of the replacement are recomputed **solely** from `candle_evidence_refs` — the referenced `RegimeFactInvalidated`'s own payload (`invalidated_fact_ref`/`invalidation_reason`) is never read; only its existence/visibility is required | `EXTERNAL_NON_STATE_CAUSE` | `regime.md` §3 invariants (recomputation uses only evidence refs) |
-
-**Event summary:** mechanically derivable: **YES** (2 of 2). Already satisfies
-`per_effect_event_contract`: **NO** (artifact absent). Blocking gap: artifact missing only. Next
-action: first-publication Regime Event Contract authoring.
-
-### 3.8 `REGIME_FACT_INVALIDATED`
-
-- Canonical contract concept ID: `regime-fact-invalidated`. Producer stream:
-  `raw-regime-engine-regime`. Source: `regime.md` §4/§10.
-- Event Contract artifact status: **absent**. Potential path:
-  `docs/architecture/event-contracts/regime-fact-invalidated/v1.0.yaml`.
-- `regime.md` §4: *"causation_refs PHẢI trỏ: invalidated_fact_ref (bắt buộc, đúng một); VÀ
-  CandleCorrected là nguyên nhân trực tiếp."* — the **single** cause family (unlike Structure,
-  Regime does not consume Swing, so there is no `swing_invalidated`/`chained_invalidation` branch —
-  `regime.md` §4 description states this explicitly, symmetric with `ADR-003`).
-
-| Category | Referenced family | Why carried | Payload/state needed? | Proposed classification | Authority |
-|---|---|---|---|---|---|
-| `invalidated_fact_ref` | `regime-classified` | Identifies the fact being invalidated; envelope binding requires inheriting `subject_ref`/`effective_time` from it | Regime's invalidation policy is **unconditional**: §10 explicitly requires invalidation whenever a `CandleCorrected` affects `candle_evidence_refs`, "kể cả khi cả computed_metric lẫn class cuối cùng đều giữ nguyên" — there is **no** conditional re-validation against this fact's own `class`/`computed_metric` payload (contrast Structure §3.5 above, where `invalidation_cause` legitimacy explicitly reads the invalidated fact's payload). The only reads are `subject_ref`/`effective_time` — both **envelope** fields (regime.md §2), used for binding, not domain payload | `EXTERNAL_NON_STATE_CAUSE` | `regime.md` §4/§10 (unconditional invalidation policy; envelope inheritance ≠ payload dependency, same envelope/payload split `candle.md`/`structure.md`/`feature.md` all use) |
-| `CandleCorrected` (direct cause) | `candle-corrected` | Proves the triggering correction | Same unconditional policy — the invalidation decision needs only the **identity** of which Candle was corrected (does it appear in some `RegimeClassified`'s `candle_evidence_refs`?), never the corrected value itself, since invalidation fires regardless of whether the value actually changed | `EXTERNAL_NON_STATE_CAUSE` | `regime.md` §10 (unconditional trigger, explicit) |
-
-**Event summary:** mechanically derivable: **YES** (2 of 2) — and notably **both** categories
-classify **differently** from their nearest Structure analogue (`invalidated_fact_ref` and
-`breaking_candle_corrected`/`CandleCorrected`), precisely because Regime's own Domain Contract
-defines an unconditional invalidation policy where Structure's defines a conditional one. This is
-the concrete illustration of the task's own warning not to assume analogous corrections share a
-class. Already satisfies `per_effect_event_contract`: **NO** (artifact absent). Blocking gap:
-artifact missing only. Next action: first-publication Regime Event Contract authoring.
-
-### 3.9 `FEATURE_COMPUTED`
-
-- Canonical contract concept ID: `feature-computed`. Producer stream: `feature-engine-feature`.
-  Source: `feature.md` §3/§6/§7; Event Contract: `docs/architecture/event-contracts/feature-computed/v1.0.yaml`
-  (**Published**, `status: Published`, `allowed_streams: [feature-engine-feature]`).
-- `feature.md` §3: *"causation_refs KHÔNG BAO GIỜ rỗng: (a) original — toàn bộ input_fact_refs; (b)
-  replacement — input_fact_refs đã cập nhật VÀ chính FeatureFactInvalidated đang được supersede."*
-  (Identical to the reviewed Event Contract's own text — confirmed byte-consistent this
-  transaction.)
-
-| Category | Referenced family | Why carried | Payload/state needed? | Proposed classification | Authority |
-|---|---|---|---|---|---|
-| `input_fact_refs` | `candle-closed`/`candle-corrected`, `regime-classified`, and/or `swing-confirmed` (feature_type-dependent, §6/§7) | The evidence set `value` is computed over | §7.1/§7.2 (`volatility_metric`/`directional_persistence_metric`) compute `value` from Candle-evidence formulas — same shape as Regime's `computed_metric`. §7.3 (`distance_to_last_confirmed_swing`) computes `value` from a Swing pivot price and a reference Candle. For the Candle/Regime-sourced categories, this is a direct, self-contained formula-level payload dependency (`feature.md` §6/§7.1/§7.2, no `swing.md` needed). For the Swing-sourced category (only relevant when `feature_type = distance_to_last_confirmed_swing`), the dependency is real in principle but this WP cannot independently confirm which of `SwingConfirmed`'s fields carry the pivot price without `swing.md` | `STATE_DEPENDENCY` for the Candle-evidence and Regime-evidence-sourced sub-categories (mechanically derivable from `feature.md` alone); `swing.md`-dependent for the Swing-evidence sub-category (payload dependency direction is clear — the specific field is not, without `swing.md`) | `feature.md` §6/§7.1/§7.2 (self-contained); §7.3 (directionally clear, field-level detail deferred) |
-| `FeatureFactInvalidated` ref (replacement case only) | `feature-fact-invalidated` | Proves the fact this replacement supersedes has been invalidated | `value` of the replacement is recomputed solely from `input_fact_refs` — the referenced `FeatureFactInvalidated`'s own payload is never read, only its existence/visibility | `EXTERNAL_NON_STATE_CAUSE` | `feature.md` §3 invariants (same pattern as Regime §3.7) |
-
-**Event summary:** mechanically derivable: **substantially YES** for both categories at the
-principle level (Candle/Regime evidence: fully derivable; Swing evidence: dependency direction
-clear, exact field pending `swing.md`; supersede ref: fully derivable). Already satisfies
-`per_effect_event_contract`: **NOT YET** — the Published artifact exists but was never evaluated
-against, or amended to carry, this classification (this is exactly `CONTEXT-IC-A-MAJ-02`'s
-finding). Blocking gap: **versioning/compatibility prerequisite** (§4.A), not a missing artifact.
-Next action: see §4.A/§6.
-
-### 3.10 `FEATURE_FACT_INVALIDATED`
-
-- Canonical contract concept ID: `feature-fact-invalidated`. Producer stream:
-  `feature-engine-feature`. Source: `feature.md` §4/§9a; Event Contract:
-  `docs/architecture/event-contracts/feature-fact-invalidated/v1.0.yaml` (**Published**).
-- `feature.md` §4: *"causation_refs PHẢI trỏ: invalidated_fact_ref (bắt buộc, đúng một); VÀ event
-  authoritative là nguyên nhân trực tiếp (CandleCorrected/RegimeFactInvalidated/SwingInvalidated/
-  winning SwingConfirmed tùy invalidation_cause)."*
-
-| Category | Referenced family | Why carried | Payload/state needed? | Proposed classification | Authority |
-|---|---|---|---|---|---|
-| `invalidated_fact_ref` | `feature-computed` | Identifies fact being invalidated; envelope binding inherits `subject_ref`/`effective_time` | `feature.md` §3's own invariant explicitly adopts Regime's unconditional policy verbatim: *"KHÔNG có shortcut khi value không đổi... đúng nguyên tắc `regime.md` §10."* No conditional payload re-validation against this fact exists (unlike Structure) | `EXTERNAL_NON_STATE_CAUSE` | `feature.md` §3 invariant citing `regime.md` §10 directly |
-| cause (a) `CandleCorrected` | `candle-corrected` | Triggers invalidation when a Candle in `input_fact_refs` is corrected | Same unconditional-trigger reasoning as Regime's analogous cause — identity of the corrected Candle is what matters, not its new value | `EXTERNAL_NON_STATE_CAUSE` | `feature.md` §4 description + §3 unconditional-policy invariant |
-| cause (b) `RegimeFactInvalidated` | `regime-fact-invalidated` | Triggers invalidation when a Regime fact in `input_fact_refs` is invalidated | Same unconditional-trigger reasoning | `EXTERNAL_NON_STATE_CAUSE` | `feature.md` §4 description + §3 unconditional-policy invariant |
-| cause (c) `SwingInvalidated` | `swing-invalidated` | Triggers invalidation when the Swing used is invalidated (`distance_to_last_confirmed_swing` only) | Whether the identity fields checked (`swing_id`/`swing_revision`) are payload or subject-scope on `SwingInvalidated` is a `swing.md` fact this WP cannot verify | `UNRESOLVED` | Requires `swing.md` — out of boundary |
-| cause (d) `eligible_swing_selection_superseded` | `swing-confirmed` (winning candidate) | A newer `SwingConfirmed` won §9a's total order at `R_later` while the fact's original Swing remains valid | §9a's filter pipeline/total order (visibility, `pivot_effective_time`, `recorded_time`, stream identity, `sequence`, `swing_revision`, `swing_id`, `event_id`) reads mostly cursor/envelope-shaped fields of the winning `SwingConfirmed` — but whether `pivot_effective_time` and the identity-scope fields are `SwingConfirmed`'s own envelope/subject-scope or its payload is a `swing.md` fact this WP cannot verify | `UNRESOLVED` | Requires `swing.md` — out of boundary |
-
-**Event summary:** mechanically derivable: **3 of 5** categories (`invalidated_fact_ref`,
-`CandleCorrected`, `RegimeFactInvalidated`); **2 of 5 UNRESOLVED** (`SwingInvalidated`,
-`eligible_swing_selection_superseded` — both pending `swing.md`). Already satisfies
-`per_effect_event_contract`: **NOT YET** (same versioning/compatibility prerequisite as §3.9, plus
-the two Swing-dependent categories remain unresolved regardless). Blocking gap: versioning
-prerequisite (§4.A) **and** two classification categories pending a Swing-inclusive re-derivation.
-Next action: see §4.A/§6, plus follow-on Swing-inclusive derivation.
-
-## 4. Four buckets
-
-### A. MECHANICALLY DERIVABLE
-
-17 of 21 analyzed causation-ref categories, spanning 7 of 10 event types in full
-(`CANDLE_CLOSED` vacuously; `BREAK_OF_STRUCTURE_DETECTED`; `CHANGE_OF_CHARACTER_DETECTED`;
-`STRUCTURE_RECOMPUTED`; `REGIME_CLASSIFIED`; `REGIME_FACT_INVALIDATED`; `FEATURE_COMPUTED`'s
-non-Swing-evidence categories) plus 3 of 4 `STRUCTURE_FACT_INVALIDATED` categories and 3 of 5
-`FEATURE_FACT_INVALIDATED` categories, follow directly from each event's own already-authored
-Domain Contract text — no new semantic choice, no consumer-specific reasoning, no invented
-authority.
-
-### B. EVENT CONTRACT ARTIFACT MISSING
-
-Classification is clear (bucket A), but no Published Event Contract artifact exists at all, for:
-`CANDLE_CLOSED`, `CANDLE_CORRECTED` (candle family — none exist at all); `BREAK_OF_STRUCTURE_DETECTED`,
-`CHANGE_OF_CHARACTER_DETECTED`, `STRUCTURE_FACT_INVALIDATED`, `STRUCTURE_RECOMPUTED` (structure
-family — none exist); `REGIME_CLASSIFIED`, `REGIME_FACT_INVALIDATED` (regime family — none exist).
-**8 of 10 event types have zero Event Contract artifact today.**
-
-### C. CLASSIFICATION SEMANTIC UNRESOLVED
-
-Two distinct sources of unresolved classification, deliberately not conflated:
-
-1. **Architecture-framework gap** (`CANDLE_CORRECTED`'s single causation category): Chapter 8
-   §8.2.3's STATE_DEPENDENCY/EXTERNAL_NON_STATE_CAUSE dichotomy does not explicitly address a
-   same-family, same-stream lineage-supersession reference. This is not a `swing.md` gap — it
-   recurs identically in spirit across every family's own correction/invalidation event (compare
-   §3.5's `invalidated_fact_ref`, which this WP *was* able to resolve via Structure's own explicit
-   payload-reading invariants — `CANDLE_CORRECTED` has no equivalent invariant to resolve it the
-   same way, since the new OHLCV values are supplied directly rather than derived from the old
-   fact).
-2. **Out-of-boundary dependency** (`swing.md` not pinned): `STRUCTURE_FACT_INVALIDATED`'s
-   `swing_invalidated` cause; `FEATURE_FACT_INVALIDATED`'s `SwingInvalidated` and
-   `eligible_swing_selection_superseded` causes; the Swing-evidence sub-category of
-   `FEATURE_COMPUTED`'s `input_fact_refs` (field-level detail only — the dependency's existence
-   and direction are already established).
-
-### D. VERSIONING / COMPATIBILITY PREREQUISITE
-
-**Feature (`feature-computed`/`feature-fact-invalidated` v1.0, immutable, Published, `status:
-Published`):** adding the derived classification to these two events requires a **new** version
-artifact — the existing `v1.0` files are immutable per `ADR-039` and are **not** edited by this or
-any future WP; a `v1.1` (non-breaking, additive) or new-major (`v2.0`) artifact would need to be
-authored, reviewed, and Product-Owner-decided as a **separate**, governed transaction.
-
-Classifying that future change against `ADR-038`'s `compatibility_commitment: backward_only`:
-Chapter 10 §10.3.1's own minimum classification principle states *"thêm element optional có
-semantic/default an toàn cho reader chưa biết nó → **có thể** non-breaking"* — the state-dependency
-classification would be exactly such an addition (a new optional metadata field per
-`causation_refs` element, or an equivalent schema addition; not a change to any existing field's
-meaning, type, or cardinality). This is a genuine candidate for "schema/authority metadata addition
-only," structurally. **However**, Chapter 10 explicitly refuses to let this abstract principle
-alone certify compatibility: *"Quy tắc theo từng format cụ thể (JSON Schema, Avro, Protobuf...)
-thuộc Domain Contract/Phase 1"* (§10.3.1) — the concrete reader/format rule (does the actual
-validator tolerate an unrecognized additional field, i.e. "unknown-field tolerance") is not
-established anywhere in this repository today. `ADR-038` itself states this precisely: *"it does
-not assert or require any particular unknown-field-tolerance behavior of any consumer's reader."*
-No schema validator implementation, JSON-Schema/Avro/Protobuf binding, or reader conformance rule
-exists in the repository for these Event Contracts at this boundary.
-
-**Feature compatibility assessment: cannot yet be evaluated — this fact is recorded, not a fabricated
-result.** No Compatibility Result (Chapter 10 §10.4) is asserted, invented, or assumed here.
-
-**Candle/Structure/Regime first-contract compatibility-policy status (all three families):** none
-of the three has ever had a `compatibility_commitment` declared (no Event Contract of any kind
-exists yet for any of them). Per Chapter 10 §10.3.1: *"published contract nằm trong phạm vi
-compatibility evaluation mà KHÔNG khai báo chiều compatibility bắt buộc là invalid declaration →
-không được chứng nhận compatible → `eligible = false`."* A `compatibility_commitment` declaration
-is therefore an **independent publication prerequisite** for each of Candle's, Structure's, and
-Regime's first Event Contract artifacts — exactly as `ADR-038` supplied that declaration for
-Feature's first two artifacts. **This choice (backward-only / forward / bidirectional / no
-commitment) is explicitly not made by this WP** — per the task's own instruction, and because
-Chapter 10 requires it be a governed, explicit declaration, evaluated per family, not inferred by
-analogy to Feature's own choice.
-
-Under `ADR-039`, the first `Published` version-artifact for a `contract_id` with no prior snapshot
-is authored, reviewed, and Product-Owner-decided through the **same governance process as the
-owning Domain Contract itself** (Draft → Review A/Independent Review B → Product Owner decision),
-fixed at `contract_version: v1.0`. This applies identically to Candle's, Structure's, and Regime's
-first artifacts (§4.B above) and is **not itself an open question** — only the
-`compatibility_commitment` value each family declares is.
-
-## 5. STOP conditions — explicit disposition
-
-No STOP condition was silently resolved by guessing. Explicit disposition per condition:
-
-- **A. "Domain Contract causation semantics allow more than one legitimate interpretation":**
-  triggered for `CANDLE_CORRECTED`'s lineage reference (§3.2) — recorded `UNRESOLVED`, not guessed.
-- **B. "Deciding requires new consumer-specific semantics":** not triggered for any row — every
-  classification above is derived from the producing event's own Domain Contract, not from any
-  particular consumer's (including Context's) needs.
-- **C. "Classification would contradict another consumer's existing governed use":** not
-  triggered — no existing governed consumer classification exists to contradict (this is the
-  first classification attempt for all 10 event types).
-- **D. "Event Contract needs semantics not owned by its Domain Contract":** triggered for every
-  `swing.md`-dependent category (§3.5, §3.9's Swing sub-category, §3.10) — recorded `UNRESOLVED`
-  with the exact missing authority named, not guessed.
-- **E. "Feature version evolution requires a compatibility choice/result not already governed":**
-  triggered — recorded in §4.A as a versioning/compatibility prerequisite, no Compatibility Result
-  fabricated.
-
-## 6. ADR classification of unresolved semantic choices
-
-| Unresolved item | Existing authority fully determines value? | Assessment |
-|---|---|---|
-| Same-family lineage-supersession causal-reference classification (`CANDLE_CORRECTED`, and structurally the same open question underlying why `structure.md`/`regime.md`/`feature.md` each had to work out their *own* invalidation-conditionality answer independently, §3.5/§3.8/§3.10) | **NO** | This is a **cross-cutting** gap in Chapter 8 §8.2.3's own classification framework, not a single Domain Contract's local ambiguity — it recurs, in some form, across every family with a self-referential correction/invalidation event (4 of 4 families). Affects more than one module's Event Contract authoring. Appears to trigger **`ADR_REQUIRED`** — a bounded ADR clarifying whether/how the STATE_DEPENDENCY/EXTERNAL_NON_STATE_CAUSE dichotomy extends to same-family lineage references (a third, currently unnamed shape), rather than a per-Domain-Contract local decision. Not created by this WP. |
-| `swing.md`-dependent categories (§3.5, §3.9, §3.10) | **Cannot be assessed from this WP's own boundary** | This is not evidence of an architectural gap — it is evidence that this WP's own pinned reading set was deliberately bounded to exclude `swing.md`. The correct next step is a **follow-on derivation WP** that adds `swing.md` to its pinned reading, not an ADR. Likely **R2 routing** once resolved (same Risk classification as this WP and as the Context Input Contract itself), not `ADR_REQUIRED` — pending what `swing.md` actually says. |
-| Candle/Structure/Regime `compatibility_commitment` value | **NO** | Chapter 10 §10.3.1 requires an explicit, governed declaration per family; existing authority supplies the *requirement* to declare, not the *value*. This is a normal, bounded **Product Owner decision** per family (the same shape `ADR-038` already recorded for Feature) — does not itself appear to require a new ADR, since `ADR-038`'s own precedent already establishes the mechanism; only the per-family value differs. |
-| Feature `v1.0 → v1.1`/new-major versioning choice, and its Compatibility Result | **NO** | Requires a governed Compatibility Result evaluation (Chapter 10 §10.4) once concrete reader/format rules exist, and a Product Owner decision on the new version's own identity/scope. Not `ADR_REQUIRED` on its own evidence — this is ordinary Event-Contract-version governance under already-Approved `ADR-038`/`ADR-039`, not a new architecture choice. |
-
-**No ADR is created by this WP.**
-
-## 7. Proposed smallest ordered follow-on WP sequence (not executed here)
-
-1. **Architecture-level ADR** (if the Product Owner chooses to pursue it): clarify Chapter 8
-   §8.2.3's classification framework for same-family lineage-supersession causal references —
-   resolves `CANDLE_CORRECTED` (§3.2) and supplies the general principle the other three families'
-   own local invariants already answered ad hoc (§3.5/§3.8/§3.10 — each Domain Contract happened to
-   settle its own version of this question independently; a platform-level principle would make
-   that consistent and citable, rather than re-derived per family).
-2. **Swing-inclusive re-derivation** (a narrowly-scoped follow-on to this WP, adding `swing.md` to
-   its pinned reading): resolves the 3 remaining `UNRESOLVED` categories in §3.5/§3.10, and the
-   Swing-evidence field-level detail in §3.9.
-3. **Per-family `compatibility_commitment` decisions** (Product Owner, one per family): Candle,
-   Structure, Regime — each a small, bounded decision, same shape as `ADR-038`.
-4. **First Event Contract authoring, per family** (governed authoring, Draft → Review A/
+1. **Per-`contract_id` `compatibility_commitment` decisions** (Product Owner, one per artifact, not
+   one per family — §5): Candle's 2 relevant `contract_id`s, Structure's 4, Regime's 2. (The
+   previously-proposed cross-cutting architecture ADR is **removed** — `CONTEXT-SD-DERIV-A-MAJ-02`'s
+   correction eliminates the supposed framework gap it was meant to address.)
+2. **First Event Contract authoring, per `contract_id`** (governed authoring, Draft → Review A/
    Independent Review B → Product Owner decision, per `ADR-039`): Candle (`candle-closed`,
    `candle-corrected`), Structure (`break-of-structure-detected`, `change-of-character-detected`,
    `structure-fact-invalidated`, `structure-recomputed`), Regime (`regime-classified`,
-   `regime-fact-invalidated`) — each incorporating its own resolved state-dependency
-   classification from steps 1–2 above.
-5. **Feature Event Contract versioning** (`feature-computed`/`feature-fact-invalidated`
-   `v1.0 → v1.1` or new major, per the outcome of step 1/2 and a governed Compatibility Result):
-   adds the classification to Feature's two already-Published event types without editing the
-   immutable `v1.0` artifacts.
-6. **Fresh ChatGPT Review A of Context Input Contract `context-market-input / v1.0`'s
-   `causal_closure_policy` readiness**, now backed by a fully-resolved per-effect classification
-   across all 10 event types — the actual prerequisite for a `v1.0` publication decision.
+   `regime-fact-invalidated`) — each declaring `causal_closure_policy`-relevant classification as
+   `EXTERNAL_NON_STATE_CAUSE` for every one of its own causation-ref categories, per §2 above.
+3. **Feature Event Contract versioning** (`feature-computed`/`feature-fact-invalidated` `v1.0 →`
+   a new version, not decided here): adds the now-fully-resolved classification without editing the
+   immutable `v1.0` artifacts; a genuine Compatibility Result requires concrete reader/format
+   evidence this repository does not yet have.
+4. **Fresh ChatGPT Review A of this corrected derivation** — required **before** any of steps 1–3
+   are executed.
 
-## 8. Context Input Contract state — unchanged
+(The previously-proposed separate Swing-inclusive re-derivation WP is **removed** — `swing.md` is
+now fully incorporated in this same WP, and every category it was blocking is resolved in §2 above.)
+
+## 9. Context Input Contract state — unchanged
 
 `docs/architecture/input-contracts/context-market-input.yaml` is **not** touched by this
 transaction. Confirmed state, fresh-verified: `version: "0.3"`, `status: Draft`, blob
 `ce74ddf6291abb2b1ed21938ca88050550fb2a0b`; Review A `CLEAN — 0 Blocker / 0 Major / 0 Minor`, Risk
-`R2`, ADR Scope `ADR_NOT_REQUIRED` for the candidate itself; Product Owner's already-made R2
-advisory choice for this candidate is `PROCEED WITHOUT CROSS-CHECK` (no cross-check was executed;
-none fabricated here); `NOT PUBLISHED`. The unresolved Event Contract/state-dependency prerequisite
-derived in this WP remains the blocker to publication/runtime readiness — no PO approval of v0.3,
-no publication authorization, and no residual-risk acceptance is recorded by this transaction.
+`R2`, `PROCEED WITHOUT CROSS-CHECK` (already-made choice, persisted, not re-decided); `NOT
+PUBLISHED`. The corrected upstream Event Contract/state-dependency derivation remains the blocker
+to publication/runtime readiness — no PO approval of v0.3, no publication authorization, and no
+residual-risk acceptance is recorded by this transaction.
 
-## 9. Milestone state
+## 10. Milestone state
 
 M2: `BLOCKED` — parallel evidence lane. M3: `ACTIVE` — Context deterministic core `REVIEW A
 VALIDATED — CLEAN`; `ADR-046` `APPROVED`; `context.md` v0.4 `PO ACCEPTED`; Context Input Contract
-v0.3 `REVIEW A CLEAN — R2 — PROCEED WITHOUT CROSS-CHECK — NOT PUBLISHED`; current blocker: upstream
-Event Contract / per-effect state-dependency authority derivation (this WP's own subject — now
-analyzed, not yet remediated). M4: `QUEUED`. Phase-3 Approval Gate: `NOT REACHED`. LIVE:
+v0.3 `REVIEW A CLEAN — R2 — PROCEED WITHOUT CROSS-CHECK — NOT PUBLISHED`, unmutated; current
+blocker: correct upstream per-effect state-dependency derivation before Event Contract authority
+mutation — now **corrected and fully resolved** (0 `UNRESOLVED`, 0 `ADR_REQUIRED`), pending fresh
+Review A re-review of this v0.2. M4: `QUEUED`. Phase-3 Approval Gate: `NOT REACHED`. LIVE:
 `NOT_AUTHORIZED`.
