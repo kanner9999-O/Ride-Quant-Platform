@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.463"
+manifest_version: "10.464"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -32944,6 +32944,123 @@ touched; state-dependency derivation v0.4 untouched. `manifest_version` `"10.462
 **Next governed action:** Fresh ChatGPT Review A of the corrected scope derivation; if `CLEAN`,
 route the minimal Product Owner packaging choice (Model B vs. Model C) before authoring any
 compatibility-commitment ADR candidate(s).
+
+## ADR-047 v0.1 — Draft candidate authored (`ADR-047-CONTEXT-UPSTREAM-EVENT-COMPAT-001`)
+
+Fresh-verified before mutation: HEAD `ee4da596b6c306670240606f5db7051b7a157b02`; scope-derivation
+artifact `docs/project/context-event-contract-compatibility-adr-scope-001.md` matched pinned blob
+`c27c169efdc8bf38545b1f34ee17e3abc94b660b` exactly (`version: "0.2"`, `status: Draft`, Review A
+`CLEAN — 0/0/0`, Risk `R1`, ADR Scope of the artifact itself `ADR_NOT_REQUIRED`); state-dependency
+derivation matched pinned blob `a8b10628f4c156f67b25d18868dec4d6434971d9` exactly (`version:
+"0.4"`); Context Input Contract matched pinned blob `ce74ddf6291abb2b1ed21938ca88050550fb2a0b`
+exactly (`version: "0.3"`, `status: Draft`, `NOT PUBLISHED`); ADR namespace confirmed to end at
+`ADR-046` — `ADR-047` confirmed the next free identity; no Event Contract exists for any of the
+eight target `contract_id`s; no existing Approved ADR (`ADR-014`/`ADR-033`/`ADR-046`
+grep-confirmed) selects a compatibility commitment for any of them.
+
+**Product Owner packaging decision persisted:** `MODEL C — 1 ADR`, resolving the scope-derivation
+artifact's own `MULTIPLE GOVERNANCE-VALID PACKAGING OPTIONS REMAIN` determination (§E, v0.2). This
+is the ADR-packaging decision only — explicitly **not** approval of ADR-047, **not** selection of
+any `compatibility_commitment` value, and **not** approval/publication of any Event Contract.
+
+**Authored `docs/adr/ADR-047.md` v0.1, `status: Draft`, as a candidate only.** Title: *Context-
+Upstream Event Contract Compatibility Commitments*. **Not approved, not self-reviewed, not
+self-approved** — a candidate for external ChatGPT Review A. `reviewers: []`, `approved_by: null`,
+`approved_at: null` retained; no verdict fabricated (`PENDING FRESH REVIEW A` recorded in the ADR
+text itself).
+
+**Decision content:** enumerates all eight target `contract_id`s (`candle-closed`,
+`candle-corrected`, `break-of-structure-detected`, `change-of-character-detected`,
+`structure-fact-invalidated`, `structure-recomputed`, `regime-classified`,
+`regime-fact-invalidated`) in one explicit per-`contract_id` decision table (`contract_id |
+owning_domain | producer_module | verified_current_consumers | proposed_compatibility_commitment |
+contract_specific_rationale`), each row independently evidenced from the scope-derivation
+artifact's §B and freshly re-confirmed against `module-registry.yaml`/`context-map.yaml` at this
+boundary — no value inferred across rows. **Proposed candidate value for all eight:
+`backward_only`** (Chapter 10 §10.3.1 semantic: existing consumer remains able to correctly
+read/validate new data under a later contract version claimed compatible) — stated throughout as a
+proposed Draft candidate for Review A and eventual Product Owner decision, never as "selected,"
+"approved," or "accepted." Per-contract rationale distinguishes Candle (`candle-closed` widest
+topology/foundational fact; `candle-corrected` same topology, correction-obligation-driven),
+Structure's four (BOS/CHoCH/invalidation/recomputation each independently reasoned, same 1-consumer
+minimum-cardinality trigger `ADR-038` itself found sufficient), and Regime's two (classification
+fact vs. its own correction fact, 2-consumer topology). Per-contract topology preserved exactly:
+Structure's four Event Contracts do **not** list Feature as a consumer (the `feature-engine.
+depends_on: [structure-engine]` registry edge remains correctly attributed to Swing consumption
+only, per the just-prior correction transaction — not re-litigated here).
+
+**Alternatives (`forward_only`/`bidirectional`/`explicit no-commitment`) assessed policy/risk-based,
+not fabricated-format-based** — none of the eight contracts exist yet, so no concrete reader/schema
+fact is invented either way; rejections rest on the current, verified topology's protection need
+(an intentionally-advancing existing consumer) and the absence of an established forward-direction
+migration/reader policy, not on a claim that forward/bidirectional compatibility is impossible for
+every future architecture.
+
+**Three Chapter-10 concepts explicitly separated:** (A) compatibility commitment — proposed here,
+decided only at eventual approval; (B) compatibility classification of a concrete future schema
+delta — not decided here, no delta exists yet; (C) Compatibility Result — not created here, no
+evaluator/grant/policy-registry mechanism fabricated. Format/reader-policy gap stated explicitly
+(no tolerant-reader/format-behavior assumption made). State-dependency derivation v0.4 used only as
+downstream authoring basis, not reconsidered, not mutated. First-publication Event Contract gap
+recorded as remaining open after this ADR.
+
+**`depends_on` fresh-checked, kept `[]`:** `ADR-038` confirmed process/semantic precedent only, not
+a normative prerequisite (this ADR's own topology/evidence independently re-derived, not inherited);
+`ADR-046` confirmed unrelated to this ADR's own decision content (Context work merely triggered
+discovery, not a true dependency); `ADR-039`'s version-artifact mechanism is a **forward** consumer
+of a future `compatibility_commitment` value, not a prerequisite running the other direction. No
+exact normative prerequisite found — `depends_on: []` retained.
+
+**Consequences/Risks recorded:** benefits (explicit first-publication direction proposed, governed
+upgrade expectation for real verified consumers, no implicit declaration), costs (future evolution
+constrained pending approval, concrete-delta classification and format/reader-policy establishment
+remain separately required, fail-closed under Chapter 10 §10.3.1/I-6 absent that policy). Model-C
+packaging consequence recorded per Chapter 11 §11.8's whole-ADR-file `supersedes` relation: one
+future single-row correction would require a new ADR superseding ADR-047 as a whole (may carry
+forward unaffected rows verbatim) — explicitly framed as a packaging-format consequence, **not**
+runtime/architectural coupling between Candle/Structure/Regime, which remain exactly as independent
+as `ADR-003`/`ADR-014` already establish. Expected Risk routing recorded as a non-final planning
+expectation only (`R2`, multi-module versioning/compatibility semantics) — not written as a Review
+A verdict.
+
+**Scale check:** cardinality-independent at contract level; growth in consumer/strategy/exchange/
+plugin count increases impact, never the selected direction's own meaning; retained at 0/0/0
+(current scale, no speculative projection).
+
+**No STOP condition triggered:** ADR-047 identity confirmed free; none of the eight Event Contracts
+exists Published; no existing Approved ADR selects a compatibility commitment for any of the eight;
+`backward_only` found defensible for all eight rows independently (no mixed-value STOP triggered);
+authoring required no Domain/Event Contract semantic modification; no new architecture decision
+beyond the compatibility commitment emerged.
+
+**Confirmed unchanged by this transaction:** `docs/project/context-event-contract-compatibility-adr-scope-001.md`
+(fresh-verified byte-identical, blob `c27c169efdc8bf38545b1f34ee17e3abc94b660b`),
+`docs/project/context-upstream-state-dependency-derivation-001.md` (fresh-verified byte-identical,
+blob `a8b10628f4c156f67b25d18868dec4d6434971d9`),
+`docs/architecture/input-contracts/context-market-input.yaml` (fresh-verified byte-identical, blob
+`ce74ddf6291abb2b1ed21938ca88050550fb2a0b`), every Event Contract, every other Domain Contract,
+every Constitution chapter, every existing ADR (`ADR-038`/`ADR-039`/`ADR-046` read-only,
+fresh-verified byte-unchanged), `docs/architecture/module-registry.yaml`,
+`docs/domain/context-map.yaml`, `docs/architecture/stream-registry.yaml`, all production
+source/tests/tooling.
+
+**M2 unchanged (`BLOCKED`, parallel evidence lane). M3 remains `ACTIVE`** — Context deterministic
+core remains `REVIEW A VALIDATED — CLEAN`; `ADR-046` remains `APPROVED`; `context.md` v0.4 remains
+`PO ACCEPTED`; Context Input Contract v0.3 remains `REVIEW A CLEAN — R2 — PROCEED WITHOUT
+CROSS-CHECK — NOT PUBLISHED`, unmutated; state-dependency derivation remains `v0.4`, Review A
+`CLEAN — 0/0/1`, matrix unchanged, untouched; Compatibility ADR packaging: Product Owner selected
+`MODEL C — 1 ADR`; `ADR-047`: `DRAFT CANDIDATE AUTHORED — NOT REVIEWED — NOT APPROVED`; eight
+Event Contracts: `NOT PUBLISHED`. **M4 remains `QUEUED`.** Phase-3 Approval Gate `NOT REACHED`;
+`LIVE` remains `NOT_AUTHORIZED`.
+
+**Files changed:** `docs/adr/ADR-047.md` (new), plus deterministic bookkeeping: `docs/MANIFEST.md`,
+`docs/CHANGELOG.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`. No
+scope-derivation artifact, state-dependency derivation, Context Input Contract, Event Contract,
+Domain Contract, Constitution chapter, existing ADR, registry, or production source/tests/tooling
+touched. `manifest_version` `"10.463"` -> `"10.464"`.
+
+**Next governed action:** Fresh ChatGPT Review A of the `ADR-047` Draft candidate; then mandatory
+Risk Classification and R2 routing if applicable, before any Product Owner ADR approval decision.
 
 ## Decision Log
 

@@ -2,6 +2,20 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-28 — ADR-047 Draft candidate authored: Context-Upstream Event Contract Compatibility Commitments (Model C, 1 ADR for all 8)
+
+Starting `main == origin/main == ee4da596b6c306670240606f5db7051b7a157b02`, fresh-verified, working tree clean. Scope-derivation artifact fresh-verified exact (`version: "0.2"`, blob `c27c169efdc8bf38545b1f34ee17e3abc94b660b`, Review A `CLEAN — 0/0/0`, Risk `R1`, ADR Scope `ADR_NOT_REQUIRED`); state-dependency derivation fresh-verified exact (`version: "0.4"`, blob `a8b10628f4c156f67b25d18868dec4d6434971d9`) — **not** touched; Context Input Contract fresh-verified exact (`version: "0.3"`, blob `ce74ddf6291abb2b1ed21938ca88050550fb2a0b`, `NOT PUBLISHED`) — **not** touched. ADR namespace confirmed to end at `ADR-046`; `ADR-047` confirmed the next free identity. Fresh-read Chapter 0 §4b, Chapter 8 event-model authority table, Chapter 10 §10.3/§10.3.1/§10.5/§10.7, Chapter 11, `ADR-038`, `ADR-039`, and the six relevant Domain Contracts.
+
+**Product Owner packaging decision persisted:** `MODEL C — 1 ADR`, resolving the scope-derivation artifact's `MULTIPLE GOVERNANCE-VALID PACKAGING OPTIONS REMAIN` determination. This is the ADR-packaging decision only — not approval of ADR-047, not selection of any `compatibility_commitment` value, not Event Contract approval/publication.
+
+New file `docs/adr/ADR-047.md` v0.1, `status: Draft` — a reviewable candidate only, `reviewers: []`, `approved_by: null`, `approved_at: null`. Enumerates all eight target `contract_id`s (`candle-closed`, `candle-corrected`, `break-of-structure-detected`, `change-of-character-detected`, `structure-fact-invalidated`, `structure-recomputed`, `regime-classified`, `regime-fact-invalidated`) in one explicit per-`contract_id` decision table, each row independently evidenced, no value inferred across rows. Proposed candidate value for all eight: `backward_only`, with distinct per-contract rationale for Candle/Structure/Regime. Alternatives (`forward_only`/`bidirectional`/explicit no-commitment) assessed policy/risk-based. Three Chapter-10 concepts (commitment / concrete-delta classification / Compatibility Result) explicitly separated; format/reader-policy gap stated explicitly; state-dependency derivation v0.4 used only as downstream authoring basis, not reconsidered. `depends_on: []` retained after a fresh check found no true normative prerequisite (`ADR-038` precedent-only, `ADR-046` unrelated, `ADR-039` a forward consumer of this ADR's future value, not a prerequisite). Model-C packaging consequence (Chapter 11 §11.8 whole-file `supersedes`) recorded explicitly as a packaging-format consequence, not runtime/domain coupling. No STOP condition triggered.
+
+**M2 unchanged (`BLOCKED`). M3 remains `ACTIVE`** — Compatibility ADR packaging: Product Owner selected `MODEL C — 1 ADR`; `ADR-047`: `DRAFT CANDIDATE AUTHORED — NOT REVIEWED — NOT APPROVED`; eight Event Contracts remain `NOT PUBLISHED`. **M4 remains `QUEUED`.** Phase-3 Approval Gate NOT REACHED; LIVE remains `NOT_AUTHORIZED`.
+
+Next governed action: fresh ChatGPT Review A of the `ADR-047` Draft candidate; then mandatory Risk Classification and R2 routing if applicable, before any Product Owner ADR approval decision.
+
+---
+
 ## [Unreleased] — 2026-09-28 — Compatibility ADR scope derivation v0.2: bounded correction (Model C rejection overreach; false registry gap)
 
 Starting `main == origin/main == f392453b6dde7d1fd477109fd5e9110978078198`, fresh-verified, working tree clean. Scope artifact (v0.1) fresh-verified exact (blob `4c95cf05e767a3c2bf4b93f481225805eddc4214`) before this correction; `context-upstream-state-dependency-derivation-001.md` fresh-verified exact (blob `a8b10628f4c156f67b25d18868dec4d6434971d9`, `version: "0.4"`) — **not** touched, as required; `context-market-input.yaml` fresh-verified exact — unchanged after. Fresh-read `docs/constitution/11-adr-process.md` (§11.3, §11.8) this transaction.
