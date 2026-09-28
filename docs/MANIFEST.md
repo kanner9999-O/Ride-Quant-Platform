@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.464"
+manifest_version: "10.465"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -33061,6 +33061,102 @@ touched. `manifest_version` `"10.463"` -> `"10.464"`.
 
 **Next governed action:** Fresh ChatGPT Review A of the `ADR-047` Draft candidate; then mandatory
 Risk Classification and R2 routing if applicable, before any Product Owner ADR approval decision.
+
+## ADR-047 atomic approval — v0.1 Approved (`ADR-047-APPROVAL-001`)
+
+Fresh-verified before mutation: HEAD `c46e7f6b1f6b817311a0a7544427ec958507d4f5`; `docs/adr/ADR-047.md`
+matched pinned reviewed candidate blob `aa5346151fc2a4d02705eb9c594276d738189c3c` exactly
+(`version: "0.1"`, `status: Draft`); `context-market-input.yaml` matched pinned blob
+`ce74ddf6291abb2b1ed21938ca88050550fb2a0b` exactly; state-dependency derivation matched pinned blob
+`a8b10628f4c156f67b25d18868dec4d6434971d9` exactly — neither touched.
+
+**Fresh ChatGPT Review A of ADR-047 v0.1:** `CLEAN — 0 Blocker / 0 Major / 1 Minor`, reviewer
+`ChatGPT`, role `AI Technical Architect`, reviewed boundary `c46e7f6b1f6b817311a0a7544427ec958507d4f5`,
+reviewed blob `aa5346151fc2a4d02705eb9c594276d738189c3c`, Risk `R2`, ADR Scope `ADR_REQUIRED`,
+recommendation `READY_FOR_PRODUCT_OWNER_DECISION`. Optional R2 cross-check: Product Owner chose
+`PROCEED WITHOUT CROSS-CHECK` — cross-check status `NOT PERFORMED`, not represented as a defect or
+approval prerequisite.
+
+**`ADR047-A-MIN-01`** (the `forward_only` alternative's "no old data exists yet" supporting statement
+is true at the reviewed boundary but not a durable compatibility-policy rationale, since historical
+older-version data can exist after first publication): **CLOSED — REVIEW A VALIDATED via
+deterministic non-semantic approval fold-in**, folded into this same atomic approval transaction —
+the `forward_only` paragraph corrected to state the durable rationale (protects a distinct
+newer-consumer-reads-older-data scenario, not the currently-verified advancing-consumer scenario this
+ADR's topology requires; historical older-version data may exist post-publication; `forward_only`
+remains available to a future superseding decision). No Decision table value, topology, alternatives
+outcome, or risk/consequence content changed — wording only, not a new Review A invented by the
+executor.
+
+**Product Owner decision (verbatim):** `APPROVE ADR-047`, recorded `2026-09-28T14:44:39+07:00`. This
+selects the ADR-047 Decision table's `backward_only` commitment for all eight explicitly enumerated
+`contract_id`s (`candle-closed`, `candle-corrected`, `break-of-structure-detected`,
+`change-of-character-detected`, `structure-fact-invalidated`, `structure-recomputed`,
+`regime-classified`, `regime-fact-invalidated`) as governed compatibility-policy authority. The
+earlier `MODEL C — 1 ADR` Product Owner decision remains packaging provenance only, distinct from
+this semantic approval.
+
+**Frontmatter finalized:** `status: Draft → Approved`; `reviewers: [] → [ChatGPT]`;
+`approved_by: null → Product Owner`; `approved_at: null → "2026-09-28T14:44:39+07:00"`;
+`last_review: null → "2026-09-28"`; `version: "0.1"` unchanged (not bumped); `depends_on: []`
+unchanged. Body lifecycle-framing text updated for internal consistency with the now-`Approved`
+status (the top "Draft candidate only" disclaimer, the Decision paragraph's "not yet a Product Owner
+decision" language, and several "once approved"/"eventual approval" conditionals throughout) — no
+Decision table value, topology, alternatives outcome, risks/consequences substance, or `depends_on`
+changed by these framing edits, only tense/status wording, alongside the one substantive
+`ADR047-A-MIN-01` wording fold-in. **Reviewed Draft boundary/blob (frozen at approval, G-ID-001):**
+commit `c46e7f6b1f6b817311a0a7544427ec958507d4f5`, reviewed semantic candidate blob
+`aa5346151fc2a4d02705eb9c594276d738189c3c` — distinct from the resulting post-approval
+lifecycle-record blob `c2289d8d9727c9e4a51198eb5756aee4122f1bc2` (G-ID-001: distinguished, KHÔNG
+conflate). Per Chapter 11 §11.3, `docs/adr/ADR-047.md` is now immutable byte-for-byte from this
+approval boundary forward — no future in-place edit, no version bump, no `superseded_by` mutation;
+current lifecycle state and reverse supersession relation live in this MANIFEST henceforth; a future
+decision change requires a new ADR with `supersedes: [ADR-047]`.
+
+**Decision effect — governed compatibility-policy authority, established:**
+
+```text
+candle-closed                → backward_only
+candle-corrected              → backward_only
+break-of-structure-detected   → backward_only
+change-of-character-detected  → backward_only
+structure-fact-invalidated    → backward_only
+structure-recomputed          → backward_only
+regime-classified             → backward_only
+regime-fact-invalidated       → backward_only
+```
+
+This does **not** itself establish any Event Contract schema, any concrete schema-delta Compatibility
+classification, any Compatibility Result, format-specific reader rules, unknown-field tolerance,
+Event Contract publication, Context Input Contract publication, or runtime authorization. All eight
+Event Contracts remain `NOT PUBLISHED`; none authored by this transaction.
+
+**Confirmed unchanged:** `docs/architecture/input-contracts/context-market-input.yaml`
+(fresh-verified byte-identical, blob `ce74ddf6291abb2b1ed21938ca88050550fb2a0b`, `v0.3`, `Draft`,
+`NOT PUBLISHED`), `docs/project/context-upstream-state-dependency-derivation-001.md`
+(fresh-verified byte-identical, blob `a8b10628f4c156f67b25d18868dec4d6434971d9`, `v0.4`, matrix
+`20 EXTERNAL_NON_STATE_CAUSE / 1 VACUOUS / 0 STATE_DEPENDENCY / 0 UNRESOLVED`), every Event Contract,
+every Domain Contract, every Constitution chapter, every other existing ADR, `module-registry.yaml`,
+`context-map.yaml`, `stream-registry.yaml`, all production source/tests/tooling.
+
+**M2 unchanged (`BLOCKED`, parallel evidence lane). M3 remains `ACTIVE`** — Context deterministic
+core remains `REVIEW A VALIDATED — CLEAN`; `ADR-046` remains `APPROVED`; `context.md` v0.4 remains
+`PO ACCEPTED`; Context Input Contract v0.3 remains `REVIEW A CLEAN — R2 — PROCEED WITHOUT
+CROSS-CHECK — NOT PUBLISHED`, unmutated; state-dependency derivation remains `v0.4`, Review A
+`CLEAN — 0/0/1`, untouched; `ADR-047` is now **`APPROVED`** — `backward_only` for all eight target
+Event Contracts; next blocker: first authoring/publication of the eight Event Contracts, plus
+Feature Event Contract state-dependency/versioning follow-up, before Context Input Contract
+publication. **M4 remains `QUEUED`.** Phase-3 Approval Gate `NOT REACHED`; LIVE remains
+`NOT_AUTHORIZED`.
+
+**Files changed:** `docs/adr/ADR-047.md` (substantive approval edit — now immutable), plus
+deterministic bookkeeping: `docs/MANIFEST.md`, `docs/CHANGELOG.md`, `docs/project/milestone.md`,
+`docs/project/milestone-dashboard.html`. No scope-derivation artifact, state-dependency derivation,
+Context Input Contract, Event Contract, Domain Contract, Constitution chapter, other existing ADR,
+registry, or production source/tests/tooling touched. `manifest_version` `"10.464"` -> `"10.465"`.
+
+**Next governed action:** Fresh ChatGPT verification of ADR-047 approval recording; if clean, derive
+and issue the bounded first Event Contract authoring sequence.
 
 ## Decision Log
 

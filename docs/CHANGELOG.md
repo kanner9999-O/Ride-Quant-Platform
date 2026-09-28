@@ -2,6 +2,24 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-28 — ADR-047 Approved: Context-Upstream Event Contract Compatibility Commitments (backward_only, all 8 contract_ids)
+
+Starting `main == origin/main == c46e7f6b1f6b817311a0a7544427ec958507d4f5`, fresh-verified, working tree clean. `docs/adr/ADR-047.md` matched pinned reviewed candidate blob `aa5346151fc2a4d02705eb9c594276d738189c3c` exactly (`version: "0.1"`, `status: Draft`). Context Input Contract and state-dependency derivation both fresh-verified exact — neither touched.
+
+**Fresh ChatGPT Review A of ADR-047 v0.1:** `CLEAN — 0 Blocker / 0 Major / 1 Minor`, Risk `R2`, ADR Scope `ADR_REQUIRED`, `READY_FOR_PRODUCT_OWNER_DECISION`. Optional R2 cross-check: Product Owner chose `PROCEED WITHOUT CROSS-CHECK` (`NOT PERFORMED`, not a defect or approval prerequisite). `ADR047-A-MIN-01` (`forward_only` alternative's time-bound "no old data exists yet" wording is not a durable rationale) — **CLOSED — REVIEW A VALIDATED via deterministic non-semantic approval fold-in**, corrected in this same atomic transaction; no Decision table value, topology, alternatives outcome, or risk/consequence content changed.
+
+**Product Owner decision (verbatim): `APPROVE ADR-047`**, recorded `2026-09-28T14:44:39+07:00` — selects `backward_only` for all eight explicitly enumerated `contract_id`s (`candle-closed`, `candle-corrected`, `break-of-structure-detected`, `change-of-character-detected`, `structure-fact-invalidated`, `structure-recomputed`, `regime-classified`, `regime-fact-invalidated`) as governed compatibility-policy authority. The earlier `MODEL C — 1 ADR` decision remains packaging provenance only.
+
+Frontmatter: `status: Draft → Approved`; `reviewers: [] → [ChatGPT]`; `approved_by: null → Product Owner`; `approved_at: null → "2026-09-28T14:44:39+07:00"`; `last_review: null → "2026-09-28"`; `version: "0.1"` unchanged, `depends_on: []` unchanged. Body lifecycle-framing text updated for consistency with `Approved` status (Draft-only disclaimer, "not yet a Product Owner decision"/"once approved" conditionals) — no substantive Decision/Alternatives/Consequences content changed beyond the one `ADR047-A-MIN-01` wording fold-in. Reviewed semantic candidate blob `aa5346151fc2a4d02705eb9c594276d738189c3c` explicitly distinguished from the resulting lifecycle-record blob `c2289d8d9727c9e4a51198eb5756aee4122f1bc2` (G-ID-001). `docs/adr/ADR-047.md` is now immutable byte-for-byte per Chapter 11 §11.3 — a future decision change requires a new ADR with `supersedes: [ADR-047]`.
+
+Establishes `backward_only` for all eight target `contract_id`s as governed compatibility-policy authority. Does not itself establish any Event Contract schema, concrete schema-delta classification, Compatibility Result, format-specific reader rules, unknown-field tolerance, Event Contract publication, Context Input Contract publication, or runtime authorization. All eight Event Contracts remain `NOT PUBLISHED`.
+
+**M2 unchanged (`BLOCKED`). M3 remains `ACTIVE`** — `ADR-047` is now `APPROVED`; next blocker: first authoring/publication of the eight Event Contracts, plus Feature Event Contract state-dependency/versioning follow-up, before Context Input Contract publication. **M4 remains `QUEUED`.** Phase-3 Approval Gate NOT REACHED; LIVE remains `NOT_AUTHORIZED`.
+
+Next governed action: fresh ChatGPT verification of ADR-047 approval recording; if clean, derive and issue the bounded first Event Contract authoring sequence.
+
+---
+
 ## [Unreleased] — 2026-09-28 — ADR-047 Draft candidate authored: Context-Upstream Event Contract Compatibility Commitments (Model C, 1 ADR for all 8)
 
 Starting `main == origin/main == ee4da596b6c306670240606f5db7051b7a157b02`, fresh-verified, working tree clean. Scope-derivation artifact fresh-verified exact (`version: "0.2"`, blob `c27c169efdc8bf38545b1f34ee17e3abc94b660b`, Review A `CLEAN — 0/0/0`, Risk `R1`, ADR Scope `ADR_NOT_REQUIRED`); state-dependency derivation fresh-verified exact (`version: "0.4"`, blob `a8b10628f4c156f67b25d18868dec4d6434971d9`) — **not** touched; Context Input Contract fresh-verified exact (`version: "0.3"`, blob `ce74ddf6291abb2b1ed21938ca88050550fb2a0b`, `NOT PUBLISHED`) — **not** touched. ADR namespace confirmed to end at `ADR-046`; `ADR-047` confirmed the next free identity. Fresh-read Chapter 0 §4b, Chapter 8 event-model authority table, Chapter 10 §10.3/§10.3.1/§10.5/§10.7, Chapter 11, `ADR-038`, `ADR-039`, and the six relevant Domain Contracts.
