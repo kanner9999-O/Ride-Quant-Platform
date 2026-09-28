@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.466"
+manifest_version: "10.467"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -33246,9 +33246,14 @@ Contracts, all production source/tests/tooling.
 **M2 unchanged (`BLOCKED`, parallel evidence lane). M3 remains `ACTIVE`** — `ADR-047` remains
 `APPROVED`; state-dependency derivation remains `v0.4`, `VALIDATED`; Context Input Contract v0.3
 remains `CLEAN` / `NOT PUBLISHED`; current authoring lane: Candle Event Contract v1.0 pair —
-`candle-closed/v1.0` `DRAFT`, `candle-corrected/v1.0` `DRAFT`, both `NOT REVIEWED`, `NOT PUBLISHED`,
-`NOT RUNTIME-USABLE`; remaining: Structure 4, Regime 2, Feature 2 state-dependency/version evolution,
-Context Input publication readiness; runtime-wide blocker: retention/archive policy absent (`ADR-040`).
+`candle-closed/v1.0` `DRAFT`, `candle-corrected/v1.0` `DRAFT`, both `NOT REVIEWED`, `NOT PUBLISHED`;
+remaining: Structure 4, Regime 2, Feature 2 state-dependency/version evolution, Context Input
+publication readiness. **Retention corrected (see `EVENT-CONTRACT-CAUSAL-DEPENDENCY-REPRESENTATION-001`
+below): `ADR-040` retention semantics `APPROVED` / `SATISFIED at architecture-semantics level for
+Class G`; concrete past-horizon archival implementation `DEFERRED`; NOT the current Event Contract
+publication/reference blocker** — retention/archive policy absence is corrected out of the current
+blocker characterization; the current architecture blocker is the not-yet-governed canonical
+machine-readable causal state-dependency representation.
 **M4 remains `QUEUED`.** Phase-3 Approval Gate `NOT REACHED`; LIVE remains `NOT_AUTHORIZED`.
 
 **Files changed:** `docs/architecture/event-contracts/candle-closed/v1.0.yaml` (new),
@@ -33261,6 +33266,97 @@ Feature Event Contract, or production source/tests/tooling touched. `manifest_ve
 
 **Next governed action:** Fresh ChatGPT Review A of `candle-closed/v1.0` and `candle-corrected/v1.0`
 Draft candidates before any publication or downstream family authoring.
+
+## Event Contract causal state-dependency representation — architecture derivation (`EVENT-CONTRACT-CAUSAL-DEPENDENCY-REPRESENTATION-001`)
+
+Analysis/architecture-derivation transaction only — does not modify any Event Contract, does not
+author an ADR, does not modify Chapter 8 or any Constitution file, does not continue Structure/Regime
+Event Contract authoring. Fresh-verified before mutation: HEAD
+`064fcf59471865d3493b32ee78680ebd83b8c9a2`; `candle-closed/v1.0.yaml` matched pinned blob
+`3f8d5f9a448c5796880d7a7b7a09d9c95c74c72f` exactly; `candle-corrected/v1.0.yaml` matched pinned blob
+`3649e516e4c69d948d8b3a4e4281bae019a7c0b7` exactly — neither touched. Fresh Review A of the Candle pair
+recorded: `REVISION_REQUIRED — 0 Blocker / 2 Major / 1 Minor` (`CANDLE-EC-A-MAJ-01`,
+`CANDLE-EC-A-MAJ-02`, `CANDLE-EC-A-MIN-01`) — not remediated in this WP; the representation
+architecture is resolved first.
+
+**`CANDLE-EC-A-MAJ-01` (retention authority correction):** fresh-read Approved `ADR-040` in full.
+Event Contract version-artifacts are Class G; `ADR-040`'s own Consequences state verbatim that
+`ADR-039`'s retention prerequisite *"is now satisfied at the architecture-semantics level for Class G
+by this ADR."* The Candle candidates' own header claim that retention-policy absence blocks eventual
+usable `event_contract_ref` status is therefore stale. Corrected state: `ADR-040` retention semantics
+`APPROVED` / `SATISFIED at architecture-semantics level for Class G`; concrete past-horizon archival
+implementation `DEFERRED`; **not** a current blocker to an otherwise-governed Published Event Contract
+becoming an `event_contract_ref` target. Candle candidate files themselves left unedited (remediation
+deferred to a later WP per task instruction); current bookkeeping corrected in this same transaction
+(see M2/M3/M4 update above).
+
+**`CANDLE-EC-A-MAJ-02` (representation gap):** Chapter 8 §8.2.3 requires
+`dependency_authority: per_effect_event_contract` classification per pinned Event Contract, and
+explicitly prohibits processor-code classification, but defines no canonical field
+name/location/schema/selector grammar. `ADR-039`'s canonical Event Contract shape names no such field.
+The Candle candidates' own `payload_semantics_and_invariants.causation_ref_state_dependency_classification`
+nesting is confirmed **not machine-canonical** (Option A, rejected — no formal linkage between ad hoc
+category labels and actual `causation_refs` array entries, no selector/cardinality grammar, nested in
+a narrative-only field).
+
+**New file `docs/project/event-contract-causal-dependency-representation-001.md`** derives the
+minimum canonical representation across sections A–L: Option comparison (A rejected —
+not machine-canonical; B recommended — new top-level field, correct placement; C rejected — conflates
+merge-order with state-dependency scope, the exact Chapter-8 concept split the task warned against;
+D rejected as literally specified — silent default-to-external is fail-open, not fail-closed; its
+minimalism instinct absorbed into B without the unsafe default; E — necessary internal shape, not
+over-specified, proven necessary by real multi-role event types). **Recommended representation:**
+new top-level field `causal_state_dependency_declaration` (`vacuous`/`closed`/`roles[]`, each role a
+`{role_id, selector: {payload_field | by_target (with optional discriminated_by)}, cardinality,
+classification, apply_time_requirement, authority}` tuple) — full illustrative YAML, a
+step-by-step generic (zero event-specific code) validation algorithm, Candle mapping for both events,
+and a full mapping proof across all 21 causation-ref categories of all 10 Review-A-validated
+Context-upstream event types (`context-upstream-state-dependency-derivation-001.md` v0.4, cited not
+re-derived) — confirmed all 21 mechanically representable, 19 via `payload_field` (fresh-read exact
+payload field names from `structure.md`/`regime.md`/`feature.md`), 4 via `by_target` (2 fixed, 2 via a
+required `discriminated_by` extension — not optional, proven necessary by
+`STRUCTURE_FACT_INVALIDATED`/`FEATURE_FACT_INVALIDATED`'s real multi-cause payloads). One hypothetical
+mixed state/external event (`ACCOUNT_BALANCE_RECONCILED`, explicitly not added to Ride architecture)
+confirms the schema can express both classifications on one event simultaneously. Fail-closed behavior
+enumerated for 8 distinct failure modes — no ambiguous/missing case resolved permissively.
+
+**ADR scope assessment:** `ADR_REQUIRED`, Risk `R2` — independently re-verified against Chapter 0 §4b
+(Event Schema change; `>1` module; hard-to-reverse once historical versions become immutable) and
+ADR-045's own R2 criteria text (not merely the task's stated hypothesis). **STOP-condition
+disposition:** no existing Approved authority already defines the complete canonical representation
+(confirmed absent from Chapter 8/`ADR-039`); the representation is not mechanically derivable with no
+genuine choice (field placement/selector grammar/cardinality/fail-closed flags are all genuine
+authoring choices Chapter 8 declines to fix); the recommended representation requires no external-cause
+domain-payload reads; depends on no event-specific processor code — none of the four STOP conditions
+triggered. Smallest proposed ADR scope recorded (field name/placement, grammar, selector two-forms +
+`discriminated_by`, fail-closed rules as normative, explicit non-scope over the 21 already-reviewed
+classification results) — ADR itself not authored in this WP.
+
+**Confirmed unchanged:** `docs/architecture/event-contracts/candle-closed/v1.0.yaml`,
+`docs/architecture/event-contracts/candle-corrected/v1.0.yaml` (both fresh-verified byte-identical),
+`docs/adr/ADR-039.md`, `docs/adr/ADR-040.md`, `docs/adr/ADR-047.md` (all fresh-verified byte-identical,
+read-only), every Structure/Regime/Feature Event Contract, Context Input Contract, state-dependency
+derivation, every Domain Contract, every Constitution chapter, every registry, all production
+source/tests/tooling.
+
+**M2 unchanged (`BLOCKED`, parallel evidence lane). M3 remains `ACTIVE`** — Candle Event Contract Draft
+pair: `AUTHORED`, Review A `REVISION_REQUIRED`; semantic classifications: `VALIDATED`; current
+architecture blocker: canonical machine-readable per-effect causation state-dependency representation
+is not yet governed; retention: `ADR-040 APPROVED`, Class-G retention semantics `SATISFIED` at
+architecture level, concrete past-horizon archival implementation `DEFERRED`, **not** the current
+Event Contract publication/reference blocker. Structure/Regime authoring: `PAUSED`. **M4 remains
+`QUEUED`.** Phase-3 Approval Gate `NOT REACHED`; LIVE remains `NOT_AUTHORIZED`.
+
+**Files changed:** `docs/project/event-contract-causal-dependency-representation-001.md` (new), plus
+deterministic bookkeeping: `docs/MANIFEST.md`, `docs/CHANGELOG.md`, `docs/project/milestone.md`,
+`docs/project/milestone-dashboard.html`. No Candle Event Contract candidate, Structure/Regime/Feature
+Event Contract, Context Input Contract, state-dependency derivation, Domain Contract, `ADR-039`,
+`ADR-040`, `ADR-047`, Constitution chapter, registry, or production source/tests/tooling touched.
+`manifest_version` `"10.466"` -> `"10.467"`.
+
+**Next governed action:** Fresh ChatGPT Review A of
+`EVENT-CONTRACT-CAUSAL-DEPENDENCY-REPRESENTATION-001`; if `CLEAN`, author the bounded representation
+ADR candidate before correcting or publishing any Event Contract.
 
 ## Decision Log
 
