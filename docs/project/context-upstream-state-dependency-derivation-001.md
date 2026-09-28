@@ -2,13 +2,13 @@
 id: context-upstream-state-dependency-derivation-001
 title: "Context Upstream Event-Contract State-Dependency Authority — Derivation"
 kind: analysis
-version: "0.3"
+version: "0.4"
 status: Draft
 owner: Product Owner
 generated_at: "2026-09-28"
 ---
 
-# CONTEXT-UPSTREAM-STATE-DEPENDENCY-DERIVATION-001 (v0.3 — corrected)
+# CONTEXT-UPSTREAM-STATE-DEPENDENCY-DERIVATION-001 (v0.4 — corrected)
 
 **Analysis / derivation artifact only.** Does not modify or version any Event Contract; does not
 publish any Event Contract; does not publish `context-market-input / v1.0`; does not modify any
@@ -33,13 +33,25 @@ correction below.
 Minor`. `CONTEXT-SD-DERIV-A-MAJ-01`, `CONTEXT-SD-DERIV-A-MAJ-02` — remediated by
 `CONTEXT-UPSTREAM-STATE-DEPENDENCY-DERIVATION-001-CORR-001` (v0.2).
 
-**Fresh Review A of v0.2 (this correction round):** `REVISION_REQUIRED — 0 Blocker / 1 Major / 2
-Minor`, analysis-artifact Risk `R1`, ADR Scope `ADR_NOT_REQUIRED` (for this correction transaction
-itself). Prior findings `CONTEXT-SD-DERIV-A-MAJ-01 — CLOSED — REVIEW A VALIDATED`,
-`CONTEXT-SD-DERIV-A-MAJ-02 — CLOSED — REVIEW A VALIDATED`, both confirmed genuinely remediated by
-Review A's own determination, neither reopened. New findings `CONTEXT-SD-DERIV-A-MAJ-03`,
-`CONTEXT-SD-DERIV-A-MIN-01`, `CONTEXT-SD-DERIV-A-MIN-02` — addressed/remediated in this v0.3,
-**not self-closed** (closure is a fresh Review A re-review determination).
+**Fresh Review A of v0.2 (prior correction round):** `REVISION_REQUIRED — 0 Blocker / 1 Major / 2
+Minor`, analysis-artifact Risk `R1`, ADR Scope `ADR_NOT_REQUIRED`. Prior findings
+`CONTEXT-SD-DERIV-A-MAJ-01 — CLOSED — REVIEW A VALIDATED`, `CONTEXT-SD-DERIV-A-MAJ-02 — CLOSED —
+REVIEW A VALIDATED`, both confirmed genuinely remediated by Review A's own determination, neither
+reopened. `CONTEXT-SD-DERIV-A-MAJ-03`, `CONTEXT-SD-DERIV-A-MIN-01`, `CONTEXT-SD-DERIV-A-MIN-02` —
+remediated by `CONTEXT-UPSTREAM-STATE-DEPENDENCY-DERIVATION-001-CORR-002` (v0.3).
+
+**Fresh Review A of v0.3 (this transaction, folded into
+`CONTEXT-EVENT-CONTRACT-COMPAT-ADR-SCOPE-001`):** `CLEAN — 0 Blocker / 0 Major / 1 Minor`,
+analysis-artifact Risk `R1`, ADR Scope `ADR_NOT_REQUIRED`. Prior findings
+`CONTEXT-SD-DERIV-A-MAJ-01`/`CONTEXT-SD-DERIV-A-MAJ-02`/`CONTEXT-SD-DERIV-A-MAJ-03`/
+`CONTEXT-SD-DERIV-A-MIN-01`/`CONTEXT-SD-DERIV-A-MIN-02` — all `CLOSED — REVIEW A VALIDATED`, none
+reopened. New finding `CONTEXT-SD-DERIV-A-MIN-03` (non-blocking residual wording defect in §3's
+totals paragraph, still resting on the same unsupported shared-`event_class` premise §1.1 had
+already corrected elsewhere) — addressed as a deterministic wording correction in this v0.4 (§3
+below), **not self-closed** (closure is a fresh Review A re-review determination). The accepted
+classification matrix itself (`20 EXTERNAL_NON_STATE_CAUSE / 1 VACUOUS / 0 STATE_DEPENDENCY / 0
+UNRESOLVED`) is unchanged — no semantic re-review of the matrix was performed or is implied by this
+correction.
 
 ## 1. What was wrong in v0.1, and the corrected test
 
@@ -307,14 +319,18 @@ category remains `UNRESOLVED`.
 | `UNRESOLVED` | 4 | **0** |
 
 **Every one of the 20 non-vacuous categories, across all 10 event types, classifies
-`EXTERNAL_NON_STATE_CAUSE`.** This is not a rounding artifact of applying one rule loosely — it
-follows mechanically, category by category, from the same single structural fact restated in §1.1:
-every event in this set is a `derived_fact` whose own payload is a complete materialized result: no
-Domain Contract in this WP's boundary (now including `swing.md`) requires a downstream authoritative
-application of any of these 10 event types to re-read a causal predecessor's own payload. Every
-`causation_refs` element in this set exists for lineage/precedence/explainability (I-1), satisfying
-`EXTERNAL_NON_STATE_CAUSE`'s own definition exactly (existence/commitment proof, no payload read,
-no cursor-visibility/apply-scope requirement).
+`EXTERNAL_NON_STATE_CAUSE`.** This is not a rounding artifact of applying one rule loosely
+(corrected under `CONTEXT-SD-DERIV-A-MIN-03` — the prior wording here rested on an unsupported
+shared `event_class` premise, the same class of defect §1.1/§1.4/§1.5 already corrected elsewhere
+in this document; folded into a single deterministic wording fix here): **the 20 classifications
+are supported category-by-category by the reviewed Domain Contract apply-time semantics (§2). They
+do not depend on a shared `event_class`.** Only Feature's two Published Event Contracts currently
+declare `event_class: derived_fact`; `event_class` for the eight not-yet-authored Event Contracts
+remains undecided. Every `causation_refs` element in this set exists for
+lineage/precedence/explainability (I-1), satisfying `EXTERNAL_NON_STATE_CAUSE`'s own definition
+exactly (existence/commitment proof, no payload read, no cursor-visibility/apply-scope
+requirement) — established directly from each event's own reviewed semantics, never inferred from
+a global label.
 
 This total invalidates and replaces v0.1's `17 mechanically derivable / 4 UNRESOLVED` count, per
 the task's own instruction that it "must be recomputed," not patched.
@@ -489,11 +505,12 @@ residual-risk acceptance is recorded by this transaction.
 M2: `BLOCKED` — parallel evidence lane. M3: `ACTIVE` — Context deterministic core `REVIEW A
 VALIDATED — CLEAN`; `ADR-046` `APPROVED`; `context.md` v0.4 `PO ACCEPTED`; Context Input Contract
 v0.3 `REVIEW A CLEAN — R2 — PROCEED WITHOUT CROSS-CHECK — NOT PUBLISHED`, unmutated; state-
-dependency derivation is now `v0.3 corrected candidate` — classification matrix `20
-EXTERNAL_NON_STATE_CAUSE / 1 VACUOUS / 0 STATE_DEPENDENCY / 0 UNRESOLVED`, independently re-verified
-by fresh Review A of v0.2 and preserved unchanged by this correction — pending fresh Review A
-re-review of this v0.3. Current blocker: compatibility-commitment ADR prerequisite (§1.4/§5/§6 —
-selecting `compatibility_commitment` for any of the 8 missing `contract_id`s is an `ADR Required`
-candidate on `ADR-038`'s own exact precedent, not yet authored) plus missing Event Contract
+dependency derivation is now `v0.4` — fresh Review A `CLEAN — 0 Blocker / 0 Major / 1 Minor`
+(`CONTEXT-SD-DERIV-A-MIN-03`, non-blocking residual wording defect, folded into this v0.4 as a
+deterministic correction, not self-closed) — classification matrix `20 EXTERNAL_NON_STATE_CAUSE /
+1 VACUOUS / 0 STATE_DEPENDENCY / 0 UNRESOLVED` unchanged throughout. Current blocker:
+compatibility-commitment ADR prerequisite — `docs/project/context-event-contract-compatibility-adr-scope-001.md`
+now recommends the smallest coherent ADR packaging (one ADR per producer family: Candle, Structure,
+Regime — 3 candidates, `contract_id`s enumerated), none yet authored — plus missing Event Contract
 authority (8 of 10 event types have zero Published artifact). M4: `QUEUED`. Phase-3 Approval Gate:
 `NOT REACHED`. LIVE: `NOT_AUTHORIZED`.

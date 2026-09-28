@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.461"
+manifest_version: "10.462"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -32720,6 +32720,130 @@ production source/tests/tooling touched. `manifest_version` `"10.460"` -> `"10.4
 **Next governed action:** Fresh ChatGPT Review A re-review of state-dependency derivation v0.3; if
 `CLEAN`, derive the smallest coherent ADR scope for Candle/Structure/Regime Event Contract
 compatibility commitments before any Event Contract authoring.
+
+## Compatibility-commitment ADR scope derivation for the 8 missing Context-upstream Event Contracts (`CONTEXT-EVENT-CONTRACT-COMPAT-ADR-SCOPE-001`)
+
+**Analysis / scope-derivation transaction only. Does not choose any `compatibility_commitment`
+value, does not author an ADR, does not author or publish any Event Contract, does not modify any
+Input Contract, does not change module/domain topology.**
+
+**Fresh boundary verification:** HEAD confirmed exactly `129e08a699291445568c79c489969536b3318682`,
+identical to `origin/main`. Confirmed `docs/project/context-upstream-state-dependency-derivation-001.md`
+matched pinned blob `3b474c702b9b8c7d122438258451f8eaab6ab860` exactly (`version: "0.3"`) before
+this transaction's own `CONTEXT-SD-DERIV-A-MIN-03` fold-in. Confirmed `context-market-input.yaml`
+matched pinned blob `ce74ddf6291abb2b1ed21938ca88050550fb2a0b` exactly (`version: "0.3"`,
+`status: Draft`) — unchanged after. Fresh-read in full: `docs/adr/ADR-038.md`, Chapter 0 §4b,
+Chapter 10 §10.3/§10.3.1/§10.7, Chapter 8 Event Contract authority (line 257,
+"Event class / payload / semantic / stream eligibility → Event Contract"; §8.6 delegates
+compatibility to Chapter 10), `docs/architecture/module-registry.yaml` v1.7,
+`docs/domain/context-map.yaml`, and all six relevant Domain Contracts (`candle.md`, `swing.md`,
+`structure.md`, `regime.md`, `feature.md`, `context.md`).
+
+**Fresh Review A of state-dependency derivation v0.3:** `CLEAN — 0 Blocker / 0 Major / 1 Minor`,
+analysis-artifact Risk `R1`, ADR Scope `ADR_NOT_REQUIRED`. Prior findings
+`CONTEXT-SD-DERIV-A-MAJ-01`/`-02`/`-03`/`MIN-01`/`MIN-02`: all `CLOSED — REVIEW A VALIDATED`. New
+finding `CONTEXT-SD-DERIV-A-MIN-03` — the residual §3 totals paragraph still rested on the same
+unsupported shared-`event_class` premise §1.1 had already corrected elsewhere. **Corrected as a
+deterministic wording fold-in** (no semantic re-review of the matrix): replaced with "the 20
+classifications are supported category-by-category by the reviewed Domain Contract apply-time
+semantics; they do not depend on a shared `event_class`. Only Feature's two Published Event
+Contracts currently declare `event_class: derived_fact`; `event_class` for the eight
+not-yet-authored Event Contracts remains undecided." Classification totals, individual
+classifications, and the compatibility governance conclusion are all unchanged — `20
+EXTERNAL_NON_STATE_CAUSE / 1 VACUOUS / 0 STATE_DEPENDENCY / 0 UNRESOLVED`. Derivation artifact
+`version: "0.3" → "0.4"`, blob `a8b10628f4c156f67b25d18868dec4d6434971d9`.
+
+**New file `docs/project/context-event-contract-compatibility-adr-scope-001.md`** derives the
+smallest coherent ADR candidate scope(s) for the compatibility-commitment decisions required before
+first publication of the 8 missing Context-upstream Event Contracts (`candle-closed`,
+`candle-corrected`, `break-of-structure-detected`, `change-of-character-detected`,
+`structure-fact-invalidated`, `structure-recomputed`, `regime-classified`,
+`regime-fact-invalidated`).
+
+**Per-contract topology matrix (8 rows), event-level evidence first, `module-registry.yaml` as
+corroboration only:** `context-map.yaml`'s own `relationships:` inventory (exhaustively confirmed —
+exactly 16 entries across these 8 `contract_id`s, no more/fewer) supplies the primary, precise
+`contract_id`-level consumer evidence, cross-checked against each owning Domain Contract's own
+"Input contracts"/`events_consumed` text. Results: `candle-closed`/`candle-corrected` — producer
+`market-data-ingestion`, consumed by `structure-engine`, `raw-regime-engine`, `feature-engine`,
+`context-aggregator` (4 consumers each, widest blast radius). `break-of-structure-detected`/
+`change-of-character-detected`/`structure-fact-invalidated`/`structure-recomputed` — producer
+`structure-engine`, consumed by `context-aggregator` **only** — confirmed `feature.md` §14
+explicitly excludes all four Structure events (*"Không tiêu thụ:... bất kỳ Structure event
+nào..."*), despite `feature-engine.depends_on` including `structure-engine` in
+`module-registry.yaml` — a genuine registry-topology-vs-event-level-evidence non-corroboration,
+resolved in favor of the Domain Contract's own explicit text and flagged as an open documentation
+gap (not fixed by this WP — out of scope). `regime-classified`/`regime-fact-invalidated` —
+producer `raw-regime-engine`, consumed by `feature-engine` and `context-aggregator` (2 consumers
+each).
+
+**Chapter 0 §4b `>1`-module trigger applies independently to all 8 `contract_id`s** — even the four
+Structure events, whose single confirmed consumer still makes producer + consumer = 2 modules, the
+identical minimum cardinality `ADR-038` itself already found sufficient for Feature's own two
+`contract_id`s. `compatibility_commitment` value: `UNRESOLVED` for all 8; existing authority
+supplies the choice space (Chapter 10 §10.3.1) but never the value; `ADR_REQUIRED: YES` for all 8 —
+no value chosen by this WP.
+
+**Packaging comparison (Models A/B/C), independently re-derived from actual topology, not assumed
+from the pre-analysis hypothesis:** Model A (8 ADRs, one per `contract_id`) rejected — within each
+family every `contract_id` shares identical topology, so 8 separate ADRs would duplicate identical
+rationale for zero additional semantic-isolation benefit. Model C (1 ADR for all 8) rejected —
+would bundle three architecturally independent producer/Domain-Contract/consumer relationships
+(Structure and Regime are constitutionally independent per `ADR-003`/`ADR-014`, confirmed by
+`raw-regime-engine.forbidden_dependencies: [structure-engine]`) into one incoherent decision.
+**Model B (one ADR per producer family, 3 ADRs) is confirmed as the smallest coherent scope** by
+actual repository evidence: each family has exactly one producer, one owning Domain Contract, and
+an internally-identical consumer set across its own `contract_id`s.
+
+**Recommended ADR packages, `contract_id`s enumerated exactly:** (1) Candle Event Contract
+Compatibility Commitment — `candle-closed`, `candle-corrected`; (2) Structure Event Contract
+Compatibility Commitment — `break-of-structure-detected`, `change-of-character-detected`,
+`structure-fact-invalidated`, `structure-recomputed`; (3) Regime Event Contract Compatibility
+Commitment — `regime-classified`, `regime-fact-invalidated`. No compatibility-commitment value
+chosen for any package; each package's eventual ADR may state one shared value or distinct
+per-`contract_id` values, as that ADR's own governed decision determines.
+
+**Open evidence gap recorded (not fixed by this WP):** `feature-engine.depends_on: [structure-engine]`
+in `module-registry.yaml`, and that module's own `responsibilities` text ("Fan-in... từ Structure
+và Regime output"), do not correspond to any actual Structure event consumption — `feature.md`'s
+own authoritative event list excludes all four Structure events. Flagged for a future, separate,
+narrowly-scoped correction; not resolved here.
+
+**No STOP condition triggered:** none of the 8 `contract_id`s has a Published Event Contract; no
+Approved ADR already governs any of their compatibility commitments (confirmed via fresh-read
+`ADR-038.md` — scoped explicitly to Feature's two `contract_id`s only); event-level consumer
+evidence did not conflict with module-registry topology in a way requiring escalation (the one
+non-corroborating edge, above, was resolved by the WP's own explicit event-level-evidence-first
+rule, not left ambiguous); no proposed grouping required choosing a commitment value to determine
+scope; actual topology left no material packaging ambiguity — Model B is independently confirmed,
+not merely assumed from the pre-analysis hypothesis.
+
+**Confirmed unchanged by this transaction:** `docs/architecture/input-contracts/context-market-input.yaml`
+(fresh-verified byte-identical), every Event Contract, every Input Contract, every Domain Contract,
+`docs/adr/ADR-038.md` and every other ADR (all read-only), `docs/architecture/module-registry.yaml`,
+`docs/domain/context-map.yaml`, `docs/architecture/stream-registry.yaml`, every Constitution
+chapter, all production source/tests/tooling. No `compatibility_commitment` value chosen; no ADR
+authored.
+
+**M2 unchanged (`BLOCKED`, parallel evidence lane). M3 remains `ACTIVE`** — Context deterministic
+core remains `REVIEW A VALIDATED — CLEAN`; `ADR-046` remains `APPROVED`; `context.md` v0.4 remains
+`PO ACCEPTED`; Context Input Contract v0.3 remains `REVIEW A CLEAN — R2 — PROCEED WITHOUT
+CROSS-CHECK — NOT PUBLISHED`, unmutated; state-dependency derivation is now `v0.4`, Review A
+`CLEAN — 0/0/1` (Minor folded in), matrix unchanged; current blocker: compatibility-commitment
+ADR(s) — 3 recommended candidates now scoped, `contract_id`s enumerated, none yet authored — plus
+missing Event Contract authority (8 of 10 event types). **M4 remains `QUEUED`.** Phase-3 Approval
+Gate `NOT REACHED`; `LIVE` remains `NOT_AUTHORIZED`.
+
+**Files changed:** `docs/project/context-event-contract-compatibility-adr-scope-001.md` (new),
+`docs/project/context-upstream-state-dependency-derivation-001.md` (deterministic Minor fold-in),
+plus deterministic bookkeeping: `docs/MANIFEST.md`, `docs/CHANGELOG.md`,
+`docs/project/milestone.md`, `docs/project/milestone-dashboard.html`. No Event Contract, Input
+Contract, Domain Contract, ADR, Constitution chapter, registry, or production source/tests/tooling
+touched. `manifest_version` `"10.461"` -> `"10.462"`.
+
+**Next governed action:** Fresh ChatGPT Review A of `CONTEXT-EVENT-CONTRACT-COMPAT-ADR-SCOPE-001`;
+if `CLEAN`, author the recommended compatibility-commitment ADR candidate(s) without yet authoring
+Event Contracts.
 
 ## Decision Log
 

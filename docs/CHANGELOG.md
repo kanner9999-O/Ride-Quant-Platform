@@ -2,6 +2,24 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-28 — Compatibility-commitment ADR scope derivation for the 8 missing Context-upstream Event Contracts
+
+Starting `main == origin/main == 129e08a699291445568c79c489969536b3318682`, fresh-verified, working tree clean. `context-upstream-state-dependency-derivation-001.md` fresh-verified exact (blob `3b474c702b9b8c7d122438258451f8eaab6ab860`, `version: "0.3"`) before this transaction; `context-market-input.yaml` fresh-verified exact (blob `ce74ddf6291abb2b1ed21938ca88050550fb2a0b`, `version: "0.3"`, `status: Draft`) — unchanged after. Fresh-read `docs/adr/ADR-038.md`, Chapter 0 §4b, Chapter 10 §10.3/§10.3.1/§10.7, Chapter 8 Event Contract authority, `docs/architecture/module-registry.yaml`, `docs/domain/context-map.yaml`, and all six relevant Domain Contracts.
+
+Analysis/scope-derivation transaction only — does not choose any `compatibility_commitment` value, does not author an ADR, does not author or publish any Event Contract, does not modify any Input Contract, does not change module/domain topology.
+
+New file `docs/project/context-event-contract-compatibility-adr-scope-001.md` derives, per `contract_id`, exact producer/consumer topology for the 8 missing Context-upstream Event Contracts, using `context-map.yaml`'s own `contract_id`-level `relationships:` inventory as primary event-level evidence (exhaustively confirmed 16 entries across the 8 contracts) and `module-registry.yaml`'s `depends_on` edges as topology corroboration only — never inferring "module depends_on producer → module consumes every event." Result: `candle-closed`/`candle-corrected` consumed by 4 modules each (structure-engine, raw-regime-engine, feature-engine, context-aggregator); `break-of-structure-detected`/`change-of-character-detected`/`structure-fact-invalidated`/`structure-recomputed` consumed by context-aggregator only — confirmed `feature.md` explicitly excludes all four Structure events despite `feature-engine.depends_on` including `structure-engine` in the registry, a genuine non-corroboration flagged as an open documentation gap, not fixed here; `regime-classified`/`regime-fact-invalidated` consumed by feature-engine and context-aggregator.
+
+All 8 `contract_id`s independently trigger Chapter 0 §4b's `>1`-module rule and are `ADR_REQUIRED` candidates, on `ADR-038`'s own exact precedent — no value chosen. Packaging comparison (Models A/B/C) independently re-derives, from actual topology rather than the pre-analysis hypothesis, that Model B (one ADR per producer family) is the smallest coherent scope: Model A (8 ADRs) rejected as duplicative (identical topology within each family); Model C (1 ADR for all 8) rejected as incoherent (Structure and Regime are constitutionally independent per `ADR-003`/`ADR-014`). Recommended: three ADR candidates — Candle (`candle-closed`, `candle-corrected`), Structure (all four Structure events), Regime (`regime-classified`, `regime-fact-invalidated`) — `contract_id`s enumerated, no packaging or values predetermined beyond that.
+
+Folded in the same transaction: fresh Review A of the state-dependency derivation (v0.3) returned `CLEAN — 0 Blocker / 0 Major / 1 Minor` (`CONTEXT-SD-DERIV-A-MIN-03`, a residual wording defect still resting on the unsupported shared-`event_class` premise §1.1 had already corrected elsewhere) — remediated as a deterministic wording fold-in, `version: "0.3" → "0.4"`; classification totals, individual classifications, and compatibility governance conclusion all unchanged (`20 EXTERNAL_NON_STATE_CAUSE / 1 VACUOUS / 0 STATE_DEPENDENCY / 0 UNRESOLVED`).
+
+**M2 unchanged (`BLOCKED`). M3 remains `ACTIVE`** (deterministic core CLEAN; ADR-046 APPROVED; context.md v0.4 PO ACCEPTED; Context Input Contract v0.3 unchanged; state-dependency derivation now v0.4, Review A CLEAN — 0/0/1; current blocker: 3 recommended compatibility-commitment ADR candidates, none yet authored, plus missing Event Contract authority). **M4 remains `QUEUED`.** Phase-3 Approval Gate NOT REACHED; LIVE remains `NOT_AUTHORIZED`.
+
+Next governed action: fresh ChatGPT Review A of `CONTEXT-EVENT-CONTRACT-COMPAT-ADR-SCOPE-001`; if CLEAN, author the recommended compatibility-commitment ADR candidate(s) without yet authoring Event Contracts.
+
+---
+
 ## [Unreleased] — 2026-09-28 — Upstream state-dependency derivation v0.3: bounded correction (compatibility-commitment governance routing)
 
 Starting `main == origin/main == 69f8731e006e126cd06e81eaa73ee8e52b8ac9ed`, fresh-verified, working tree clean. Derivation artifact (v0.2) fresh-verified exact (blob `44fe265e0a6f6ad064c7e25066a7eb18778f0916`) before this correction; `context-market-input.yaml` fresh-verified exact (blob `ce74ddf6291abb2b1ed21938ca88050550fb2a0b`, `version: "0.3"`, `status: Draft`) — unchanged after. Fresh-read `docs/adr/ADR-038.md` (Approved) in full and Chapter 0 §4b this transaction.
