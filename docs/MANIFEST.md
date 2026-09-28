@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.462"
+manifest_version: "10.463"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -32844,6 +32844,106 @@ touched. `manifest_version` `"10.461"` -> `"10.462"`.
 **Next governed action:** Fresh ChatGPT Review A of `CONTEXT-EVENT-CONTRACT-COMPAT-ADR-SCOPE-001`;
 if `CLEAN`, author the recommended compatibility-commitment ADR candidate(s) without yet authoring
 Event Contracts.
+
+## Compatibility ADR scope derivation v0.2 — bounded correction against fresh Review A (`CONTEXT-EVENT-CONTRACT-COMPAT-ADR-SCOPE-001-CORR-001`)
+
+**Bounded correction of [`docs/project/context-event-contract-compatibility-adr-scope-001.md`](../project/context-event-contract-compatibility-adr-scope-001.md)
+remediating fresh ChatGPT Review A's one Major and one Minor. Does not author any ADR, does not
+choose any `compatibility_commitment` value, does not author Event Contracts.**
+
+**Fresh boundary verification:** HEAD confirmed exactly `f392453b6dde7d1fd477109fd5e9110978078198`,
+identical to `origin/main`. Confirmed the scope artifact (v0.1) matched pinned blob
+`4c95cf05e767a3c2bf4b93f481225805eddc4214` exactly before mutation. Confirmed
+`context-upstream-state-dependency-derivation-001.md` matched pinned blob
+`a8b10628f4c156f67b25d18868dec4d6434971d9` exactly (`version: "0.4"`) — **not** touched by this
+transaction, as required. Confirmed `context-market-input.yaml` matched pinned blob
+`ce74ddf6291abb2b1ed21938ca88050550fb2a0b` exactly — unchanged after. Fresh-read this transaction:
+`docs/constitution/11-adr-process.md` (§11.3, §11.8's whole-file `supersedes` relation) — not
+previously pinned for this artifact.
+
+**Review A verdict:** `REVISION_REQUIRED — 0 Blocker / 1 Major / 1 Minor`, Risk `R1`, ADR Scope
+`ADR_NOT_REQUIRED`. Findings `CONTEXT-COMPAT-SCOPE-A-MAJ-01`, `CONTEXT-COMPAT-SCOPE-A-MIN-01`.
+
+**`CONTEXT-COMPAT-SCOPE-A-MAJ-01` (Model C rejection overreach):** v0.1 rejected Model C (one ADR
+for all 8 `contract_id`s) primarily because Candle/Structure/Regime are separate architectural
+families under `ADR-003`/`ADR-014`. Fresh-read `docs/constitution/11-adr-process.md` in full
+confirmed neither `ADR-003`/`ADR-014` nor Chapter 11 states or implies any "one domain per ADR"/
+"one producer per ADR"/"one `contract_id` per ADR" rule — Chapter 11 requires only a valid ADR
+structure with explicit, evidenced authority, and `ADR-038` itself already bundled 2 `contract_id`s
+into one ADR. Runtime/domain independence is not, by itself, an ADR-packaging prohibition.
+**Corrected:** re-evaluated Model C against the task's own six disqualifying conditions (obscured
+rationale; cross-contract value inference; ambiguous ownership; supersession confusion; unsafely
+broad review scope; actual governance-rule violation) — none triggered when Model C is authored
+with an explicit per-`contract_id` decision table. Model C is **not disqualified**. A genuine,
+narrower, evidence-grounded consideration is preserved instead of the withdrawn architectural-
+independence rationale: Chapter 11 §11.8 defines `supersedes` as a whole-ADR-file relation with no
+partial/per-decision-item mechanism — a future change to only one family's commitment would
+supersede Model C's entire 8-contract document, while Model B lets only the affected package be
+superseded. This is a real bounded-reviewability/future-evolution-granularity factor, not an
+authority-derived prohibition. **Corrected conclusion:** repository authority does not uniquely
+force Model B over Model C — `MULTIPLE GOVERNANCE-VALID PACKAGING OPTIONS REMAIN` (Model B, 3
+family-scoped ADRs; Model C, 1 ADR for all 8 with an explicit per-`contract_id` table); this is a
+genuine Product-Owner-level packaging preference (reviewability/supersession granularity vs.
+approval-loop-count reduction, per the stated operating-model preference for batching where
+semantic boundaries permit), not resolved by this WP. Model B is offered only as a non-binding
+technical recommendation (smaller review surface, finer supersession grain), never as the
+determined answer; Model A (8 ADRs) remains not recommended (duplicative, no offsetting benefit
+Model B does not already provide at a coarser grain) but this was not itself challenged by Review
+A and its disposition is unchanged in substance, only reworded to avoid a "rejected by file count"
+reading.
+
+**`CONTEXT-COMPAT-SCOPE-A-MIN-01` (false registry gap):** v0.1 characterized
+`feature-engine.depends_on: [structure-engine]` as a genuine, unresolved documentation
+inconsistency because `feature.md` does not consume any of the four Structure Event Contracts.
+Fresh Review A confirmed this is false: `structure-engine` is the registered module boundary for
+**both** Swing and Structure output, and `feature.md` §14 confirms Feature genuinely consumes
+`swing-confirmed`/`swing-invalidated` from that same boundary — fully corroborating the
+module-level edge. **Corrected:** the edge is simply broader than the four Structure `contract_id`s
+alone (module-level `depends_on` captures the whole producer boundary, not one event family within
+it) — exactly why module-level `depends_on` must never be read as proof of consumption for one
+specific Event Contract. The "open documentation inconsistency" claim is withdrawn from §G and
+every §B row that referenced it (B.3–B.6, item 7). This correction does **not** add Feature as a
+consumer of any of the four Structure Event Contracts — per-contract topology (§B) is otherwise
+byte-for-byte unchanged: `candle-closed`/`candle-corrected` — 4 consumers each
+(`structure-engine`/`raw-regime-engine`/`feature-engine`/`context-aggregator`); all four Structure
+`contract_id`s — `context-aggregator` only; `regime-classified`/`regime-fact-invalidated` —
+`feature-engine`/`context-aggregator`. All eight independently satisfy Chapter 0 §4b's `>1`-module
+trigger; all eight `compatibility_commitment` values remain `UNRESOLVED`; no value chosen.
+
+**Review-A history recorded:** reviewer ChatGPT, `AI Technical Architect`, reviewed boundary
+`f392453b6dde7d1fd477109fd5e9110978078198`, reviewed artifact blob
+`4c95cf05e767a3c2bf4b93f481225805eddc4214`, verdict as above. `CONTEXT-COMPAT-SCOPE-A-MAJ-01`/
+`CONTEXT-COMPAT-SCOPE-A-MIN-01`: both `addressed/remediated pending fresh Review A`, not
+self-closed. Risk `R1` unchanged; ADR Scope `ADR_NOT_REQUIRED` unchanged. Scope artifact
+`version: "0.1" → "0.2"`, `status` stays `Draft`, blob `c27c169efdc8bf38545b1f34ee17e3abc94b660b`.
+
+**Confirmed unchanged by this transaction:** `docs/project/context-upstream-state-dependency-derivation-001.md`
+(fresh-verified byte-identical, `version: "0.4"`, blob `a8b10628f4c156f67b25d18868dec4d6434971d9`),
+`docs/architecture/input-contracts/context-market-input.yaml` (fresh-verified byte-identical),
+every Event Contract, every Input Contract, every Domain Contract, `docs/adr/ADR-038.md` and every
+other ADR (read-only), `docs/architecture/module-registry.yaml`, `docs/domain/context-map.yaml`,
+`docs/architecture/stream-registry.yaml`, every Constitution chapter, all production
+source/tests/tooling. No `compatibility_commitment` value chosen; no ADR authored.
+
+**M2 unchanged (`BLOCKED`, parallel evidence lane). M3 remains `ACTIVE`** — Context deterministic
+core remains `REVIEW A VALIDATED — CLEAN`; `ADR-046` remains `APPROVED`; `context.md` v0.4 remains
+`PO ACCEPTED`; Context Input Contract v0.3 remains `REVIEW A CLEAN — R2 — PROCEED WITHOUT
+CROSS-CHECK — NOT PUBLISHED`, unmutated; state-dependency derivation remains `v0.4`, Review A
+`CLEAN — 0/0/1`, matrix unchanged, untouched by this correction; current blocker: compatibility-
+commitment ADR decision scope — now correctly characterized as `MULTIPLE GOVERNANCE-VALID
+PACKAGING OPTIONS REMAIN` (Model B vs. Model C, Product-Owner-level packaging preference) — plus
+missing Event Contract authority (8 of 10 event types). **M4 remains `QUEUED`.** Phase-3 Approval
+Gate `NOT REACHED`; `LIVE` remains `NOT_AUTHORIZED`.
+
+**Files changed:** `docs/project/context-event-contract-compatibility-adr-scope-001.md`
+(substantive correction), plus deterministic bookkeeping: `docs/MANIFEST.md`, `docs/CHANGELOG.md`,
+`docs/project/milestone.md`, `docs/project/milestone-dashboard.html`. No Event Contract, Input
+Contract, Domain Contract, ADR, Constitution chapter, registry, or production source/tests/tooling
+touched; state-dependency derivation v0.4 untouched. `manifest_version` `"10.462"` -> `"10.463"`.
+
+**Next governed action:** Fresh ChatGPT Review A of the corrected scope derivation; if `CLEAN`,
+route the minimal Product Owner packaging choice (Model B vs. Model C) before authoring any
+compatibility-commitment ADR candidate(s).
 
 ## Decision Log
 

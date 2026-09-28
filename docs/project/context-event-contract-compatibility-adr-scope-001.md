@@ -2,7 +2,7 @@
 id: context-event-contract-compatibility-adr-scope-001
 title: "Compatibility-Commitment ADR Scope Derivation — Missing Context-Upstream Event Contracts"
 kind: analysis
-version: "0.1"
+version: "0.2"
 status: Draft
 owner: Product Owner
 generated_at: "2026-09-28"
@@ -39,7 +39,16 @@ blob `30fec19d299e3a2455d30c8c19315f4f141834f9`), Chapter 10 §10.3/§10.3.1/§1
 `docs/domain/candle.md`, `docs/domain/swing.md`, `docs/domain/structure.md`,
 `docs/domain/regime.md`, `docs/domain/feature.md`, `docs/domain/context.md` (all six blobs
 confirmed unchanged from every prior WP that fresh-read them this session, cross-verified again
-here).
+here). Fresh-read this correction transaction: `docs/constitution/11-adr-process.md` (§11.3,
+§11.8's `supersedes` whole-file relation) — not previously pinned for this artifact.
+
+**Fresh Review A of v0.1:** `REVISION_REQUIRED — 0 Blocker / 1 Major / 1 Minor`, Risk `R1`, ADR
+Scope `ADR_NOT_REQUIRED`. Findings `CONTEXT-COMPAT-SCOPE-A-MAJ-01` (Model C rejection overreach —
+architectural/domain independence was treated as an ADR-packaging prohibition, which no cited
+authority actually states) and `CONTEXT-COMPAT-SCOPE-A-MIN-01` (false registry-edge documentation
+gap — `feature-engine.depends_on: [structure-engine]` is fully corroborated via Swing consumption,
+not an unresolved inconsistency) — both addressed/remediated in this v0.2, **not self-closed**
+(closure is a fresh Review A re-review determination).
 
 ## A. Authority basis
 
@@ -156,14 +165,21 @@ grep confirmed exactly 16 relationship entries exist for these 8 `contract_id`s 
    `StructureRecomputed`)..."* — confirmed, not inferred.
 6. `module-registry.yaml` corroboration: `context-aggregator.depends_on` includes
    `structure-engine` — corroborated.
-7. **Registry edges not corroborating this specific event:** `feature-engine.depends_on` includes
-   `structure-engine`, and `feature-engine`'s own `responsibilities` text says *"Fan-in... từ
-   Structure và Regime output"* — but `feature.md`'s own explicit `events_consumed`/Input Contracts
-   section (§14) denies consuming any Structure event. This is a genuine, fresh-verified
-   registry-topology-vs-event-level-evidence divergence (§G below) — resolved here in favor of the
-   Domain Contract's own explicit text, per this WP's event-level-evidence-first rule. `Feature`
-   consumes `Swing` (a different `contract_id` family, `swing-confirmed`/`swing-invalidated`,
-   `market-structure-analysis` context) — never Structure's own four events.
+7. **Registry edge scope, corrected (`CONTEXT-COMPAT-SCOPE-A-MIN-01`):** `feature-engine.depends_on`
+   also includes `structure-engine` — this edge **is fully corroborated**, not a non-corroborating
+   registry gap. `structure-engine` is the single registered module boundary for **both** Swing and
+   Structure analytical output (`structure-engine.responsibilities`: *"Suy diễn Swing/BOS/CHoCH và
+   structure semantics từ Candle"*), and `feature.md` §14/`context-map.yaml`'s own
+   `market-structure-analysis → feature-engineering` relationship entries confirm Feature genuinely
+   consumes `swing-confirmed`/`swing-invalidated` produced by this same module — this alone fully
+   corroborates the `depends_on` edge. It is **not** evidence that Feature consumes any of the four
+   Structure Event Contracts (`break-of-structure-detected`/`change-of-character-detected`/
+   `structure-fact-invalidated`/`structure-recomputed`) — `feature.md` §14 explicitly excludes all
+   four, and `context-map.yaml` records no relationship entry targeting `feature-engineering` for
+   any of them. A single module-level `depends_on` edge can legitimately corroborate one event
+   family (Swing) while remaining silent on another (the four Structure events) produced by the
+   very same module — exactly why module-level `depends_on` must never be read as proof of
+   consumption for one specific `contract_id` (§A).
 8. Downstream blast radius: 1 consumer module (`context-aggregator`).
 9. Chapter 0 §4b `>1`-module trigger: **applies independently** (2 modules: producer
    `structure-engine` + consumer `context-aggregator` — the identical minimum-cardinality shape
@@ -181,8 +197,9 @@ grep confirmed exactly 16 relationship entries exist for these 8 `contract_id`s 
    `feature.md` §14 exclusion (same citation as B.3).
 6. `module-registry.yaml` corroboration: `context-aggregator.depends_on` includes
    `structure-engine` — corroborated.
-7. Registry edges not corroborating: same `feature-engine → structure-engine` non-corroboration as
-   B.3.
+7. Registry edge scope: same corrected framing as B.3 item 7 — `feature-engine.depends_on:
+   [structure-engine]` is fully corroborated via Swing consumption, not evidence of Structure-event
+   consumption.
 8. Downstream blast radius: 1 consumer module.
 9. Chapter 0 §4b `>1`-module trigger: **applies independently** (2 modules).
 10. Compatibility commitment already governed: **NO**.
@@ -200,7 +217,7 @@ grep confirmed exactly 16 relationship entries exist for these 8 `contract_id`s 
    correction"*); `feature.md` §14 exclusion (same citation).
 6. `module-registry.yaml` corroboration: `context-aggregator.depends_on` includes
    `structure-engine` — corroborated.
-7. Registry edges not corroborating: same `feature-engine → structure-engine` non-corroboration.
+7. Registry edge scope: same corrected framing as B.3 item 7.
 8. Downstream blast radius: 1 consumer module.
 9. Chapter 0 §4b `>1`-module trigger: **applies independently** (2 modules).
 10. Compatibility commitment already governed: **NO**.
@@ -216,7 +233,7 @@ grep confirmed exactly 16 relationship entries exist for these 8 `contract_id`s 
    settle"*); `feature.md` §14 exclusion (same citation).
 6. `module-registry.yaml` corroboration: `context-aggregator.depends_on` includes
    `structure-engine` — corroborated.
-7. Registry edges not corroborating: same non-corroboration as B.3–B.5.
+7. Registry edge scope: same corrected framing as B.3 item 7.
 8. Downstream blast radius: 1 consumer module.
 9. Chapter 0 §4b `>1`-module trigger: **applies independently** (2 modules).
 10. Compatibility commitment already governed: **NO**.
@@ -289,8 +306,12 @@ set) is **identical** to its siblings (candle-closed/candle-corrected: same 4 co
 structure's four: same 1 consumer; regime's two: same 2 consumers — confirmed §B). Eight separate
 ADRs would repeat the identical topology assessment and rationale 4, 2, and 2 times respectively,
 for zero additional semantic-isolation benefit — the isolation Model A buys is only meaningful
-where topology genuinely differs per `contract_id`, which it does not here. **Rejected**: more
-files than the evidence coherently supports, not smaller scope, just more duplication.
+where topology genuinely differs per `contract_id`, which it does not here. This is not a rejection
+by file count alone (the task's own caution, honored): it is that Model B already supplies the
+identical explicit, independently-evidenced, per-`contract_id` decision surface Model A would, at a
+coarser and equally reviewable grain, with zero information loss and zero duplication. **Not
+recommended** — evidence-grounded preference against unnecessary file proliferation, not a
+governance prohibition.
 
 ### Model B — one ADR per domain/producer family (3 ADRs)
 
@@ -307,80 +328,164 @@ files than the evidence coherently supports, not smaller scope, just more duplic
 
 Each package: every `contract_id` explicitly enumerable, every contract's producer/consumer impact
 independently evidenced (§B), no contract's value inferred from another, rationale remains
-reviewable per family, and packaging does not couple architecturally unrelated domains (Candle,
-Structure, and Regime are already-established independent families — see Model C below). **This is
-the smallest coherent packaging supported by actual repository evidence, not merely the
-pre-analysis hypothesis** — independently re-derived from `context-map.yaml`'s own relationship
-inventory, not assumed.
+reviewable per family. **This is a coherent, evidence-supported packaging** — independently
+re-derived from `context-map.yaml`'s own relationship inventory, not assumed from the pre-analysis
+hypothesis — offering the finest-grained future supersession of the three models (Chapter 11 §11.8,
+see Model C below) at a still-fully-bounded per-family review surface. It is **not**, however, the
+uniquely authority-required packaging — see §E for the corrected determination.
 
-### Model C — one ADR for all 8
+### Model C — one ADR for all 8 (re-evaluated, `CONTEXT-COMPAT-SCOPE-A-MAJ-01`)
 
-Would bundle three **architecturally independent** producer relationships (`market-data-ingestion`,
-`structure-engine`, `raw-regime-engine` — Structure and Regime are constitutionally independent of
-each other per `ADR-003`/`ADR-014`, confirmed by `raw-regime-engine.forbidden_dependencies:
-[structure-engine]` in `module-registry.yaml`), three distinct owning Domain Contracts, and three
-materially different consumer sets (4 vs. 1 vs. 2 modules) into a single decision. This directly
-violates the packaging-coherence criterion *"bundling does not couple unrelated domains merely for
-bookkeeping convenience"* — fewer files, not more coherent. **Rejected.**
+**v0.1 rejected this model primarily because Candle/Structure/Regime are separate architectural
+families under `ADR-003`/`ADR-014` (Structure and Regime constitutionally independent of each
+other, confirmed by `raw-regime-engine.forbidden_dependencies: [structure-engine]`).** Fresh
+Review A correctly found that reasoning overreaching: `ADR-003`/`ADR-014` govern producer/domain
+dependency, fan-in semantics, and Structure/Regime computational independence — they say nothing
+about ADR-packaging granularity. Chapter 11 (`docs/constitution/11-adr-process.md`, fresh-read in
+full this transaction) requires only a valid ADR structure (Context/Decision/Alternatives/
+Risks/Scale/Consequences) with explicit, evidenced authority — it states no "one domain per ADR,"
+"one producer per ADR," or "one `contract_id` per ADR" rule anywhere. **Runtime/domain independence
+is not, by itself, an ADR-packaging prohibition**, and `ADR-038`'s own precedent already
+demonstrates a single ADR legitimately bundling more than one `contract_id`.
 
-## E. Recommended smallest coherent ADR scope
+**Corrected test applied:** can one ADR express a single coherent architectural decision surface —
+*"first-publication compatibility commitments for the bounded set of Context-upstream Event
+Contracts required to make `context-market-input` operationally resolvable"* — while preserving
+independent, explicit, per-`contract_id` decisions and evidence, via a decision table shaped
+exactly like `contract_id | owning domain | producer | verified consumers |
+compatibility_commitment | rationale`, with no value inferred across rows? Checked against the six
+specific disqualifying conditions the task itself names:
 
-Three candidate ADR packages, `contract_id`s enumerated exactly:
+1. *Obscures materially different decision rationale* — **not triggered**; §B above already
+   supplies each `contract_id`'s own independently-evidenced rationale, directly transcribable into
+   per-row cells.
+2. *Requires one contract's value to constrain another* — **not triggered**; nothing in §B's
+   topology creates a cross-`contract_id` value dependency.
+3. *Creates ambiguous ownership* — **not triggered**; each row's owning Domain Contract/producer is
+   already unambiguous (§B).
+4. *Makes future supersession/versioning unable to identify which decision governs which
+   contract* — **not triggered within the document itself** (an explicit table identifies each
+   `contract_id`'s own decision unambiguously) — but see the genuine, narrower concern below.
+5. *Creates review scope too broad to reason about safely* — arguable, not clearly triggered; 8
+   rows of already-derived topology (this WP's own §B) is not, on its face, unsafely broad for one
+   review pass.
+6. *Violates an actual governance rule* — **not found**; Chapter 11 imposes no one-subject-per-ADR
+   rule, and `ADR-038` itself already bundled 2 `contract_id`s without objection.
 
-1. **Candle Event Contract Compatibility Commitment** — `candle-closed`, `candle-corrected`.
-2. **Structure Event Contract Compatibility Commitment** — `break-of-structure-detected`,
-   `change-of-character-detected`, `structure-fact-invalidated`, `structure-recomputed`.
-3. **Regime Event Contract Compatibility Commitment** — `regime-classified`,
-   `regime-fact-invalidated`.
+**Model C is therefore NOT disqualified by architectural independence alone, and is not rejected in
+this corrected analysis.**
 
-No compatibility-commitment *value* is chosen for any package by this WP. Each package's eventual
-ADR may, per Chapter 10 §10.3.1's own per-`contract_id` declaration requirement, state a single
-shared value for all `contract_id`s in its package or distinct values per `contract_id`, as that
-ADR's own governed decision determines — not predetermined here.
+**A genuine, narrower, evidence-grounded consideration remains, distinct from the withdrawn
+architectural-independence rationale:** Chapter 11 §11.8 (fresh-read this transaction) defines
+`supersedes` as a **whole-ADR-file relation** — *"ADR mới Approved với `supersedes: [ADR-cũ]`"* —
+there is no partial/per-decision-item supersession mechanism anywhere in Chapter 11. If a single
+Model-C ADR bundles all 8 `contract_id`s and a **future** governed change needs to revise only, say,
+Structure's own compatibility commitment, that future ADR would need to supersede the **entire**
+8-contract document — either re-stating/re-affirming Candle's and Regime's untouched decisions, or
+leaving readers to reconstruct still-valid content from a now-`Superseded` file. Under Model B, that
+same future change supersedes only the affected 2- or 4-`contract_id` package, leaving the other two
+families' own ADRs completely undisturbed. This is a genuine bounded-reviewability/
+future-evolution-granularity consideration — it does **not** disqualify Model C, but it is a real,
+non-fabricated reason a reviewer could prefer Model B's finer supersession grain (see §E).
 
-## F. Rejected packaging models
+## E. Packaging determination — NOT uniquely required by repository authority (corrected, `CONTEXT-COMPAT-SCOPE-A-MAJ-01`)
 
-- **Model A (8 ADRs):** rejected — duplicates identical within-family topology/rationale for no
-  semantic-isolation benefit; not the smallest *coherent* scope, only a larger file count.
-- **Model C (1 ADR for all 8):** rejected — couples three architecturally independent
-  producer/Domain-Contract/consumer relationships that the Constitution's own `ADR-003`/`ADR-014`
-  already established as independent; incoherent bundling for file-count minimization alone.
+v0.1 presented Model B as *the* smallest coherent, authority-required scope. That overstated what
+the evidence actually supports. Re-derived in this correction: **repository authority (Chapter 0
+§4b, Chapter 10 §10.3.1, Chapter 11, `ADR-038`'s own precedent) does not uniquely force a choice
+between Model B and Model C.** Both are governance-valid:
+
+- **Model B — 3 family-scoped ADRs**, `contract_id`s enumerated exactly:
+  1. **Candle Event Contract Compatibility Commitment** — `candle-closed`, `candle-corrected`.
+  2. **Structure Event Contract Compatibility Commitment** — `break-of-structure-detected`,
+     `change-of-character-detected`, `structure-fact-invalidated`, `structure-recomputed`.
+  3. **Regime Event Contract Compatibility Commitment** — `regime-classified`,
+     `regime-fact-invalidated`.
+
+  Each package independently coherent (§D); finest-grained future supersession of the three models
+  (Chapter 11 §11.8's whole-file `supersedes` relation means only the affected family's ADR need be
+  superseded by a later change); smallest per-transaction review surface.
+
+- **Model C — 1 ADR for all 8**, all eight `contract_id`s enumerated in one explicit per-`contract_id`
+  decision table (`contract_id | owning domain | producer | verified consumers |
+  compatibility_commitment | rationale`), no value inferred across rows. Coherent single
+  architectural subject — *first-publication compatibility commitments for the Context-upstream
+  Event Contract set required to make `context-market-input` operationally resolvable* (§D); fewer
+  approval-loop iterations, consistent with the stated operating-model preference for batching where
+  semantic boundaries permit.
+
+**`MULTIPLE GOVERNANCE-VALID PACKAGING OPTIONS REMAIN: Model B and Model C.`** Neither is uniquely
+required by repository authority. Reducing this to a single choice trades finer-grained future
+supersession and smaller per-transaction review surface (favoring Model B) against fewer
+approval-loop iterations and reduced technical ceremony (favoring Model C, per the stated operating
+model) — a genuine Product-Owner-level packaging preference, not a technical/governance derivation
+this WP can resolve on its own. This WP does **not** pick on the Product Owner's behalf.
+
+**Non-binding technical note (a preference, not an authority requirement):** Model B is offered as
+the smaller, more bounded per-transaction review surface with finer-grained future supersession
+(§D) — stated here only as a technical recommendation available to whichever packaging decision is
+made, never as the determined answer.
+
+No compatibility-commitment *value* is chosen for any package, under either model, by this WP. A
+Model-B package's eventual ADR, or Model C's decision table, may — per Chapter 10 §10.3.1's own
+per-`contract_id` declaration requirement — state a single shared value for multiple `contract_id`s
+or distinct values per `contract_id`, as that ADR's own governed decision determines — not
+predetermined here.
+
+## F. Not-recommended / governance-valid-but-unselected packaging models
+
+- **Model A (8 ADRs):** not recommended (§D) — duplicates identical within-family topology/
+  rationale for no benefit Model B does not already provide at a coarser, still-fully-explicit
+  grain; an evidence-grounded preference against unnecessary file proliferation, **not** a
+  governance prohibition.
+- **Model C (1 ADR for all 8):** **not rejected** (corrected from v0.1's overreach,
+  `CONTEXT-COMPAT-SCOPE-A-MAJ-01`, §D) — governance-valid, one of the two options in §E's
+  `MULTIPLE GOVERNANCE-VALID PACKAGING OPTIONS REMAIN` determination. Listed here only to record
+  that it remains a live option, not a disqualified one.
 
 ## G. Open evidence gaps
 
-1. **`feature-engine.depends_on: [structure-engine]` (`module-registry.yaml`) does not correspond
-   to any Structure event consumption** — `feature.md` §14 explicitly excludes all four Structure
-   events. The registry's own `feature-engine.responsibilities` text (*"Fan-in... từ Structure và
-   Regime output"*) appears to describe this same tension without resolving it. This is not a
-   blocking conflict for this WP's own scope-derivation purpose (event-level Domain Contract
-   evidence controls, per this WP's own explicit priority rule, and both `context-map.yaml` and
-   `feature.md` agree Feature does not consume Structure events) — but it is a genuine,
-   unresolved documentation inconsistency between `module-registry.yaml`'s prose and `feature.md`'s
-   own authoritative event list, flagged here for a future, separate, narrowly-scoped correction
-   (not performed by this WP — out of scope, no registry/Domain Contract file touched).
+1. **`feature-engine.depends_on: [structure-engine]` — no registry inconsistency for this edge
+   (corrected, `CONTEXT-COMPAT-SCOPE-A-MIN-01`).** v0.1 characterized this edge as a genuine,
+   unresolved documentation inconsistency because `feature.md` does not consume any of the four
+   Structure Event Contracts. That conclusion was false. `structure-engine` is the registered module
+   boundary responsible for **both** Swing and Structure output (`structure-engine.responsibilities`:
+   *"Suy diễn Swing/BOS/CHoCH và structure semantics từ Candle"*), and `feature.md` §14 confirms
+   Feature genuinely consumes `swing-confirmed`/`swing-invalidated` from within that same
+   `market-structure-analysis` boundary — this fully corroborates the module-level edge. The edge is
+   simply **broader** than the four Structure `contract_id`s alone, because module-level `depends_on`
+   captures the entire registered producer boundary (Swing + Structure), not any single event
+   family within it. This is exactly why module-level `depends_on` must never be used as proof of
+   consumption for one specific Event Contract (§A) — it was previously mischaracterized as an open
+   gap; that characterization is withdrawn. This correction does **not** add Feature as a consumer
+   of any of the four Structure Event Contracts — per-contract topology (§B) is otherwise unchanged.
 2. No other evidence gap was found — `context-map.yaml`'s relationship inventory for these 8
    `contract_id`s is exhaustive and internally consistent with every owning Domain Contract's own
    text (cross-checked, §B).
 
 ## H. Exact next WP sequence (not executed here)
 
-1. **Fresh ChatGPT Review A of this scope-derivation artifact.**
-2. **If `CLEAN`: author the three recommended compatibility-commitment ADR candidates** (Candle,
-   Structure, Regime — §E), each a Draft ADR enumerating its own `contract_id`s, topology, and
-   `ADR_REQUIRED` rationale from §B/§C above — still **not** selecting any commitment value in that
-   authoring step; the value is the ADR's own Decision content, reached through its own Review
-   A/Independent Review B/Product Owner cycle.
-3. **Review A / Independent Review B / Product Owner decision, per ADR, for each of the three
-   candidates** — independent of one another; one package reaching a decision does not gate the
+1. **Fresh ChatGPT Review A of this corrected scope-derivation artifact (v0.2).**
+2. **If `CLEAN`: route the minimal Product Owner packaging choice** — Model B (3 family-scoped
+   ADRs) vs. Model C (1 ADR for all 8, explicit per-`contract_id` decision table) — per §E's
+   `MULTIPLE GOVERNANCE-VALID PACKAGING OPTIONS REMAIN` determination. This is a packaging-format
+   decision only; it does not itself select any `compatibility_commitment` value.
+3. **Author the compatibility-commitment ADR candidate(s) matching the chosen packaging** — 3 Draft
+   ADRs (Model B) or 1 Draft ADR with an explicit per-`contract_id` decision table (Model C) — each
+   enumerating its own `contract_id`s, topology, and `ADR_REQUIRED` rationale from §B/§C above —
+   still **not** selecting any commitment value in that authoring step; the value is each ADR's own
+   Decision content, reached through its own Review A/Independent Review B/Product Owner cycle.
+4. **Review A / Independent Review B / Product Owner decision, per ADR, for each authored
+   candidate** — independent of one another; one package reaching a decision does not gate the
    others.
-4. **Only after applicable ADR approval: author the first Candle/Structure/Regime Event Contracts**
+5. **Only after applicable ADR approval: author the first Candle/Structure/Regime Event Contracts**
    per `contract_id` (governed authoring under `ADR-039`), each declaring `EXTERNAL_NON_STATE_CAUSE`
    for every one of its own causation-ref categories (per
    `docs/project/context-upstream-state-dependency-derivation-001.md` v0.4) and the
    `compatibility_commitment` value its governing ADR decided.
-5. **Separately resolve Feature's own future Event Contract versioning + Compatibility Result
-   prerequisites** — independent of steps 2–4.
-6. **After all required per-effect classification and compatibility authority exists: update/
+6. **Separately resolve Feature's own future Event Contract versioning + Compatibility Result
+   prerequisites** — independent of steps 2–5.
+7. **After all required per-effect classification and compatibility authority exists: update/
    re-review Context Input Contract readiness**, and only then consider publication of
    `context-market-input / v1.0`.
 
@@ -395,9 +500,13 @@ transaction. Confirmed: `version: "0.3"`, `status: Draft`, blob
 
 M2: `BLOCKED` — parallel evidence lane. M3: `ACTIVE` — Context deterministic core `REVIEW A
 VALIDATED — CLEAN`; `ADR-046` `APPROVED`; `context.md` v0.4 `PO ACCEPTED`; Context Input Contract
-v0.3 `REVIEW A CLEAN — R2 — PROCEED WITHOUT CROSS-CHECK — NOT PUBLISHED`; state-dependency
-derivation `v0.4`, Review A `CLEAN — 0/0/1` (Minor folded into this transaction), matrix unchanged
-(`20 EXTERNAL_NON_STATE_CAUSE / 1 VACUOUS / 0 STATE_DEPENDENCY / 0 UNRESOLVED`); current blocker:
-Event Contract compatibility-commitment ADR(s) (3 recommended candidates, `contract_id`s
-enumerated, not yet authored) plus missing Event Contract authority (8 of 10 event types). M4:
-`QUEUED`. Phase-3 Approval Gate: `NOT REACHED`. LIVE: `NOT_AUTHORIZED`.
+v0.3 `REVIEW A CLEAN — R2 — PROCEED WITHOUT CROSS-CHECK — NOT PUBLISHED`, unmutated; state-
+dependency derivation `v0.4`, Review A `CLEAN — 0/0/1` (`CONTEXT-SD-DERIV-A-MIN-03` `CLOSED —
+REVIEW A VALIDATED`), matrix unchanged (`20 EXTERNAL_NON_STATE_CAUSE / 1 VACUOUS / 0
+STATE_DEPENDENCY / 0 UNRESOLVED`), not touched by this correction; current blocker: Event Contract
+compatibility-commitment ADR decision scope — corrected this transaction from a single
+authority-required recommendation to `MULTIPLE GOVERNANCE-VALID PACKAGING OPTIONS REMAIN` (Model B,
+3 family-scoped ADRs, vs. Model C, 1 ADR for all 8 with an explicit per-`contract_id` decision
+table), a Product-Owner-level packaging preference not resolved here — plus missing Event Contract
+authority (8 of 10 event types). M4: `QUEUED`. Phase-3 Approval Gate: `NOT REACHED`. LIVE:
+`NOT_AUTHORIZED`.

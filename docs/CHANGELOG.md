@@ -2,6 +2,24 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-28 — Compatibility ADR scope derivation v0.2: bounded correction (Model C rejection overreach; false registry gap)
+
+Starting `main == origin/main == f392453b6dde7d1fd477109fd5e9110978078198`, fresh-verified, working tree clean. Scope artifact (v0.1) fresh-verified exact (blob `4c95cf05e767a3c2bf4b93f481225805eddc4214`) before this correction; `context-upstream-state-dependency-derivation-001.md` fresh-verified exact (blob `a8b10628f4c156f67b25d18868dec4d6434971d9`, `version: "0.4"`) — **not** touched, as required; `context-market-input.yaml` fresh-verified exact — unchanged after. Fresh-read `docs/constitution/11-adr-process.md` (§11.3, §11.8) this transaction.
+
+Bounded correction of `docs/project/context-event-contract-compatibility-adr-scope-001.md` against fresh ChatGPT Review A: `REVISION_REQUIRED — 0 Blocker / 1 Major / 1 Minor`, Risk `R1`, ADR Scope `ADR_NOT_REQUIRED`. Does not author any ADR, does not choose any `compatibility_commitment` value, does not author Event Contracts.
+
+`CONTEXT-COMPAT-SCOPE-A-MAJ-01` (Model C rejection overreach): v0.1 rejected bundling all 8 `contract_id`s into one ADR primarily because Candle/Structure/Regime are architecturally independent families under `ADR-003`/`ADR-014`. Fresh-read Chapter 11 in full confirmed no authority states or implies a "one domain/producer/contract_id per ADR" rule — architectural independence is not, by itself, an ADR-packaging prohibition, and `ADR-038` itself already bundled 2 `contract_id`s into one ADR. Re-evaluated Model C against the task's own six disqualifying conditions — none triggered when authored with an explicit per-`contract_id` decision table. Model C is not disqualified. A genuine, narrower consideration is preserved instead: Chapter 11 §11.8's `supersedes` is a whole-ADR-file relation with no partial mechanism, so a future single-family compatibility revision would supersede Model C's entire 8-contract document, while Model B lets only the affected package be superseded — a real bounded-reviewability factor, not an authority prohibition. Corrected conclusion: repository authority does not uniquely force Model B over Model C — `MULTIPLE GOVERNANCE-VALID PACKAGING OPTIONS REMAIN` (Model B, 3 family-scoped ADRs; Model C, 1 ADR for all 8 with an explicit table) — a genuine Product-Owner-level packaging preference not resolved by this WP; Model B offered only as a non-binding technical recommendation.
+
+`CONTEXT-COMPAT-SCOPE-A-MIN-01` (false registry gap): v0.1 characterized `feature-engine.depends_on: [structure-engine]` as a genuine unresolved documentation inconsistency since `feature.md` excludes all four Structure Event Contracts. Corrected: `structure-engine` is the registered boundary for **both** Swing and Structure output, and `feature.md` §14 confirms Feature genuinely consumes `swing-confirmed`/`swing-invalidated` from that same boundary — fully corroborating the module-level edge, just at a broader grain than any single event family within it. The "open documentation inconsistency" claim is withdrawn; per-contract topology otherwise byte-for-byte unchanged (Candle 4 consumers each; Structure 4 `context-aggregator` only; Regime 2 consumers each); all 8 independently `>1`-module; all 8 `compatibility_commitment` values remain `UNRESOLVED`.
+
+Scope artifact `version: "0.1" → "0.2"`, `status` stays `Draft`.
+
+**M2 unchanged (`BLOCKED`). M3 remains `ACTIVE`** (deterministic core CLEAN; ADR-046 APPROVED; context.md v0.4 PO ACCEPTED; Context Input Contract v0.3 unchanged; state-dependency derivation v0.4 unchanged; current blocker now correctly characterized as `MULTIPLE GOVERNANCE-VALID PACKAGING OPTIONS REMAIN` plus missing Event Contract authority). **M4 remains `QUEUED`.** Phase-3 Approval Gate NOT REACHED; LIVE remains `NOT_AUTHORIZED`.
+
+Next governed action: fresh ChatGPT Review A of the corrected scope derivation; if CLEAN, route the minimal Product Owner packaging choice (Model B vs. Model C) before authoring any compatibility-commitment ADR candidate(s).
+
+---
+
 ## [Unreleased] — 2026-09-28 — Compatibility-commitment ADR scope derivation for the 8 missing Context-upstream Event Contracts
 
 Starting `main == origin/main == 129e08a699291445568c79c489969536b3318682`, fresh-verified, working tree clean. `context-upstream-state-dependency-derivation-001.md` fresh-verified exact (blob `3b474c702b9b8c7d122438258451f8eaab6ab860`, `version: "0.3"`) before this transaction; `context-market-input.yaml` fresh-verified exact (blob `ce74ddf6291abb2b1ed21938ca88050550fb2a0b`, `version: "0.3"`, `status: Draft`) — unchanged after. Fresh-read `docs/adr/ADR-038.md`, Chapter 0 §4b, Chapter 10 §10.3/§10.3.1/§10.7, Chapter 8 Event Contract authority, `docs/architecture/module-registry.yaml`, `docs/domain/context-map.yaml`, and all six relevant Domain Contracts.
