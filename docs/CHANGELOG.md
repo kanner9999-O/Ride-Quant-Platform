@@ -2,6 +2,30 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-30 — Representation derivation bounded correction: order-independent matching, closed mode sum type, tagged-union selectors, traceability matrix (v0.1 → v0.2)
+
+Starting `main == origin/main == 28e32a4f5b6451c6114c01c462b290aef29762d8`, fresh-verified, working tree clean. Analysis artifact (v0.1) matched pinned blob `36c5d0815cc9ecfd3e66811d3a9c8ad085ddf94b` exactly; Candle candidates, `ADR-039`/`ADR-040`/`ADR-047`, and the state-dependency derivation all re-confirmed byte-identical — none touched. Fresh ChatGPT Review A: `REVISION_REQUIRED — 0 Blocker / 2 Major / 2 Minor` (`EC-CDR-A-MAJ-01`, `EC-CDR-A-MAJ-02`, `EC-CDR-A-MIN-01`, `EC-CDR-A-MIN-02`). Correction-transaction Risk `R1`, ADR Scope `ADR_NOT_REQUIRED` — distinguished from the still-preserved target decision (`ADR_REQUIRED`, Risk `R2`, unchanged).
+
+`EC-CDR-A-MAJ-01`: replaced order-dependent "so-far-unclaimed + cardinality budget" `by_target` matching with a two-phase, fully order-independent algorithm — Phase 1 computes every role's complete match set against the full original `causation_refs` set; Phase 2 requires exactly one match per ref, failing closed on zero or more than one (explicitly including when an overlapping role is itself optional).
+
+`EC-CDR-A-MAJ-02`: replaced the `vacuous`/`closed` two-boolean shape (which allowed an unauthorized `closed: false` escape hatch) with a closed sum type `causal_state_dependency_declaration.mode: vacuous | exhaustive` — required, no default, no open/partial third mode. Role classification enum narrowed to `STATE_DEPENDENCY | EXTERNAL_NON_STATE_CAUSE` only; `VACUOUS` removed as a role value, belongs to `mode: vacuous` alone.
+
+`EC-CDR-A-MIN-01`: `selector` made an explicit tagged union (`kind: payload_field | by_target`). Static `by_target.match`: at least one of `event_types`/`contract_ids`, conjunctive (AND) if both. Discriminated `by_target.discriminant`: mutually exclusive with `match`, discriminant path refers only to the effect's own payload, missing/unknown discriminant both fail closed, no implicit/default case.
+
+`EC-CDR-A-MIN-02`: replaced v0.1's internally-contradictory aggregate counts ("19+4" vs "15+5") with an explicit 22-row traceability matrix (event type / cause category / classification / role_id / selector kind / discriminant case) plus three separately-reported, non-reconciled figures — (A) v0.4's own classification totals copied unaltered, (B) representation role count (16 roles across 10 Event Contracts), (C) discriminant-case count (7 cases across 2 roles).
+
+Candle mapping preserved under the new grammar (illustrative only, files not modified): `candle-closed` → `mode: vacuous`; `candle-corrected` → `mode: exhaustive`, one role, `cardinality: {exactly: 1}`. All-10-event proof re-run under corrected grammar (no classifications re-derived) — every category remains representable with zero event-specific code; mixed-case hypothetical re-confirmed. §J fail-closed table expanded to 16 explicit entries, no fail-open/default branch.
+
+Target canonical-representation decision preserved: `ADR_REQUIRED`, Risk `R2`. `ADR-039` `depends_on` relationship kept as a fresh-check item for the eventual ADR — no whole-file supersession decided. Retention correction unchanged from the prior WP.
+
+Analysis artifact `version: "0.1" → "0.2"`, `status` stays `Draft`. No STOP condition triggered. Candle candidates, `ADR-039`, `ADR-040`, `ADR-047`, and the state-dependency derivation confirmed byte-unchanged.
+
+**M2 unchanged (`BLOCKED`). M3 remains `ACTIVE`** — Candle pair unchanged (`AUTHORED`/`REVISION_REQUIRED`); representation derivation `v0.2 corrected candidate`, pending fresh Review A; retention `ADR-040 APPROVED`/Class-G `SATISFIED`, archival mechanism `DEFERRED`, not the blocker. Structure/Regime authoring: `PAUSED`. **M4 remains `QUEUED`.** Phase-3 Approval Gate NOT REACHED; LIVE remains `NOT_AUTHORIZED`.
+
+Next governed action: fresh ChatGPT Review A of corrected representation derivation v0.2; if CLEAN, author the bounded causal-state-dependency representation ADR candidate before modifying or publishing any Event Contract.
+
+---
+
 ## [Unreleased] — 2026-09-28 — Event Contract causal state-dependency representation derived (analysis only); ADR-040 retention bookkeeping corrected
 
 Starting `main == origin/main == 064fcf59471865d3493b32ee78680ebd83b8c9a2`, fresh-verified, working tree clean. Candle candidates fresh-verified byte-identical to pinned blobs — neither touched. Fresh Review A of the Candle pair: `REVISION_REQUIRED — 0 Blocker / 2 Major / 1 Minor` (`CANDLE-EC-A-MAJ-01`, `CANDLE-EC-A-MAJ-02`, `CANDLE-EC-A-MIN-01`) — not remediated here; the representation architecture is resolved first. Fresh-read `ADR-040`, Chapter 8 §8.1.1/§8.2.3/§8.3.4, `ADR-039`, Chapter 0 §4b, `ADR-045`, and the full state-dependency derivation v0.4 (all 10 event types).
