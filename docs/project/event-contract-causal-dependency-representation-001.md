@@ -2,7 +2,7 @@
 id: event-contract-causal-dependency-representation-001
 title: "Event Contract Causal State-Dependency Declaration — Canonical Representation Derivation"
 kind: analysis
-version: "0.2"
+version: "0.3"
 status: Draft
 owner: Product Owner
 generated_at: "2026-09-28"
@@ -14,34 +14,42 @@ generated_at: "2026-09-28"
 author an ADR, does not modify Chapter 8 or any Constitution file, does not continue
 Structure/Regime Event Contract authoring.
 
-**Boundary, fresh-verified before this transaction:** HEAD `28e32a4f5b6451c6114c01c462b290aef29762d8`.
+**Boundary, fresh-verified before this transaction:** HEAD `8fd325aff5832f4d125e3d2b0e79603834542f03`.
 `docs/architecture/event-contracts/candle-closed/v1.0.yaml` matched pinned blob
 `3f8d5f9a448c5796880d7a7b7a09d9c95c74c72f` exactly; `candle-corrected/v1.0.yaml` matched pinned blob
 `3649e516e4c69d948d8b3a4e4281bae019a7c0b7` exactly; `docs/adr/ADR-039.md`/`docs/adr/ADR-040.md`/
-`docs/adr/ADR-047.md` and `docs/project/context-upstream-state-dependency-derivation-001.md` all
-re-confirmed byte-identical to their previously-pinned identities — none touched by this transaction.
+`docs/adr/ADR-047.md` all re-confirmed byte-identical to their previously-pinned identities — none
+touched by this transaction. `docs/project/context-upstream-state-dependency-derivation-001.md`
+corrected in the same atomic transaction as this artifact (v0.4 → v0.5, arithmetic/accounting-only,
+see below) — its own per-category classifications are unchanged and not reopened.
 
-**Fresh Review A of v0.1:** `REVISION_REQUIRED — 0 Blocker / 2 Major / 2 Minor`. Findings
-`EC-CDR-A-MAJ-01` (order-dependent role matching — a `by_target` role's "so-far-unclaimed" evaluation
-and cardinality-budget claiming made classification depend on role declaration order, and could hide
-a ref that genuinely matches two roles), `EC-CDR-A-MAJ-02` (open/non-exhaustive declaration mode — the
-`vacuous`/`closed` two-boolean shape allowed an unauthorized `closed: false` escape hatch with no
-governed semantic for intentionally-unclassified causation_refs), `EC-CDR-A-MIN-01` (underspecified
-selector grammar — `event_types`/`contract_ids` AND/OR ambiguity, static-vs-discriminated precedence
-undefined, discriminant-miss behavior unlocked), `EC-CDR-A-MIN-02` (§H's aggregate category/role
-counts were internally contradictory, conflating "reviewed causation category" with "representation
-role" as if they were forced to be the same number) — all four addressed/remediated in this v0.2,
-**not self-closed** (closure is a fresh Review A re-review determination).
+**Fresh Review A of v0.2:** `REVISION_REQUIRED — 0 Blocker / 1 Major / 2 Minor`, reviewer `ChatGPT`,
+role `AI Technical Architect`, reviewed boundary `8fd325aff5832f4d125e3d2b0e79603834542f03`, reviewed
+artifact blob `b540b1598e8f0551931b42c2f7d1bbfc18128355`. Findings `EC-CDR-A-MAJ-03` (the upstream
+state-dependency derivation's own aggregate category tally was internally inconsistent with its own
+§2 — this representation artifact's §H/§H.1 inherited and propagated that inconsistency), `EC-CDR-A-MIN-03`
+(the illustrative `by_target.match` YAML carried a contradictory inline comment — `# required; if
+BOTH present, AND` — while the normative prose correctly requires only *at least one*),
+`EC-CDR-A-MIN-04` (the `cardinality` grammar was illustrated but not normatively closed — no explicit
+prohibition of malformed combinations such as `exactly` + `min`/`max`, negative values, `min > max`,
+or an empty mapping) — all three addressed/remediated in this v0.3, **not self-closed** (closure is a
+fresh Review A re-review determination). **Prior findings `EC-CDR-A-MAJ-01`, `EC-CDR-A-MAJ-02`,
+`EC-CDR-A-MIN-01`, `EC-CDR-A-MIN-02` were confirmed genuinely remediated by this fresh Review A of
+v0.2 and are `CLOSED — REVIEW A VALIDATED`** — none reopened by this transaction.
 
-**Preserved unchanged from v0.1** (no fresh authority contradicts any of these; only the
+**Preserved unchanged from v0.1/v0.2** (no fresh authority contradicts any of these; only the
 representation *mechanics* are corrected below): Chapter 8 requires machine-readable per-effect Event
 Contract causal-dependency authority; processor/event-specific code must not own classification; the
 Candle candidates' current freeform nested representation is insufficient (Option A, rejected); state-
 dependency classification is distinct from `merge_constraints`; the canonical representation belongs
 at top-level Event Contract scope (Option B); explicit per-cause rules are needed for multi-cause/
 mixed cases (Option E); missing/ambiguous classification must fail closed; external-cause domain
-payload must never be read merely to classify it; the target architecture decision remains
-`ADR_REQUIRED`, Risk `R2`; `ADR-040` retention semantics remain `APPROVED`/`SATISFIED` at
+payload must never be read merely to classify it; `mode: vacuous | exhaustive` closed sum type, no
+open/partial mode; role classification enum exactly `STATE_DEPENDENCY | EXTERNAL_NON_STATE_CAUSE`;
+the selector tagged union; order-independent two-phase matching; static/discriminated `by_target`
+semantics; the fail-closed rules; mixed-case capability; 16 role declarations across 10 Event
+Contracts; 7 discriminant cases across 2 discriminated roles; the target architecture decision
+remains `ADR_REQUIRED`, Risk `R2`; `ADR-040` retention semantics remain `APPROVED`/`SATISFIED` at
 architecture-semantics level for Class G, concrete past-horizon archival mechanism `DEFERRED`, not
 the current blocker. **This correction transaction's own Risk is `R1`, ADR Scope
 `ADR_NOT_REQUIRED`** — a bounded analysis-artifact correction, not itself the architecture decision.
@@ -80,10 +88,13 @@ the current blocker. **This correction transaction's own Risk is `R1`, ADR Scope
   policy exists before any Event Contract version-artifact becomes a usable `event_contract_ref`
   target — is now satisfied at the architecture-semantics level for Class G by this ADR (Event
   Contract version-artifacts are Class G)."* This is §B's controlling text.
-- **`docs/project/context-upstream-state-dependency-derivation-001.md` v0.4** (Review A validated,
-  `CLEAN — 0/0/1`) — the accepted classification result for all 21 causation-ref categories across the
-  10 Context-upstream event types: `20 EXTERNAL_NON_STATE_CAUSE / 1 VACUOUS / 0 STATE_DEPENDENCY / 0
-  UNRESOLVED`. Used here strictly as **test-vector data** — not re-derived, not re-classified.
+- **`docs/project/context-upstream-state-dependency-derivation-001.md` v0.5** (Review A validated
+  per-category; v0.5's own §3 aggregate-tally arithmetic correction is a bookkeeping fix, not a
+  semantic re-review) — the accepted classification result for all 21 causation-ref categories across
+  the 9 non-`CANDLE_CLOSED` Context-upstream event types: `21 EXTERNAL_NON_STATE_CAUSE / 0
+  STATE_DEPENDENCY / 0 UNRESOLVED`, plus separately `1 VACUOUS` root event type (`CANDLE_CLOSED`,
+  zero causation-ref categories, not counted in the 21 — see §H.1 for the exact distinction). Used
+  here strictly as **test-vector data** — not re-derived, not re-classified.
 - **Candle candidates** (`candle-closed/v1.0.yaml`, `candle-corrected/v1.0.yaml`), read-only — the
   locally-invented `payload_semantics_and_invariants.causation_ref_state_dependency_classification`
   nesting is the artifact under scrutiny in §D Option A, not modified here.
@@ -173,7 +184,7 @@ evolution. **Rejected.**
 
 **Assessment: rejected in its literal (silent-default) form — fails fail-closed.** A future producer
 emitting a genuinely new, undeclared `causation_ref` role would be silently treated as
-`EXTERNAL_NON_STATE_CAUSE` — fail-**open**, a correctness gap. Its minimalism instinct — 20 of 21
+`EXTERNAL_NON_STATE_CAUSE` — fail-**open**, a correctness gap. Its minimalism instinct — all 21
 reviewed categories are `EXTERNAL_NON_STATE_CAUSE`, 0 are `STATE_DEPENDENCY` — is preserved without
 the unsafe default: declaring an `EXTERNAL_NON_STATE_CAUSE` role costs the same one entry as a
 `STATE_DEPENDENCY` role in the recommended representation (§E). **Rejected as specified; minimalism
@@ -190,7 +201,7 @@ multiple reviewed event types carry more than one causation-ref category simulta
 requiring its own selector/cardinality. **B (placement) + E (internal shape), combined, is
 recommended.** No better option was identified.
 
-## E. Proposed canonical representation (corrected, `EC-CDR-A-MAJ-02` / `EC-CDR-A-MIN-01`)
+## E. Proposed canonical representation (corrected, `EC-CDR-A-MAJ-02` / `EC-CDR-A-MIN-01` / `EC-CDR-A-MIN-03` / `EC-CDR-A-MIN-04`)
 
 New top-level Event Contract field: **`causal_state_dependency_declaration`**, a **closed sum type**
 over exactly two modes. `mode` is **required**, has **no default**, and no value other than the two
@@ -224,8 +235,10 @@ causal_state_dependency_declaration:
       selector:
         kind: by_target
         match:                          # static form
-          event_types: [<UPPER_SNAKE event_type values>]      # at least one of match's two keys
-          contract_ids: [<contract_id values>]                 # required; if BOTH present, AND
+          event_types: [<UPPER_SNAKE event_type values>]   # optional if contract_ids is present
+          contract_ids: [<contract_id values>]              # optional if event_types is present
+          # At least one of the two keys above MUST be present. If both are present, match
+          # semantics are logical AND (target must satisfy BOTH allow-sets).
       # OR:
       selector:
         kind: by_target
@@ -233,9 +246,13 @@ causal_state_dependency_declaration:
           payload_field: <dot-path into THIS EFFECT event's OWN payload — never the target's>
           cases:
             <discriminant value>:
-              event_types: [<...>]        # same "at least one of the two, AND if both" rule per case
-              contract_ids: [<...>]
-      cardinality: {exactly: <int>}                    # or {min: <int>, max: <int or null>}
+              event_types: [<...>]        # optional if contract_ids is present, same rule as above
+              contract_ids: [<...>]       # optional if event_types is present, same rule as above
+      cardinality:                        # closed union — see the two legal forms below (fixes EC-CDR-A-MIN-04)
+        exactly: <non-negative integer>
+        # OR:
+        # min: <non-negative integer>
+        # max: <non-negative integer, or null for unbounded>
       classification: STATE_DEPENDENCY | EXTERNAL_NON_STATE_CAUSE   # VACUOUS is not a role value —
                                                                      # vacuity belongs to mode: vacuous
                                                                      # only (fixes EC-CDR-A-MAJ-02)
@@ -270,11 +287,38 @@ causal_state_dependency_declaration:
   target inspection is the target's own envelope/identity, exactly the surface Chapter 8 §8.2.3's
   tuple-consistency rule already requires resolving for every causation_ref.
 
+**`cardinality` grammar — closed union of exactly two legal forms (fixes `EC-CDR-A-MIN-04`):**
+
+*Form A — exact:*
+
+```yaml
+cardinality:
+  exactly: <non-negative integer>
+```
+
+Only key allowed: `exactly`. Value MUST be an integer `>= 0`.
+
+*Form B — range:*
+
+```yaml
+cardinality:
+  min: <non-negative integer>
+  max: <non-negative integer, or null>
+```
+
+`min` REQUIRED, `max` REQUIRED. `min >= 0`. If `max` is an integer, `max >= min`. `max: null` means
+unbounded upper limit.
+
+*Prohibited (all authoring-time defects, §J):* `exactly` combined with `min`/`max` on the same role;
+any unknown cardinality key; negative integers; `min > max`; a range form missing `min` or `max`; an
+empty `cardinality` mapping; non-integer numeric values. This is schema precision only — it does not
+alter any currently proposed role's own cardinality value.
+
 **Separation from `merge_constraints`:** this field and `merge_constraints` are independent,
 co-existing top-level fields. A role's classification here never implies, and is never implied by,
 `merge_constraints.prerequisite_policy`.
 
-## F. Generic validation algorithm — order-independent, two-phase (corrected, `EC-CDR-A-MAJ-01`)
+## F. Generic validation algorithm — order-independent, two-phase (corrected, `EC-CDR-A-MAJ-01` / `EC-CDR-A-MIN-04`)
 
 Given one effect event record and its pinned `event_contract_ref`:
 
@@ -287,8 +331,10 @@ Given one effect event record and its pinned `event_contract_ref`:
 3. If `mode: vacuous`: `roles` present at all → **fail closed** (§J-4). Otherwise assert
    `envelope.causation_refs == []`; mismatch → **fail closed** (§J-3). Stop — no further processing.
 4. If `mode: exhaustive`: `roles` absent, empty, or structurally malformed (a role missing
-   `role_id`/`selector`/`cardinality`/`classification`) → **fail closed** (§J-5). Otherwise proceed to
-   Phase 1.
+   `role_id`/`selector`/`cardinality`/`classification`, **or a role's `cardinality` not matching
+   either closed-union form defined in §E** — `exactly`+`min`/`max` combined, an unknown key, a
+   negative integer, `min > max`, a range form missing `min`/`max`, or an empty mapping) → **fail
+   closed** (§J-5 / §J-17). Otherwise proceed to Phase 1.
 
 ### Phase 1 — independent match-set computation (order-independent)
 
@@ -365,14 +411,15 @@ causal_state_dependency_declaration:
         match:
           event_types: [CANDLE_CLOSED, CANDLE_CORRECTED]
           contract_ids: [candle-closed, candle-corrected]
-      cardinality: {exactly: 1}
+      cardinality:
+        exactly: 1
       classification: EXTERNAL_NON_STATE_CAUSE
       apply_time_requirement: >
         Authoritative application does not require re-reading the corrected predecessor's domain
         payload/state; the effect carries the complete replacement OHLCV/state itself; the
         predecessor reference is required only for identity/existence/lineage/causal precedence.
       authority: >
-        docs/project/context-upstream-state-dependency-derivation-001.md v0.4 §2.2.
+        docs/project/context-upstream-state-dependency-derivation-001.md v0.5 §2.2.
 ```
 
 `candle-closed` has no named payload field and no target to select against — `mode: vacuous` is the
@@ -382,7 +429,7 @@ canonical worked example of the `by_target` static-`match` form. The `cardinalit
 mechanically captures `CANDLE-EC-A-MIN-01`'s originally-requested cardinality-explicitness concern —
 **the Candle candidate files themselves are not modified in this WP.**
 
-## H. Traceability matrix — reviewed category → representation rule (corrected, `EC-CDR-A-MIN-02`)
+## H. Traceability matrix — reviewed category → representation rule (corrected, `EC-CDR-A-MIN-02` / `EC-CDR-A-MAJ-03`)
 
 **Correction rationale:** v0.1 attempted to force "19 `payload_field` + 4 `by_target`" and later "15 +
 5" to both describe the same 21-category total, treating *reviewed causation category* and
@@ -392,7 +439,7 @@ discriminant `case` fires per concrete event instance). The fix is a many-to-one
 matrix** — every reviewed category maps to exactly one representation rule/branch — reported
 separately from role/branch counts, never force-reconciled against them.
 
-| Reviewed `event_type` | Reviewed cause category (`context-upstream-state-dependency-derivation-001.md` v0.4) | Accepted classification | Representation `role_id` | Selector kind | Discriminant case (if applicable) |
+| Reviewed `event_type` | Reviewed cause category (`context-upstream-state-dependency-derivation-001.md` v0.5) | Accepted classification | Representation `role_id` | Selector kind | Discriminant case (if applicable) |
 |---|---|---|---|---|---|
 | `CANDLE_CLOSED` | *(root — no causation-ref category exists)* | `VACUOUS` | *(none — `mode: vacuous`)* | — | — |
 | `CANDLE_CORRECTED` | corrected-fact ref (§2.2) | `EXTERNAL_NON_STATE_CAUSE` | `corrected_fact` | `by_target` (static `match`) | — |
@@ -421,23 +468,44 @@ separately from role/branch counts, never force-reconciled against them.
 event-specific validator code** — `payload_field` roles are resolved purely from the effect's own
 `payload_shape`; `by_target` roles (static and discriminated) are resolved purely from target
 envelope identity and, where discriminated, the effect's own payload — no target domain payload is
-ever read (fixes the residual §H concern this correction closes alongside `EC-CDR-A-MIN-02`). No
-reviewed category required event-specific code to represent — the all-10-event proof did **not**
-trigger the STOP condition for representability.
+ever read. No reviewed category required event-specific code to represent — the all-10-event proof
+did **not** trigger the STOP condition for representability.
 
-### H.1 Separately-reported counts — A / B / C, never mixed (fixes `EC-CDR-A-MIN-02`)
+**The table above has 22 rows total: 21 causation-ref category rows (one per reviewed category,
+`context-upstream-state-dependency-derivation-001.md` v0.5 §2.2–§2.10) plus exactly 1 event-level
+`VACUOUS` root-event row (`CANDLE_CLOSED`) — included for traceability completeness (every reviewed
+event type has a row), not because `CANDLE_CLOSED` contributes a causation-ref category. §H.1 below
+makes this distinction explicit and load-bearing (fixes `EC-CDR-A-MAJ-03`'s propagation into this
+artifact).**
 
-**A. Accepted derivation classification totals — copied unaltered from
-`context-upstream-state-dependency-derivation-001.md` v0.4 §3, not re-derived, not recomputed here:**
+### H.1 Separately-reported counts — A / B / C / D, never mixed (fixes `EC-CDR-A-MIN-02` / `EC-CDR-A-MAJ-03`)
+
+**A. Matrix rows — this artifact's own row count, a representation-bookkeeping fact, not a reviewed-
+authority total:**
 
 ```text
-20 EXTERNAL_NON_STATE_CAUSE
-1 VACUOUS
-0 STATE_DEPENDENCY
-0 UNRESOLVED
+22 traceability rows total:
+  21 causation-ref category rows
+  1 VACUOUS root-event row (CANDLE_CLOSED)
 ```
 
-**B. Representation role-declaration count — counted independently from the representation side
+**B. Authoritative classification totals — copied unaltered from
+`context-upstream-state-dependency-derivation-001.md` v0.5 §3 (its own v0.4 → v0.5 arithmetic
+correction, not re-derived, not recomputed here — see that document's own §0/§3 for the correction
+record):**
+
+```text
+21 causation-ref categories:
+  21 EXTERNAL_NON_STATE_CAUSE
+  0 STATE_DEPENDENCY
+  0 UNRESOLVED
+
+plus, separately (not one of the 21 — an event-level declaration state, not a causation-ref
+category, per v0.5 §2.1: "No causation-ref category exists"):
+  1 VACUOUS root event type: CANDLE_CLOSED
+```
+
+**C. Representation role-declaration count — counted independently from the representation side
 (§H's matrix, `role_id` column, de-duplicated per Event Contract):**
 
 ```text
@@ -456,7 +524,7 @@ Total role declarations across all 10 Event Contracts: 16
   (11 payload_field roles + 5 by_target roles)
 ```
 
-**C. Selector-branch (discriminant `case`) count — counted independently, only where applicable:**
+**D. Selector-branch (discriminant `case`) count — counted independently, only where applicable:**
 
 ```text
 STRUCTURE_FACT_INVALIDATED.invalidation_cause_ref:  3 cases
@@ -465,14 +533,19 @@ FEATURE_FACT_INVALIDATED.invalidation_cause_ref:    4 cases
 Total discriminant cases across 2 discriminated roles: 7
 ```
 
-**A, B, and C are three independently-true, non-comparable figures — deliberately not summed or
-reconciled against each other.** A is v0.4's own classification-authority tally (unaltered). B is how
-many role declarations the corrected representation actually needs (fewer than A's 21 categories,
-because two discriminated roles each absorb several reviewed categories as `cases`, exactly what
-"many-to-one" in the traceability matrix above means). C further decomposes two of B's 16 roles into
-their own internal branches. **This is the corrected discipline itself** — v0.1's `EC-CDR-A-MIN-02`
-defect was attempting to force A and B into one shared sum; this version reports each on its own
-terms, with the matrix as the actual proof linking them.
+**B, C, and D are three independently-true, non-comparable figures — deliberately not summed or
+reconciled against each other; A (this artifact's own 22-row matrix count) is a fourth, still
+separate bookkeeping fact about the traceability table itself, not a reviewed-authority total either.**
+B is v0.5's own classification-authority tally (the 21 causation-ref categories, plus the separately-
+tracked `VACUOUS` root event type, never summed into the 21). C is how many role declarations the
+corrected representation actually needs (fewer than B's 21 categories, because two discriminated
+roles each absorb several reviewed categories as `cases`, exactly what "many-to-one" in the
+traceability matrix above means). D further decomposes two of C's 16 roles into their own internal
+branches. **This is the corrected discipline itself** — earlier rounds' defects were attempting to
+force different measures into one shared sum (v0.1's `EC-CDR-A-MIN-02`: category count vs. role
+count; the upstream derivation's own `EC-CDR-A-MAJ-03`: causation-ref category count vs. event-level
+vacuity); this version reports each on its own terms, with the matrix as the actual proof linking
+them.
 
 ## I. Mixed-case capability proof (corrected grammar; hypothetical schema test only — NOT proposed for Ride architecture)
 
@@ -520,7 +593,7 @@ any other role would be — no grammar change was needed to support the mixed ca
 already accommodates an arbitrary mix of `STATE_DEPENDENCY`/`EXTERNAL_NON_STATE_CAUSE` roles per
 Event Contract. This hypothetical is not added anywhere else in this repository.
 
-## J. Fail-closed behavior (corrected/expanded, `EC-CDR-A-MAJ-01`/`EC-CDR-A-MIN-01`)
+## J. Fail-closed behavior (corrected/expanded, `EC-CDR-A-MAJ-01`/`EC-CDR-A-MIN-01`/`EC-CDR-A-MIN-04`)
 
 No branch below resolves an ambiguous or missing case permissively — there is no fail-open/default
 branch anywhere in this table.
@@ -568,6 +641,11 @@ branch anywhere in this table.
     **not itself a failure**: the target is simply excluded from that role's `M(r)` (§F Phase 1); it
     may still belong to another role, or (if it belongs to none) trigger item 6 above at Phase 2.
     Recorded here only to distinguish normal non-match from an integrity violation.
+17. **Malformed `cardinality` declaration** (fixes `EC-CDR-A-MIN-04`) — any of: `exactly` combined
+    with `min`/`max` on the same role; an unknown key under `cardinality`; a negative integer value;
+    a range form (`min`/`max`) with `min > max`; a range form missing `min` or `max`; an empty
+    `cardinality` mapping; a non-integer numeric value — authoring-time defect; Review A must reject
+    before `Published`, not a runtime case.
 
 ## K. ADR scope / Risk assessment
 
@@ -637,7 +715,7 @@ triggered):**
 5. The fail-closed rules of §J as normative, including the explicit non-legalization of selector
    overlap by role optionality (§J-7).
 6. Explicit non-scope: does **not** re-decide any of the 21 already-reviewed classification results
-   (`context-upstream-state-dependency-derivation-001.md` v0.4 remains the cited authority for *which*
+   (`context-upstream-state-dependency-derivation-001.md` v0.5 remains the cited authority for *which*
    category gets *which* classification); does **not** amend `ADR-039`'s or `ADR-040`'s own decisions;
    does **not** publish any Event Contract; does **not** itself remediate the Candle candidates.
 7. `depends_on` — **kept as a fresh-check item for the ADR's own authoring transaction, not
@@ -648,7 +726,8 @@ triggered):**
 
 ## L. Smallest follow-on sequence (not executed here)
 
-1. Fresh ChatGPT Review A of this corrected representation derivation (v0.2).
+1. Fresh ChatGPT Review A of this corrected representation derivation (v0.3) and of
+   `context-upstream-state-dependency-derivation-001.md` (v0.5).
 2. If `CLEAN`: author the bounded representation ADR candidate (`Draft`) implementing exactly the
    decision surface in §K — no re-decision of any existing classification result; fresh-check the
    `ADR-039` `depends_on` question at that time.
@@ -661,7 +740,7 @@ triggered):**
    the corrected pair.
 5. Resume Structure (4) / Regime (2) Event Contract authoring using the validated representation
    pattern directly — no re-derivation of classification results, already reviewed in
-   `context-upstream-state-dependency-derivation-001.md` v0.4.
+   `context-upstream-state-dependency-derivation-001.md` v0.5.
 6. Governed publication routing for the eight clean first-version contracts.
 7. Feature Event Contract future-version/state-dependency-authority derivation, independent of steps
    4–6.

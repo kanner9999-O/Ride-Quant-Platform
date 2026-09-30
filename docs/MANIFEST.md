@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.468"
+manifest_version: "10.469"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -33452,6 +33452,100 @@ production source/tests/tooling touched. `manifest_version` `"10.467"` -> `"10.4
 **Next governed action:** Fresh ChatGPT Review A of corrected representation derivation v0.2; if
 `CLEAN`, author the bounded causal-state-dependency representation ADR candidate before modifying or
 publishing any Event Contract.
+
+## Deterministic bounded correction — category-tally arithmetic + selector/cardinality schema Minors (`EVENT-CONTRACT-CAUSAL-DEPENDENCY-REPRESENTATION-001-CORR-002`)
+
+Fresh-verified before mutation: HEAD `8fd325aff5832f4d125e3d2b0e79603834542f03`; representation
+artifact (v0.2) matched pinned blob `b540b1598e8f0551931b42c2f7d1bbfc18128355` exactly;
+state-dependency derivation (v0.4) matched pinned blob `a8b10628f4c156f67b25d18868dec4d6434971d9`
+exactly; Candle candidates, `ADR-039`/`ADR-040`/`ADR-045`/`ADR-047` all re-confirmed byte-identical —
+none touched. **Fresh Review A of representation v0.2:** `REVISION_REQUIRED — 0 Blocker / 1 Major / 2
+Minor` (`EC-CDR-A-MAJ-03`, `EC-CDR-A-MIN-03`, `EC-CDR-A-MIN-04`). Correction-transaction Risk `R1`,
+ADR Scope `ADR_NOT_REQUIRED` — distinguished from the still-preserved target canonical-representation
+decision (`ADR_REQUIRED`, Risk `R2`, unchanged). **Prior findings `EC-CDR-A-MAJ-01`/`EC-CDR-A-MAJ-02`/
+`EC-CDR-A-MIN-01`/`EC-CDR-A-MIN-02` confirmed genuinely remediated by this fresh Review A and are
+`CLOSED — REVIEW A VALIDATED`**, none reopened.
+
+**`EC-CDR-A-MAJ-03` (authoritative category-tally arithmetic defect):** the state-dependency
+derivation's own §3 was internally inconsistent with its own §2 — §2 lists exactly 21 non-vacuous
+causation-ref category instances (`CANDLE_CORRECTED` 1, `BREAK_OF_STRUCTURE_DETECTED` 2,
+`CHANGE_OF_CHARACTER_DETECTED` 2, `STRUCTURE_FACT_INVALIDATED` 4, `STRUCTURE_RECOMPUTED` 1,
+`REGIME_CLASSIFIED` 2, `REGIME_FACT_INVALIDATED` 2, `FEATURE_COMPUTED` 2,
+`FEATURE_FACT_INVALIDATED` 5 = 21), every one individually classified `EXTERNAL_NON_STATE_CAUSE` in
+§2's own text, while §3's summary table stated only `20 EXTERNAL_NON_STATE_CAUSE` and separately
+folded `CANDLE_CLOSED`'s root-event vacuity into the same 21-item total as a `1 VACUOUS` unit — mixing
+a causation-ref-category count with an event-level declaration state for an event with **zero**
+causation-ref categories (§2.1: *"No causation-ref category exists"*). **Corrected in the same atomic
+transaction:** `docs/project/context-upstream-state-dependency-derivation-001.md` `version: "0.4" →
+"0.5"`, `status` stays `Draft`. §3 rewritten: `21 causation-ref categories: 21
+EXTERNAL_NON_STATE_CAUSE / 0 STATE_DEPENDENCY / 0 UNRESOLVED`, plus separately `1 VACUOUS` root event
+type (`CANDLE_CLOSED`, not summed into the 21). §0 records the correction transparently (*"The
+earlier Review A validated all per-category semantic classifications, but a later representation
+traceability review exposed an arithmetic/unit-of-count defect in the aggregate tally. v0.5 corrects
+the aggregate count only."*) — **no per-category classification changed, no event moves category, no
+Domain Contract citation altered**, §1/§2 preserved byte-for-byte apart from two cross-reference
+count-wording touch-ups (`20 non-vacuous` → `21 causation-ref categories`). §10 Milestone state
+updated to the corrected terminology. Representation artifact §A/§G/§H/§H.1/§K/§L version citations
+updated `v0.4 → v0.5` throughout; §H.1 restructured into four separately-reported, non-reconciled
+figures — **A** (22 traceability matrix rows: 21 causation-ref-category rows + 1 `VACUOUS` root-event
+row), **B** (v0.5's own 21/0/0 classification totals, `VACUOUS` tracked separately), **C** (16
+representation-role declarations across 10 Event Contracts, unchanged), **D** (7 discriminant cases
+across 2 roles, unchanged) — never summed or reconciled against each other.
+
+**`EC-CDR-A-MIN-03` (selector comment contradiction):** the illustrative `by_target.match` YAML
+carried a contradictory inline comment (`# required; if BOTH present, AND`) against the correct
+normative prose (*at least one* of `event_types`/`contract_ids` required). Corrected: comments now
+read `# optional if contract_ids is present` / `# optional if event_types is present`, with an
+explicit standalone statement — *"At least one of the two keys above MUST be present. If both are
+present, match semantics are logical AND."* — applied identically to `discriminant.cases` entries. No
+selector semantics changed, wording only.
+
+**`EC-CDR-A-MIN-04` (cardinality grammar closed):** `cardinality` formalized as a closed union of
+exactly two legal forms — Form A `{exactly: <non-negative integer>}`; Form B `{min: <non-negative
+integer>, max: <non-negative integer | null>}` with `min`/`max` both required, `max >= min` when
+integer, `null` meaning unbounded. Explicitly prohibited: `exactly` combined with `min`/`max`; unknown
+keys; negative integers; `min > max`; a range form missing `min`/`max`; an empty mapping; non-integer
+values — all authoring-time defects. New §J item 17 records the fail-closed disposition; §F Phase 0
+step 4 extended to reference it. No currently proposed role's own cardinality value altered (Candle
+`candle-corrected`'s `corrected_fact` role remains `cardinality: {exactly: 1}`, now shown in block
+form per this correction's own illustrative style).
+
+Review-A history recorded: reviewer ChatGPT, `AI Technical Architect`, reviewed boundary
+`8fd325aff5832f4d125e3d2b0e79603834542f03`, reviewed artifact blob
+`b540b1598e8f0551931b42c2f7d1bbfc18128355`, verdict as above; `EC-CDR-A-MAJ-03`/`EC-CDR-A-MIN-03`/
+`EC-CDR-A-MIN-04`: `addressed/remediated pending fresh Review A`, not self-closed.
+`docs/project/event-contract-causal-dependency-representation-001.md` `version: "0.2" → "0.3"`,
+`status` stays `Draft`.
+
+**Target decision preserved:** `ADR_REQUIRED`, Risk `R2` — not re-opened by this correction. `ADR-039`
+`depends_on` relationship kept as a fresh-check item for the eventual ADR's own authoring transaction
+— no whole-file supersession decided here; `ADR-039` unmodified.
+
+**Confirmed unchanged:** both Candle candidates, `docs/adr/ADR-039.md`/`docs/adr/ADR-040.md`/
+`docs/adr/ADR-045.md`/`docs/adr/ADR-047.md` (all fresh-verified byte-identical, read-only), every
+Structure/Regime/Feature Event Contract, Context Input Contract, every Domain Contract, every
+Constitution chapter, every registry, all production source/tests/tooling.
+
+**M2 unchanged (`BLOCKED`, parallel evidence lane). M3 remains `ACTIVE`** — Candle pair: `AUTHORED`/
+Review A `REVISION_REQUIRED`, unchanged; state-dependency semantic classifications: unchanged
+category-by-category, aggregate tally corrected in `v0.5`; representation derivation: `v0.3 corrected
+candidate`, pending fresh Review A; retention: `ADR-040 APPROVED`, Class-G retention semantics
+`SATISFIED`, concrete archival implementation `DEFERRED`, not current blocker. Structure/Regime
+authoring: `PAUSED`. **M4 remains `QUEUED`.** Phase-3 Approval Gate `NOT REACHED`; LIVE remains
+`NOT_AUTHORIZED`.
+
+**Files changed:** `docs/project/context-upstream-state-dependency-derivation-001.md` (substantive
+correction, `v0.4 → v0.5`), `docs/project/event-contract-causal-dependency-representation-001.md`
+(substantive correction, `v0.2 → v0.3`), plus deterministic bookkeeping: `docs/MANIFEST.md`,
+`docs/CHANGELOG.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`. No Candle
+Event Contract candidate, Structure/Regime/Feature Event Contract, Context Input Contract, Domain
+Contract, `ADR-039`, `ADR-040`, `ADR-045`, `ADR-047`, Constitution chapter, registry, or production
+source/tests/tooling touched. `manifest_version` `"10.468"` -> `"10.469"`.
+
+**Next governed action:** Fresh ChatGPT Review A of state-dependency derivation v0.5 and
+causal-dependency representation derivation v0.3; if `CLEAN`, author the bounded
+causal-state-dependency representation ADR candidate before modifying or publishing any Event
+Contract.
 
 ## Decision Log
 

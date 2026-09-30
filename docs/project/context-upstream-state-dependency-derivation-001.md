@@ -2,13 +2,13 @@
 id: context-upstream-state-dependency-derivation-001
 title: "Context Upstream Event-Contract State-Dependency Authority — Derivation"
 kind: analysis
-version: "0.4"
+version: "0.5"
 status: Draft
 owner: Product Owner
 generated_at: "2026-09-28"
 ---
 
-# CONTEXT-UPSTREAM-STATE-DEPENDENCY-DERIVATION-001 (v0.4 — corrected)
+# CONTEXT-UPSTREAM-STATE-DEPENDENCY-DERIVATION-001 (v0.5 — corrected)
 
 **Analysis / derivation artifact only.** Does not modify or version any Event Contract; does not
 publish any Event Contract; does not publish `context-market-input / v1.0`; does not modify any
@@ -52,6 +52,24 @@ below), **not self-closed** (closure is a fresh Review A re-review determination
 classification matrix itself (`20 EXTERNAL_NON_STATE_CAUSE / 1 VACUOUS / 0 STATE_DEPENDENCY / 0
 UNRESOLVED`) is unchanged — no semantic re-review of the matrix was performed or is implied by this
 correction.
+
+**v0.4 → v0.5 arithmetic/accounting correction (this transaction):** the Review A rounds recorded
+above validated all per-category semantic classifications in §2 — none of that reasoning is reopened
+here. A later representation-artifact traceability review
+(`EVENT-CONTRACT-CAUSAL-DEPENDENCY-REPRESENTATION-001`'s own `EC-CDR-A-MAJ-03` finding) exposed that
+this document's own §3 aggregate tally was internally inconsistent with its own §2: §2 lists exactly
+21 non-vacuous causation-ref category instances (`CANDLE_CORRECTED` 1, `BREAK_OF_STRUCTURE_DETECTED`
+2, `CHANGE_OF_CHARACTER_DETECTED` 2, `STRUCTURE_FACT_INVALIDATED` 4, `STRUCTURE_RECOMPUTED` 1,
+`REGIME_CLASSIFIED` 2, `REGIME_FACT_INVALIDATED` 2, `FEATURE_COMPUTED` 2,
+`FEATURE_FACT_INVALIDATED` 5 — summing to 21), every one individually classified
+`EXTERNAL_NON_STATE_CAUSE` in §2's own text — while §3's summary table stated only
+`20 EXTERNAL_NON_STATE_CAUSE` and separately counted `CANDLE_CLOSED`'s root-event vacuity as a
+`1 VACUOUS` unit folded into the same 21-item total, mixing a causation-ref-category count with an
+event-level declaration state for an event that has **zero** causation-ref categories (§2.1: *"No
+causation-ref category exists"*). **v0.5 corrects this arithmetic/accounting defect only (§3
+below)** — no per-category classification changes, no event moves category, no semantic reasoning in
+§1/§2 is reopened, and the earlier Review A validation of every per-category classification stands
+unchanged.
 
 ## 1. What was wrong in v0.1, and the corrected test
 
@@ -178,7 +196,8 @@ requested before that candidate ADR has been authored and is Review-A-clean.**
 conclusion: regardless of the eventual `event_class` Candle/Structure/Regime Event Contracts are
 assigned when first authored, the per-category Domain Contract semantics reviewed in §2 already
 establish, event by event, that authoritative application of the already-emitted effect does not
-require re-reading the causal predecessor's domain payload — for all 20 non-vacuous categories.
+require re-reading the causal predecessor's domain payload — for all 21 causation-ref categories
+(§3, corrected in v0.5 — `CANDLE_CLOSED` contributes zero causation-ref categories, not counted here).
 
 **`CONTEXT-SD-DERIV-A-MIN-02`:** v0.2's proposed follow-on sequence (§8) numbered compatibility
 decisions/Event Contract authoring ahead of "fresh ChatGPT Review A," while separately stating Review
@@ -308,27 +327,62 @@ remaining Swing-dependent field-level deferral.
 **Event summary:** all 5 of 5 categories mechanically derivable, all `EXTERNAL_NON_STATE_CAUSE`. No
 category remains `UNRESOLVED`.
 
-## 3. Corrected totals
+## 3. Corrected totals (arithmetic/accounting corrected, v0.5 — see §0)
 
-| Metric | v0.1 (superseded) | v0.2 (corrected) |
-|---|---|---|
-| Total causation-ref categories | 21 | 21 |
-| `STATE_DEPENDENCY` | 8 | **0** |
-| `EXTERNAL_NON_STATE_CAUSE` | 9 | **20** |
-| `VACUOUS` | 1 (implicit, `CANDLE_CLOSED`) | 1 (`CANDLE_CLOSED`) |
-| `UNRESOLVED` | 4 | **0** |
+**Causation-ref category totals — drawn directly from §2's own per-event breakdown, never
+re-derived, never re-classified:**
 
-**Every one of the 20 non-vacuous categories, across all 10 event types, classifies
-`EXTERNAL_NON_STATE_CAUSE`.** This is not a rounding artifact of applying one rule loosely
-(corrected under `CONTEXT-SD-DERIV-A-MIN-03` — the prior wording here rested on an unsupported
-shared `event_class` premise, the same class of defect §1.1/§1.4/§1.5 already corrected elsewhere
-in this document; folded into a single deterministic wording fix here): **the 20 classifications
-are supported category-by-category by the reviewed Domain Contract apply-time semantics (§2). They
-do not depend on a shared `event_class`.** Only Feature's two Published Event Contracts currently
-declare `event_class: derived_fact`; `event_class` for the eight not-yet-authored Event Contracts
-remains undecided. Every `causation_refs` element in this set exists for
-lineage/precedence/explainability (I-1), satisfying `EXTERNAL_NON_STATE_CAUSE`'s own definition
-exactly (existence/commitment proof, no payload read, no cursor-visibility/apply-scope
+```text
+CANDLE_CORRECTED                  1
+BREAK_OF_STRUCTURE_DETECTED       2
+CHANGE_OF_CHARACTER_DETECTED      2
+STRUCTURE_FACT_INVALIDATED        4
+STRUCTURE_RECOMPUTED              1
+REGIME_CLASSIFIED                 2
+REGIME_FACT_INVALIDATED           2
+FEATURE_COMPUTED                  2
+FEATURE_FACT_INVALIDATED          5
+-----------------------------------
+TOTAL                             21
+```
+
+Every one of these 21 entries is individually classified `EXTERNAL_NON_STATE_CAUSE` in §2's own
+text (§2.2–§2.10).
+
+| Metric | v0.1 (superseded) | v0.2–v0.4 (superseded — arithmetic defect, `EC-CDR-A-MAJ-03`) | v0.5 (corrected) |
+|---|---|---|---|
+| Total causation-ref categories | 21 | 21 | **21** |
+| `STATE_DEPENDENCY` | 8 | 0 | **0** |
+| `EXTERNAL_NON_STATE_CAUSE` | 9 | 20 | **21** |
+| `UNRESOLVED` | 4 | 0 | **0** |
+
+**Separately — event-level vacuity, NOT a causation-ref category:**
+
+```text
+Root event types with no causation-ref category: 1 — CANDLE_CLOSED
+(causation_refs canonically [], §2.1: "No causation-ref category exists" — VACUOUS is an
+event-level declaration state for an event whose causation set is empty; it is not itself a
+causation-ref category, and is not summed into the 21 total above.)
+```
+
+**v0.5 correction (arithmetic/accounting only, not a semantic re-review — see §0):** v0.2–v0.4's
+`EXTERNAL_NON_STATE_CAUSE` row stated `20`, and a separate `VACUOUS` row stated `1`, summing to `21`
+only by treating `CANDLE_CLOSED`'s root-event vacuity as if it were itself a 21st causation-ref-
+category unit. It is not — `CANDLE_CLOSED` contributes **zero** causation-ref categories (§2.1). The
+21 real causation-ref-category instances are §2.2 through §2.10's own rows in full, all 21 of which
+are individually classified `EXTERNAL_NON_STATE_CAUSE` — corrected above to **21**, not 20. No
+per-category classification changes; no event moves category; §1/§2's semantic reasoning is not
+reopened.
+
+**Every one of the 21 causation-ref categories, across the 9 non-`CANDLE_CLOSED` event types,
+classifies `EXTERNAL_NON_STATE_CAUSE`.** This is not a rounding artifact of applying one rule loosely
+(the classification result itself was corrected under `CONTEXT-SD-DERIV-A-MIN-03`, unchanged by this
+v0.5 arithmetic fix): **the 21 classifications are supported category-by-category by the reviewed
+Domain Contract apply-time semantics (§2). They do not depend on a shared `event_class`.** Only
+Feature's two Published Event Contracts currently declare `event_class: derived_fact`; `event_class`
+for the eight not-yet-authored Event Contracts remains undecided. Every `causation_refs` element in
+this set exists for lineage/precedence/explainability (I-1), satisfying `EXTERNAL_NON_STATE_CAUSE`'s
+own definition exactly (existence/commitment proof, no payload read, no cursor-visibility/apply-scope
 requirement) — established directly from each event's own reviewed semantics, never inferred from
 a global label.
 
@@ -337,10 +391,12 @@ the task's own instruction that it "must be recomputed," not patched.
 
 **Fresh Review A of v0.2 independently rechecked this corrected apply-time reasoning and found no
 causation category in the 10-event set requiring re-reading the predecessor's domain payload at
-authoritative apply time — the matrix and totals above are preserved unchanged by this v0.3
-correction.** Only §1.1's unsupported rationale (`CONTEXT-SD-DERIV-A-MIN-01`) and the compatibility-
-governance conclusion in §5/§6/§8 (`CONTEXT-SD-DERIV-A-MAJ-03`) are corrected in this round —
-producer-computation provenance is not reintroduced as the classification test anywhere below.
+authoritative apply time — the classification matrix (§2) is preserved unchanged by this v0.3
+correction and by this v0.5 arithmetic correction alike; only the §3 aggregate tally's own
+accounting is corrected in v0.5.** Only §1.1's unsupported rationale (`CONTEXT-SD-DERIV-A-MIN-01`),
+the compatibility-governance conclusion in §5/§6/§8 (`CONTEXT-SD-DERIV-A-MAJ-03`), and now this
+aggregate-count accounting are corrected across this document's history — producer-computation
+provenance is not reintroduced as the classification test anywhere below.
 
 ## 4. Event Contract artifact inventory — unaffected by the classification correction
 
@@ -505,10 +561,14 @@ residual-risk acceptance is recorded by this transaction.
 M2: `BLOCKED` — parallel evidence lane. M3: `ACTIVE` — Context deterministic core `REVIEW A
 VALIDATED — CLEAN`; `ADR-046` `APPROVED`; `context.md` v0.4 `PO ACCEPTED`; Context Input Contract
 v0.3 `REVIEW A CLEAN — R2 — PROCEED WITHOUT CROSS-CHECK — NOT PUBLISHED`, unmutated; state-
-dependency derivation is now `v0.4` — fresh Review A `CLEAN — 0 Blocker / 0 Major / 1 Minor`
-(`CONTEXT-SD-DERIV-A-MIN-03`, non-blocking residual wording defect, folded into this v0.4 as a
-deterministic correction, not self-closed) — classification matrix `20 EXTERNAL_NON_STATE_CAUSE /
-1 VACUOUS / 0 STATE_DEPENDENCY / 0 UNRESOLVED` unchanged throughout. Current blocker:
+dependency derivation is now `v0.5` — v0.4's fresh Review A `CLEAN — 0 Blocker / 0 Major / 1 Minor`
+(`CONTEXT-SD-DERIV-A-MIN-03`, non-blocking residual wording defect, folded into v0.4 as a
+deterministic correction, not self-closed); v0.5 folds in a further deterministic
+arithmetic/accounting-only correction of the §3 aggregate tally (triggered by the representation
+artifact's own `EC-CDR-A-MAJ-03` traceability finding, not self-closed) — per-category
+classifications unchanged throughout, corrected aggregate: **21 causation-ref categories, 21
+`EXTERNAL_NON_STATE_CAUSE`, 0 `STATE_DEPENDENCY`, 0 `UNRESOLVED`**, plus separately 1 `VACUOUS` root
+event type (`CANDLE_CLOSED`, zero causation-ref categories, not summed into the 21). Current blocker:
 compatibility-commitment ADR prerequisite — `docs/project/context-event-contract-compatibility-adr-scope-001.md`
 now recommends the smallest coherent ADR packaging (one ADR per producer family: Candle, Structure,
 Regime — 3 candidates, `contract_id`s enumerated), none yet authored — plus missing Event Contract
