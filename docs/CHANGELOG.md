@@ -2,6 +2,111 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-10-05 — Four Structure Event Contract v1.0 Draft candidates authored (break-of-structure-detected, change-of-character-detected, structure-fact-invalidated, structure-recomputed)
+
+Starting `main == origin/main == 581c28d3acd1d13c613fc110e80b9e5a5dbc486a`, fresh-verified, working
+tree clean. Candle pair re-confirmed: `candle-closed/v1.0.yaml` blob
+`7c2e3d4d07d1da1388d98efdcf5a4ba30b56fd50`, `candle-corrected/v1.0.yaml` blob
+`3cb963fa884416167deb996533617d1f5f9881c8`, fresh ChatGPT Review A `CLEAN — 0 Blocker / 0 Major / 0
+Minor` on both (all three prior findings `CANDLE-EC-A-MAJ-01`/`02`/`CANDLE-EC-A-MIN-01` `CLOSED —
+REVIEW A VALIDATED`). Candle pair is **not** modified in this transaction. `docs/adr/ADR-048.md`
+(v0.3, `status: Approved`) and `docs/adr/ADR-040.md`/`ADR-047.md` re-confirmed unchanged;
+`context-upstream-state-dependency-derivation-001.md` v0.5 and
+`event-contract-causal-dependency-representation-001.md` v0.5 re-confirmed unchanged (both Review A
+`CLEAN — 0 Blocker / 0 Major / 0 Minor`); `docs/domain/structure.md` v0.4 fresh-read in full
+(§1–§17); `docs/architecture/stream-registry.yaml` and `docs/domain/context-map.yaml` fresh-read to
+confirm producer/consumer topology.
+
+**Fresh-confirmed topology:** producer `structure-engine`, sole registered consumer
+`context-aggregator` (`context-map.yaml` `published_language` relationship, `status: active`, all
+four `contract_id`s) — `feature-engine` is **not** inferred as a direct consumer merely from
+registry/module dependency edges, consistent with `feature.md` §14's own explicit exclusion of all
+four Structure `contract_id`s. All four Structure event types share one registered stream,
+`structure-engine-structure` (Genesis Stream Registry, `status: Approved`, `registry_version: v1.0`,
+`writer_authority.module_id: structure-engine`), per Approved `ADR-036`'s one-stream-per-fact-family
+topology. Compatibility commitment for all four is already Approved `ADR-047`'s own Decision table:
+`backward_only` — not reopened or re-decided.
+
+New files (all `contract_id`/`contract_version: v1.0`, `status: Draft`, `reviewers: []`,
+`approved_by: null`, `approved_at: null`, `last_review: null` — first-publication Draft candidates,
+not Published, not reviewed, not approved):
+
+- `docs/architecture/event-contracts/break-of-structure-detected/v1.0.yaml` — `event_type:
+  BREAK_OF_STRUCTURE_DETECTED`, `event_class: derived_fact`, `merge_constraints.prerequisite_policy:
+  causation_must_resolve_before_apply`. `causal_state_dependency_declaration: {mode: exhaustive,
+  roles: [broken_swing_confirmed_event_ref, breaking_candle_refs]}` — both `EXTERNAL_NON_STATE_CAUSE`
+  (derivation v0.5 §2.3). `broken_swing_confirmed_event_ref`: `payload_field`, `path:
+  [broken_swing_ref, swing_confirmed_event_ref]`, `cardinality: {exactly: 1}` (structure.md §3's
+  `broken_swing_ref` is a single required object). `breaking_candle_refs`: `payload_field`, `path:
+  [breaking_candle_refs]`, `cardinality: {min: 1, max: null}` (structure.md §3 invariant: "một hoặc
+  nhiều candle-closed/candle-corrected").
+- `docs/architecture/event-contracts/change-of-character-detected/v1.0.yaml` — `event_type:
+  CHANGE_OF_CHARACTER_DETECTED`, `event_class: derived_fact`, identical `merge_constraints`. Identical
+  two-role declaration to `break-of-structure-detected` (derivation v0.5 §2.3/§2.4 share reasoning)
+  — same role shapes, same cardinalities, same classification.
+- `docs/architecture/event-contracts/structure-fact-invalidated/v1.0.yaml` — `event_type:
+  STRUCTURE_FACT_INVALIDATED`, `event_class: derived_fact`, identical `merge_constraints`.
+  `causal_state_dependency_declaration: {mode: exhaustive, roles: [invalidated_fact_ref,
+  invalidation_cause_ref]}` — both `EXTERNAL_NON_STATE_CAUSE` (derivation v0.5 §2.5).
+  `invalidated_fact_ref`: `payload_field`, `path: [invalidated_fact_ref]`, `cardinality: {exactly:
+  1}`. `invalidation_cause_ref`: `by_target` **discriminated** selector,
+  `discriminant.payload_path: [invalidation_cause]`, three cases matching the payload enum exactly
+  — `swing_invalidated` → `{event_types: [SWING_INVALIDATED], contract_ids: [swing-invalidated]}`;
+  `breaking_candle_corrected` → `{event_types: [CANDLE_CORRECTED], contract_ids:
+  [candle-corrected]}`; `chained_invalidation` → `{event_types: [STRUCTURE_FACT_INVALIDATED],
+  contract_ids: [structure-fact-invalidated]}`; `cardinality: {exactly: 1}` regardless of which case
+  fires (structure.md §5 invariant: exactly one cause reference, always).
+- `docs/architecture/event-contracts/structure-recomputed/v1.0.yaml` — `event_type:
+  STRUCTURE_RECOMPUTED`, `event_class: derived_fact`, identical `merge_constraints`.
+  `causal_state_dependency_declaration: {mode: exhaustive, roles: [cascade_invalidations]}` — one
+  role, `EXTERNAL_NON_STATE_CAUSE` (derivation v0.5 §2.6). `cascade_invalidations`: `by_target`
+  **static** `match`, `{event_types: [STRUCTURE_FACT_INVALIDATED], contract_ids:
+  [structure-fact-invalidated]}`, `cardinality: {min: 1, max: null}` (structure.md §5a invariant:
+  causation_refs must point to every cascade member, at least one, never omitting any).
+
+**No `mode: vacuous` on any of the four** — `causation_refs` is never empty for any Structure event
+(`structure.md` §2 envelope fixes this uniformly); all four use `mode: exhaustive`. **No role-level
+`authority` field on any role, on any of the four files** — ADR-048's own prohibition; each
+`apply_time_requirement` stands self-contained. **No `payload_field`/discriminant usage beyond what
+derivation v0.5 already requires** — no new selector kind, no wildcard, no array indexing beyond the
+already-reviewed `breaking_candle_refs`/`cascade_invalidations` array-of-references pattern already
+proven representable for Candle/Feature-family events.
+
+**Self-containment:** all four artifacts are interpretable without opening `structure.md`, the
+state-dependency derivation, or the representation derivation — those appear only as drafting
+provenance/governance citations. The producer-side 8-criteria Eligible-Swing total-order tie-break
+(`structure.md` §6a) and the full dependency-forward cascade traversal algorithm (`structure.md`
+§10) are both deliberately condensed to their outcome/membership tests only, not reproduced
+step-by-step — same discipline already applied to Candle's own precedence-resolution algorithm;
+validating an already-emitted event's own payload never requires re-deriving a producer's selection
+among several candidates.
+
+**No STOP condition encountered** — no necessary mapping required a representation outside Approved
+ADR-048's grammar, no genuine new architecture decision was required, and no current Structure
+business semantics were changed; the four classification results (all `EXTERNAL_NON_STATE_CAUSE`,
+zero `STATE_DEPENDENCY`) are taken verbatim from the already-reviewed derivation v0.5 §2.3–§2.6, not
+re-derived.
+
+**Confirmed unchanged:** both Candle Event Contracts, `docs/adr/ADR-048.md`/`ADR-047.md`/
+`ADR-040.md`/`ADR-039.md`, every other Approved ADR, state-dependency derivation v0.5, representation
+derivation v0.5, `docs/domain/structure.md`, every Regime/Feature Event Contract, Context Input
+Contract, every other Domain Contract, every Constitution chapter, every registry, all production
+source/tests/tooling.
+
+**M2 unchanged (`BLOCKED`, parallel evidence lane). M3 remains `ACTIVE`** — Candle pair `CLEAN` /
+`Draft` / `NOT Published`; Structure four now **Draft candidates, pending fresh ChatGPT Review A**;
+Regime remains `PAUSED`; Feature vNext dependency-authority follow-up remains `QUEUED later`;
+Context Input Contract v0.3 remains `Draft` / `NOT Published`. **M4 remains `QUEUED`.** Phase-3
+Approval Gate `NOT REACHED`; LIVE remains `NOT_AUTHORIZED`.
+
+**Pending fresh ChatGPT Review A — executor does not close or approve these Structure Event Contract
+candidates.**
+
+Next governed action: fresh ChatGPT Review A of all four Structure Event Contract Draft candidates;
+Regime authoring remains not started in this transaction.
+
+---
+
 ## [Unreleased] — 2026-10-05 — Candle Event Contract pair bounded correction: aligned to Approved ADR-048/ADR-040 (candle-closed, candle-corrected)
 
 Starting `main == origin/main == a978cdcfb5a3fbaacd33b6b73bbf9c30c3ac538f`, fresh-verified, working

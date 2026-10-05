@@ -1,0 +1,207 @@
+# Event Contract version-artifact — structure-fact-invalidated v1.0 (DRAFT CANDIDATE)
+#
+# Referenced Authoritative Artifact (Chapter 8 §8.1.1). Canonical authority/self-containment model,
+# path/version grammar, and immutability discipline per Approved ADR-039 v0.1
+# (docs/adr/ADR-039.md). Retention/archive semantics per Approved ADR-040 v0.1
+# (docs/adr/ADR-040.md).
+#
+# STATUS: Draft candidate only — NOT Published, NOT reviewed, NOT approved. `status: Draft`,
+# `reviewers: []`, `approved_by: null`, `approved_at: null`, `last_review: null` below are exact and
+# not fabricated. This transaction does not transition Draft -> Published, does not add a reviewer,
+# and does not call this an authoritative Published snapshot.
+#
+# RETENTION / REFERENCE ELIGIBILITY: Approved ADR-040 (docs/adr/ADR-040.md) establishes Class-G
+# retention/resolvability semantics at architecture level and satisfies ADR-039's own Consequences
+# item (0) retention prerequisite for Event Contract version-artifacts. Concrete past-horizon
+# archival implementation remains deferred (ADR-040 does not invent that mechanism), but that
+# deferred implementation is NOT an independent blocker to an otherwise-valid Published Event
+# Contract serving as an `event_contract_ref` target within the committed retention model. This
+# artifact itself is currently NOT usable as an authoritative `event_contract_ref` target because
+# it remains `status: Draft` and has not completed governed publication — not because of any
+# retention gap. No claim of runtime-readiness is made by this artifact.
+#
+# This is the FIRST version for contract_id: structure-fact-invalidated — no prior Published
+# Event Contract snapshot exists for it. Per ADR-039's "First authoritative version" rule,
+# contract_version is fixed at v1.0 — no other value is valid for a first publication.
+#
+# event_class / allowed_streams / merge_constraints below are GOVERNED-AUTHORED against current
+# higher authority (Chapter 8 §8.3.1/§8.3.4, Approved ADR-036 genesis Stream Registry topology,
+# Approved ADR-047 compatibility commitment) — NOT mechanically transcribed from structure.md, which
+# does not declare any of the three fields anywhere. payload_shape / payload_semantics_and_invariants
+# are transcribed and governed-synthesized from structure.md v0.4 §1 (subject)/§2 (envelope,
+# payload-relevant portions only)/§5 (StructureFactInvalidated) and are fully self-contained here —
+# a reader does not need to separately consult structure.md to interpret this artifact's own
+# meaning (ADR-039). structure.md's own envelope fields remain Chapter 8 §8.2's own owned concept,
+# applied not redefined here — this artifact declares the PAYLOAD portion only.
+#
+# STATE-DEPENDENCY REPRESENTATION AUTHORITY: Approved ADR-048 (docs/adr/ADR-048.md, v0.3,
+# status: Approved) establishes the canonical, machine-readable top-level Event Contract field
+# `causal_state_dependency_declaration` satisfying Chapter 8 §8.2.3's causal-closure
+# `dependency_authority: per_effect_event_contract` requirement. This artifact declares that field
+# below, using ADR-048's exact canonical grammar — including the discriminated `by_target` selector
+# form (`discriminant.payload_path`) for the three mutually-exclusive invalidation causes.
+# Classification semantic evidence:
+# docs/project/context-upstream-state-dependency-derivation-001.md v0.5 §2.5 (Review A CLEAN — 0
+# Blocker / 0 Major / 0 Minor, blob 8acb799ac84b5dadee463f8882e15fbb2ce93657) — evidence only, never
+# itself interpretive/runtime authority. Canonical representation authority: Approved ADR-048. This
+# Draft candidate's own declaration below is not itself an authoritative Published declaration — the
+# Published Event Contract will own it once this Draft is reviewed and Published.
+#
+# Governed authoring transaction boundary: HEAD 581c28d3acd1d13c613fc110e80b9e5a5dbc486a
+# (CONTEXT-UPSTREAM-EVENT-CONTRACT-STRUCTURE-001).
+
+contract_id: structure-fact-invalidated
+contract_version: v1.0
+status: Draft
+reviewers: []
+approved_by: null
+approved_at: null
+last_review: null
+
+event_type: STRUCTURE_FACT_INVALIDATED
+# structure.md v0.4 §2 event_types table (PAST_TENSE_UPPER_SNAKE per Chapter 3 §3.2, referenced not
+# redefined here).
+
+event_class: derived_fact
+# Governed-authored. NOT `decision` (no decision_time/decision_context_cursor anywhere in
+# structure.md's own envelope §2). `derived_fact` reuses this repository's own already-established
+# vocabulary for exactly this event category (identical usage in feature-computed/v1.0.yaml,
+# feature.md §2, regime.md §2, swing.md §2, structure.md §2 itself). This event purely negates one
+# specific historical fact — it never itself asserts or implies an orientation transition
+# (structure.md §1/§5) — but remains a computed/derived fact about the Structure fact stream, never
+# a raw venue observation, so `derived_fact` (not `observation`) applies.
+
+allowed_streams:
+  - stream_id: structure-engine-structure
+# Governed-authored from docs/architecture/stream-registry.yaml (Genesis Registry, `status:
+# Approved`, `registry_version: v1.0`) + Chapter 8 §8.3.1. Same stream as
+# break-of-structure-detected/v1.0.yaml and change-of-character-detected/v1.0.yaml —
+# structure-engine's Structure fact family's own stream, per Approved ADR-036 v0.3's
+# one-stream-per-fact-family topology.
+
+merge_constraints:
+  prerequisite_policy: causation_must_resolve_before_apply
+# Governed-authored per Chapter 8 §8.3.4's own authority split. structure.md v0.4 §2 envelope fixes
+# `causation_refs` as never empty for any Structure event — this event's invalidated_fact_ref AND
+# its one cause reference must both resolve before this event may be applied, per Chapter 8
+# §8.3.4's own P_causation/P_global DAG requirement.
+
+payload_shape:
+  invalidated_fact_ref: {type: event_record_ref, required: true, description: "BreakOfStructureDetected or ChangeOfCharacterDetected being negated — duplicates the corresponding causation_refs entry, declared explicitly in payload so query does not need to re-read the envelope."}
+  invalidation_cause: {type: enum, values: [swing_invalidated, breaking_candle_corrected, chained_invalidation], required: true}
+  invalidation_reason: {type: string, required: false}
+
+payload_semantics_and_invariants:
+  description: >
+    Negates ONE specific BreakOfStructureDetected or ChangeOfCharacterDetected of the same
+    structure_subject_id, due to a correction cascade — purely records "this historical fact is no
+    longer valid," NEVER itself asserts or implies an orientation transition (that is
+    StructureRecomputed's own exclusive role, structure-recomputed/v1.0.yaml). NEVER emitted merely
+    because "price kept moving" (that is always a new, independent BOS/CHoCH belonging to normal
+    flow, never an invalidation). Exactly THREE causes, declared explicitly via
+    payload.invalidation_cause: (a) swing_invalidated — the fact's own broken_swing_ref received a
+    SwingInvalidated (upstream correction) — the level used as the break basis is no longer valid;
+    (b) breaking_candle_corrected — a Candle in the fact's own breaking_candle_refs received a
+    CandleCorrected, so it no longer satisfies the break criterion under the corrected payload; (c)
+    chained_invalidation — this fact depends (via its own prior_orientation, matching another
+    fact's new_orientation) on ANOTHER fact that just received a StructureFactInvalidated in the
+    SAME cascade — dependency-forward along the original orientation chain, NEVER "most-recent-
+    first" by recorded_time. This is a new, append-only event. Valid even when the current
+    orientation is already NEUTRAL (e.g. a second cascade layered on a prior one) — this event
+    never checks or depends on current orientation, it only negates exactly one specific fact
+    record. A single cascade emits MULTIPLE StructureFactInvalidated in sequence — one per affected
+    fact — followed by exactly one StructureRecomputed.
+  invariants:
+    - "envelope.causation_refs MUST point to: the BOS/CHoCH event being invalidated (required, exactly one — see invalidated_fact_ref below); AND the one cause reference matching payload.invalidation_cause (required, exactly one) — see causal_state_dependency_declaration below for the canonical machine-readable classification of each."
+    - "invalidation_cause = swing_invalidated is valid ONLY when the referenced SwingInvalidated matches BOTH the swing_id AND the swing_revision of the invalidated fact's own broken_swing_ref (not swing_id alone) — a SwingInvalidated for one revision MUST NOT be used to invalidate a Structure fact whose broken_swing_ref used a different revision of the same swing_id."
+    - "invalidation_cause = breaking_candle_corrected is valid ONLY when the corrected Candle is one of the invalidated fact's own breaking_candle_refs AND the corrected payload no longer satisfies the break criterion."
+    - "invalidation_cause = chained_invalidation is valid ONLY when the invalidated fact's own prior_orientation equals exactly the new_orientation of the fact immediately preceding it in the original orientation chain — determined by the dependency graph, never by the invalidation's own recorded_time order."
+    - "A given BreakOfStructureDetected/ChangeOfCharacterDetected receives EXACTLY ONE authoritative StructureFactInvalidated — never a duplicate invalidation of the same fact twice."
+    - "This event carries no orientation field (no prior_orientation/new_orientation) — it is not, and must never be interpreted as, a state transition."
+    - "envelope.recorded_time MUST be strictly later than the recorded_time of the direct cause event (whichever of (a)/(b)/(c) applies)."
+    - "Replay at a cursor before this event's own recorded_time MUST NOT observe it."
+    - "If a SwingInvalidated AND a CandleCorrected both directly affect the same BOS/CHoCH simultaneously (rare — a shared correction reaching both paths), exactly ONE StructureFactInvalidated is still emitted for that fact — causation_refs lists both direct causes as additional entries, invalidation_cause selects whichever is most direct at the fact's own broken_swing_ref/breaking_candle_refs — never two independent StructureFactInvalidated for the same fact."
+
+causal_state_dependency_declaration:
+  mode: exhaustive
+  roles:
+    - role_id: invalidated_fact_ref
+      selector:
+        kind: payload_field
+        path:
+          - invalidated_fact_ref
+      cardinality:
+        exactly: 1
+      classification: EXTERNAL_NON_STATE_CAUSE
+      apply_time_requirement: >
+        Authoritative application of StructureFactInvalidated does not require re-reading the
+        invalidated BreakOfStructureDetected/ChangeOfCharacterDetected's own business content
+        (broken_swing_ref, breaking_candle_refs, prior_orientation/new_orientation) — this event's
+        own payload is exactly {invalidated_fact_ref, invalidation_cause, invalidation_reason}. A
+        consumer applying this invalidation needs only to know WHICH fact is invalidated —
+        identity, not the invalidated fact's own business content.
+    - role_id: invalidation_cause_ref
+      selector:
+        kind: by_target
+        discriminant:
+          payload_path:
+            - invalidation_cause
+          cases:
+            swing_invalidated:
+              event_types: [SWING_INVALIDATED]
+              contract_ids: [swing-invalidated]
+            breaking_candle_corrected:
+              event_types: [CANDLE_CORRECTED]
+              contract_ids: [candle-corrected]
+            chained_invalidation:
+              event_types: [STRUCTURE_FACT_INVALIDATED]
+              contract_ids: [structure-fact-invalidated]
+      cardinality:
+        exactly: 1
+      classification: EXTERNAL_NON_STATE_CAUSE
+      apply_time_requirement: >
+        Authoritative application of StructureFactInvalidated does not require re-reading the
+        causing fact's own payload content, regardless of which cause fired (SwingInvalidated,
+        CandleCorrected, or a prior StructureFactInvalidated in the same cascade) — existence and
+        commit-order proof only. This event's own payload never copies the causing fact's business
+        content.
+# Approved ADR-048 (docs/adr/ADR-048.md) canonical mechanism. Two roles, exhaustive: every
+# causation_refs entry is either the invalidated fact's own reference (exactly one) or the one
+# cause reference selected by the discriminant on payload.invalidation_cause (exactly one,
+# regardless of which of the three cases fires) — together exhaustively accounting for this
+# event's own causation_refs, matching payload_semantics_and_invariants.invariants above exactly.
+# Both roles EXTERNAL_NON_STATE_CAUSE — no STATE_DEPENDENCY role exists for this event type
+# (derivation v0.5 §2.5). The discriminant's three cases are mutually exclusive by construction
+# (payload.invalidation_cause is a single enum value); no case produces a different cardinality.
+# Duplicate canonical-locator (stream_id, sequence) rejection within this event's own causation_refs
+# is governed generically by Approved ADR-048's own validation algorithm — no Structure-specific
+# duplicate-detection algorithm is defined here.
+
+compatibility_commitment: backward_only
+# Approved ADR-047 (docs/adr/ADR-047.md), Product Owner decision "APPROVE ADR-047"
+# (2026-09-28T14:44:39+07:00), Chapter 10 §10.3.1 — explicit policy commitment the platform adopts
+# for this contract_id: a consumer pinned to an older structure-fact-invalidated Event Contract
+# version must still correctly read/validate data under a newer version; forward compatibility is
+# NOT committed. No concrete schema delta exists yet for this first v1.0 version, so no
+# compatibility CLASSIFICATION of any delta is performed or claimed by this artifact.
+
+provenance:
+  source: docs/domain/structure.md
+  source_version: "0.4"
+  source_status: Draft
+  source_sections: ["§1 Logical Structure Subject", "§2 Canonical event envelope (payload-relevant portions)", "§5 StructureFactInvalidated"]
+  source_blob: 78964dfb6852bbac3fa1e034d64b4fc8031c3fef
+  drafted_at_commit: 581c28d3acd1d13c613fc110e80b9e5a5dbc486a
+  note: >
+    Drafting-history citation ONLY (ADR-039 §"Canonical authority/source") — never required to
+    interpret this artifact's own meaning; payload_shape and payload_semantics_and_invariants above
+    are fully self-contained. event_class, allowed_streams, and merge_constraints were
+    governed-authored directly against Chapter 8 §8.3.1/§8.3.4, Approved ADR-036, Approved ADR-047,
+    and this repository's own established terminology — NOT mechanically transcribed from
+    structure.md, which does not declare any of the three fields anywhere.
+    State-dependency classification semantic evidence:
+    docs/project/context-upstream-state-dependency-derivation-001.md v0.5 §2.5 (Review A CLEAN — 0
+    Blocker / 0 Major / 0 Minor) — drafting-history citation only, never runtime/interpretive
+    authority. Canonical representation authority: Approved ADR-048 (docs/adr/ADR-048.md) — this
+    artifact's causal_state_dependency_declaration field above uses ADR-048's own exact canonical
+    grammar, not a mutable analysis-artifact identity embedded in the canonical role schema.

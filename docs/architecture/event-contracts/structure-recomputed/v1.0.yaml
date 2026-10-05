@@ -1,0 +1,177 @@
+# Event Contract version-artifact — structure-recomputed v1.0 (DRAFT CANDIDATE)
+#
+# Referenced Authoritative Artifact (Chapter 8 §8.1.1). Canonical authority/self-containment model,
+# path/version grammar, and immutability discipline per Approved ADR-039 v0.1
+# (docs/adr/ADR-039.md). Retention/archive semantics per Approved ADR-040 v0.1
+# (docs/adr/ADR-040.md).
+#
+# STATUS: Draft candidate only — NOT Published, NOT reviewed, NOT approved. `status: Draft`,
+# `reviewers: []`, `approved_by: null`, `approved_at: null`, `last_review: null` below are exact and
+# not fabricated. This transaction does not transition Draft -> Published, does not add a reviewer,
+# and does not call this an authoritative Published snapshot.
+#
+# RETENTION / REFERENCE ELIGIBILITY: Approved ADR-040 (docs/adr/ADR-040.md) establishes Class-G
+# retention/resolvability semantics at architecture level and satisfies ADR-039's own Consequences
+# item (0) retention prerequisite for Event Contract version-artifacts. Concrete past-horizon
+# archival implementation remains deferred (ADR-040 does not invent that mechanism), but that
+# deferred implementation is NOT an independent blocker to an otherwise-valid Published Event
+# Contract serving as an `event_contract_ref` target within the committed retention model. This
+# artifact itself is currently NOT usable as an authoritative `event_contract_ref` target because
+# it remains `status: Draft` and has not completed governed publication — not because of any
+# retention gap. No claim of runtime-readiness is made by this artifact.
+#
+# This is the FIRST version for contract_id: structure-recomputed — no prior Published Event
+# Contract snapshot exists for it. Per ADR-039's "First authoritative version" rule, contract_version
+# is fixed at v1.0 — no other value is valid for a first publication.
+#
+# event_class / allowed_streams / merge_constraints below are GOVERNED-AUTHORED against current
+# higher authority (Chapter 8 §8.3.1/§8.3.4, Approved ADR-036 genesis Stream Registry topology,
+# Approved ADR-047 compatibility commitment) — NOT mechanically transcribed from structure.md, which
+# does not declare any of the three fields anywhere. payload_shape / payload_semantics_and_invariants
+# are transcribed and governed-synthesized from structure.md v0.4 §1 (subject)/§2 (envelope,
+# payload-relevant portions only)/§5a (StructureRecomputed) and are fully self-contained here — a
+# reader does not need to separately consult structure.md to interpret this artifact's own meaning
+# (ADR-039). The full dependency-forward cascade traversal algorithm that PRODUCES the set of
+# StructureFactInvalidated this event references (structure.md §10) is a producer-side concern,
+# deliberately not reproduced step-by-step here — validating this already-emitted event's own
+# payload requires only the completeness/cardinality invariants below, never a re-derivation of the
+# cascade traversal order. structure.md's own envelope fields remain Chapter 8 §8.2's own owned
+# concept, applied not redefined here — this artifact declares the PAYLOAD portion only.
+#
+# STATE-DEPENDENCY REPRESENTATION AUTHORITY: Approved ADR-048 (docs/adr/ADR-048.md, v0.3,
+# status: Approved) establishes the canonical, machine-readable top-level Event Contract field
+# `causal_state_dependency_declaration` satisfying Chapter 8 §8.2.3's causal-closure
+# `dependency_authority: per_effect_event_contract` requirement. This artifact declares that field
+# below, using ADR-048's exact canonical grammar. Classification semantic evidence:
+# docs/project/context-upstream-state-dependency-derivation-001.md v0.5 §2.6 (Review A CLEAN — 0
+# Blocker / 0 Major / 0 Minor, blob 8acb799ac84b5dadee463f8882e15fbb2ce93657) — evidence only, never
+# itself interpretive/runtime authority. Canonical representation authority: Approved ADR-048. This
+# Draft candidate's own declaration below is not itself an authoritative Published declaration — the
+# Published Event Contract will own it once this Draft is reviewed and Published.
+#
+# Governed authoring transaction boundary: HEAD 581c28d3acd1d13c613fc110e80b9e5a5dbc486a
+# (CONTEXT-UPSTREAM-EVENT-CONTRACT-STRUCTURE-001).
+
+contract_id: structure-recomputed
+contract_version: v1.0
+status: Draft
+reviewers: []
+approved_by: null
+approved_at: null
+last_review: null
+
+event_type: STRUCTURE_RECOMPUTED
+# structure.md v0.4 §2 event_types table (PAST_TENSE_UPPER_SNAKE per Chapter 3 §3.2, referenced not
+# redefined here).
+
+event_class: derived_fact
+# Governed-authored. NOT `decision` (no decision_time/decision_context_cursor anywhere in
+# structure.md's own envelope §2). `derived_fact` reuses this repository's own already-established
+# vocabulary for exactly this event category (identical usage in feature-computed/v1.0.yaml,
+# feature.md §2, regime.md §2, swing.md §2, structure.md §2 itself). StructureRecomputed is the
+# event type that establishes the new authoritative orientation after a cascade — a computed
+# conclusion from refolding Swing/Candle facts, never a raw venue observation.
+
+allowed_streams:
+  - stream_id: structure-engine-structure
+# Governed-authored from docs/architecture/stream-registry.yaml (Genesis Registry, `status:
+# Approved`, `registry_version: v1.0`) + Chapter 8 §8.3.1. Same stream as the other three Structure
+# event types — structure-engine's Structure fact family's own stream, per Approved ADR-036 v0.3's
+# one-stream-per-fact-family topology.
+
+merge_constraints:
+  prerequisite_policy: causation_must_resolve_before_apply
+# Governed-authored per Chapter 8 §8.3.4's own authority split. structure.md v0.4 §2 envelope fixes
+# `causation_refs` as never empty for any Structure event — every StructureRecomputed's entire
+# StructureFactInvalidated cascade set must resolve before this event may be applied, per Chapter 8
+# §8.3.4's own P_causation/P_global DAG requirement.
+
+payload_shape:
+  resulting_orientation: {type: enum, values: [NEUTRAL, BULLISH, BEARISH], required: true}
+  justifying_fact_ref: {type: event_record_ref, required: false, description: "REQUIRED when resulting_orientation != NEUTRAL; PROHIBITED when resulting_orientation = NEUTRAL — see invariants."}
+  input_cursor_ref: {type: object, required: true, description: "Pins the exact cursor/input set (Swing + Candle facts still valid) used to refold this result, deterministic enough to reproduce it — Chapter 8 §8.1.1 Referenced Authoritative Artifact spirit."}
+
+payload_semantics_and_invariants:
+  description: >
+    The AUTHORITATIVE fact establishing the NEW current_orientation after a cascade of one or more
+    StructureFactInvalidated (structure-fact-invalidated/v1.0.yaml) has fully completed — the ONE
+    event type that changes current_orientation in the correction flow (symmetric to the normal
+    flow, where BreakOfStructureDetected/ChangeOfCharacterDetected transition orientation directly).
+    Always arises AFTER every fact affected by the cascade has already received its own
+    StructureFactInvalidated — there is no "partial" StructureRecomputed. resulting_orientation is
+    determined by directly refolding every still-valid Swing/Candle fact at input_cursor_ref — it
+    can be NEUTRAL (no fact justifies any direction) or BULLISH/BEARISH (a still-valid fact, or a
+    re-derived chain from input, still justifies that direction).
+  invariants:
+    - "envelope.causation_refs MUST point to every StructureFactInvalidated belonging to the same cascade — none affected by the cascade may be omitted from causation — see causal_state_dependency_declaration below for the canonical machine-readable classification."
+    - "resulting_orientation MUST be one of {NEUTRAL, BULLISH, BEARISH} — NEVER UNDETERMINED (once a fact has existed and been invalidated, the minimum valid conclusion is NEUTRAL, never a regression to the notional UNDETERMINED starting point)."
+    - "justifying_fact_ref is REQUIRED when resulting_orientation is BULLISH or BEARISH — MUST reference a still-valid (not yet StructureFactInvalidated) BreakOfStructureDetected/ChangeOfCharacterDetected directly justifying that direction; it is PROHIBITED when resulting_orientation is NEUTRAL (no surviving fact justifies any direction — that is precisely what NEUTRAL means)."
+    - "input_cursor_ref is REQUIRED on every resulting_orientation, including NEUTRAL — it pins the exact cursor/input set used to refold this result, sufficient to deterministically reproduce it."
+    - "envelope.recorded_time MUST be strictly later than the recorded_time of the last StructureFactInvalidated in the cascade."
+    - "Exactly ONE StructureRecomputed is emitted per cascade — never more than one for the same invalidation set."
+    - "This event does not delete or overwrite any prior output — it is an additional append-only fact (I-3)."
+    - "Replay at a cursor before this event's own recorded_time MUST NOT observe it."
+
+causal_state_dependency_declaration:
+  mode: exhaustive
+  roles:
+    - role_id: cascade_invalidations
+      selector:
+        kind: by_target
+        match:
+          event_types: [STRUCTURE_FACT_INVALIDATED]
+          contract_ids: [structure-fact-invalidated]
+      cardinality:
+        min: 1
+        max: null
+      classification: EXTERNAL_NON_STATE_CAUSE
+      apply_time_requirement: >
+        Authoritative application of StructureRecomputed does not require re-reading any referenced
+        StructureFactInvalidated's own payload content — none of those references carry orientation
+        data at all. This event's own resulting_orientation is computed by refolding Swing/Candle
+        facts pinned via payload.input_cursor_ref — a mechanism entirely separate from
+        causation_refs. The referenced StructureFactInvalidated set is required only as completeness
+        proof that the cascade's invalidation set is fully committed before recomputing.
+# Approved ADR-048 (docs/adr/ADR-048.md) canonical mechanism. One role, exhaustive: every
+# causation_refs entry is a StructureFactInvalidated belonging to the same cascade — matching
+# payload_semantics_and_invariants.invariants above exactly (causation_refs MUST point to every
+# cascade member, never omitting one). Classification EXTERNAL_NON_STATE_CAUSE — no
+# STATE_DEPENDENCY role exists for this event type (derivation v0.5 §2.6); resulting_orientation is
+# computed via input_cursor_ref refold, never from the causation_refs targets' own payload. The
+# `by_target` static-match selector targets the referenced events by envelope identity/pinned
+# event_contract_ref only — target domain payload is never read. Duplicate canonical-locator
+# (stream_id, sequence) rejection within this event's own causation_refs is governed generically by
+# Approved ADR-048's own validation algorithm — no Structure-specific duplicate-detection algorithm
+# is defined here.
+
+compatibility_commitment: backward_only
+# Approved ADR-047 (docs/adr/ADR-047.md), Product Owner decision "APPROVE ADR-047"
+# (2026-09-28T14:44:39+07:00), Chapter 10 §10.3.1 — explicit policy commitment the platform adopts
+# for this contract_id: a consumer pinned to an older structure-recomputed Event Contract version
+# must still correctly read/validate data under a newer version; forward compatibility is NOT
+# committed. No concrete schema delta exists yet for this first v1.0 version, so no compatibility
+# CLASSIFICATION of any delta is performed or claimed by this artifact.
+
+provenance:
+  source: docs/domain/structure.md
+  source_version: "0.4"
+  source_status: Draft
+  source_sections: ["§1 Logical Structure Subject", "§2 Canonical event envelope (payload-relevant portions)", "§5a StructureRecomputed"]
+  source_blob: 78964dfb6852bbac3fa1e034d64b4fc8031c3fef
+  drafted_at_commit: 581c28d3acd1d13c613fc110e80b9e5a5dbc486a
+  note: >
+    Drafting-history citation ONLY (ADR-039 §"Canonical authority/source") — never required to
+    interpret this artifact's own meaning; payload_shape and payload_semantics_and_invariants above
+    are fully self-contained — the full dependency-forward cascade traversal algorithm that produces
+    the referenced StructureFactInvalidated set (structure.md §10) remains that document's own
+    drafting-history content, not needed to validate this already-emitted event's own payload.
+    event_class, allowed_streams, and merge_constraints were governed-authored directly against
+    Chapter 8 §8.3.1/§8.3.4, Approved ADR-036, Approved ADR-047, and this repository's own
+    established terminology — NOT mechanically transcribed from structure.md, which does not
+    declare any of the three fields anywhere.
+    State-dependency classification semantic evidence:
+    docs/project/context-upstream-state-dependency-derivation-001.md v0.5 §2.6 (Review A CLEAN — 0
+    Blocker / 0 Major / 0 Minor) — drafting-history citation only, never runtime/interpretive
+    authority. Canonical representation authority: Approved ADR-048 (docs/adr/ADR-048.md) — this
+    artifact's causal_state_dependency_declaration field above uses ADR-048's own exact canonical
+    grammar, not a mutable analysis-artifact identity embedded in the canonical role schema.

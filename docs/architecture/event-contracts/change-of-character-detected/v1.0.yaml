@@ -1,0 +1,238 @@
+# Event Contract version-artifact — change-of-character-detected v1.0 (DRAFT CANDIDATE)
+#
+# Referenced Authoritative Artifact (Chapter 8 §8.1.1). Canonical authority/self-containment model,
+# path/version grammar, and immutability discipline per Approved ADR-039 v0.1
+# (docs/adr/ADR-039.md). Retention/archive semantics per Approved ADR-040 v0.1
+# (docs/adr/ADR-040.md).
+#
+# STATUS: Draft candidate only — NOT Published, NOT reviewed, NOT approved. `status: Draft`,
+# `reviewers: []`, `approved_by: null`, `approved_at: null`, `last_review: null` below are exact and
+# not fabricated. This transaction does not transition Draft -> Published, does not add a reviewer,
+# and does not call this an authoritative Published snapshot.
+#
+# RETENTION / REFERENCE ELIGIBILITY: Approved ADR-040 (docs/adr/ADR-040.md) establishes Class-G
+# retention/resolvability semantics at architecture level and satisfies ADR-039's own Consequences
+# item (0) retention prerequisite for Event Contract version-artifacts. Concrete past-horizon
+# archival implementation remains deferred (ADR-040 does not invent that mechanism), but that
+# deferred implementation is NOT an independent blocker to an otherwise-valid Published Event
+# Contract serving as an `event_contract_ref` target within the committed retention model. This
+# artifact itself is currently NOT usable as an authoritative `event_contract_ref` target because
+# it remains `status: Draft` and has not completed governed publication — not because of any
+# retention gap. No claim of runtime-readiness is made by this artifact.
+#
+# This is the FIRST version for contract_id: change-of-character-detected — no prior Published
+# Event Contract snapshot exists for it (structure.md v0.4 declares event_contract_ref as a
+# required envelope field, per Chapter 8 §2, but pins no contract_version anywhere;
+# context-map.yaml pins contract_id only). Per ADR-039's "First authoritative version" rule,
+# contract_version is fixed at v1.0 — no other value is valid for a first publication.
+#
+# event_class / allowed_streams / merge_constraints below are GOVERNED-AUTHORED against current
+# higher authority (Chapter 8 §8.3.1/§8.3.4, Approved ADR-036 genesis Stream Registry topology,
+# Approved ADR-047 compatibility commitment) — NOT mechanically transcribed from structure.md, which
+# does not declare any of the three fields anywhere. Authority basis is cited inline at each field.
+# payload_shape / payload_semantics_and_invariants are transcribed and governed-synthesized from
+# structure.md v0.4 §1 (subject)/§2 (envelope, payload-relevant portions only)/§4
+# (ChangeOfCharacterDetected)/§7 (CHoCH semantics)/§6a (broken_swing_ref schema + Eligible Swing
+# membership test, condensed) and are fully self-contained here — a reader does not need to
+# separately consult structure.md to interpret this artifact's own meaning (ADR-039). The producer-
+# side 8-criteria total-order tie-break algorithm used to SELECT which Eligible Swing a producer
+# uses (structure.md §6a) is deliberately condensed to its membership test only, same discipline
+# already applied to break-of-structure-detected/v1.0.yaml and Candle's own precedence-resolution
+# algorithm. structure.md's own envelope fields (event_id, recorded_time, subject_ref, stream_ref,
+# sequence, producer_ref, correlation_id, causation_refs, related_event_refs, effective_time) remain
+# Chapter 8 §8.2's own owned concept, applied not redefined here — this artifact declares the
+# PAYLOAD portion only.
+#
+# STATE-DEPENDENCY REPRESENTATION AUTHORITY: Approved ADR-048 (docs/adr/ADR-048.md, v0.3,
+# status: Approved) establishes the canonical, machine-readable top-level Event Contract field
+# `causal_state_dependency_declaration` satisfying Chapter 8 §8.2.3's causal-closure
+# `dependency_authority: per_effect_event_contract` requirement. This artifact declares that field
+# below, using ADR-048's exact canonical grammar. Classification semantic evidence:
+# docs/project/context-upstream-state-dependency-derivation-001.md v0.5 §2.3 (shared derivation
+# reasoning for BreakOfStructureDetected/ChangeOfCharacterDetected — Review A CLEAN — 0 Blocker / 0
+# Major / 0 Minor, blob 8acb799ac84b5dadee463f8882e15fbb2ce93657) — evidence only, never itself
+# interpretive/runtime authority. Canonical representation authority: Approved ADR-048. This Draft
+# candidate's own declaration below is not itself an authoritative Published declaration — the
+# Published Event Contract will own it once this Draft is reviewed and Published.
+#
+# Governed authoring transaction boundary: HEAD 581c28d3acd1d13c613fc110e80b9e5a5dbc486a
+# (CONTEXT-UPSTREAM-EVENT-CONTRACT-STRUCTURE-001).
+
+contract_id: change-of-character-detected
+contract_version: v1.0
+status: Draft
+reviewers: []
+approved_by: null
+approved_at: null
+last_review: null
+
+event_type: CHANGE_OF_CHARACTER_DETECTED
+# structure.md v0.4 §2 event_types table (PAST_TENSE_UPPER_SNAKE per Chapter 3 §3.2, referenced not
+# redefined here).
+
+event_class: derived_fact
+# Governed-authored. Identical reasoning and category as break-of-structure-detected/v1.0.yaml —
+# NOT `decision` (no decision_time/decision_context_cursor anywhere in structure.md's own envelope
+# §2); `derived_fact` reuses this repository's own already-established vocabulary (identical usage
+# in feature-computed/v1.0.yaml, feature.md §2, regime.md §2, swing.md §2, structure.md §2). Not
+# `observation`: ChangeOfCharacterDetected is a computed reversal conclusion, not a raw venue
+# observation. Both BOS and CHoCH are Structure observation-family-adjacent derived facts sharing
+# the same event_class value — correction/reversal lineage is expressed through event type,
+# causation_refs, and payload semantics, not through a separate event_class value.
+
+allowed_streams:
+  - stream_id: structure-engine-structure
+# Governed-authored from docs/architecture/stream-registry.yaml (Genesis Registry, `status:
+# Approved`, `registry_version: v1.0`) + Chapter 8 §8.3.1. Same stream as
+# break-of-structure-detected/v1.0.yaml — structure-engine's Structure fact family's own stream
+# (`writer_authority.module_id: structure-engine`, `status: active`), per Approved ADR-036 v0.3's
+# one-stream-per-fact-family topology. All four Structure event types share this one stream.
+
+merge_constraints:
+  prerequisite_policy: causation_must_resolve_before_apply
+# Governed-authored per Chapter 8 §8.3.4's own authority split, identical reasoning to
+# break-of-structure-detected/v1.0.yaml. structure.md v0.4 §2 envelope fixes `causation_refs` as
+# never empty for any Structure event — every ChangeOfCharacterDetected must have its
+# broken_swing_ref.swing_confirmed_event_ref AND breaking_candle_refs resolve before this event may
+# be applied, per Chapter 8 §8.3.4's own P_causation/P_global DAG requirement.
+
+payload_shape:
+  prior_orientation: {type: enum, values: [BULLISH, BEARISH], required: true}
+  new_orientation: {type: enum, values: [BULLISH, BEARISH], required: true}
+  broken_swing_ref:
+    type: object
+    required: true
+    description: "Revision-qualified reference to the Eligible Swing whose level was broken — canonical shape below, identical to break-of-structure-detected/v1.0.yaml."
+    schema:
+      swing_id: {type: string, required: true, description: "Logical Swing identity."}
+      swing_revision: {type: integer, required: true, description: "Swing generation identity — a different revision of the same swing_id is an independently eligible pair."}
+      swing_confirmed_event_ref: {type: event_record_ref, required: true, description: "Verification field — resolves and confirms the exact physical SwingConfirmed record for this (swing_id, swing_revision). Not re-read for its own payload content at apply time."}
+      direction: {type: enum, values: [HIGH, LOW], required: true}
+  breaking_candle_refs: {type: array, items: event_record_ref, required: true, description: "One or more candle-closed/candle-corrected facts providing the break evidence."}
+
+payload_semantics_and_invariants:
+  description: >
+    Price breaks through an opposite-side Swing level, reversing the currently authoritative
+    orientation (BULLISH -> BEARISH or BEARISH -> BULLISH). Requires a direct prior orientation of
+    BULLISH or BEARISH — CHoCH is NEVER valid from UNDETERMINED or NEUTRAL (that case always uses
+    BreakOfStructureDetected, break-of-structure-detected/v1.0.yaml). CHoCH changes the authoritative
+    structure state IMMEDIATELY — no separate "candidate transition" state at this layer: the
+    broken Swing level is already CONFIRMED and the breaking Candle is already authoritative at the
+    moment this event fires, so there is no remaining uncertainty to wait on.
+  subject_binding:
+    subject_kind: entity
+    subject_type: Structure
+    scope_fields: [instrument_id, venue_id, timeframe, structure_definition_version]
+    note: >
+      envelope.subject_ref carries this binding per Chapter 8 §8.2.2, applied here not redefined —
+      identical binding to break-of-structure-detected/v1.0.yaml (same one continuous subject per
+      scope). envelope.effective_time equals the effective_time of the last Candle in
+      breaking_candle_refs, NOT recorded_time.
+  break_criterion:
+    broken_level_decision_table: >
+      When prior_orientation is BULLISH and new_orientation is BEARISH: broken_swing_ref.direction
+      MUST be LOW. When prior_orientation is BEARISH and new_orientation is BULLISH:
+      broken_swing_ref.direction MUST be HIGH. This is the structural opposite of a continuation
+      BOS: a continuation BULLISH->BULLISH breaks a HIGH swing (continuing the existing direction);
+      a CHoCH BULLISH->BEARISH breaks a LOW swing (the opposite-side level constituting the current
+      uptrend) — not the same kind of level.
+    price_basis_and_comparison: >
+      Uses the identical break_price_basis/comparison_policy configuration and formula variants as
+      break-of-structure-detected/v1.0.yaml's own break_criterion.price_basis_and_comparison — one
+      policy applies uniformly to both event types within the same structure_definition_version.
+      Required confirmation uses only authoritative Candle facts (candle-closed/candle-corrected).
+  eligible_swing_constraint: >
+    broken_swing_ref MUST reference a Swing fact that is CONFIRMED, visible at the current cursor
+    (no look-ahead), matching the required instrument/venue/timeframe/direction, matching
+    structure_definition_version.depends_on_swing_definition_version, and NOT already used as the
+    broken_swing_ref of another still-valid BreakOfStructureDetected/ChangeOfCharacterDetected for
+    the exact same (swing_id, swing_revision) pair — a different revision of the same swing_id is an
+    independently eligible pair. Identical membership test to
+    break-of-structure-detected/v1.0.yaml's own eligible_swing_constraint; the full producer-side
+    total-order tie-break rule used when multiple Eligible candidates exist remains structure.md
+    §6a's own drafting-history content, not needed to validate this already-emitted event's own
+    payload.
+  invariants:
+    - "envelope.causation_refs MUST contain exactly these two role contributions, and nothing else: broken_swing_ref.swing_confirmed_event_ref (exactly one); breaking_candle_refs (one or more) — see causal_state_dependency_declaration below for the canonical machine-readable classification of each."
+    - "prior_orientation MUST be BULLISH or BEARISH — not valid on UNDETERMINED/NEUTRAL."
+    - "new_orientation MUST be the exact opposite of prior_orientation (BULLISH<->BEARISH) — no third value."
+    - "broken_swing_ref.direction MUST match the broken_level_decision_table above."
+    - "envelope.effective_time = effective_time of the last Candle in breaking_candle_refs."
+    - "Replay at a cursor before this event's own recorded_time MUST NOT observe it."
+    - "This event is never overwritten in place — it may only later be negated via StructureFactInvalidated (structure-fact-invalidated/v1.0.yaml) with an explicit cause, never because price later moved differently."
+
+causal_state_dependency_declaration:
+  mode: exhaustive
+  roles:
+    - role_id: broken_swing_confirmed_event_ref
+      selector:
+        kind: payload_field
+        path:
+          - broken_swing_ref
+          - swing_confirmed_event_ref
+      cardinality:
+        exactly: 1
+      classification: EXTERNAL_NON_STATE_CAUSE
+      apply_time_requirement: >
+        Authoritative application of ChangeOfCharacterDetected does not require re-reading the
+        referenced SwingConfirmed's own payload (e.g. its pivot_price). swing_confirmed_event_ref is
+        a verification field only — identity/existence/tuple-consistency proof that the pivot used
+        as the broken level is a real, confirmed Swing fact. The pivot's own identity (swing_id,
+        swing_revision, direction) is already materialized directly in this event's own
+        broken_swing_ref; the conclusion (new_orientation) is separately and completely materialized
+        in this event's own payload.
+    - role_id: breaking_candle_refs
+      selector:
+        kind: payload_field
+        path:
+          - breaking_candle_refs
+      cardinality:
+        min: 1
+        max: null
+      classification: EXTERNAL_NON_STATE_CAUSE
+      apply_time_requirement: >
+        Authoritative application of ChangeOfCharacterDetected does not require re-reading the
+        referenced Candle(s)' own OHLC values. This event's own payload never copies Candle OHLC —
+        only the reference and the already-computed conclusion (new_orientation) are materialized.
+        The breaking Candle reference(s) are required only for existence/precedence proof that a
+        real, authoritative break-confirming fact exists.
+# Approved ADR-048 (docs/adr/ADR-048.md) canonical mechanism. Two roles, exhaustive — identical
+# shape to break-of-structure-detected/v1.0.yaml's own declaration, since both event types share
+# the same two causation-ref categories (derivation v0.5 §2.3/§2.4, shared reasoning). Both roles
+# EXTERNAL_NON_STATE_CAUSE — no STATE_DEPENDENCY role exists for this event type. Duplicate
+# canonical-locator (stream_id, sequence) rejection within this event's own causation_refs is
+# governed generically by Approved ADR-048's own validation algorithm — no Structure-specific
+# duplicate-detection algorithm is defined here.
+
+compatibility_commitment: backward_only
+# Approved ADR-047 (docs/adr/ADR-047.md), Product Owner decision "APPROVE ADR-047"
+# (2026-09-28T14:44:39+07:00), Chapter 10 §10.3.1 — explicit policy commitment the platform adopts
+# for this contract_id: a consumer pinned to an older change-of-character-detected Event Contract
+# version must still correctly read/validate data under a newer version; forward compatibility is
+# NOT committed. This value is not re-decided, re-evaluated, or re-derived here — cited as
+# already-Approved authority. No concrete schema delta exists yet for this first v1.0 version, so no
+# compatibility CLASSIFICATION of any delta is performed or claimed by this artifact.
+
+provenance:
+  source: docs/domain/structure.md
+  source_version: "0.4"
+  source_status: Draft
+  source_sections: ["§1 Logical Structure Subject", "§2 Canonical event envelope (payload-relevant portions)", "§4 ChangeOfCharacterDetected", "§7 CHoCH semantics", "§6a Deterministic relevant Swing selection (membership test only, condensed)"]
+  source_blob: 78964dfb6852bbac3fa1e034d64b4fc8031c3fef
+  drafted_at_commit: 581c28d3acd1d13c613fc110e80b9e5a5dbc486a
+  note: >
+    Drafting-history citation ONLY (ADR-039 §"Canonical authority/source") — never required to
+    interpret this artifact's own meaning; payload_shape and payload_semantics_and_invariants above
+    are fully self-contained, including a condensed but complete membership test for Eligible Swing
+    (not the full 8-criteria producer-side tie-break order, which remains structure.md §6a's own
+    drafting-history content). event_class, allowed_streams, and merge_constraints were
+    governed-authored directly against Chapter 8 §8.3.1/§8.3.4, Approved ADR-036, Approved ADR-047,
+    and this repository's own established terminology — NOT mechanically transcribed from
+    structure.md, which does not declare any of the three fields anywhere.
+    State-dependency classification semantic evidence:
+    docs/project/context-upstream-state-dependency-derivation-001.md v0.5 §2.3 (shared derivation
+    reasoning with BreakOfStructureDetected; Review A CLEAN — 0 Blocker / 0 Major / 0 Minor) —
+    drafting-history citation only, never runtime/interpretive authority. Canonical representation
+    authority: Approved ADR-048 (docs/adr/ADR-048.md) — this artifact's
+    causal_state_dependency_declaration field above uses ADR-048's own exact canonical grammar, not
+    a mutable analysis-artifact identity embedded in the canonical role schema.
