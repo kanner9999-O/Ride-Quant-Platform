@@ -2,7 +2,7 @@
 id: event-contract-causal-dependency-representation-001
 title: "Event Contract Causal State-Dependency Declaration — Canonical Representation Derivation"
 kind: analysis
-version: "0.3"
+version: "0.4"
 status: Draft
 owner: Product Owner
 generated_at: "2026-09-28"
@@ -14,28 +14,44 @@ generated_at: "2026-09-28"
 author an ADR, does not modify Chapter 8 or any Constitution file, does not continue
 Structure/Regime Event Contract authoring.
 
-**Boundary, fresh-verified before this transaction:** HEAD `8fd325aff5832f4d125e3d2b0e79603834542f03`.
-`docs/architecture/event-contracts/candle-closed/v1.0.yaml` matched pinned blob
-`3f8d5f9a448c5796880d7a7b7a09d9c95c74c72f` exactly; `candle-corrected/v1.0.yaml` matched pinned blob
-`3649e516e4c69d948d8b3a4e4281bae019a7c0b7` exactly; `docs/adr/ADR-039.md`/`docs/adr/ADR-040.md`/
-`docs/adr/ADR-047.md` all re-confirmed byte-identical to their previously-pinned identities — none
-touched by this transaction. `docs/project/context-upstream-state-dependency-derivation-001.md`
-corrected in the same atomic transaction as this artifact (v0.4 → v0.5, arithmetic/accounting-only,
-see below) — its own per-category classifications are unchanged and not reopened.
+**Boundary, fresh-verified before this transaction (`ADR-048-EVENT-CONTRACT-CAUSAL-DEPENDENCY-
+REPRESENTATION-001-CORR-001`):** HEAD `6606840a9fcd0aaab2f04f48c8bd7a129853d74d`. This artifact (v0.3)
+matched pinned blob `0176bb238681877ef2904b096e91e88ab0a91ce2` exactly; `docs/adr/ADR-048.md` (v0.1)
+matched pinned blob `5a23ebefb5f64938a7dabd2660fa3d1a6d361871` exactly;
+`docs/project/context-upstream-state-dependency-derivation-001.md` (v0.5) matched pinned blob
+`8acb799ac84b5dadee463f8882e15fbb2ce93657` exactly and is **NOT** modified by this transaction — its
+Review A `CLEAN — 0 Blocker / 0 Major / 0 Minor` result and all per-category classifications are
+unchanged, not reopened. Candle candidates, `docs/adr/ADR-039.md`/`docs/adr/ADR-040.md`/
+`docs/adr/ADR-045.md`/`docs/adr/ADR-047.md`, every Structure/Regime/Feature Event Contract, Context
+Input Contract, every Domain Contract, every Constitution chapter, every registry, and all production
+source/tests/tooling confirmed untouched by `git status`/`git diff` at the close of this transaction.
 
-**Fresh Review A of v0.2:** `REVISION_REQUIRED — 0 Blocker / 1 Major / 2 Minor`, reviewer `ChatGPT`,
-role `AI Technical Architect`, reviewed boundary `8fd325aff5832f4d125e3d2b0e79603834542f03`, reviewed
-artifact blob `b540b1598e8f0551931b42c2f7d1bbfc18128355`. Findings `EC-CDR-A-MAJ-03` (the upstream
+**Fresh Review A of v0.2 (historical record, preserved from the v0.3 authoring transaction):**
+`REVISION_REQUIRED — 0 Blocker / 1 Major / 2 Minor`, reviewer `ChatGPT`, role `AI Technical
+Architect`, reviewed boundary `8fd325aff5832f4d125e3d2b0e79603834542f03`, reviewed artifact blob
+`b540b1598e8f0551931b42c2f7d1bbfc18128355`. Findings `EC-CDR-A-MAJ-03` (the upstream
 state-dependency derivation's own aggregate category tally was internally inconsistent with its own
 §2 — this representation artifact's §H/§H.1 inherited and propagated that inconsistency), `EC-CDR-A-MIN-03`
 (the illustrative `by_target.match` YAML carried a contradictory inline comment — `# required; if
 BOTH present, AND` — while the normative prose correctly requires only *at least one*),
 `EC-CDR-A-MIN-04` (the `cardinality` grammar was illustrated but not normatively closed — no explicit
 prohibition of malformed combinations such as `exactly` + `min`/`max`, negative values, `min > max`,
-or an empty mapping) — all three addressed/remediated in this v0.3, **not self-closed** (closure is a
+or an empty mapping) — all three addressed/remediated in v0.3, **not self-closed** (closure is a
 fresh Review A re-review determination). **Prior findings `EC-CDR-A-MAJ-01`, `EC-CDR-A-MAJ-02`,
 `EC-CDR-A-MIN-01`, `EC-CDR-A-MIN-02` were confirmed genuinely remediated by this fresh Review A of
 v0.2 and are `CLOSED — REVIEW A VALIDATED`** — none reopened by this transaction.
+
+**v0.3 → v0.4, this transaction — NOT driven by a fresh Review A of this derivation artifact
+itself.** No such review has occurred since v0.3's own `CLEAN` result. It is driven by `ADR-048`'s own
+fresh Review A of its v0.1 Draft candidate (`REVISION_REQUIRED — 0 Blocker / 3 Major / 2 Minor`,
+reviewed boundary `6606840a9fcd0aaab2f04f48c8bd7a129853d74d`, reviewed ADR blob
+`5a23ebefb5f64938a7dabd2660fa3d1a6d361871`), two of whose findings — `ADR048-A-MAJ-02` (no
+canonical-locator uniqueness/multiplicity rule before role matching) and `ADR048-A-MAJ-03` (required
+role-level `authority` field conflicting with `ADR-039`'s self-contained Event Contract authority
+model) — apply equally to this artifact's own §E.2/§G/§I role grammar and §F algorithm, since
+`ADR-048` selected its grammar directly from this derivation. Both are mirrored here for consistency
+between the two artifacts, not reported as new findings issued against this document by a dedicated
+Review A of it. See new §M at the end of this document for the full correction record.
 
 **Preserved unchanged from v0.1/v0.2** (no fresh authority contradicts any of these; only the
 representation *mechanics* are corrected below): Chapter 8 requires machine-readable per-effect Event
@@ -257,11 +273,10 @@ causal_state_dependency_declaration:
                                                                      # vacuity belongs to mode: vacuous
                                                                      # only (fixes EC-CDR-A-MAJ-02)
       apply_time_requirement: >
-        Required for every role — free-text rationale citing exactly what authoritative application
-        does and does not need from this cause, consistent with Chapter 8 §8.2.3's apply-time test.
-      authority: >
-        Citation to the already-reviewed state-dependency derivation category this role
-        transcribes (never re-derived inline).
+        Required for every role — SELF-CONTAINED free-text rationale citing exactly what
+        authoritative application does and does not need from this cause, consistent with Chapter 8
+        §8.2.3's apply-time test. MUST stand on its own; may not merely say "see derivation artifact"
+        (fixes ADR048-A-MAJ-03, mirrored here — no required role-level `authority` field; see §E.3).
 ```
 
 **Selector tagged-union rules (fixes `EC-CDR-A-MIN-01`):**
@@ -318,7 +333,57 @@ alter any currently proposed role's own cardinality value.
 co-existing top-level fields. A role's classification here never implies, and is never implied by,
 `merge_constraints.prerequisite_policy`.
 
-## F. Generic validation algorithm — order-independent, two-phase (corrected, `EC-CDR-A-MAJ-01` / `EC-CDR-A-MIN-04`)
+### E.3 No required role-level `authority` field (mirrors `ADR048-A-MAJ-03`)
+
+The role shape in §E.2 above no longer carries an `authority` field citing an external analysis
+artifact — v0.3 required one (*"Citation to the already-reviewed state-dependency derivation category
+this role transcribes"*); this v0.4 removes it. **Reason:** requiring it would conflict with
+`ADR-039`'s self-contained Event Contract authority model — once `Published`, the Event Contract
+version-artifact itself is the canonical authority for its own exact semantics, and a mutable Draft
+analysis artifact (such as this derivation, or the state-dependency derivation) MUST NOT become a
+required interpretive authority or runtime dependency. No validator implementing
+`dependency_authority: per_effect_event_contract` reads this derivation, or any analysis artifact, at
+runtime. Reviewed analysis supplies **authoring evidence** during drafting/review only; the Published
+Event Contract itself owns the resulting classification declaration. Where drafting-history citation
+is useful, it belongs in `ADR-039`'s already-existing top-level `provenance` field (non-normative, not
+required to interpret the Published artifact, not read by runtime classification) — or in Review A
+evidence/ADR documentation — never as a required canonical runtime role field. `apply_time_requirement`
+compensates by being **required to stand on its own** (§E.2) — it must fully explain what
+authoritative application needs from the cause without delegating that explanation to an external
+citation.
+
+### E.4 Canonical-locator uniqueness precondition (mirrors `ADR048-A-MAJ-02`)
+
+Chapter 8 §8.2.3 defines `envelope.causation_refs` as zero-to-many `event_record_ref` entries, each a
+qualified reference keyed by the canonical locator `(stream_id, sequence)` (§8.3.1) — `event_id` is a
+verification field only (§8.2.3's own tuple-consistency invariant) and never distinguishes two entries
+resolving to the same locator. Chapter 8 does **not** itself declare locator uniqueness within one
+event's `causation_refs` list. This derivation adds a deterministic validation constraint, scoped
+specifically to use of this representation mechanism, that the eventual ADR must make normative:
+**within one effect event's own `envelope.causation_refs`, canonical locators `(stream_id, sequence)`
+MUST be unique.** If two entries share the same canonical locator, fail closed — *duplicate canonical
+locator* (new §J item 18) — **regardless of whether their `event_id` values are equal**: the same
+locator denotes the same physical event, so a duplicate carries no additional causal meaning; allowing
+multiplicity would make role cardinality and the exactly-one-match rule (§F Phase 2) ambiguous and
+redundant for no benefit; and if the two entries' `event_id` values actually differ at the same
+locator, Chapter 8 §8.2.3's own tuple-consistency invariant independently fails first regardless of
+this rule. This does **not** mutate Chapter 8 and does **not** claim Chapter 8 already required
+uniqueness — it is a new deterministic precondition proposed for this mechanism only.
+
+Let `C` denote the finite collection of `envelope.causation_refs` entries **after** this
+canonical-locator uniqueness precondition has been validated. §F below is restated in terms of `C` —
+never an unchecked list casually treated as a mathematical set before uniqueness is confirmed.
+
+**Re-run confirmation (no conflict with any currently-reviewed semantics):** none of the 10 reviewed
+Context-upstream event types' causation-ref categories (§H), the Candle mapping (§G), or the
+mixed-case capability hypothetical (§I) rely on, or produce, two `causation_refs` entries sharing one
+canonical locator within the same event instance — every reviewed role's selector (`payload_field` or
+`by_target`, static or discriminated) targets distinct causal predecessors by construction (e.g.
+`breaking_candle_refs` is an array of references to *different* candles, never the same locator
+repeated). This precondition is re-confirmed to create no conflict with the all-10-event
+representability proof, the Candle illustrative mapping, or the mixed-case proof.
+
+## F. Generic validation algorithm — order-independent, two-phase (corrected, `EC-CDR-A-MAJ-01` / `EC-CDR-A-MIN-04`; new Phase 0.5 mirrors `ADR048-A-MAJ-02`)
 
 Given one effect event record and its pinned `event_contract_ref`:
 
@@ -334,23 +399,32 @@ Given one effect event record and its pinned `event_contract_ref`:
    `role_id`/`selector`/`cardinality`/`classification`, **or a role's `cardinality` not matching
    either closed-union form defined in §E** — `exactly`+`min`/`max` combined, an unknown key, a
    negative integer, `min > max`, a range form missing `min`/`max`, or an empty mapping) → **fail
-   closed** (§J-5 / §J-17). Otherwise proceed to Phase 1.
+   closed** (§J-5 / §J-17). Otherwise proceed to Phase 0.5.
+
+### Phase 0.5 — canonical-locator uniqueness validation (new, §E.4, mirrors `ADR048-A-MAJ-02`)
+
+Validate that every entry of `envelope.causation_refs` is unique by its canonical locator
+`(stream_id, sequence)` (§E.4) — `event_id` never distinguishes two entries sharing a locator. Any
+duplicate locator → **fail closed** (§J-18), regardless of whether the duplicated entries' `event_id`
+values agree (if they disagree, §8.2.3's tuple-consistency invariant fails first independently). Let
+`C` = `envelope.causation_refs` after this validation succeeds. Every step below reasons over `C`.
 
 ### Phase 1 — independent match-set computation (order-independent)
 
-For **every** declared role `r`, compute its complete match set `M(r)` **against the full, original,
-unmutated `envelope.causation_refs` set** — never against a "remaining/unclaimed" subset, never
-stopping early once a cardinality budget is nominally reached. Every role is evaluated exactly once,
-independently of every other role and of its own position in the `roles` list:
+For **every** declared role `r`, compute its complete match set `M(r)` **against `C`, the full,
+original, unmutated causation_refs collection post uniqueness-validation (Phase 0.5)** — never against
+a "remaining/unclaimed" subset, never stopping early once a cardinality budget is nominally reached.
+Every role is evaluated exactly once, independently of every other role and of its own position in the
+`roles` list:
 
 - **`payload_field` role:** resolve `path` in the effect's **own** payload. The resolved value(s) —
   singular, or every element if the path is array-typed — form this role's candidate set. Each
-  candidate MUST also literally occur in `envelope.causation_refs` (tuple-consistency cross-check);
-  absent → **fail closed** (§J-11). `M(r)` = exactly the `envelope.causation_refs` entries that are
+  candidate MUST also literally occur in `C` (tuple-consistency cross-check);
+  absent → **fail closed** (§J-11). `M(r)` = exactly the entries of `C` that are
   tuple-equal to a resolved payload candidate. A path that resolves to nothing, for a role whose own
   `cardinality` permits zero (e.g. `{min: 0, max: 1}`), is a legitimate empty `M(r)` — see §J-10.
-- **`by_target` role, static (`match`):** for **every** entry `c` in the complete
-  `envelope.causation_refs` set (not a remaining subset), resolve `c`'s target's own envelope via the
+- **`by_target` role, static (`match`):** for **every** entry `c` in `C`
+  (not a remaining subset), resolve `c`'s target's own envelope via the
   Chapter 8 §8.2.3 tuple-consistency existence check, and test it against `match`'s allow-set(s)
   (AND, if both `event_types` and `contract_ids` are declared). `M(r)` = every `c` that satisfies the
   test. A `c` that resolves but does not satisfy the conjunction is simply excluded from `M(r)` — not
@@ -358,8 +432,8 @@ independently of every other role and of its own position in the `roles` list:
 - **`by_target` role, discriminated (`discriminant`):** read `discriminant.payload_field` once, in the
   effect's **own** payload. Missing/unresolvable → **fail closed** (§J-14). Look up the resolved value
   in `discriminant.cases`; absent → **fail closed** (§J-15). Otherwise apply the matched case's
-  allow-set(s) (same AND rule) against **every** entry `c` in the complete `envelope.causation_refs`
-  set, exactly as the static form does, to build `M(r)`.
+  allow-set(s) (same AND rule) against **every** entry `c` in `C`,
+  exactly as the static form does, to build `M(r)`.
 
 No role's evaluation depends on, mutates, or is affected by any other role's evaluation or by
 declaration order — `M(r1) ∪ M(r2) ∪ ...` and each individual `M(r)` are fully determined by the
@@ -370,7 +444,7 @@ own envelope, computed independently.
 
 1. For every role `r`: validate its declared `cardinality` against `|M(r)|`. Unsatisfied → **fail
    closed** (§J-8).
-2. For every entry `c` in `envelope.causation_refs`, compute `matches(c) = { r : c ∈ M(r) }`.
+2. For every entry `c` in `C`, compute `matches(c) = { r : c ∈ M(r) }`.
 3. Require `|matches(c)| = 1` for **every** `c`:
    - `|matches(c)| = 0` → **fail closed** (§J-6) — unclaimed, never defaulted.
    - `|matches(c)| > 1` → **fail closed** (§J-7) — ambiguous overlap, **even if one of the
@@ -418,8 +492,6 @@ causal_state_dependency_declaration:
         Authoritative application does not require re-reading the corrected predecessor's domain
         payload/state; the effect carries the complete replacement OHLCV/state itself; the
         predecessor reference is required only for identity/existence/lineage/causal precedence.
-      authority: >
-        docs/project/context-upstream-state-dependency-derivation-001.md v0.5 §2.2.
 ```
 
 `candle-closed` has no named payload field and no target to select against — `mode: vacuous` is the
@@ -427,7 +499,11 @@ entire declaration, matching `causation_refs: []` (root event) exactly. `candle-
 payload-field duplicate of its causal reference (`candle.md` §5 places it envelope-only), so it is the
 canonical worked example of the `by_target` static-`match` form. The `cardinality: {exactly: 1}` above
 mechanically captures `CANDLE-EC-A-MIN-01`'s originally-requested cardinality-explicitness concern —
-**the Candle candidate files themselves are not modified in this WP.**
+**the Candle candidate files themselves are not modified in this WP.** No `authority` field is shown
+(§E.3) — authoring evidence for `corrected_fact`'s classification is
+`docs/project/context-upstream-state-dependency-derivation-001.md` v0.5 §2.2, cited here as drafting
+narrative only; a real Published artifact would cite it, if useful, via `ADR-039`'s own top-level
+`provenance` field.
 
 ## H. Traceability matrix — reviewed category → representation rule (corrected, `EC-CDR-A-MIN-02` / `EC-CDR-A-MAJ-03`)
 
@@ -570,8 +646,6 @@ causal_state_dependency_declaration:
         payload.quantity/payload.side to compute the reconciled delta — existence alone is
         insufficient; this cause's stream MUST be in the consuming Input Contract's apply
         set/cursor universe.
-      authority: >
-        HYPOTHETICAL — no real Event Contract; schema-capability test only.
     - role_id: reconciliation_run_ref
       selector:
         kind: by_target
@@ -582,9 +656,10 @@ causal_state_dependency_declaration:
       apply_time_requirement: >
         HYPOTHETICAL: only existence/audit-trail proof required — the reconciliation run's own
         payload content is never read to apply this effect.
-      authority: >
-        HYPOTHETICAL — no real Event Contract; schema-capability test only.
 ```
+
+(`authority` fields removed per §E.3/`ADR048-A-MAJ-03` — were HYPOTHETICAL placeholders in v0.3, no
+real citation existed for this never-proposed event type.)
 
 **Result: capability confirmed under the corrected grammar too.** Two independently-typed selectors
 (`payload_field` for the state dependency, `by_target` static `match` for the external cause), each
@@ -593,16 +668,24 @@ any other role would be — no grammar change was needed to support the mixed ca
 already accommodates an arbitrary mix of `STATE_DEPENDENCY`/`EXTERNAL_NON_STATE_CAUSE` roles per
 Event Contract. This hypothetical is not added anywhere else in this repository.
 
-## J. Fail-closed behavior (corrected/expanded, `EC-CDR-A-MAJ-01`/`EC-CDR-A-MIN-01`/`EC-CDR-A-MIN-04`)
+## J. Fail-closed behavior (corrected/expanded, `EC-CDR-A-MAJ-01`/`EC-CDR-A-MIN-01`/`EC-CDR-A-MIN-04`; item 1 reconciled and item 18 added, mirroring `ADR048-A-MAJ-01`/`ADR048-A-MAJ-02`)
 
 No branch below resolves an ambiguous or missing case permissively — there is no fail-open/default
 branch anywhere in this table.
 
-1. **`causal_state_dependency_declaration` entirely absent** from a Published Event Contract — a
-   malformed/incomplete artifact; Review A must reject before `Published` (governance-time fail
-   closed); if one were ever somehow Published, any validator implementing `dependency_authority:
-   per_effect_event_contract` must refuse to treat it as authoritative — never silently assume zero
-   state dependencies.
+1. **Absence of `causal_state_dependency_declaration` — three distinguished cases, not one
+   unconditional rule (reconciled, mirrors `ADR048-A-MAJ-01`):**
+   - **General Event Contract validity:** a pre-ADR-048 Published Event Contract lacking this field is
+     **not** globally invalid merely because the field is absent — its validity as a version-artifact
+     remains governed entirely by `ADR-039`'s own authority.
+   - **Eligibility for `declared-state-dependencies` authority:** an effect event's pinned Event
+     Contract version lacking a valid declaration is **INELIGIBLE** to serve as the
+     `per_effect_event_contract` dependency authority for a run declaring that mode — resolution fails
+     closed **for that purpose only**; processor code MUST NOT fill the gap.
+   - **Prospective authoring defect:** for a new Event Contract version explicitly intended to serve
+     this authority mode, absence of the declaration is an authoring defect — Review A must reject
+     that claimed capability before `Published`. Not every future Event Contract universally requires
+     this field — only ones intended to serve this authority mode.
 2. **Invalid `mode`** (absent, or a value other than `vacuous`/`exhaustive`) → integrity violation,
    reject.
 3. **`mode: vacuous` declared but `envelope.causation_refs` non-empty** → integrity violation, reject.
@@ -646,6 +729,12 @@ branch anywhere in this table.
     a range form (`min`/`max`) with `min > max`; a range form missing `min` or `max`; an empty
     `cardinality` mapping; a non-integer numeric value — authoring-time defect; Review A must reject
     before `Published`, not a runtime case.
+18. **Duplicate canonical locator `(stream_id, sequence)` within one effect event's own
+    `envelope.causation_refs`** (new, §E.4, mirrors `ADR048-A-MAJ-02`) — integrity violation, reject,
+    regardless of whether the two entries' `event_id` values are equal or differ (a differing
+    `event_id` at the same locator independently fails Chapter 8 §8.2.3's tuple-consistency invariant
+    first). Validated at Phase 0.5, before Phase 1 — `C` (§E.4, §F) denotes the collection after this
+    validation succeeds.
 
 ## K. ADR scope / Risk assessment
 
@@ -704,16 +793,20 @@ triggered):**
    `ADR-039`'s existing enumerated Event Contract fields.
 2. The `mode: vacuous | exhaustive` closed sum type exactly as derived in §E — no `open`/`partial`
    third mode, no future-extension escape hatch without its own separate authority.
-3. The `roles[].{role_id, selector, cardinality, classification, apply_time_requirement, authority}`
-   grammar, the `STATE_DEPENDENCY | EXTERNAL_NON_STATE_CAUSE` role-classification enum (`VACUOUS`
+3. The `roles[].{role_id, selector, cardinality, classification, apply_time_requirement}` grammar —
+   **no required `authority` field** (§E.3, fixes `EC-CDR-A-MAJ-02`-adjacent v0.3 defect mirrored from
+   `ADR048-A-MAJ-03`; `apply_time_requirement` must be self-contained instead) — the
+   `STATE_DEPENDENCY | EXTERNAL_NON_STATE_CAUSE` role-classification enum (`VACUOUS`
    excluded, belongs to `mode: vacuous` only), and the `selector` tagged union (`payload_field` /
    `by_target` with static `match` or `discriminant` forms) exactly as derived in §E — confirmed
    necessary, not optional, by §H's traceability matrix (2 of 10 event types require the
    `discriminant` form).
-4. The order-independent two-phase validation algorithm of §F as normative (not merely descriptive) —
-   Phase 1 independent match-set computation, Phase 2 exactly-one-match validation.
+4. The canonical-locator `(stream_id, sequence)` uniqueness precondition of §E.4/§F Phase 0.5 as
+   normative (mirrors `ADR048-A-MAJ-02`), and the order-independent two-phase validation algorithm of
+   §F as normative (not merely descriptive) — Phase 1 independent match-set computation over `C`,
+   Phase 2 exactly-one-match validation.
 5. The fail-closed rules of §J as normative, including the explicit non-legalization of selector
-   overlap by role optionality (§J-7).
+   overlap by role optionality (§J-7) and the duplicate-canonical-locator rule (§J-18).
 6. Explicit non-scope: does **not** re-decide any of the 21 already-reviewed classification results
    (`context-upstream-state-dependency-derivation-001.md` v0.5 remains the cited authority for *which*
    category gets *which* classification); does **not** amend `ADR-039`'s or `ADR-040`'s own decisions;
@@ -726,13 +819,14 @@ triggered):**
 
 ## L. Smallest follow-on sequence (not executed here)
 
-1. Fresh ChatGPT Review A of this corrected representation derivation (v0.3) and of
-   `context-upstream-state-dependency-derivation-001.md` (v0.5).
-2. If `CLEAN`: author the bounded representation ADR candidate (`Draft`) implementing exactly the
-   decision surface in §K — no re-decision of any existing classification result; fresh-check the
-   `ADR-039` `depends_on` question at that time.
-3. Fresh Review A of that ADR candidate; Risk Classification (expected `R2`, non-final); Product
-   Owner decision.
+1. Fresh ChatGPT Review A of this corrected representation derivation (v0.4) and of
+   `docs/adr/ADR-048.md` (v0.2); `context-upstream-state-dependency-derivation-001.md` (v0.5) remains
+   `CLEAN`, unchanged, not reopened.
+2. If `CLEAN`: proceed to Risk Classification and R2 routing (if applicable) on `ADR-048` v0.2 before
+   any Product Owner ADR approval decision — the ADR candidate already exists (`ADR-048.md`,
+   authored, now corrected to v0.2); this step no longer reads "author the ADR candidate."
+3. Fresh Review A of `ADR-048` v0.2 specifically; Risk Classification (expected `R2`, non-final);
+   Product Owner approval decision.
 4. Once Approved: remediate the two Candle candidates — fold in `CANDLE-EC-A-MAJ-01` (retention
    correction, §B), migrate to the corrected canonical `causal_state_dependency_declaration`
    `mode: vacuous | exhaustive` field (`CANDLE-EC-A-MAJ-02`), and apply the explicit
@@ -746,3 +840,45 @@ triggered):**
    4–6.
 8. Context Input Contract v0.3 readiness re-review.
 9. Only then consider `context-market-input/v1.0` publication.
+
+## M. v0.3 → v0.4 correction record (mirrors `ADR-048`'s own Review A findings, this is NOT a fresh Review A of this artifact)
+
+This section records why this artifact moved `v0.3 → v0.4` without a dedicated Review A of its own
+having occurred since v0.3's `CLEAN` result (see §0's boundary paragraph above for the full
+disclosure).
+
+**Trigger:** fresh ChatGPT Review A of `docs/adr/ADR-048.md` v0.1 (`ADR-048-EVENT-CONTRACT-CAUSAL-
+DEPENDENCY-REPRESENTATION-001-CORR-001`), reviewed boundary
+`6606840a9fcd0aaab2f04f48c8bd7a129853d74d`, reviewed ADR blob
+`5a23ebefb5f64938a7dabd2660fa3d1a6d361871`, verdict `REVISION_REQUIRED — 0 Blocker / 3 Major / 2
+Minor`. Two of the five findings — `ADR048-A-MAJ-02` and `ADR048-A-MAJ-03` — are findings against
+grammar that `ADR-048` selected directly from this derivation's §E.2/§G/§I/§F; correcting `ADR-048`
+alone without mirroring the same two corrections here would leave this artifact's own illustrated
+grammar inconsistent with the architecture decision it supplies evidence for. The remaining three
+findings (`ADR048-A-MAJ-01`, `ADR048-A-MIN-01`, `ADR048-A-MIN-02`) are specific to `ADR-048`'s own
+Non-retroactivity reconciliation, Scale Check wording, and frontmatter date — none apply to this
+derivation artifact, which carries no equivalent sections, and are **not** mirrored here.
+
+**Changes applied in v0.4:**
+
+- **`ADR048-A-MAJ-02` mirrored** — new §E.4 (canonical-locator `(stream_id, sequence)` uniqueness
+  precondition over `envelope.causation_refs`, fail closed on duplicate regardless of `event_id`
+  agreement), new §F Phase 0.5, `C` terminology threaded through §F Phase 1/Phase 2, new §J item 18,
+  §K item 4 updated.
+- **`ADR048-A-MAJ-03` mirrored** — new §E.3 (no required role-level `authority` field; drafting
+  evidence belongs in `ADR-039`'s `provenance` field or Review A/ADR documentation, never a required
+  runtime role field), `authority` removed from the §E.2 grammar, the §G Candle example, and both §I
+  hypothetical roles; `apply_time_requirement` in §E.2 now explicitly required to be self-contained;
+  §K item 3 updated.
+- Editorial: §A header/boundary paragraph, intro Review-history paragraph, and §L step 1–3 updated to
+  reflect `ADR-048` now existing (v0.2, corrected) rather than "not yet authored."
+
+**Not changed:** any of the 21 reviewed causation-ref classifications, the traceability matrix (§H),
+the role/discriminant-case counts (§H.1), the `mode`/selector/cardinality grammar shapes themselves
+(only the `authority` field and the new uniqueness precondition changed), the target decision
+(`ADR_REQUIRED`, Risk `R2`, §K), or any Candle/Structure/Regime/Feature Event Contract file.
+
+**This correction transaction's own Risk/ADR Scope:** unchanged from v0.3's own framing — `Risk R1`,
+`ADR_NOT_REQUIRED` — a bounded analysis-artifact correction mirroring findings already issued against
+a separate Draft ADR candidate, not itself deciding, publishing, or binding any Event Contract, Domain
+Contract, or Constitution content.

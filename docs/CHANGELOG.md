@@ -2,7 +2,106 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
-## [Unreleased] — 2026-09-30 — ADR-048 Draft candidate authored: Canonical Event Contract Causal State-Dependency Declaration
+## [Unreleased] — 2026-10-05 — ADR-048 Draft candidate bounded correction: v0.1 → v0.2 (fail-closed reconciliation, locator uniqueness, authority-field removal, scale/date fixes)
+
+Starting `main == origin/main == 6606840a9fcd0aaab2f04f48c8bd7a129853d74d`, fresh-verified, working
+tree clean. `docs/adr/ADR-048.md` (v0.1) matched pinned blob
+`5a23ebefb5f64938a7dabd2660fa3d1a6d361871` exactly; representation derivation (v0.3) matched pinned
+blob `0176bb238681877ef2904b096e91e88ab0a91ce2` exactly; state-dependency derivation (v0.5) matched
+pinned blob `8acb799ac84b5dadee463f8882e15fbb2ce93657` exactly and is **not** modified by this
+transaction. Fresh ChatGPT Review A of ADR-048 v0.1: `REVISION_REQUIRED — 0 Blocker / 3 Major / 2
+Minor`, reviewer `ChatGPT`, role `AI Technical Architect`, reviewed boundary
+`6606840a9fcd0aaab2f04f48c8bd7a129853d74d`. Risk `R2`, ADR Scope `ADR_REQUIRED` — unchanged. No
+Product Owner R2 cross-check choice was requested on v0.1 because the candidate required revision
+first. No STOP condition triggered.
+
+`ADR048-A-MAJ-01` (fail-closed item #1 contradicted the required Non-retroactivity section):
+corrected into three distinguished cases — (A) general Event Contract validity (a pre-ADR-048
+Published version lacking the field is not globally invalid merely because it is absent), (B)
+eligibility for `declared-state-dependencies` authority (a version lacking the field is INELIGIBLE to
+serve as `per_effect_event_contract` dependency authority for a run needing it — fails closed for
+that purpose only, processor code must not fill the gap), (C) prospective authoring defect (for a new
+version explicitly intended to serve this authority mode, absence is an authoring defect Review A
+must reject — not a claim that every future Event Contract universally requires the field). Mirrored
+into the representation derivation's own §J item 1 for consistency.
+
+`ADR048-A-MAJ-02` (no uniqueness/multiplicity rule for `causation_refs` entries before role
+matching): added a canonical-locator `(stream_id, sequence)` uniqueness precondition — within one
+effect event's own `envelope.causation_refs`, locators MUST be unique; a duplicate locator fails
+closed regardless of whether the two entries' `event_id` values agree (a disagreement independently
+fails Chapter 8 §8.2.3's tuple-consistency invariant first). Does not mutate Chapter 8, does not claim
+Chapter 8 already required uniqueness — a new deterministic constraint scoped to this mechanism only.
+`C` now denotes the causation_refs collection after this validation succeeds; the order-independent
+two-phase matching algorithm (§6 in the ADR, §F/Phase 0.5 in the derivation) now reasons over `C`.
+New fail-closed item added in both artifacts (ADR-048 item 19; representation derivation item 18).
+Representation derivation v0.3 → v0.4 mirrors the same precondition (new §E.4, new §F Phase 0.5);
+re-confirmed against the 10 reviewed event types, the Candle mapping, and the mixed-case hypothetical
+that none rely on or produce duplicate locators — no conflict with any currently-reviewed semantics.
+
+`ADR048-A-MAJ-03` (required role-level `authority` field conflicted with ADR-039's self-contained
+Event Contract authority model): removed `authority` from the canonical role shape in both artifacts.
+`apply_time_requirement` is now explicitly required to be self-contained (may not merely say "see
+derivation artifact"). Reviewed analysis supplies authoring evidence only; the Published Event
+Contract itself owns the resulting classification declaration; drafting-history citation, where
+useful, belongs in `ADR-039`'s own top-level `provenance` field (non-normative) or in Review A/ADR
+documentation — never as a required canonical runtime role field. Candle illustrative examples and
+the mixed-case hypothetical updated accordingly in both artifacts; representation derivation gains new
+§E.3 recording the rationale.
+
+`ADR048-A-MIN-01` (Scale Check miscounted the Structure/Regime remainder as 8 instead of 6):
+corrected to "6 additional not-yet-authored Structure/Regime first-publication Event Contracts
+(Structure: 4, Regime: 2) — 8 not-yet-Published Candle/Structure/Regime contracts in total (2 Candle
+Draft + 6 Structure/Regime remaining)". The Non-retroactivity section's correct "eight not-yet-
+Published Candle/Structure/Regime Event Contracts" sentence (already correct, referring to the
+2+6 total) left unchanged.
+
+`ADR048-A-MIN-02` (frontmatter `created_at` falsely dated ADR-048's own authoring `2026-09-30`
+instead of its actual authoring date): corrected `created_at: "2026-09-30" → "2026-10-05"`. The
+CHANGELOG entry recording ADR-048's own authoring (the entry immediately below this one) corrected
+from `2026-09-30` to `2026-10-05` in its header date only — no other historical entry genuinely dated
+`2026-09-30` was rewritten.
+
+`docs/adr/ADR-048.md` `version: "0.1" → "0.2"`, `status` stays `Draft`. A Review A history paragraph
+recording the v0.1 verdict and all five findings (`addressed/remediated pending fresh Review A`, not
+self-closed) is now recorded near the top of the document.
+`docs/project/event-contract-causal-dependency-representation-001.md` `version: "0.3" → "0.4"`,
+`status` stays `Draft` — this bump mirrors two of ADR-048's five findings (`MAJ-02`/`MAJ-03`, since
+ADR-048 selected its grammar directly from this derivation) for consistency between the two artifacts;
+it is explicitly **not** driven by a fresh Review A of this derivation artifact itself, and the other
+three findings (`MAJ-01`, `MIN-01`, `MIN-02`, specific to ADR-048's own Non-retroactivity/Scale
+Check/frontmatter) are not mirrored. New §M records the full correction rationale.
+
+**Preserved unchanged, none reopened:** `depends_on: [ADR-039]`; top-level field
+`causal_state_dependency_declaration`; closed `mode: vacuous | exhaustive` sum type; role
+classification enum `STATE_DEPENDENCY | EXTERNAL_NON_STATE_CAUSE`; selector kinds `payload_field |
+by_target`; static/discriminated `by_target` grammar; closed cardinality union; order-independent
+two-phase matching architecture (now with the Phase-0.5 precondition prepended); separation from
+`merge_constraints`; Chapter 8 apply-time semantics; prospective/non-retroactive design direction;
+`ADR-040` retention relationship; all 21 reviewed causation-ref classifications; the traceability
+matrix and role/discriminant-case counts; target decision `ADR_REQUIRED`, Risk `R2`. Does not approve
+ADR-048. Does not modify any Event Contract. Does not resume Structure/Regime authoring.
+
+No STOP condition triggered — duplicate canonical-locator rejection does not conflict with any
+existing Approved authority; no currently reviewed event semantics rely on duplicate `causation_refs`;
+removing role-level `authority` does not make the Event Contract non-self-contained (confirmed by
+`apply_time_requirement` already being self-contained prose in every current example); no external
+analysis artifact is required by current authority at runtime; correction did not require changing
+Chapter 8; correction did not require Event Contract mutation.
+
+**M2 unchanged (`BLOCKED`, parallel evidence lane). M3 remains `ACTIVE`** — state-dependency
+derivation v0.5 Review A `CLEAN`, unchanged; representation derivation `v0.4 corrected candidate`,
+pending fresh Review A; `ADR-048` `v0.2 Draft corrected candidate`, Review A `REVISION_REQUIRED` on
+v0.1, pending fresh re-review, `NOT APPROVED`; Candle pair unchanged (`AUTHORED`/`REVISION_REQUIRED`);
+Structure/Regime authoring: `PAUSED`; retention: `ADR-040 APPROVED`/`SATISFIED`. **M4 remains
+`QUEUED`.** Phase-3 Approval Gate `NOT REACHED`; LIVE remains `NOT_AUTHORIZED`.
+
+Next governed action: fresh ChatGPT Review A of representation derivation v0.4 and ADR-048 v0.2; if
+`CLEAN`, perform final Risk Classification/R2 routing before any Product Owner approval decision or
+Event Contract remediation.
+
+---
+
+## [Unreleased] — 2026-10-05 — ADR-048 Draft candidate authored: Canonical Event Contract Causal State-Dependency Declaration
 
 Starting `main == origin/main == 493694f27b0ae07ea00f20794df8016495c98a18`, fresh-verified, working
 tree clean. ADR namespace confirmed ending at `ADR-047` (`ADR-048` next free); state-dependency
