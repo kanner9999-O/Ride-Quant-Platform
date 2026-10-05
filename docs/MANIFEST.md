@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.471"
+manifest_version: "10.472"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -33754,6 +33754,111 @@ Constitution chapter, existing Approved ADR, registry, or production source/test
 **Next governed action:** Fresh ChatGPT Review A of representation derivation v0.4 and ADR-048 v0.2;
 if `CLEAN`, perform final Risk Classification/R2 routing before any Product Owner approval decision or
 Event Contract remediation.
+
+## ADR-048 Draft candidate bounded correction — v0.2 → v0.3 (`ADR-048-EVENT-CONTRACT-CAUSAL-DEPENDENCY-REPRESENTATION-001-CORR-002`)
+
+Fresh-verified before mutation: HEAD `3976beb91460993cad45ca76da7f45dd0d90b176`; `docs/adr/ADR-048.md`
+(v0.2) matched pinned blob `4282def4e7b002dbcbc7617ded67613a66fbb2d6` exactly; representation
+derivation (v0.4) matched pinned blob `35967d884f0d40c51065b7b0758eb7a4c4ab57e3` exactly;
+state-dependency derivation (v0.5) matched pinned blob `8acb799ac84b5dadee463f8882e15fbb2ce93657`
+exactly and is **not** touched. **Fresh joint Review A of ADR-048 v0.2 + representation v0.4:**
+`REVISION_REQUIRED — 0 Blocker / 1 Major / 1 Minor`, reviewer `ChatGPT`, role `AI Technical
+Architect`, reviewed boundary `3976beb91460993cad45ca76da7f45dd0d90b176`. Risk `R2`, ADR Scope
+`ADR_REQUIRED` — unchanged. All five prior v0.1 findings (`ADR048-A-MAJ-01`/`02`/`03`,
+`ADR048-A-MIN-01`/`02`) confirmed `CLOSED — REVIEW A VALIDATED`, none reopened. No Product Owner R2
+cross-check choice requested because the candidate required revision first. No STOP condition
+triggered.
+
+**`ADR048-A-MAJ-04` (canonical payload path left as an unspecified "dot-path" string with no defined
+separator/escaping/array-indexing/wildcard/nested-traversal semantics — not machine-canonical for a
+MACHINE-READABLE grammar):** replaced string/dot-path addressing with a canonical **ordered segment
+vector** — `path`/`discriminant.payload_path` is a non-empty ordered YAML array, every segment a
+non-empty string, no segment parsing, no `.` separator meaning inside a segment, no escaping, no
+wildcard, no numeric/array indexing; every non-terminal segment MUST resolve to an object/mapping
+field per `payload_shape`; traversal proceeds one literal mapping key at a time
+(`path: [broken_swing_ref, swing_confirmed_event_ref]` means
+`payload["broken_swing_ref"]["swing_confirmed_event_ref"]`, never a parsed string). `payload_field`
+terminal MUST be `event_record_ref` or an array/list of it — path never indexes inside the array, it
+resolves the whole array as the terminal. A missing non-terminal segment, or an absent optional
+terminal, resolves no candidates (never fabricated), legitimate only when the role's `cardinality`
+permits zero. The ambiguous scalar `discriminant.payload_field` renamed to
+`discriminant.payload_path` (same segment-vector type, effect-only, terminal MUST be a scalar
+string/enum token, missing segment/`null` terminal/wrong-type terminal all fail closed, no implicit
+stringification, no array discriminants, no default case). **Closed selector objects** made literal:
+`payload_field` selector exactly `{kind, path}`; static `by_target` exactly `{kind, match}`;
+discriminated `by_target` exactly `{kind, discriminant}` — a selector carrying both `match` and
+`discriminant` is caught by this closure. **All-10-event representability re-checked** (new §H.2 in
+the derivation): exactly one role (`broken_swing_confirmed_event_ref`) needs a genuine two-segment
+path, every other `payload_field`/`discriminant.payload_path` role across all 10 reviewed event types
+is single-segment; three roles have an array-of-`event_record_ref` terminal never indexed into — zero
+wildcard/array-index/target-read/event-specific code needed anywhere, representability result
+unchanged. New explicit nested Structure worked example added to `ADR-048.md` proving the grammar.
+
+**`ADR048-A-MIN-03` (`match`/`discriminant.cases` allow-set/case container grammar not closed — empty
+arrays, duplicate values, unknown keys not prohibited):** closed static `by_target.match` — at least
+one of `event_types`/`contract_ids` required; every present allow-set non-empty; every item a
+non-empty identifier string; values unique within each allow-set; AND semantics when both present;
+independent allow-sets never positional pairs (no pair-position semantics); no unknown key under
+`match`. Closed `discriminant.cases` — non-empty mapping; every case key a non-empty scalar string
+token; each case body follows the same closed allow-set rules as `match`; no unknown key inside a
+case body; no unknown key directly under `discriminant`; `match`/`discriminant` remain mutually
+exclusive (now also enforced mechanically via the closed selector-object key-set rule above).
+
+Review-A history recorded in `docs/adr/ADR-048.md` itself: reviewer `ChatGPT`, role `AI Technical
+Architect`, reviewed boundary `3976beb91460993cad45ca76da7f45dd0d90b176`, reviewed ADR blob
+`4282def4e7b002dbcbc7617ded67613a66fbb2d6`, reviewed representation blob
+`35967d884f0d40c51065b7b0758eb7a4c4ab57e3`, verdict as above; both new findings
+`addressed/remediated pending fresh Review A`, **not self-closed**; all five v0.1 findings recorded
+`CLOSED — REVIEW A VALIDATED`. `docs/adr/ADR-048.md` `version: "0.2" → "0.3"`, `status` stays
+`Draft`. Fail-closed table expanded from 19 to **21** items — items 9/10/13/14 expanded in place
+(path/allow-set malformation sub-cases), new items 20 (`discriminant.cases` container closure) and
+21 (selector unknown-key closure) added.
+`docs/project/event-contract-causal-dependency-representation-001.md` `version: "0.4" → "0.5"`,
+`status` stays `Draft` — new §E.5 (canonical path type derivation), new §H.2 (segment-vector
+representability re-check), fail-closed table expanded from 18 to **20** items (items 9/10/13/14
+expanded, new items 19/20 added), §G/§I illustrative examples and §K scope decision surface updated —
+this bump mirrors both findings for consistency, driven this round by the same **joint** Review A
+that found them against `ADR-048` (unlike the prior round, which mirrored an ADR-048-only review).
+New §N in the derivation records the full correction rationale.
+
+**Preserved unchanged, none reopened:** `depends_on: [ADR-039]`; canonical field
+`causal_state_dependency_declaration`; closed `mode: vacuous | exhaustive` sum type; role
+classification enum `STATE_DEPENDENCY | EXTERNAL_NON_STATE_CAUSE`; role fields `role_id`, `selector`,
+`cardinality`, `classification`, `apply_time_requirement`; removal of role-level `authority`;
+canonical-locator uniqueness precondition; two-phase order-independent matching; closed cardinality
+union; non-retroactivity; Feature v1.0 treatment; separation from `merge_constraints`; `ADR-040`
+relationship; all 21 reviewed causation-ref classifications. Does **not** approve ADR-048. Does
+**not** modify any Event Contract.
+
+**No STOP condition triggered:** duplicate-locator rule not reopened/weakened (still fails closed for
+`declared-state-dependencies`/`per_effect_event_contract` authority evaluation only, still does not
+retroactively invalidate a pre-existing historical Event Contract artifact — consistent with
+Non-retroactivity); no currently reviewed event semantics require wildcard/array-index/target-payload
+reads/event-specific code under the new path grammar; correction did not require changing Chapter 8;
+correction did not require Event Contract mutation.
+
+**Confirmed unchanged:** state-dependency derivation v0.5, both Candle candidates,
+`docs/adr/ADR-039.md`/`ADR-040.md`/`ADR-045.md`/`ADR-047.md`, every Structure/Regime/Feature Event
+Contract, Context Input Contract, every Domain Contract, every Constitution chapter, every registry,
+all production source/tests/tooling.
+
+**M2 unchanged (`BLOCKED`, parallel evidence lane). M3 remains `ACTIVE`** — state-dependency
+derivation v0.5 Review A `CLEAN`, unchanged; representation derivation `v0.5 corrected candidate`,
+pending fresh Review A; `ADR-048` `v0.3 Draft corrected candidate`, pending fresh Review A, `NOT
+APPROVED`; Candle pair unchanged (`AUTHORED`/`REVISION_REQUIRED`); Structure/Regime authoring:
+`PAUSED`; retention: `ADR-040 APPROVED`, Class-G architecture semantics `SATISFIED`. **M4 remains
+`QUEUED`.** Phase-3 Approval Gate `NOT REACHED`; LIVE remains `NOT_AUTHORIZED`.
+
+**Files changed:** `docs/adr/ADR-048.md` (substantive correction, `v0.2 → v0.3`),
+`docs/project/event-contract-causal-dependency-representation-001.md` (substantive correction,
+`v0.4 → v0.5`), plus deterministic bookkeeping: `docs/MANIFEST.md`, `docs/CHANGELOG.md`,
+`docs/project/milestone.md`, `docs/project/milestone-dashboard.html`. No Event/Input/Domain Contract,
+Constitution chapter, existing Approved ADR, registry, or production source/tests/tooling touched.
+`manifest_version` `"10.471"` -> `"10.472"`.
+
+**Next governed action:** Fresh ChatGPT Review A of representation derivation v0.5 and ADR-048 v0.3;
+if `CLEAN`, perform final Risk Classification and R2 routing before Product Owner approval or Event
+Contract remediation.
 
 ## Decision Log
 

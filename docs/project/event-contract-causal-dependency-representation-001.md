@@ -2,7 +2,7 @@
 id: event-contract-causal-dependency-representation-001
 title: "Event Contract Causal State-Dependency Declaration — Canonical Representation Derivation"
 kind: analysis
-version: "0.4"
+version: "0.5"
 status: Draft
 owner: Product Owner
 generated_at: "2026-09-28"
@@ -15,9 +15,9 @@ author an ADR, does not modify Chapter 8 or any Constitution file, does not cont
 Structure/Regime Event Contract authoring.
 
 **Boundary, fresh-verified before this transaction (`ADR-048-EVENT-CONTRACT-CAUSAL-DEPENDENCY-
-REPRESENTATION-001-CORR-001`):** HEAD `6606840a9fcd0aaab2f04f48c8bd7a129853d74d`. This artifact (v0.3)
-matched pinned blob `0176bb238681877ef2904b096e91e88ab0a91ce2` exactly; `docs/adr/ADR-048.md` (v0.1)
-matched pinned blob `5a23ebefb5f64938a7dabd2660fa3d1a6d361871` exactly;
+REPRESENTATION-001-CORR-002`):** HEAD `3976beb91460993cad45ca76da7f45dd0d90b176`. This artifact (v0.4)
+matched pinned blob `35967d884f0d40c51065b7b0758eb7a4c4ab57e3` exactly; `docs/adr/ADR-048.md` (v0.2)
+matched pinned blob `4282def4e7b002dbcbc7617ded67613a66fbb2d6` exactly;
 `docs/project/context-upstream-state-dependency-derivation-001.md` (v0.5) matched pinned blob
 `8acb799ac84b5dadee463f8882e15fbb2ce93657` exactly and is **NOT** modified by this transaction — its
 Review A `CLEAN — 0 Blocker / 0 Major / 0 Minor` result and all per-category classifications are
@@ -41,33 +41,47 @@ fresh Review A re-review determination). **Prior findings `EC-CDR-A-MAJ-01`, `EC
 `EC-CDR-A-MIN-01`, `EC-CDR-A-MIN-02` were confirmed genuinely remediated by this fresh Review A of
 v0.2 and are `CLOSED — REVIEW A VALIDATED`** — none reopened by this transaction.
 
-**v0.3 → v0.4, this transaction — NOT driven by a fresh Review A of this derivation artifact
-itself.** No such review has occurred since v0.3's own `CLEAN` result. It is driven by `ADR-048`'s own
-fresh Review A of its v0.1 Draft candidate (`REVISION_REQUIRED — 0 Blocker / 3 Major / 2 Minor`,
-reviewed boundary `6606840a9fcd0aaab2f04f48c8bd7a129853d74d`, reviewed ADR blob
-`5a23ebefb5f64938a7dabd2660fa3d1a6d361871`), two of whose findings — `ADR048-A-MAJ-02` (no
-canonical-locator uniqueness/multiplicity rule before role matching) and `ADR048-A-MAJ-03` (required
-role-level `authority` field conflicting with `ADR-039`'s self-contained Event Contract authority
-model) — apply equally to this artifact's own §E.2/§G/§I role grammar and §F algorithm, since
-`ADR-048` selected its grammar directly from this derivation. Both are mirrored here for consistency
-between the two artifacts, not reported as new findings issued against this document by a dedicated
-Review A of it. See new §M at the end of this document for the full correction record.
+**v0.3 → v0.4, prior transaction (`...-CORR-001`) — NOT driven by a fresh Review A of this derivation
+artifact itself.** No such review had occurred since v0.3's own `CLEAN` result at that time; v0.4
+mirrored `ADR-048` v0.1's own `ADR048-A-MAJ-02`/`ADR048-A-MAJ-03` findings for consistency only. See
+§M below for that correction's full record.
 
-**Preserved unchanged from v0.1/v0.2** (no fresh authority contradicts any of these; only the
-representation *mechanics* are corrected below): Chapter 8 requires machine-readable per-effect Event
-Contract causal-dependency authority; processor/event-specific code must not own classification; the
-Candle candidates' current freeform nested representation is insufficient (Option A, rejected); state-
-dependency classification is distinct from `merge_constraints`; the canonical representation belongs
-at top-level Event Contract scope (Option B); explicit per-cause rules are needed for multi-cause/
-mixed cases (Option E); missing/ambiguous classification must fail closed; external-cause domain
-payload must never be read merely to classify it; `mode: vacuous | exhaustive` closed sum type, no
-open/partial mode; role classification enum exactly `STATE_DEPENDENCY | EXTERNAL_NON_STATE_CAUSE`;
-the selector tagged union; order-independent two-phase matching; static/discriminated `by_target`
-semantics; the fail-closed rules; mixed-case capability; 16 role declarations across 10 Event
-Contracts; 7 discriminant cases across 2 discriminated roles; the target architecture decision
-remains `ADR_REQUIRED`, Risk `R2`; `ADR-040` retention semantics remain `APPROVED`/`SATISFIED` at
-architecture-semantics level for Class G, concrete past-horizon archival mechanism `DEFERRED`, not
-the current blocker. **This correction transaction's own Risk is `R1`, ADR Scope
+**Fresh joint Review A of `ADR-048` v0.2 and this derivation's v0.4 (this transaction,
+`...-CORR-002`):** `REVISION_REQUIRED — 0 Blocker / 1 Major / 1 Minor`, reviewer `ChatGPT`, role
+`AI Technical Architect`, reviewed boundary `3976beb91460993cad45ca76da7f45dd0d90b176`, reviewed ADR
+blob `4282def4e7b002dbcbc7617ded67613a66fbb2d6`, reviewed representation blob
+`35967d884f0d40c51065b7b0758eb7a4c4ab57e3`. **All five prior `ADR-048` v0.1 findings
+(`ADR048-A-MAJ-01`/`02`/`03`, `ADR048-A-MIN-01`/`02`) confirmed genuinely remediated and are now
+`CLOSED — REVIEW A VALIDATED`** — none reopened. New findings `ADR048-A-MAJ-04` (the canonical
+`payload_field`/`discriminant` path addressing was left as an unspecified "dot-path" string with no
+defined separator, escaping, array-indexing, wildcard, or nested-traversal semantics — not
+machine-canonical for a MACHINE-READABLE grammar) and `ADR048-A-MIN-03` (the `match`/
+`discriminant.cases` allow-set/case container grammar was not closed — empty arrays, duplicate
+allow-set values, and unknown keys were not explicitly prohibited) apply equally to this artifact's
+own §E.2/§G/§H/§I role grammar and §F algorithm, since `ADR-048` selected its grammar directly from
+this derivation. Both are mirrored here for consistency between the two artifacts (this round's bump
+to v0.5 is, unlike the prior round, driven by this same joint Review A that found them against
+`ADR-048` — not a dedicated independent review of this document alone, since the finding boundary
+spans both artifacts' shared grammar). See new §N at the end of this document for the full correction
+record.
+
+**Preserved unchanged from v0.1/v0.2/v0.3/v0.4** (no fresh authority contradicts any of these; only
+the representation *mechanics* named in §N below are corrected): Chapter 8 requires machine-readable
+per-effect Event Contract causal-dependency authority; processor/event-specific code must not own
+classification; the Candle candidates' current freeform nested representation is insufficient
+(Option A, rejected); state-dependency classification is distinct from `merge_constraints`; the
+canonical representation belongs at top-level Event Contract scope (Option B); explicit per-cause
+rules are needed for multi-cause/mixed cases (Option E); missing/ambiguous classification must fail
+closed; external-cause domain payload must never be read merely to classify it; `mode: vacuous |
+exhaustive` closed sum type, no open/partial mode; role classification enum exactly
+`STATE_DEPENDENCY | EXTERNAL_NON_STATE_CAUSE`; the selector tagged union; order-independent two-phase
+matching; static/discriminated `by_target` semantics; the canonical-locator `(stream_id, sequence)`
+uniqueness precondition (§E.4); no required role-level `authority` field (§E.3); the fail-closed
+rules; mixed-case capability; 16 role declarations across 10 Event Contracts; 7 discriminant cases
+across 2 discriminated roles; the target architecture decision remains `ADR_REQUIRED`, Risk `R2`;
+`ADR-040` retention semantics remain `APPROVED`/`SATISFIED` at architecture-semantics level for Class
+G, concrete past-horizon archival mechanism `DEFERRED`, not the current blocker. **This correction
+transaction's own Risk is `R1`, ADR Scope
 `ADR_NOT_REQUIRED`** — a bounded analysis-artifact correction, not itself the architecture decision.
 
 ## A. Authority basis
@@ -244,26 +258,36 @@ causal_state_dependency_declaration:
     - role_id: <string, unique within this artifact, human-legible label>
       selector:
         # A tagged union — the `kind` field selects the form; exactly one form, never both/neither.
+        # CLOSED selector object — exactly {kind, path}, no other key (fixes ADR048-A-MAJ-04).
         kind: payload_field
-        path: <dot-path into payload_shape, e.g. "invalidated_fact_ref" or
-          "broken_swing_ref.swing_confirmed_event_ref">
+        path:                           # ordered segment vector, NOT a parsed string
+          - invalidated_fact_ref
+        # or, nested:
+        #   - broken_swing_ref
+        #   - swing_confirmed_event_ref
       # OR:
       selector:
+        # CLOSED selector object — exactly {kind, match}, no other key.
         kind: by_target
         match:                          # static form
           event_types: [<UPPER_SNAKE event_type values>]   # optional if contract_ids is present
           contract_ids: [<contract_id values>]              # optional if event_types is present
           # At least one of the two keys above MUST be present. If both are present, match
-          # semantics are logical AND (target must satisfy BOTH allow-sets).
+          # semantics are logical AND (target must satisfy BOTH allow-sets). Each PRESENT
+          # allow-set MUST be non-empty, every item a non-empty identifier string, values
+          # unique within the allow-set, no key other than event_types/contract_ids
+          # (fixes ADR048-A-MIN-03).
       # OR:
       selector:
+        # CLOSED selector object — exactly {kind, discriminant}, no other key.
         kind: by_target
         discriminant:                   # discriminated form — mutually exclusive with `match`
-          payload_field: <dot-path into THIS EFFECT event's OWN payload — never the target's>
-          cases:
+          payload_path:                 # ordered segment vector into THIS EFFECT event's OWN
+            - invalidation_cause        # payload — never the target's (fixes ADR048-A-MAJ-04)
+          cases:                        # non-empty mapping; keys non-empty scalar strings
             <discriminant value>:
-              event_types: [<...>]        # optional if contract_ids is present, same rule as above
-              contract_ids: [<...>]       # optional if event_types is present, same rule as above
+              event_types: [<...>]        # optional if contract_ids is present, same closed
+              contract_ids: [<...>]       # allow-set rule as `match` above (ADR048-A-MIN-03)
       cardinality:                        # closed union — see the two legal forms below (fixes EC-CDR-A-MIN-04)
         exactly: <non-negative integer>
         # OR:
@@ -279,25 +303,53 @@ causal_state_dependency_declaration:
         (fixes ADR048-A-MAJ-03, mirrored here — no required role-level `authority` field; see §E.3).
 ```
 
-**Selector tagged-union rules (fixes `EC-CDR-A-MIN-01`):**
+**Canonical path type — ordered segment vector, not a parsed string (fixes `ADR048-A-MAJ-04`;
+see §E.5 for the full derivation).** Both `payload_field.path` and `discriminant.payload_path` share
+one canonical path type: a **non-empty** ordered YAML array/list, every segment a **non-empty**
+string, each segment denoting one exact payload object/mapping field name, traversed one literal
+mapping key at a time. No segment parsing occurs anywhere — `.` has no separator meaning inside a
+segment, no escaping grammar, no wildcard, no numeric/array indexing. `path: [broken_swing_ref,
+swing_confirmed_event_ref]` means `payload["broken_swing_ref"]["swing_confirmed_event_ref"]`, never
+a parsed string.
+
+**Selector tagged-union rules (fixes `EC-CDR-A-MIN-01`; path grammar fixes `ADR048-A-MAJ-04`;
+closed-object/allow-set grammar fixes `ADR048-A-MIN-03`):**
 
 - A role's `selector` is **exactly one** of `kind: payload_field` or `kind: by_target` — structurally
-  enforced by the `kind` tag, never both, never neither.
-- `payload_field` — `path` resolves directly in the effect event's **own** payload, at the type
-  already fixed by `payload_shape` (`event_record_ref` or an array of it).
+  enforced by the `kind` tag, never both, never neither. Each selector form permits **exactly** the
+  keys shown above — `payload_field`: `{kind, path}`; static `by_target`: `{kind, match}`;
+  discriminated `by_target`: `{kind, discriminant}` — no others. An unknown key in any selector
+  object is an authoring defect (§J-21). A `by_target` selector carrying both `match` and
+  `discriminant` simultaneously necessarily violates this closure against whichever shape was
+  intended.
+- `payload_field` — `path` resolves directly in the effect event's **own** payload via the canonical
+  segment-vector traversal above. Every **non-terminal** segment MUST resolve to an object/mapping
+  field per `payload_shape`. The **terminal** field MUST be declared by `payload_shape` as exactly
+  one of `event_record_ref` or an array/list of `event_record_ref` — no other terminal type is legal
+  (§J-9). If the terminal is optional and absent, or any non-terminal segment cannot be resolved for
+  a concrete instance, the resolved candidate collection is empty — never a fabricated object or
+  fallback path — legitimate only when the role's own `cardinality` permits zero (§J-10).
 - `by_target.match` (static form) — MUST provide **at least one** of `event_types`/`contract_ids`. If
-  **both** are present, they are **conjunctive** (target must satisfy BOTH allow-sets). Target
-  **domain payload** is never read — only the target's own envelope `event_type` and/or
-  `event_contract_ref.contract_id`, obtained via the tuple-consistency existence check Chapter 8
-  §8.2.3 already mandates for every causation_ref.
+  **both** are present, they are **conjunctive** (target must satisfy BOTH allow-sets). Every
+  **present** allow-set MUST be a non-empty array, every item a non-empty identifier string, values
+  unique within the allow-set, no unknown key under `match` (§J-13). Target **domain payload** is
+  never read — only the target's own envelope `event_type` and/or `event_contract_ref.contract_id`,
+  obtained via the tuple-consistency existence check Chapter 8 §8.2.3 already mandates for every
+  causation_ref.
 - `by_target.discriminant` (discriminated form) — **mutually exclusive** with `match` on the same
-  role. `payload_field` under `discriminant` refers **only** to the EFFECT event's own payload, never
-  the target's. Each entry in `cases` follows the identical `match`-style rule (at least one of
-  `event_types`/`contract_ids`; AND if both present). There is **no implicit/default case** — a
-  discriminant value with no matching `cases` entry fails closed (§J-15); a missing/unresolvable
-  discriminant field on the effect's own payload fails closed (§J-14). A case is not required to
-  specify both identifiers when one is already sufficient under current authority (e.g. `event_types`
-  alone) — but when both are authored on the same case, the AND semantics above apply deterministically.
+  role. `payload_path` under `discriminant` uses the same canonical segment-vector traversal and
+  refers **only** to the EFFECT event's own payload, never the target's; its resolved terminal MUST
+  be a scalar string/enum token — no implicit stringification of any other type. Each entry in
+  `cases` follows the identical closed `match`-style allow-set rule (at least one of
+  `event_types`/`contract_ids`; non-empty/unique/non-empty-string items; AND if both present; no
+  unknown key in the case body). `cases` itself MUST be a non-empty mapping, every case key a
+  non-empty scalar string token — array discriminant values are not permitted; an unknown key
+  directly under `discriminant` is an authoring defect (§J-20). There is **no implicit/default
+  case** — a discriminant value with no matching `cases` entry fails closed (§J-15); a missing
+  segment, a resolved `null` terminal, or a non-string/non-enum terminal on the effect's own payload
+  all fail closed (§J-14). A case is not required to specify both identifiers when one is already
+  sufficient under current authority (e.g. `event_types` alone) — but when both are authored on the
+  same case, the AND semantics above apply deterministically.
 - Target domain payload is **never** read by any selector form, in any case — the sole permitted
   target inspection is the target's own envelope/identity, exactly the surface Chapter 8 §8.2.3's
   tuple-consistency rule already requires resolving for every causation_ref.
@@ -383,7 +435,100 @@ canonical locator within the same event instance — every reviewed role's selec
 repeated). This precondition is re-confirmed to create no conflict with the all-10-event
 representability proof, the Candle illustrative mapping, or the mixed-case proof.
 
-## F. Generic validation algorithm — order-independent, two-phase (corrected, `EC-CDR-A-MAJ-01` / `EC-CDR-A-MIN-04`; new Phase 0.5 mirrors `ADR048-A-MAJ-02`)
+### E.5 Canonical path type — ordered segment vector (mirrors `ADR048-A-MAJ-04`/`ADR048-A-MIN-03`)
+
+**Problem:** v0.4 (and v0.3/v0.2/v0.1 before it) used a conceptual "dot-path" string for
+`payload_field.path` (e.g. `"broken_swing_ref.swing_confirmed_event_ref"`) and for
+`discriminant.payload_field` (e.g. `"invalidation_cause"`), without defining dot-separator semantics,
+escaping, whether a payload field name may itself contain `.`, array indexing, wildcard semantics,
+nested-object traversal, or missing-intermediate-field behavior. Because `causal_state_dependency_
+declaration` establishes a MACHINE-READABLE canonical grammar, parser behavior cannot be delegated to
+implementation convention — no current Approved authority defines any of the above.
+
+**Decision correction:** replace string/dot-path addressing with a canonical **ordered segment
+vector**. Canonical path type:
+
+```yaml
+path:
+  - broken_swing_ref
+  - swing_confirmed_event_ref
+```
+
+```yaml
+path:
+  - invalidated_fact_ref
+```
+
+**Normative path rules:**
+
+1. `path` is a **non-empty** ordered YAML array/list.
+2. Every segment is a **non-empty** string.
+3. Each segment denotes one exact payload object/mapping field name.
+4. No segment parsing occurs.
+5. `.` has **no** separator meaning inside a segment.
+6. No escaping grammar exists.
+7. No wildcard exists.
+8. No numeric/array indexing exists.
+9. Every **non-terminal** segment MUST resolve to an object/mapping field according to the Event
+   Contract's own `payload_shape`.
+10. Traversal proceeds one literal mapping key at a time.
+
+`path: [broken_swing_ref, swing_confirmed_event_ref]` means
+`payload["broken_swing_ref"]["swing_confirmed_event_ref"]` — **not** a parsed string.
+
+**`payload_field` selector terminal type:** for `selector: {kind: payload_field, path: [...]}`, the
+terminal field MUST be declared by `payload_shape` as exactly one of `event_record_ref` or an
+array/list of `event_record_ref` — no other terminal type is legal. If the terminal field is
+optional and absent for a particular event instance, the resolved candidate collection is empty —
+valid **only** when the role's `cardinality` permits zero.
+
+**Missing intermediate segment:** if any **non-terminal** segment cannot be resolved for the concrete
+event instance, treat the selector as resolving **no** candidate refs — never fabricate an object or
+fallback path. Valid only if the role's `cardinality` permits zero. **Authoring-time:** a `path` whose
+declared route does not exist in `payload_shape`, or whose declared intermediate type is not
+object/mapping, is malformed and must be rejected before publication.
+
+**Discriminant path:** uses the **same** canonical ordered-segment path type, under the key
+`discriminant.payload_path` (replacing the ambiguous scalar `discriminant.payload_field`). Same
+ordered literal-segment traversal grammar; refers only to the EFFECT event's own payload; no target
+payload read; the declared terminal field MUST be a scalar string/enum token suitable for exact
+lookup against `cases` keys; missing any segment at runtime → fail closed; a `null` terminal value →
+fail closed; a non-string/non-enum terminal value → fail closed; a value absent from `cases` → fail
+closed; no default case; no implicit stringification; no array discriminants permitted.
+
+**Closed selector objects (fixes `ADR048-A-MAJ-04`/`ADR048-A-MIN-03` jointly — "closed tagged union"
+made literal):** each selector form permits **exactly** these keys, no others:
+
+```text
+payload_field selector:          kind, path
+static by_target selector:       kind, match
+discriminated by_target selector: kind, discriminant
+```
+
+Unknown selector keys are authoring defects (§J-21). A `by_target` selector with both `match` and
+`discriminant` simultaneously satisfies neither closed shape and is caught by this same rule.
+
+**Closed allow-set/case-container grammar (fixes `ADR048-A-MIN-03`):** for static `match` — (1) at
+least one of `event_types`/`contract_ids` MUST be present; (2) every present allow-set MUST be a
+non-empty array/list; (3) every item MUST be a non-empty identifier string; (4) values within each
+allow-set MUST be unique; (5) if both are present, semantics remain AND; (6) the two arrays remain
+independent allow-sets, never positional pairs; (7) unknown keys under `match` are prohibited.
+`match: {event_types: []}`, `match: {event_types: [CANDLE_CLOSED, CANDLE_CLOSED]}`, and
+`match: {arbitrary_future_field: x}` are all invalid. For discriminated `discriminant.cases` — (1)
+`cases` MUST be a non-empty mapping; (2) every case key MUST be a non-empty scalar string token; (3)
+each case body follows the exact same allow-set rules as static `match`; (4) unknown keys inside a
+case body are prohibited; (5) unknown keys directly under `discriminant` (outside `payload_path`/
+`cases`) are prohibited; (6) `match` and `discriminant` remain mutually exclusive.
+
+**Does not mutate Chapter 8:** this entire canonical path/container grammar is a representation
+convention this derivation proposes for the eventual ADR to make normative, scoped specifically to
+the `causal_state_dependency_declaration` mechanism — it does not amend Chapter 8's own
+`event_record_ref`/`causation_refs` schema, and does not claim Chapter 8 already defined any of this.
+
+See §H.2 below for the full re-check confirming every reviewed `payload_field` role converts cleanly
+to this form, and §G/§I for the updated Candle/mixed-case illustrative examples.
+
+## F. Generic validation algorithm — order-independent, two-phase (corrected, `EC-CDR-A-MAJ-01` / `EC-CDR-A-MIN-04`; Phase 0.5 mirrors `ADR048-A-MAJ-02`; segment-vector path traversal mirrors `ADR048-A-MAJ-04`/`ADR048-A-MIN-03`, see §E.5)
 
 Given one effect event record and its pinned `event_contract_ref`:
 
@@ -417,20 +562,24 @@ a "remaining/unclaimed" subset, never stopping early once a cardinality budget i
 Every role is evaluated exactly once, independently of every other role and of its own position in the
 `roles` list:
 
-- **`payload_field` role:** resolve `path` in the effect's **own** payload. The resolved value(s) —
-  singular, or every element if the path is array-typed — form this role's candidate set. Each
-  candidate MUST also literally occur in `C` (tuple-consistency cross-check);
-  absent → **fail closed** (§J-11). `M(r)` = exactly the entries of `C` that are
-  tuple-equal to a resolved payload candidate. A path that resolves to nothing, for a role whose own
-  `cardinality` permits zero (e.g. `{min: 0, max: 1}`), is a legitimate empty `M(r)` — see §J-10.
+- **`payload_field` role:** resolve `path` (the ordered segment vector, §E.5) in the effect's **own**
+  payload, one literal mapping key at a time. If any non-terminal segment cannot be resolved, or the
+  terminal is optional and absent, the candidate set is empty (legitimate only when `cardinality`
+  permits zero, §J-10). Otherwise the resolved value(s) — singular, or every element if the terminal
+  is array-typed — form this role's candidate set; the `path` never indexes inside that array, it
+  resolves the whole array as the terminal. Each candidate MUST also literally occur in `C`
+  (tuple-consistency cross-check); absent → **fail closed** (§J-11). `M(r)` = exactly the entries of
+  `C` that are tuple-equal to a resolved payload candidate.
 - **`by_target` role, static (`match`):** for **every** entry `c` in `C`
   (not a remaining subset), resolve `c`'s target's own envelope via the
-  Chapter 8 §8.2.3 tuple-consistency existence check, and test it against `match`'s allow-set(s)
-  (AND, if both `event_types` and `contract_ids` are declared). `M(r)` = every `c` that satisfies the
-  test. A `c` that resolves but does not satisfy the conjunction is simply excluded from `M(r)` — not
+  Chapter 8 §8.2.3 tuple-consistency existence check, and test it against `match`'s closed allow-set(s)
+  (AND, if both `event_types` and `contract_ids` are declared; §E.5). A `c` that resolves but does not
+  satisfy the conjunction is simply excluded from `M(r)` — not
   itself a failure (§J-16); it may still belong to another role, or remain unclaimed (§J-6, Phase 2).
-- **`by_target` role, discriminated (`discriminant`):** read `discriminant.payload_field` once, in the
-  effect's **own** payload. Missing/unresolvable → **fail closed** (§J-14). Look up the resolved value
+- **`by_target` role, discriminated (`discriminant`):** resolve `discriminant.payload_path` (the
+  ordered segment vector, §E.5) once, in the
+  effect's **own** payload. A missing segment, a `null` terminal, or a non-string/non-enum terminal
+  → **fail closed** (§J-14). Look up the resolved value
   in `discriminant.cases`; absent → **fail closed** (§J-15). Otherwise apply the matched case's
   allow-set(s) (same AND rule) against **every** entry `c` in `C`,
   exactly as the static form does, to build `M(r)`.
@@ -503,7 +652,10 @@ mechanically captures `CANDLE-EC-A-MIN-01`'s originally-requested cardinality-ex
 (§E.3) — authoring evidence for `corrected_fact`'s classification is
 `docs/project/context-upstream-state-dependency-derivation-001.md` v0.5 §2.2, cited here as drafting
 narrative only; a real Published artifact would cite it, if useful, via `ADR-039`'s own top-level
-`provenance` field.
+`provenance` field. Neither Candle example uses a `payload_field`/`discriminant.payload_path` —
+`candle-closed` is `mode: vacuous`, `candle-corrected`'s role is `by_target.match` — so neither
+requires any segment-vector path update this round; see §H.2 for the nested segment-vector proof
+against the roles that do use one.
 
 ## H. Traceability matrix — reviewed category → representation rule (corrected, `EC-CDR-A-MIN-02` / `EC-CDR-A-MAJ-03`)
 
@@ -623,6 +775,33 @@ count; the upstream derivation's own `EC-CDR-A-MAJ-03`: causation-ref category c
 vacuity); this version reports each on its own terms, with the matrix as the actual proof linking
 them.
 
+### H.2 Segment-vector representability re-check (mirrors `ADR048-A-MAJ-04`)
+
+Every `payload_field`/`discriminant.payload_path` role from §H's matrix, re-checked under the §E.5
+ordered-segment-vector grammar — all convert cleanly, none requires wildcard, array indexing, a
+target-payload read, or event-specific validator code:
+
+| `role_id` | Prior "dot-path" | Segment vector | Terminal type |
+|---|---|---|---|
+| `broken_swing_confirmed_event_ref` (`BREAK_OF_STRUCTURE_DETECTED`, `CHANGE_OF_CHARACTER_DETECTED`) | `broken_swing_ref.swing_confirmed_event_ref` | `[broken_swing_ref, swing_confirmed_event_ref]` | `event_record_ref` (single) |
+| `breaking_candle_refs` (`BREAK_OF_STRUCTURE_DETECTED`, `CHANGE_OF_CHARACTER_DETECTED`) | `breaking_candle_refs` | `[breaking_candle_refs]` | array of `event_record_ref` |
+| `invalidated_fact_ref` (`STRUCTURE_FACT_INVALIDATED`, `REGIME_FACT_INVALIDATED`, `FEATURE_FACT_INVALIDATED`) | `invalidated_fact_ref` | `[invalidated_fact_ref]` | `event_record_ref` (single) |
+| `candle_evidence_refs` (`REGIME_CLASSIFIED`) | `candle_evidence_refs` | `[candle_evidence_refs]` | array of `event_record_ref` |
+| `supersedes_fact_ref` (`REGIME_CLASSIFIED`, `FEATURE_COMPUTED`) | `supersedes_fact_ref` | `[supersedes_fact_ref]` | `event_record_ref` (single, optional) |
+| `input_fact_refs` (`FEATURE_COMPUTED`) | `input_fact_refs` | `[input_fact_refs]` | array of `event_record_ref` |
+| `invalidation_cause_ref`'s `discriminant.payload_path` (`STRUCTURE_FACT_INVALIDATED`, `FEATURE_FACT_INVALIDATED`) | `discriminant.payload_field: invalidation_cause` | `discriminant.payload_path: [invalidation_cause]` | scalar enum token |
+
+**Result:** exactly **one** distinct role (`broken_swing_confirmed_event_ref`, used identically by
+two Event Contracts) requires a genuinely nested two-segment path — every other `payload_field`/
+`discriminant.payload_path` role across all 10 reviewed event types is a single-segment path. Three
+roles (`breaking_candle_refs`, `candle_evidence_refs`, `input_fact_refs`) have an **array-of-
+`event_record_ref`** terminal — the path resolves the whole array as the terminal and never indexes
+inside it; Phase 1 (§F) iterates every element as a separate candidate, exactly per §E.5's terminal-
+type rule. No role anywhere in the reviewed set needs wildcard matching, numeric/array indexing
+within the path itself, a target-payload read, or event-specific validator branching — the
+all-10-event representability result is **unchanged** (zero event-specific code), confirming
+`ADR048-A-MAJ-04`'s correction creates no representability regression.
+
 ## I. Mixed-case capability proof (corrected grammar; hypothetical schema test only — NOT proposed for Ride architecture)
 
 Purely to test that the representation can express `STATE_DEPENDENCY` and `EXTERNAL_NON_STATE_CAUSE`
@@ -638,7 +817,8 @@ causal_state_dependency_declaration:
     - role_id: source_position_ref
       selector:
         kind: payload_field
-        path: source_position_ref
+        path:
+          - source_position_ref
       cardinality: {exactly: 1}
       classification: STATE_DEPENDENCY
       apply_time_requirement: >
@@ -659,7 +839,9 @@ causal_state_dependency_declaration:
 ```
 
 (`authority` fields removed per §E.3/`ADR048-A-MAJ-03` — were HYPOTHETICAL placeholders in v0.3, no
-real citation existed for this never-proposed event type.)
+real citation existed for this never-proposed event type. `source_position_ref`'s `path` updated to
+the segment-vector form per §E.5/`ADR048-A-MAJ-04`; `reconciliation_run_ref` uses `by_target.match`,
+no path involved.)
 
 **Result: capability confirmed under the corrected grammar too.** Two independently-typed selectors
 (`payload_field` for the state dependency, `by_target` static `match` for the external cause), each
@@ -668,7 +850,7 @@ any other role would be — no grammar change was needed to support the mixed ca
 already accommodates an arbitrary mix of `STATE_DEPENDENCY`/`EXTERNAL_NON_STATE_CAUSE` roles per
 Event Contract. This hypothetical is not added anywhere else in this repository.
 
-## J. Fail-closed behavior (corrected/expanded, `EC-CDR-A-MAJ-01`/`EC-CDR-A-MIN-01`/`EC-CDR-A-MIN-04`; item 1 reconciled and item 18 added, mirroring `ADR048-A-MAJ-01`/`ADR048-A-MAJ-02`)
+## J. Fail-closed behavior (corrected/expanded, `EC-CDR-A-MAJ-01`/`EC-CDR-A-MIN-01`/`EC-CDR-A-MIN-04`; item 1 reconciled and item 18 added mirroring `ADR048-A-MAJ-01`/`ADR048-A-MAJ-02`; items 9/10/13/14 expanded and items 19/20 added mirroring `ADR048-A-MAJ-04`/`ADR048-A-MIN-03`)
 
 No branch below resolves an ambiguous or missing case permissively — there is no fail-open/default
 branch anywhere in this table.
@@ -701,23 +883,31 @@ branch anywhere in this table.
    (e.g. `{min: 0, max: 1}`); optionality of one role never legalizes overlap with another.
 8. **Role cardinality unsatisfied** (`|M(r)|` outside the role's declared `min`/`max`/`exactly`) →
    integrity violation, reject.
-9. **Malformed `payload_field` path** (references a path absent from `payload_shape`) —
+9. **Malformed `payload_field.path`** (expanded, fixes `ADR048-A-MAJ-04`, see §E.5) — any of: an
+   empty `path` array; a `path` segment that is empty or not a string; a declared path route absent
+   from `payload_shape`; a declared non-terminal segment whose type is not object/mapping; or a
+   declared terminal type that is not `event_record_ref` or an array/list of `event_record_ref` —
    authoring-time defect; Review A must reject before `Published`, not a runtime case.
-10. **Runtime optional payload path/cardinality — NOT a failure when correctly declared:** a
-    `payload_field` role whose target path is declared optional in `payload_shape` (e.g.
-    `supersedes_fact_ref`, `required: false`) legitimately resolving to zero refs for a given event
-    instance is expected, valid behavior when the role's own `cardinality` permits zero (e.g.
-    `{min: 0, max: 1}`) — distinguished explicitly from item 8, which fires only when the *actual*
-    count falls outside the *declared* bound.
+10. **Runtime optional/missing `payload_field` resolution — NOT a failure when correctly declared**
+    (expanded, §E.5): a `payload_field` role whose terminal path is declared optional in
+    `payload_shape` (e.g. `supersedes_fact_ref`, `required: false`) legitimately resolving to zero
+    refs for a given event instance, **or** whose non-terminal segment cannot be resolved for a given
+    concrete instance (never fabricated), is expected, valid behavior when the role's own
+    `cardinality` permits zero (e.g. `{min: 0, max: 1}`) — distinguished explicitly from item 8,
+    which fires only when the *actual* count falls outside the *declared* bound.
 11. **`payload_field`-derived ref absent from `envelope.causation_refs`** (tuple-consistency mismatch
     between the payload's own declared duplicate and the envelope set) → integrity violation, reject.
 12. **`by_target` selector's resolved target fails Chapter 8 §8.2.3 tuple consistency** — the
     pre-existing, already-Locked fail-closed rule applies unchanged; this representation adds no
     weakening of it.
-13. **Static `by_target.match` malformed** (neither `event_types` nor `contract_ids` present) —
-    authoring-time defect; Review A must reject before `Published`.
-14. **Discriminant field missing/unresolvable** (`discriminant.payload_field` absent or unresolvable
-    on the effect's own payload) → integrity violation, reject.
+13. **Malformed static `by_target.match`** (expanded, fixes `ADR048-A-MIN-03`, see §E.5) — any of:
+    neither `event_types` nor `contract_ids` present; a present allow-set that is an empty array; an
+    allow-set item that is not a non-empty identifier string; duplicate values within one allow-set;
+    or an unknown key under `match` — authoring-time defect; Review A must reject before `Published`.
+14. **`discriminant.payload_path` unresolved/malformed terminal** (expanded, fixes `ADR048-A-MAJ-04`,
+    see §E.5) — any of: a segment missing or unresolvable on the effect's own payload; a resolved
+    `null` terminal value; or a resolved terminal value that is not a scalar string/enum token —
+    integrity violation, reject in every case.
 15. **Discriminant value unknown/unhandled** (resolved value has no matching entry in `cases`) →
     integrity violation, reject — no implicit/default case.
 16. **Target satisfies only part of a declared `event_types`/`contract_ids` conjunction** — this is
@@ -735,6 +925,18 @@ branch anywhere in this table.
     `event_id` at the same locator independently fails Chapter 8 §8.2.3's tuple-consistency invariant
     first). Validated at Phase 0.5, before Phase 1 — `C` (§E.4, §F) denotes the collection after this
     validation succeeds.
+19. **A malformed `discriminant.cases` container** (new, fixes `ADR048-A-MIN-03`, see §E.5) — any of:
+    `cases` an empty mapping; a case key that is not a non-empty scalar string token; a case body
+    violating the closed `match` allow-set rules of item 13 (empty allow-set array, non-empty-string
+    item requirement, allow-set uniqueness, unknown key); or an unknown key present directly under
+    `discriminant` outside `payload_path`/`cases` — authoring-time defect; Review A must reject before
+    `Published`.
+20. **An unknown key present in a selector object beyond its closed key-set** (new, fixes
+    `ADR048-A-MAJ-04`/`ADR048-A-MIN-03` jointly, see §E.5) — `payload_field` selector: exactly
+    `{kind, path}`; static `by_target` selector: exactly `{kind, match}`; discriminated `by_target`
+    selector: exactly `{kind, discriminant}` — authoring-time defect; Review A must reject before
+    `Published`. A `by_target` selector carrying both `match` and `discriminant` simultaneously is
+    caught by this same rule — it satisfies neither closed key-set exactly.
 
 ## K. ADR scope / Risk assessment
 
@@ -801,17 +1003,22 @@ triggered):**
    `by_target` with static `match` or `discriminant` forms) exactly as derived in §E — confirmed
    necessary, not optional, by §H's traceability matrix (2 of 10 event types require the
    `discriminant` form).
-4. The canonical-locator `(stream_id, sequence)` uniqueness precondition of §E.4/§F Phase 0.5 as
+4. The canonical **ordered-segment-vector** path type of §E.5 for `payload_field.path` and
+   `discriminant.payload_path` — replacing the prior ambiguous "dot-path" string (fixes
+   `ADR048-A-MAJ-04`); the closed allow-set/case-container grammar for `match`/`discriminant.cases`
+   (fixes `ADR048-A-MIN-03`); and the fully closed selector-object key sets per selector kind (§E.5).
+5. The canonical-locator `(stream_id, sequence)` uniqueness precondition of §E.4/§F Phase 0.5 as
    normative (mirrors `ADR048-A-MAJ-02`), and the order-independent two-phase validation algorithm of
    §F as normative (not merely descriptive) — Phase 1 independent match-set computation over `C`,
    Phase 2 exactly-one-match validation.
-5. The fail-closed rules of §J as normative, including the explicit non-legalization of selector
-   overlap by role optionality (§J-7) and the duplicate-canonical-locator rule (§J-18).
-6. Explicit non-scope: does **not** re-decide any of the 21 already-reviewed classification results
+6. The fail-closed rules of §J as normative, including the explicit non-legalization of selector
+   overlap by role optionality (§J-7), the duplicate-canonical-locator rule (§J-18), and the
+   path/container/selector-closure rules of §J-9/10/13/14/19/20.
+7. Explicit non-scope: does **not** re-decide any of the 21 already-reviewed classification results
    (`context-upstream-state-dependency-derivation-001.md` v0.5 remains the cited authority for *which*
    category gets *which* classification); does **not** amend `ADR-039`'s or `ADR-040`'s own decisions;
    does **not** publish any Event Contract; does **not** itself remediate the Candle candidates.
-7. `depends_on` — **kept as a fresh-check item for the ADR's own authoring transaction, not
+8. `depends_on` — **kept as a fresh-check item for the ADR's own authoring transaction, not
    pre-decided here.** The eventual ADR must determine whether it normatively depends on `ADR-039`
    (as an extension of `ADR-039`'s own enumerated Event Contract shape) or can stand independently
    under Chapter 8 directly — this correction does **not** arbitrarily supersede `ADR-039`, and makes
@@ -819,14 +1026,14 @@ triggered):**
 
 ## L. Smallest follow-on sequence (not executed here)
 
-1. Fresh ChatGPT Review A of this corrected representation derivation (v0.4) and of
-   `docs/adr/ADR-048.md` (v0.2); `context-upstream-state-dependency-derivation-001.md` (v0.5) remains
+1. Fresh ChatGPT Review A of this corrected representation derivation (v0.5) and of
+   `docs/adr/ADR-048.md` (v0.3); `context-upstream-state-dependency-derivation-001.md` (v0.5) remains
    `CLEAN`, unchanged, not reopened.
-2. If `CLEAN`: proceed to Risk Classification and R2 routing (if applicable) on `ADR-048` v0.2 before
-   any Product Owner ADR approval decision — the ADR candidate already exists (`ADR-048.md`,
-   authored, now corrected to v0.2); this step no longer reads "author the ADR candidate."
-3. Fresh Review A of `ADR-048` v0.2 specifically; Risk Classification (expected `R2`, non-final);
-   Product Owner approval decision.
+2. If `CLEAN`: proceed to final Risk Classification and R2 routing (if applicable) on `ADR-048` v0.3
+   before any Product Owner ADR approval decision — the ADR candidate already exists, now
+   twice-corrected (`ADR-048.md` v0.3); this step no longer reads "author the ADR candidate."
+3. Fresh Review A of `ADR-048` v0.3 specifically; final Risk Classification (expected `R2`,
+   non-final); Product Owner approval decision.
 4. Once Approved: remediate the two Candle candidates — fold in `CANDLE-EC-A-MAJ-01` (retention
    correction, §B), migrate to the corrected canonical `causal_state_dependency_declaration`
    `mode: vacuous | exhaustive` field (`CANDLE-EC-A-MAJ-02`), and apply the explicit
@@ -882,3 +1089,48 @@ the role/discriminant-case counts (§H.1), the `mode`/selector/cardinality gramm
 `ADR_NOT_REQUIRED` — a bounded analysis-artifact correction mirroring findings already issued against
 a separate Draft ADR candidate, not itself deciding, publishing, or binding any Event Contract, Domain
 Contract, or Constitution content.
+
+## N. v0.4 → v0.5 correction record (`ADR-048-EVENT-CONTRACT-CAUSAL-DEPENDENCY-REPRESENTATION-001-CORR-002`)
+
+This section records the second correction round, driven this time by a **joint** fresh Review A of
+both `ADR-048` v0.2 and this derivation's own v0.4 — unlike the prior `v0.3 → v0.4` round (§M), which
+was driven solely by `ADR-048`'s own review and only mirrored here.
+
+**Trigger:** fresh joint ChatGPT Review A of `docs/adr/ADR-048.md` v0.2 and this derivation's v0.4,
+reviewed boundary `3976beb91460993cad45ca76da7f45dd0d90b176`, reviewed ADR blob
+`4282def4e7b002dbcbc7617ded67613a66fbb2d6`, reviewed representation blob
+`35967d884f0d40c51065b7b0758eb7a4c4ab57e3`, verdict `REVISION_REQUIRED — 0 Blocker / 1 Major / 1
+Minor`. All five prior `ADR-048` v0.1 findings (`ADR048-A-MAJ-01`/`02`/`03`, `ADR048-A-MIN-01`/`02`)
+confirmed `CLOSED — REVIEW A VALIDATED` by this same review, none reopened. New findings
+`ADR048-A-MAJ-04` and `ADR048-A-MIN-03` apply directly to grammar this artifact itself originates
+(§E.2's role shape, §G's and §I's illustrative examples, §F's algorithm) — mirrored here for
+consistency with `ADR-048`, which selects its grammar from this derivation.
+
+**Changes applied in v0.5:**
+
+- **`ADR048-A-MAJ-04` mirrored** — new §E.5 (canonical ordered-segment-vector path type replacing
+  the ambiguous "dot-path" string, for both `payload_field.path` and the renamed
+  `discriminant.payload_path`; payload_field terminal-type rule; missing-intermediate-segment rule;
+  closed selector-object key sets), §E.2 grammar/examples updated, §F Phase 1 wording updated to
+  reason over segment-vector traversal, new §H.2 re-check confirming full representability under the
+  new grammar, §G/§I illustrative examples updated, new §J items 9/10/14 expanded and items 19/20
+  added, §K items 4/6 updated.
+- **`ADR048-A-MIN-03` mirrored** — closed allow-set grammar for `match` (non-empty arrays,
+  non-empty-string items, uniqueness, no unknown keys) and closed case-container grammar for
+  `discriminant.cases` (non-empty mapping, non-empty scalar string keys, same allow-set rules per
+  case, no unknown keys) — §E.2/§E.5, new §J items 13 expanded and 19/20 added, §K item 4 updated.
+- Editorial: §A header/boundary paragraph, §0 review-history paragraphs, and §L steps 1–3 updated to
+  reflect `ADR-048` now at v0.3 (twice-corrected) rather than v0.2.
+
+**Not changed:** any of the 21 reviewed causation-ref classifications, the traceability matrix (§H)
+or its role/`role_id` assignments, the role/discriminant-case counts (§H.1), the `mode` sum type, the
+role classification enum, the canonical-locator uniqueness precondition (§E.4), the no-`authority`-
+field decision (§E.3), the cardinality closed union, the order-independent two-phase algorithm's own
+Phase 1/Phase 2 structure, the target decision (`ADR_REQUIRED`, Risk `R2`, §K), or any
+Candle/Structure/Regime/Feature Event Contract file. The all-10-event representability result is
+unchanged (zero event-specific validator code) — confirmed fresh in §H.2.
+
+**This correction transaction's own Risk/ADR Scope:** `Risk R1`, `ADR_NOT_REQUIRED` — a bounded
+analysis-artifact correction mirroring findings already issued against a separate Draft ADR candidate
+by a joint review, not itself deciding, publishing, or binding any Event Contract, Domain Contract, or
+Constitution content.
