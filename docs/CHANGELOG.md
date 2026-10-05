@@ -2,6 +2,73 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-30 — ADR-048 Draft candidate authored: Canonical Event Contract Causal State-Dependency Declaration
+
+Starting `main == origin/main == 493694f27b0ae07ea00f20794df8016495c98a18`, fresh-verified, working
+tree clean. ADR namespace confirmed ending at `ADR-047` (`ADR-048` next free); state-dependency
+derivation (v0.5) matched pinned blob `8acb799ac84b5dadee463f8882e15fbb2ce93657` exactly;
+representation derivation (v0.3) matched pinned blob `0176bb238681877ef2904b096e91e88ab0a91ce2`
+exactly; canonical ADR template matched pinned blob `4d6ea44453beaf3d4d09015a66f2b2a1e7b01b74`
+exactly; `ADR-039`/`ADR-040`/`ADR-047` frontmatter re-confirmed `status: Approved`, `depends_on: []`,
+`supersedes: []`. No STOP condition triggered.
+
+New file `docs/adr/ADR-048.md` — ONE bounded Draft ADR candidate (`v0.1`, `status: Draft`,
+`depends_on: [ADR-039]`, `supersedes: []`) selecting the reviewed representation derivation v0.3 as
+architecture authority for Chapter 8 §8.2.3's `causal_closure_policy.mode:
+declared-state-dependencies` / `dependency_authority: per_effect_event_contract`. Canonical new
+top-level Event Contract field `causal_state_dependency_declaration`; closed `mode: vacuous |
+exhaustive` sum type; role classification enum `STATE_DEPENDENCY | EXTERNAL_NON_STATE_CAUSE`;
+closed `selector` tagged union (`payload_field` / `by_target` static+discriminated, independent
+`event_types`/`contract_ids` allow-sets with explicit no-pair-position-semantics clarification);
+closed `cardinality` union (`exactly` XOR `min`/`max`); normative order-independent two-phase
+matching algorithm (Phase 1 full match-set computation per role; Phase 2 cardinality +
+exactly-one-match validation, `0` or `>1` matches both fail closed, role ordering irrelevant);
+18-item fail-closed table (the 17 already reviewed in representation v0.3 §J, plus one new item
+added directly in ADR-048: duplicate `role_id` within one Event Contract is malformed).
+
+Required non-retroactivity section: existing Published Feature v1.0 Event Contracts
+(`feature-computed`, `feature-fact-invalidated`) remain valid immutable historical artifacts; this
+Decision applies prospectively only; a Published version lacking the declaration must not serve as
+the per-effect state-dependency authority; processor code may never fill the gap; an existing
+immutable version needing this capability requires a NEW version-artifact under `ADR-039`/Chapter 10
+rules — Feature's future version number/compatibility delta explicitly not decided here. The eight
+not-yet-Published Candle/Structure/Regime contracts may incorporate the field into their first
+`v1.0` snapshots directly; no migration required for an unpublished Draft.
+
+`depends_on: [ADR-039]` fresh-checked and confirmed a true normative prerequisite — `ADR-039`
+establishes the canonical Event Contract version-artifact shape this Decision extends with one new
+field; `ADR-048` does not amend/supersede/modify `ADR-039`'s path/version/resolution/immutability
+model, and does not claim `ADR-039` itself already decided this field. `ADR-040` remains the
+controlling retention authority, unmodified; Class-G retention prerequisite recorded as already
+`SATISFIED`, not re-derived. Alternatives A–F recorded with rejections (B freeform/non-canonical; C
+conflates ordering with state scope; D fail-open default; E processor-code classification,
+prohibited by Chapter 8; F avoid `declared-state-dependencies` entirely, rejected as this ADR's
+solution). Candle illustrative examples included for representability proof only — Candle candidate
+files not modified. Scale check reflects real current scale only.
+
+Review A section left `PENDING FRESH REVIEW A` — `reviewers: []`, no verdict, no cross-check choice,
+no Product Owner approval fabricated. Expected routing `R2` recorded as non-final planning
+expectation only.
+
+This transaction does not approve ADR-048, does not modify Chapter 8/`ADR-039`/any Event Contract,
+does not remediate the Candle candidates, does not author Structure/Regime contracts, does not
+modify Context Input Contract, and implements no validator/runtime code. No STOP condition
+triggered. Both reviewed derivation artifacts, both Candle candidates, `ADR-039`/`ADR-040`/
+`ADR-045`/`ADR-047`, every other existing authority confirmed byte-unchanged.
+
+**M2 unchanged (`BLOCKED`, parallel evidence lane). M3 remains `ACTIVE`** — Candle pair: `AUTHORED`/
+Review A `REVISION_REQUIRED`, unchanged pending ADR-048; state-dependency/representation derivations
+unchanged (`v0.5`/`v0.3`, both Review A `CLEAN`); canonical representation architecture: `ADR-048
+DRAFT CANDIDATE AUTHORED, NOT REVIEWED, NOT APPROVED`; Structure/Regime authoring: `PAUSED` pending
+ADR-048; retention: `ADR-040 APPROVED`, Class-G architecture semantics `SATISFIED`. **M4 remains
+`QUEUED`.** Phase-3 Approval Gate `NOT REACHED`; LIVE remains `NOT_AUTHORIZED`.
+
+Next governed action: Fresh ChatGPT Review A of ADR-048 Draft candidate; then mandatory Risk
+Classification and R2 routing if applicable before any Product Owner ADR approval decision or Event
+Contract remediation.
+
+---
+
 ## [Unreleased] — 2026-09-30 — Deterministic bounded correction: category-tally arithmetic (state-dependency derivation v0.4 → v0.5) + selector/cardinality schema Minors (representation derivation v0.2 → v0.3)
 
 Starting `main == origin/main == 8fd325aff5832f4d125e3d2b0e79603834542f03`, fresh-verified, working tree clean. Representation artifact (v0.2) matched pinned blob `b540b1598e8f0551931b42c2f7d1bbfc18128355` exactly; state-dependency derivation (v0.4) matched pinned blob `a8b10628f4c156f67b25d18868dec4d6434971d9` exactly; Candle candidates, `ADR-039`/`ADR-040`/`ADR-045`/`ADR-047` all re-confirmed byte-identical — none touched. Fresh Review A of representation v0.2: `REVISION_REQUIRED — 0 Blocker / 1 Major / 2 Minor` (`EC-CDR-A-MAJ-03`, `EC-CDR-A-MIN-03`, `EC-CDR-A-MIN-04`). Correction-transaction Risk `R1`, ADR Scope `ADR_NOT_REQUIRED` — target decision preserved (`ADR_REQUIRED`, Risk `R2`, unchanged). Prior findings `EC-CDR-A-MAJ-01`/`EC-CDR-A-MAJ-02`/`EC-CDR-A-MIN-01`/`EC-CDR-A-MIN-02` confirmed genuinely remediated by this fresh Review A and are `CLOSED — REVIEW A VALIDATED`.

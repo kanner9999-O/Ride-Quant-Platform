@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.469"
+manifest_version: "10.470"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -33546,6 +33546,105 @@ source/tests/tooling touched. `manifest_version` `"10.468"` -> `"10.469"`.
 causal-dependency representation derivation v0.3; if `CLEAN`, author the bounded
 causal-state-dependency representation ADR candidate before modifying or publishing any Event
 Contract.
+
+## ADR-048 Draft candidate authored — Canonical Event Contract Causal State-Dependency Declaration (`ADR-048-EVENT-CONTRACT-CAUSAL-DEPENDENCY-REPRESENTATION-001`)
+
+Fresh-verified before mutation: HEAD `493694f27b0ae07ea00f20794df8016495c98a18`; ADR namespace
+confirmed ending at `ADR-047` (`ADR-048` next free); state-dependency derivation (v0.5) matched
+pinned blob `8acb799ac84b5dadee463f8882e15fbb2ce93657` exactly; representation derivation (v0.3)
+matched pinned blob `0176bb238681877ef2904b096e91e88ab0a91ce2` exactly; canonical ADR template
+matched pinned blob `4d6ea44453beaf3d4d09015a66f2b2a1e7b01b74` exactly; `docs/adr/ADR-039.md`/
+`docs/adr/ADR-040.md`/`docs/adr/ADR-047.md` frontmatter re-confirmed `status: Approved`,
+`depends_on: []`, `supersedes: []` — all four fresh-check prerequisites for this ADR-048 authoring
+boundary hold. No STOP condition triggered.
+
+**Decision authored (Draft candidate only — NOT approved, NOT reviewed):** new file
+`docs/adr/ADR-048.md`, `id: ADR-048`, `title: "Canonical Event Contract Causal State-Dependency
+Declaration"`, `version: "0.1"`, `status: Draft`, `owner: Product Owner`, `reviewers: []`,
+`approved_by: null`, `approved_at: null`, `depends_on: [ADR-039]`, `supersedes: []`. Selects the
+reviewed representation derivation v0.3 as architecture authority satisfying Chapter 8 §8.2.3's
+`causal_closure_policy.mode: declared-state-dependencies` / `dependency_authority:
+per_effect_event_contract` requirement:
+
+- **Canonical field:** `causal_state_dependency_declaration` — new top-level sibling of `ADR-039`'s
+  existing Event Contract version-artifact fields; explicitly prohibited under
+  `payload_semantics_and_invariants`, `merge_constraints`, or processor/runtime code.
+- **Declaration modes — closed sum type:** `mode: vacuous | exhaustive`, required, no default, no
+  `open`/`partial` third mode.
+- **Role classification enum:** exactly `STATE_DEPENDENCY | EXTERNAL_NON_STATE_CAUSE` — `VACUOUS` is
+  a declaration mode only, never a role value.
+- **`role_id`:** required, unique within one Event Contract version-artifact, no platform-wide
+  registry.
+- **Selector — closed tagged union:** `kind: payload_field` (effect's own payload, cross-checked
+  against envelope `causation_refs`) or `kind: by_target` — static `match` (independent
+  `event_types`/`contract_ids` allow-sets, conjunctive AND when both present, explicitly **no
+  pair-position/index correspondence** between the two lists) or discriminated `discriminant`
+  (mutually exclusive with `match`, no implicit/default case).
+- **Cardinality — closed union:** Form A `{exactly: n}` XOR Form B `{min, max}` (`max: null` =
+  unbounded); all other combinations rejected as malformed.
+- **Matching algorithm — made normative:** Phase 1 independent, order-independent match-set
+  computation per role against the full unmutated `causation_refs`; Phase 2 cardinality validation
+  plus exactly-one-role-match requirement (`0` matches or `>1` matches both fail closed; role
+  ordering has zero semantic effect; an optional role never legalizes overlap).
+- **Application semantics unchanged:** `STATE_DEPENDENCY`/`EXTERNAL_NON_STATE_CAUSE` apply-time
+  meaning is exactly Chapter 8 §8.2.3's existing rule — this ADR fixes representation only.
+- **Separation from `merge_constraints`:** stated normatively as two independent concepts (ordering
+  vs. apply-time state/input-scope classification), neither implying the other.
+- **Fail-closed table — 18 items:** the 17 items already reviewed in representation v0.3 §J, plus
+  one NEW item added directly in ADR-048 itself: duplicate `role_id` within one Event Contract is
+  malformed and must be rejected (precondition for `matches(c)` to be unambiguous at Phase 2).
+- **Non-retroactivity (required section, 5-point semantics):** existing Published Feature v1.0
+  Event Contracts (`feature-computed`, `feature-fact-invalidated`) remain valid immutable historical
+  artifacts; this Decision applies prospectively only; a Published version lacking the declaration
+  must not serve as the per-effect state-dependency authority; processor code may never fill the gap;
+  an existing immutable version requiring this capability needs a NEW version-artifact under
+  `ADR-039`/Chapter 10 rules. Feature's future version number/compatibility delta explicitly NOT
+  decided here. The eight not-yet-Published Candle/Structure/Regime contracts may incorporate the
+  field directly into their first `v1.0` snapshots — no migration needed for an unpublished Draft.
+- **`ADR-039` relationship — fresh-checked, confirmed a true normative prerequisite:**
+  `depends_on: [ADR-039]` because `ADR-039` establishes the canonical Event Contract version-artifact
+  shape this Decision extends with one new field; `ADR-048` does not amend/supersede/modify
+  `ADR-039`'s path/version/resolution/immutability model, and does not claim `ADR-039` itself already
+  decided this field (confirmed absent from `ADR-039`'s own enumerated fields).
+- **`ADR-040` relationship:** retention/archive mechanics remain `ADR-040`'s controlling authority,
+  not part of this Decision; Class-G architecture-semantics retention prerequisite recorded as
+  already `SATISFIED` by `ADR-040`, not re-derived.
+- **Alternatives A–F** recorded with rejections (B freeform/non-canonical; C conflates ordering with
+  state scope; D fail-open default; E processor-code classification, directly prohibited by Chapter
+  8; F avoid `declared-state-dependencies` entirely, rejected as this ADR's solution since Chapter 8
+  deliberately selected that mode).
+- Candle illustrative examples included for representability proof only (files not modified).
+  Scale check reflects real current scale (10 reviewed event types, 2 Published Feature v1.0, 2
+  Candle v1.0 Draft, 8 pending first-publication contracts) — decision validity keyed to Event
+  Contract declaration count, not event volume.
+
+**Review A section:** `PENDING FRESH REVIEW A` — `reviewers: []`, no verdict, no cross-check choice,
+no Product Owner approval fabricated. Expected routing `R2` recorded as a non-final planning
+expectation only (Event Contract schema convention; cross-module producer/validator semantics; hard
+to reverse once immutable versions are published/referenced) — the actual Risk Classification
+remains Review A's own output.
+
+**Confirmed unchanged:** both reviewed derivation artifacts (state-dependency v0.5, representation
+v0.3), both Candle candidates, `docs/adr/ADR-039.md`/`ADR-040.md`/`ADR-045.md`/`ADR-047.md`, every
+Structure/Regime/Feature Event Contract, Context Input Contract, every Domain Contract, every
+Constitution chapter, every registry, all production source/tests/tooling.
+
+**M2 unchanged (`BLOCKED`, parallel evidence lane). M3 remains `ACTIVE`** — Candle pair: `AUTHORED`/
+Review A `REVISION_REQUIRED`, unchanged pending ADR-048; state-dependency/representation derivations
+unchanged (`v0.5`/`v0.3`, both Review A `CLEAN`); canonical representation architecture: `ADR-048
+DRAFT CANDIDATE AUTHORED, NOT REVIEWED, NOT APPROVED`; Structure/Regime authoring: `PAUSED` pending
+ADR-048; retention: `ADR-040 APPROVED`, Class-G architecture semantics `SATISFIED`. **M4 remains
+`QUEUED`.** Phase-3 Approval Gate `NOT REACHED`; LIVE remains `NOT_AUTHORIZED`.
+
+**Files changed:** NEW `docs/adr/ADR-048.md` (substantive, Draft candidate), plus deterministic
+bookkeeping: `docs/MANIFEST.md`, `docs/CHANGELOG.md`, `docs/project/milestone.md`,
+`docs/project/milestone-dashboard.html`. No existing ADR, Event Contract, Context Input Contract,
+Domain Contract, Constitution chapter, registry, or production source/tests/tooling touched.
+`manifest_version` `"10.469"` -> `"10.470"`.
+
+**Next governed action:** Fresh ChatGPT Review A of ADR-048 Draft candidate; then mandatory Risk
+Classification and R2 routing if applicable before any Product Owner ADR approval decision or Event
+Contract remediation.
 
 ## Decision Log
 
