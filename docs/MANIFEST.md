@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.473"
+manifest_version: "10.474"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -33976,6 +33976,102 @@ Constitution chapter, other Approved ADR, registry, or production source/tests/t
 **Next governed action:** Fresh ChatGPT verification of ADR-048 approval recording; if clean, issue
 the bounded Candle Event Contract remediation WP against Approved ADR-048 before any Structure/Regime
 authoring.
+
+## Candle Event Contract pair bounded correction — aligned to Approved ADR-048/ADR-040 (`CONTEXT-UPSTREAM-EVENT-CONTRACT-CANDLE-001-CORR-001`)
+
+Fresh-verified before mutation: HEAD `a978cdcfb5a3fbaacd33b6b73bbf9c30c3ac538f`; `docs/adr/ADR-048.md`
+(v0.3, `status: Approved`) matched pinned blob `560d5191d08a80ae4fa3dd1b8bab93fc9f36c11f` exactly;
+representation derivation (v0.5) matched pinned blob `6a195d872431e9164d65c6685748f67ffd6c24b1`
+exactly; state-dependency derivation (v0.5) matched pinned blob
+`8acb799ac84b5dadee463f8882e15fbb2ce93657` exactly; `candle-closed/v1.0.yaml` matched pinned blob
+`3f8d5f9a448c5796880d7a7b7a09d9c95c74c72f` exactly; `candle-corrected/v1.0.yaml` matched pinned blob
+`3649e516e4c69d948d8b3a4e4281bae019a7c0b7` exactly. Prior fresh ChatGPT Review A (boundary
+`064fcf59471865d3493b32ee78680ebd83b8c9a2`): `REVISION_REQUIRED — 0 Blocker / 2 Major / 1 Minor`
+(`CANDLE-EC-A-MAJ-01`, `CANDLE-EC-A-MAJ-02`, `CANDLE-EC-A-MIN-01`) — now addressed/remediated, **not
+self-closed** (closure is a fresh Review A re-review determination).
+
+**`CANDLE-EC-A-MAJ-01` (ADR-040 retention/runtime-reference wording):** "RUNTIME-USABILITY GAP"
+header block replaced with "RETENTION / REFERENCE ELIGIBILITY" in both candidates — Approved
+`ADR-040` establishes Class-G retention/resolvability semantics at architecture level and satisfies
+`ADR-039`'s own retention prerequisite; concrete archival implementation remains deferred but is
+**not** an independent blocker to an otherwise-valid Published Event Contract serving as
+`event_contract_ref`; each artifact remains unusable as `event_contract_ref` only because it is
+`status: Draft` and unpublished — never because of a retention gap. No runtime-readiness claim
+introduced.
+
+**`CANDLE-EC-A-MAJ-02` (obsolete ad hoc state-dependency representation):** removed
+`payload_semantics_and_invariants.causation_ref_state_dependency_classification` (including its
+nested `authority` subfield) from both candidates — the sole remaining representation is Approved
+`ADR-048`'s canonical top-level `causal_state_dependency_declaration` field. `candle-closed`:
+`{mode: vacuous}` exactly, no `roles` (consistent with `causation_refs: []`; `VACUOUS` is a
+declaration mode, never a role classification). `candle-corrected`: `{mode: exhaustive, roles:
+[{role_id: corrected_fact, selector: {kind: by_target, match: {event_types: [CANDLE_CLOSED,
+CANDLE_CORRECTED], contract_ids: [candle-closed, candle-corrected]}}, cardinality: {exactly: 1},
+classification: EXTERNAL_NON_STATE_CAUSE, apply_time_requirement: <self-contained text>}]}` — no
+role-level `authority` field; `apply_time_requirement` stands fully alone. Neither candidate needed
+`payload_field.path`, discriminant, or cases.
+
+**`CANDLE-EC-A-MIN-01` (causation cardinality not mechanically explicit):**
+`candle-corrected`'s `causation_and_lineage.rule` and first `invariants` entry rewritten to state
+explicitly that `envelope.causation_refs` MUST contain exactly ONE `event_record_ref` — never zero,
+never more than one — targeting the current authoritative Candle lineage head for the same subject,
+never an already-superseded predecessor; mirrors ADR-048's own `cardinality: {exactly: 1}`
+machine-readable enforcement exactly. Duplicate canonical-locator `(stream_id, sequence)` rejection
+noted as governed generically by ADR-048's own validation algorithm, naturally satisfied by this
+exactly-one cardinality — no Candle-specific duplicate-detection algorithm defined.
+
+**Self-containment preserved:** both artifacts remain interpretable without opening `candle.md`, the
+state-dependency derivation, or the representation derivation — those appear only as drafting
+provenance/governance citations, updated from stale "v0.4" to current reviewed "v0.5" evidence, with
+Approved `ADR-048` cited as the actual canonical representation authority, never the mutable analysis
+artifact.
+
+**Preserved unchanged, none reopened:** `contract_id`/`contract_version: v1.0` for both;
+`event_type`/`event_class: observation` for both; `allowed_streams: [market-data-ingestion-candle]`
+for both; `candle-closed` `merge_constraints: {}`; `candle-corrected`
+`merge_constraints.prerequisite_policy: causation_must_resolve_before_apply`;
+`compatibility_commitment: backward_only` for both (Approved `ADR-047`, not re-decided, no delta
+classification performed); all OHLCV `payload_shape` fields; `data_quality`/`complete_zero_volume`
+five-condition test; `precedence_and_uniqueness`; `subject_binding`; `effective_time`/`recorded_time`
+ordering/`no_look_ahead`; append-only/no-mutation semantics; CLOSED→CLOSED correction self-transition;
+duplicate/correction precedence outcome. `status: Draft`, `reviewers: []`, `approved_by: null`,
+`approved_at: null`, `last_review: null` unchanged for both.
+
+**Review-history recorded truthfully** in both artifacts' own header comments: reviewer `ChatGPT`,
+role `AI Technical Architect`, reviewed boundary `064fcf59471865d3493b32ee78680ebd83b8c9a2`, original
+candidate blobs (`candle-closed` `3f8d5f9a448c5796880d7a7b7a09d9c95c74c72f`, `candle-corrected`
+`3649e516e4c69d948d8b3a4e4281bae019a7c0b7`), verdict `REVISION_REQUIRED — 0 Blocker / 2 Major / 1
+Minor`; all three findings `addressed/remediated pending fresh Review A` — **not marked CLOSED**.
+
+**No STOP condition triggered** — no Candle business-semantic change was required; every correction
+was a narrative/representation alignment only.
+
+**Confirmed unchanged:** `docs/adr/ADR-048.md`/`ADR-047.md`/`ADR-040.md`/`ADR-039.md`, every other
+Approved ADR, state-dependency derivation v0.5, representation derivation v0.5, `candle.md`, every
+other Event Contract, Context Input Contract, every Domain Contract, every Constitution chapter,
+every registry, all production source/tests/tooling.
+
+**Expected Review A routing (non-final, Claude does not perform Review A):** `Risk R2`, `ADR Scope
+ADR_NOT_REQUIRED` — aligns already-existing Draft Event Contract candidates to already-Approved
+architecture and previously-reviewed Candle semantics; makes no new architecture decision.
+
+**M2 unchanged (`BLOCKED`, parallel evidence lane). M3 remains `ACTIVE`** — `ADR-048`
+`APPROVED`/`IMMUTABLE`; Candle pair now **corrected Draft candidates**, pending fresh Review A, `NOT
+PUBLISHED`; Structure/Regime authoring remains `PAUSED` pending Candle pattern validation; Feature
+v1.0 Published historical artifacts remain valid, future version dependency-authority follow-up still
+required; Context Input Contract v0.3 `CLEAN`/`NOT PUBLISHED`. **M4 remains `QUEUED`.** Phase-3
+Approval Gate `NOT REACHED`; LIVE remains `NOT_AUTHORIZED`.
+
+**Files changed:** `docs/architecture/event-contracts/candle-closed/v1.0.yaml`,
+`docs/architecture/event-contracts/candle-corrected/v1.0.yaml` (bounded correction, `status: Draft`
+unchanged, `contract_version: v1.0` unchanged), plus deterministic bookkeeping: `docs/MANIFEST.md`,
+`docs/CHANGELOG.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`. No
+Event/Input/Domain Contract, Constitution chapter, Approved ADR, registry, or production
+source/tests/tooling touched. `manifest_version` `"10.473"` -> `"10.474"`.
+
+**Next governed action:** Fresh ChatGPT Review A of the corrected `candle-closed/v1.0` and
+`candle-corrected/v1.0` Draft candidates; only if `CLEAN` may the validated ADR-048 pattern be
+propagated to Structure/Regime Event Contract authoring.
 
 ## Decision Log
 

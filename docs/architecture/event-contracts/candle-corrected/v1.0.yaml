@@ -11,13 +11,27 @@
 # not fabricated. This transaction does not transition Draft -> Published, does not add a reviewer,
 # and does not call this an authoritative Published snapshot.
 #
-# RUNTIME-USABILITY GAP (ADR-040, honestly preserved, not solved here): even once this candidate
-# is later reviewed and Published, it must NOT be treated as fully §8.1.1-compliant or as a usable
-# `event_contract_ref` target for a real, persisted authoritative event until the separately-governed
-# platform retention/archive policy's concrete past-horizon archival mechanism is established for
-# Class G artifacts (ADR-040 defers that mechanism; ADR-039's own Consequences item (0) already named
-# this exact prerequisite for Event Contract version-artifacts specifically). No claim of
-# runtime-readiness is made by this artifact.
+# PRIOR REVIEW A (not self-closed by this correction — closure is a fresh Review A re-review
+# determination): reviewer ChatGPT, role AI Technical Architect, reviewed boundary
+# 064fcf59471865d3493b32ee78680ebd83b8c9a2, reviewed blob (this file, pre-correction)
+# 3649e516e4c69d948d8b3a4e4281bae019a7c0b7, verdict REVISION_REQUIRED — 0 Blocker / 2 Major / 1
+# Minor. Findings CANDLE-EC-A-MAJ-01 (stale ADR-040 retention/runtime-reference wording),
+# CANDLE-EC-A-MAJ-02 (obsolete ad hoc state-dependency representation, now superseded by Approved
+# ADR-048), CANDLE-EC-A-MIN-01 (causation cardinality not mechanically explicit) — all three
+# addressed/remediated by this bounded correction transaction, pending fresh Review A.
+# Correction transaction boundary: HEAD a978cdcfb5a3fbaacd33b6b73bbf9c30c3ac538f
+# (CONTEXT-UPSTREAM-EVENT-CONTRACT-CANDLE-001-CORR-001).
+#
+# RETENTION / REFERENCE ELIGIBILITY (fixes CANDLE-EC-A-MAJ-01): Approved ADR-040
+# (docs/adr/ADR-040.md) establishes Class-G retention/resolvability semantics at architecture level
+# and explicitly satisfies ADR-039's own Consequences item (0) retention prerequisite for Event
+# Contract version-artifacts. Concrete past-horizon archival implementation remains deferred
+# (ADR-040 does not invent that mechanism), but that deferred implementation is NOT an independent
+# blocker to an otherwise-valid Published Event Contract serving as an `event_contract_ref` target
+# within the committed retention model. This artifact itself is currently NOT usable as an
+# authoritative `event_contract_ref` target because it remains `status: Draft` and has not completed
+# governed publication — not because of any retention gap. No claim of runtime-readiness is made by
+# this artifact.
 #
 # This is the FIRST version for contract_id: candle-corrected — no prior Published Event Contract
 # snapshot exists for it (candle.md v0.4 declares event_contract_ref as a required envelope field,
@@ -41,12 +55,19 @@
 # §8.2's own authority split ("Chapter 8 sở hữu envelope; Event Contract sở hữu payload
 # schema/semantic").
 #
-# STATE-DEPENDENCY CLASSIFICATION AUTHORITY: this artifact does not invent a new top-level Event
-# Contract schema field for Chapter 8 §8.2.3's causal-closure `dependency_authority:
-# per_effect_event_contract` classification (no such field is currently defined by Chapter 8). The
-# reviewed classification (`docs/project/context-upstream-state-dependency-derivation-001.md` v0.4,
-# Review A validated) is instead encoded structurally inside `payload_semantics_and_invariants`
-# below, keeping this artifact self-contained without a platform schema extension.
+# STATE-DEPENDENCY REPRESENTATION AUTHORITY (fixes CANDLE-EC-A-MAJ-02): Approved ADR-048
+# (docs/adr/ADR-048.md, v0.3, status: Approved) establishes the ONE canonical, machine-readable
+# top-level Event Contract field `causal_state_dependency_declaration` satisfying Chapter 8 §8.2.3's
+# causal-closure `dependency_authority: per_effect_event_contract` requirement. This artifact
+# declares that field below, using ADR-048's exact canonical grammar (`mode: exhaustive`, one
+# `by_target` static-`match` role) — no freeform/nested representation is used; the obsolete
+# `payload_semantics_and_invariants.causation_ref_state_dependency_classification` shape is removed.
+# Classification semantic evidence: `docs/project/context-upstream-state-dependency-derivation-001.md`
+# v0.5 (Review A CLEAN — 0 Blocker / 0 Major / 0 Minor, blob
+# 8acb799ac84b5dadee463f8882e15fbb2ce93657) — evidence only, never itself interpretive/runtime
+# authority. Canonical representation authority: Approved ADR-048. This Draft candidate's own
+# declaration below is not itself an authoritative Published declaration — the Published Event
+# Contract will own it once this Draft is reviewed and Published.
 #
 # Governed authoring transaction boundary: HEAD fa248c85c0dc2b1a225084c6b5d534133776afb2.
 
@@ -138,10 +159,18 @@ payload_semantics_and_invariants:
       (candle.md §1), never a correction of the current one.
   causation_and_lineage:
     rule: >
-      envelope.causation_refs MUST point exactly to the CandleClosed or CandleCorrected event
-      currently authoritative for this subject at the moment this correction is emitted — never to a
-      fact that has already itself been superseded (no skipping ahead in the correction lineage),
-      and never empty (the one explicit exception to Candle's root-event pattern, candle.md §5).
+      envelope.causation_refs MUST contain exactly ONE event_record_ref — never zero, never more
+      than one (fixes CANDLE-EC-A-MIN-01; mirrors ADR-048's canonical role cardinality
+      `cardinality: {exactly: 1}` below exactly — the narrative invariant and the machine-readable
+      enforcement agree). That one reference MUST target the CandleClosed or CandleCorrected event
+      currently authoritative for this subject at the moment this correction is emitted — the current
+      authoritative Candle lineage head for the same Logical Candle Subject — never a fact that has
+      already itself been superseded (no skipping an already-superseded predecessor in the correction
+      lineage). This is the one explicit exception to Candle's root-event pattern (candle.md §5). The
+      target MUST belong to the same Logical Candle Subject/window as this correction (see
+      subject_binding below); Chapter 8 §8.2.3 tuple consistency still applies to the reference;
+      merge_constraints.prerequisite_policy above requires the corrected target to resolve before
+      this event may be applied.
     provenance_requirement: >
       A correction requires its own distinguishable provenance — either a genuinely different,
       resolvable source identity (Chapter 6 §6.6) from the fact it corrects, or an explicitly
@@ -171,25 +200,8 @@ payload_semantics_and_invariants:
       payload.state is always CLOSED — a correction never produces a different subject state; the
       Logical Candle Subject's own state machine self-transitions CLOSED -> CLOSED for every
       correction (candle.md §1), it never re-enters PROVISIONAL or any other state.
-  causation_ref_state_dependency_classification:
-    categories:
-      corrected_fact:
-        classification: EXTERNAL_NON_STATE_CAUSE
-        apply_time_requirement: >
-          Authoritative application of CandleCorrected does not require re-reading the corrected
-          predecessor's domain payload/state (its old open/high/low/close/volume/data_quality
-          values); the effect carries the complete replacement OHLCV/state itself (payload_shape
-          above is fully self-sufficient), and the predecessor reference in causation_refs is
-          required only for identity/existence/lineage/causal precedence (tuple consistency, Chapter
-          8 §8.2.3) — never for its value content.
-    authority: >
-      docs/project/context-upstream-state-dependency-derivation-001.md v0.4 §2.2 (Review A
-      validated, CLEAN — 0/0/1, blob a8b10628f4c156f67b25d18868dec4d6434971d9), applying Chapter 8
-      §8.2.3's causal-closure `dependency_authority: per_effect_event_contract` classification test
-      per event_contract_ref. Not re-derived here — cited as already-reviewed authority. Not
-      classified STATE_DEPENDENCY, and no third classification category is introduced.
   invariants:
-    - "envelope.causation_refs MUST NOT be empty — points exactly to the fact currently being corrected (see causation_and_lineage)."
+    - "envelope.causation_refs MUST contain exactly one event_record_ref, targeting the current authoritative Candle lineage head for this subject — never zero, never more than one (see causation_and_lineage)."
     - "envelope.effective_time is identical to the fact being corrected — see temporal_and_replay_semantics."
     - "envelope.recorded_time is strictly later than the corrected fact's own recorded_time — see temporal_and_replay_semantics."
     - "Replay before this event's recorded_time never observes it — see no_look_ahead."
@@ -197,6 +209,34 @@ payload_semantics_and_invariants:
     - "payload.state is always CLOSED, never any other value — see append_only_and_state."
     - "envelope.subject_ref (subject_id and all five scope fields) is identical to the fact being corrected — see subject_binding."
     - "This is the sole valid representation for a second, non-identical authoritative closed source fact for the same subject — never a second independent CandleClosed."
+
+causal_state_dependency_declaration:
+  mode: exhaustive
+  roles:
+    - role_id: corrected_fact
+      selector:
+        kind: by_target
+        match:
+          event_types: [CANDLE_CLOSED, CANDLE_CORRECTED]
+          contract_ids: [candle-closed, candle-corrected]
+      cardinality:
+        exactly: 1
+      classification: EXTERNAL_NON_STATE_CAUSE
+      apply_time_requirement: >
+        Authoritative application of CandleCorrected does not require re-reading the corrected
+        predecessor's domain payload/state. The effect carries the complete replacement OHLCV/state
+        itself. The predecessor is required for identity, existence, lineage, tuple consistency, and
+        causal precedence only.
+# Approved ADR-048 (docs/adr/ADR-048.md) canonical mechanism — exactly one role, matching this
+# event's own exactly-one causation cardinality (see causation_and_lineage above). The `by_target`
+# static `match` selector targets the current authoritative Candle lineage head by envelope
+# identity/pinned event_contract_ref only — target domain payload is never read. Duplicate
+# canonical-locator (stream_id, sequence) rejection within one event's own causation_refs is governed
+# generically by Approved ADR-048's own validation algorithm; naturally satisfied here, since the
+# cardinality is exactly one entry — no Candle-specific duplicate-detection algorithm is defined.
+# Classification semantic evidence: docs/project/context-upstream-state-dependency-derivation-001.md
+# v0.5 §2.2 (corrected-fact reference: EXTERNAL_NON_STATE_CAUSE). This Draft candidate's declaration
+# is not itself authoritative until this artifact is Published.
 
 compatibility_commitment: backward_only
 # Approved ADR-047 (docs/adr/ADR-047.md), Product Owner decision "APPROVE ADR-047"
@@ -228,3 +268,9 @@ provenance:
     against Chapter 8 §8.3.1/§8.3.4, Approved ADR-036/ADR-041, Approved ADR-047, and this
     repository's own established terminology — NOT mechanically transcribed from candle.md, which
     does not declare any of the three fields anywhere.
+    State-dependency classification semantic evidence:
+    docs/project/context-upstream-state-dependency-derivation-001.md v0.5 (Review A CLEAN — 0
+    Blocker / 0 Major / 0 Minor) — drafting-history citation only, never runtime/interpretive
+    authority. Canonical representation authority: Approved ADR-048 (docs/adr/ADR-048.md) — this
+    artifact's causal_state_dependency_declaration field above uses ADR-048's own exact canonical
+    grammar, not a mutable analysis-artifact identity embedded in the canonical role schema.
