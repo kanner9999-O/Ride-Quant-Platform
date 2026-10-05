@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.472"
+manifest_version: "10.473"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -33859,6 +33859,123 @@ Constitution chapter, existing Approved ADR, registry, or production source/test
 **Next governed action:** Fresh ChatGPT Review A of representation derivation v0.5 and ADR-048 v0.3;
 if `CLEAN`, perform final Risk Classification and R2 routing before Product Owner approval or Event
 Contract remediation.
+
+## ADR-048 atomic approval — v0.3 Approved (`ADR-048-APPROVAL-001`)
+
+Fresh-verified before mutation: HEAD `deed6c5ccaa5e38caf8d468be80e64f180686c26`; `docs/adr/ADR-048.md`
+(v0.3) matched pinned blob `446a5bf3dfd4861cb76822b10e501a750bd353f5` exactly; representation
+derivation (v0.5) matched pinned blob `6a195d872431e9164d65c6685748f67ffd6c24b1` exactly;
+state-dependency derivation (v0.5) matched pinned blob `8acb799ac84b5dadee463f8882e15fbb2ce93657`
+exactly. `docs/adr/ADR-039.md` re-confirmed `status: Approved`, `depends_on: []`, `supersedes: []`,
+unchanged.
+
+**Fresh ChatGPT Review A at this boundary:** ADR-048 v0.3 `CLEAN — 0 Blocker / 0 Major / 0 Minor`;
+representation derivation v0.5 `CLEAN — 0 Blocker / 0 Major / 0 Minor` (reviewed jointly as its
+evidentiary basis), reviewer `ChatGPT`, role `AI Technical Architect`, reviewed boundary
+`deed6c5ccaa5e38caf8d468be80e64f180686c26`, reviewed ADR blob
+`446a5bf3dfd4861cb76822b10e501a750bd353f5`, reviewed representation blob
+`6a195d872431e9164d65c6685748f67ffd6c24b1`. All seven prior findings
+(`ADR048-A-MAJ-01`–`04`/`ADR048-A-MIN-01`–`03`) confirmed `CLOSED — REVIEW A VALIDATED`. Risk `R2`,
+ADR Scope `ADR_REQUIRED`, Recommendation `READY_FOR_PRODUCT_OWNER_DECISION`. Product Owner chose
+`PROCEED WITHOUT CROSS-CHECK`; cross-check status `NOT PERFORMED` — per Chapter 11 §11.5, never a
+defect or an approval prerequisite.
+
+**Product Owner decision (verbatim): `APPROVE ADR-048`**, recorded `2026-10-05T15:22:55+07:00` —
+accepts ADR-048 v0.3's complete Decision surface: canonical top-level field
+`causal_state_dependency_declaration`; closed declaration modes `vacuous | exhaustive`; role
+classification enum `STATE_DEPENDENCY | EXTERNAL_NON_STATE_CAUSE`; canonical role shape
+(`role_id`/`selector`/`cardinality`/`classification`/`apply_time_requirement`, no required
+`authority`); selector kinds `payload_field | by_target`; the ordered-segment-vector payload path
+grammar; static/discriminated `by_target` grammar; closed allow-set/case/selector-object grammar;
+closed cardinality grammar; the canonical-locator `(stream_id, sequence)` uniqueness precondition for
+this mechanism; order-independent two-phase matching; exactly-one-role classification; fail-closed
+behavior (21 items); separation from `merge_constraints`; prospective/non-retroactive treatment of
+existing Published Event Contracts; `depends_on: [ADR-039]`; `supersedes: []`. Not expanded,
+reinterpreted, or altered.
+
+**Frontmatter transition:** `status: Draft → Approved`, `reviewers: [] → [ChatGPT]`, `approved_by:
+null → Product Owner`, `approved_at: null → "2026-10-05T15:22:55+07:00"`, `last_review: null →
+"2026-10-05"`; `version: "0.3"` unchanged (pure mechanical approval, Chapter 11 §11.4/§11.6, no
+bump); `depends_on: [ADR-039]` unchanged; `supersedes: []` unchanged.
+
+**Status-tense normalization (lifecycle-only, no Decision-semantic change — verified by diff: every
+edit hunk falls within these regions, Decision grammar §1–§9/Non-retroactivity/Candle examples/
+`ADR-039`/`ADR-040` relationship/Alternatives/Scale check/Consequences/Risks are byte-identical to
+v0.3 pre-approval):** opening disclaimer ("Draft candidate only" → "Approved", citing the verbatim PO
+decision, same list of what this ADR does not itself do); new "Fresh Review A of v0.3" historical
+paragraph recording the `CLEAN` verdict and PO approval; "Drafting/evidence basis" paragraph's
+"authority once approved" → "governing architecture authority, now that it is Approved" (the
+representation derivation explicitly confirmed to remain `v0.5`/`Draft`/evidence-only, unmodified);
+Scope classification's "expected routing R2, non-final" → "Risk Classification R2 (confirmed)";
+Decision intro's "Select, as a Draft candidate..." → "The Decision selects, as now-Approved
+architecture authority..."; bottom Review A table/paragraph replaced with the actual final `CLEAN`
+verdict, Risk Classification block, Optional R2 cross-check record, Product Owner decision line, and
+reviewed-semantic-candidate-vs-lifecycle-record blob distinction (Chapter 11 §11.3, G-ID-001
+pattern); "Accepted risks" footer's "Draft, unreviewed, unapproved" → "Review A `CLEAN — 0/0/0`, no
+Concern raised against any Platform Invariant, no PO risk acceptance required."
+
+**Reviewed semantic candidate (distinguished from the resulting lifecycle-record artifact,
+G-ID-001):** commit `deed6c5ccaa5e38caf8d468be80e64f180686c26`, ADR blob
+`446a5bf3dfd4861cb76822b10e501a750bd353f5`, representation basis blob
+`6a195d872431e9164d65c6685748f67ffd6c24b1`. The final `docs/adr/ADR-048.md` blob (after this
+mechanical status/reviewers/approval-metadata edit, the Review A evidence recording, and the
+deterministic status-tense normalization) is a distinct identity — never represented as the
+originally reviewed semantic candidate identity.
+
+**Immutability:** per Chapter 11 §11.3, `docs/adr/ADR-048.md` is now immutable byte-for-byte from
+this approval boundary forward. Future architecture changes require a new ADR with
+`supersedes: [ADR-048]`; this transaction does not edit ADR-048 in place again, does not bump its
+version, and does not add `superseded_by`.
+
+**Decision effect:** ADR-048 approval establishes architecture authority for Event Contract versions
+intended to serve `causal_closure_policy.mode: declared-state-dependencies` /
+`dependency_authority: per_effect_event_contract` — such a version can now machine-readably declare
+its per-causation-ref apply-time state-dependency classification using the approved canonical
+grammar. ADR-048 does **not** itself: classify new per-event semantic categories; modify the accepted
+21 current classification results; publish any Event Contract; modify an existing Event Contract;
+create Feature vNext; approve Context Input Contract v1.0; implement validator/runtime behavior; or
+authorize LIVE.
+
+**Preserved evidence, none modified by this transaction:** `context-upstream-state-dependency-
+derivation-001.md` v0.5 (`21 EXTERNAL_NON_STATE_CAUSE / 0 STATE_DEPENDENCY / 0 UNRESOLVED`;
+`CANDLE_CLOSED` `VACUOUS`, zero causation-ref categories) remains the classification-evidence
+authority — ADR-048 governs their canonical *representation*, not their derivation.
+`feature-computed/v1.0`/`feature-fact-invalidated/v1.0` remain valid immutable Published historical
+Event Contracts; their lack of `causal_state_dependency_declaration` does **not** retroactively
+invalidate them, but they are **not** eligible as `per_effect_event_contract` dependency authority
+for a `declared-state-dependencies` Input Contract until separately-governed new versions supply the
+declaration — not modified here. Candle Draft candidates (`candle-closed/v1.0`,
+`candle-corrected/v1.0`) remain `Draft`, Review A `REVISION_REQUIRED`, unremediated by this
+transaction — now the next bounded remediation lane. Structure/Regime authoring remains `PAUSED`
+until the Candle pair is mechanically aligned to ADR-048 and fresh Review A validates the pattern.
+Representation derivation (`v0.5`, `Draft`, Review A `CLEAN`) and state-dependency derivation (`v0.5`,
+`CLEAN`) both confirmed unmodified. Context Input Contract (`context-market-input.yaml` v0.3, `Draft`,
+Review A `CLEAN`, Risk `R2`, `PROCEED WITHOUT CROSS-CHECK`, `NOT PUBLISHED`) confirmed unmodified —
+not yet publication-ready because required upstream Event Contract dependency authority is not yet
+completely materialized.
+
+**Confirmed unchanged:** representation derivation v0.5, state-dependency derivation v0.5, both
+Candle candidates, Feature Published Event Contracts, every Structure/Regime Event Contract, Context
+Input Contract, every Domain Contract, `docs/adr/ADR-039.md`/`ADR-040.md`/`ADR-045.md`/`ADR-047.md`,
+every Constitution chapter, every registry, all production source/tests/tooling. No code changed.
+
+**M2 unchanged (`BLOCKED`, parallel evidence lane). M3 remains `ACTIVE`** — state-dependency
+derivation v0.5 Review A `CLEAN`; representation derivation v0.5 Review A `CLEAN`; `ADR-048`
+`APPROVED`/`IMMUTABLE`; Candle pair `AUTHORED`/Review A `REVISION_REQUIRED`, next bounded remediation
+lane; Structure/Regime `PAUSED` pending Candle pattern validation; Feature v1.0 Published historical
+artifacts remain valid, new version authority follow-up still required; Context Input Contract v0.3
+`CLEAN`/`NOT PUBLISHED`. **M4 remains `QUEUED`.** Phase-3 Approval Gate `NOT REACHED`; LIVE remains
+`NOT_AUTHORIZED`.
+
+**Files changed:** `docs/adr/ADR-048.md` (lifecycle transition, `v0.3` unchanged, `status: Draft →
+Approved`), plus deterministic bookkeeping: `docs/MANIFEST.md`, `docs/CHANGELOG.md`,
+`docs/project/milestone.md`, `docs/project/milestone-dashboard.html`. No Event/Input/Domain Contract,
+Constitution chapter, other Approved ADR, registry, or production source/tests/tooling touched.
+`manifest_version` `"10.472"` -> `"10.473"`.
+
+**Next governed action:** Fresh ChatGPT verification of ADR-048 approval recording; if clean, issue
+the bounded Candle Event Contract remediation WP against Approved ADR-048 before any Structure/Regime
+authoring.
 
 ## Decision Log
 
