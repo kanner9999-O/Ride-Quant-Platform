@@ -2,6 +2,80 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-10-06 — ADR-049 v0.1 Draft candidate authored: StructureFactInvalidated multi-cause representation and deterministic primary-cause semantics
+
+Fresh-verified before mutation: `main == origin/main == ad66cf535d5d36f3338ac86a2362fe15686103b8`,
+working tree clean apart from pre-existing untracked noise. `docs/adr/ADR-049.md` confirmed free.
+`structure-fact-invalidated/v1.0.yaml` current blob `6d6b8087faef285e62323987a7cab1bfdcf2b444`
+re-confirmed unchanged.
+
+Fresh ChatGPT Review A of the four corrected Structure Event Contracts returned
+`REVISION_REQUIRED — 0 Blocker / 4 Major / 0 Minor`, Risk `R2`. `STRUCT-EC-A-MAJ-01`/`02` —
+`CLOSED — REVIEW A VALIDATED`. `STRUCT-EC-A-MAJ-03` — **REOPENED**: the prior CORR-001 correction
+(removing the dual-direct-cause invariant) was itself incomplete, having checked `structure.md` §5
+only and missed §10's own "Deduplicate cascade" paragraph, which legitimizes a rare case where a
+`SwingInvalidated` AND a `CandleCorrected` both directly affect the same BOS/CHoCH fact — exactly
+one `StructureFactInvalidated` is emitted, `causation_refs` lists BOTH direct causes,
+`payload.invalidation_cause` selects whichever is most direct at the fact's own
+`broken_swing_ref`/`breaking_candle_refs`. CORR-001's correction is not aligned with full Domain
+Contract authority and is not preserved as ground truth.
+
+**Bounded analysis conclusion — Approved `ADR-048`'s existing closed grammar already represents this
+case, no amendment needed.** Replace the discriminated `invalidation_cause_ref` role with a single
+static-`match` `direct_cause_ref` role (allow-set covering `SWING_INVALIDATED`/`CANDLE_CORRECTED`/
+`STRUCTURE_FACT_INVALIDATED`, `cardinality: {min: 1, max: 2}`). The discriminated form cannot
+represent the dual-cause case at any cardinality (its discriminant resolves the single
+`payload.invalidation_cause` scalar to exactly one `cases` allow-set per event — the other
+direct-cause entry matches no case, 0 matches, fail closed under `ADR-048` §6 Phase 2, independent
+of cardinality); the static `match` form has no such dependency, so only its cardinality needs to
+widen. `invalidated_fact_ref` and the merged role remain disjoint for every real instance — Phase 2
+exactly-one-role-match validates cleanly, no new Phase-2 relaxation needed.
+`payload.invalidation_cause` scalar stays sufficient (no schema evolution) — full dual-cause
+evidence now lives in `causation_refs`' own widened-cardinality role; the scalar continues naming
+only the deterministically-selected primary cause, per `structure.md` §10's own "most direct"
+selection text (to be inlined as self-contained Event Contract prose by the follow-on correction
+WP — Structure-local content, not an `ADR-048` concern).
+
+**Alternatives:** **A** (chosen) preserve full evidence + deterministic scalar primary cause,
+smallest correction, existing `ADR-048` grammar only. **B** (multi-valued `invalidation_cause`)
+rejected — duplicates evidence `causation_refs` already carries. **C** (collapse to
+exactly-one-direct-cause, CORR-001's own prior correction) rejected — this is the error being
+corrected; discards real §10 authority, loses I-1 Explainability evidence. **D** (extend `ADR-048`
+grammar) rejected — existing grammar already suffices; `ADR-048` untouched.
+
+**State-dependency derivation impact check:** classifications unchanged, all remain
+`EXTERNAL_NON_STATE_CAUSE`; category count unaffected. Representation derivation v0.5 §H's
+illustrative discriminated-`exactly:1` mapping for `STRUCTURE_FACT_INVALIDATED` flagged as stale
+follow-on correction debt — not edited (out of this WP's allowed-files scope).
+
+**Other open findings recorded only, NOT fixed here:** `STRUCT-EC-A-MAJ-04` — CORR-001's own prior
+STOP/authority-gap conclusion on `structure-recomputed.input_cursor_ref` is **reversed**: Chapter 8
+§8.5.1 already mechanically determines the canonical `type: replay_cursor` shape; the missing
+Structure-scoped Input Contract is a missing prerequisite for operational resolvability, not
+authority for a second cursor schema. `STRUCT-EC-A-MAJ-05` — BOS/CHoCH still externalize the §6a
+8-criteria total order (business semantic, must be inlined). `STRUCT-EC-A-MAJ-06` —
+`structure-recomputed` still externalizes the §10 cascade membership/completion algorithm (must be
+inlined). None of the three addressed by this ADR.
+
+**Risk/Scope:** fresh-classified `ADR_REQUIRED` (Chapter 0 §4b — Event Schema change; repeated
+semantic correction on the same artifact), Risk `R2` (cross-module effect via sole consumer
+`context-aggregator`; hard to reverse under `ADR-047` `backward_only`; explicit `ADR-045` R2
+trigger — repeated semantic correction indicating possible root-cause misunderstanding). R2 never
+delegated, never automatically cross-checked; optional cross-check NOT performed; no Product Owner
+decision recorded.
+
+`docs/adr/ADR-049.md` authored: `version: "0.1"`, `status: Draft`, `depends_on: [ADR-039, ADR-048]`,
+`supersedes: []`. `ADR-048` verified untouched, remains Approved v0.3. No Structure Event Contract,
+`structure.md`, Constitution chapter, or derivation artifact modified. No Product Owner decision
+fabricated. Regime authoring not started.
+
+**Files changed:** `docs/adr/ADR-049.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md`,
+`docs/project/milestone.md`, `docs/project/milestone-dashboard.html`. `manifest_version` `"10.476"`
+-> `"10.477"`.
+
+**Next governed action:** Fresh ChatGPT Review A of ADR-049 candidate before any Product Owner
+decision or final Structure Event Contract correction.
+
 ## [Unreleased] — 2026-10-06 — Structure Event Contract pair bounded correction: self-containment/causation-consistency findings (break-of-structure-detected, change-of-character-detected, structure-fact-invalidated); STOP on structure-recomputed's input_cursor_ref
 
 Starting `main == origin/main == 038439a4ce08ff7b7836e5723ed01fc0ae267f5f`, fresh-verified, working

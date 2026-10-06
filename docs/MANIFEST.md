@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.476"
+manifest_version: "10.477"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -34264,6 +34264,105 @@ Contract, Approved ADR, Constitution chapter, registry, or production source/tes
 **Next governed action:** Fresh ChatGPT Review A of all four corrected Structure Event Contract
 Draft candidates; `STRUCT-EC-A-MAJ-04`'s own smallest next governed action remains separately
 queued before that one field can be closed. Regime authoring remains not started.
+
+## ADR-049 v0.1 — Draft candidate authored: StructureFactInvalidated multi-cause representation and deterministic primary-cause semantics (bounded analysis, no Event Contract/ADR-048 change)
+
+Fresh-verified before mutation: `main == origin/main == ad66cf535d5d36f3338ac86a2362fe15686103b8`,
+working tree clean apart from pre-existing untracked noise. `docs/adr/ADR-049.md` confirmed free
+(highest existing ADR: `ADR-048`). `structure-fact-invalidated/v1.0.yaml` current blob
+`6d6b8087faef285e62323987a7cab1bfdcf2b444` re-confirmed unchanged (no drift since CORR-001).
+
+**Trigger:** fresh ChatGPT Review A of the four corrected Structure Event Contracts returned
+`REVISION_REQUIRED — 0 Blocker / 4 Major / 0 Minor`, Risk `R2`. `STRUCT-EC-A-MAJ-01`/`02` —
+`CLOSED — REVIEW A VALIDATED`. `STRUCT-EC-A-MAJ-03` — **REOPENED**: CORR-001's own removal of the
+dual-direct-cause invariant was itself incomplete — it checked `structure.md` §5 only and missed
+§10's own "Deduplicate cascade" paragraph, which explicitly legitimizes a rare case where a
+`SwingInvalidated` AND a `CandleCorrected` both directly affect the same BOS/CHoCH fact: exactly one
+`StructureFactInvalidated` is emitted, `causation_refs` lists BOTH direct causes, and
+`payload.invalidation_cause` selects whichever is "most direct at the fact's own
+broken_swing_ref/breaking_candle_refs." CORR-001's correction is therefore not aligned with full
+Domain Contract authority and is not preserved as ground truth.
+
+**Bounded analysis conclusion — Approved `ADR-048`'s existing closed grammar already represents this
+case, no amendment needed.** Tested explicitly: replacing the current discriminated
+`invalidation_cause_ref` role (`kind: by_target`, `discriminant.payload_path: [invalidation_cause]`,
+`cardinality: {exactly: 1}`) with a single static-`match` `direct_cause_ref` role (allow-set
+`SWING_INVALIDATED`/`CANDLE_CORRECTED`/`STRUCTURE_FACT_INVALIDATED` event_types +
+`swing-invalidated`/`candle-corrected`/`structure-fact-invalidated` contract_ids,
+`cardinality: {min: 1, max: 2}`). The discriminated form cannot represent the dual-cause case at any
+cardinality (the discriminant resolves `payload.invalidation_cause`'s single scalar value to exactly
+one `cases` allow-set per event — the other direct-cause entry falls into no case, 0 matches, fail
+closed under `ADR-048` §6 Phase 2, regardless of cardinality). The static `match` form has no such
+dependency; widening only its cardinality suffices. `invalidated_fact_ref` (unchanged,
+`payload_field`, `exactly: 1`) and the new merged role remain disjoint for every real instance —
+Phase 2 exactly-one-role-match validates cleanly with no overlap, no new Phase-2 relaxation.
+`payload.invalidation_cause` scalar remains sufficient (no schema evolution) — it continues naming
+the one deterministically-selected primary cause; full dual-cause evidence lives in the
+widened-cardinality `causation_refs` role instead. The exact tie-break predicate for "most direct"
+is `structure.md` §10's own text, to be inlined as self-contained Event Contract prose by the
+follow-on correction WP (Structure-local Domain Contract content, not an ADR-048/representation
+concern) — not resolved to a closed-form static priority by this ADR.
+
+**Alternatives considered:** **A** (chosen) — preserve full dual-cause evidence via widened-cardinality
+`causation_refs` role + deterministic scalar primary cause per §10's own selection criterion;
+smallest coherent correction, uses only already-Approved `ADR-048` grammar. **B** (multi-valued
+`invalidation_cause`) — rejected, duplicates evidence `causation_refs` already carries, unnecessary
+Event Schema payload-shape change. **C** (collapse to exactly-one-direct-cause, CORR-001's own prior
+correction) — rejected; this is the error being corrected, discards real §10 authority, loses I-1
+Explainability evidence for the rare case. **D** (extend `ADR-048` selector/cardinality grammar) —
+rejected; existing grammar (static `match` + Form B range cardinality) already suffices; `ADR-048`
+untouched.
+
+**State-dependency derivation impact check:** `context-upstream-state-dependency-derivation-001.md`
+v0.5 §2.5 classifications unchanged — all causation categories remain `EXTERNAL_NON_STATE_CAUSE`;
+category count unaffected (two instances of one existing category may now coexist in one event,
+this is not a new category). `event-contract-causal-dependency-representation-001.md` v0.5 §H's own
+illustrative discriminated-`exactly:1` mapping for `STRUCTURE_FACT_INVALIDATED` is now **stale,
+follow-on correction debt** — not edited by this ADR (out of this WP's allowed-files scope).
+
+**Other open Review-A findings recorded only, NOT fixed here:** `STRUCT-EC-A-MAJ-04`
+(`structure-recomputed.input_cursor_ref`) — CORR-001's own prior STOP/authority-gap conclusion is
+**reversed** by fresh Review A: Chapter 8 §8.5.1 already mechanically determines the canonical
+`type: replay_cursor` shape for every cursor (per `structure.md` §15's own applies-not-redefines
+boundary); the missing Structure-scoped Input Contract is a missing referenced-artifact
+**prerequisite** for operational resolvability, not authority for a second cursor schema. `STRUCT-
+EC-A-MAJ-05` (BOS/CHoCH still externalize the §6a 8-criteria total order — business semantic, not
+mere tie-break detail, must be inlined). `STRUCT-EC-A-MAJ-06` (`structure-recomputed` still
+externalizes the §10 cascade membership/completion algorithm — must be inlined). None of the three
+are addressed by this ADR — bounded to `STRUCT-EC-A-MAJ-03`'s representation question only.
+
+**Risk Classification (fresh, this ADR):** `R2` — Event Schema causal-dependency representation
+decision for an authoritative Published-candidate Event Contract; cross-module effect once
+published (sole registered consumer `context-aggregator`); hard to reverse under `ADR-047`'s
+`backward_only` commitment after first publication; repeated semantic correction on the same
+artifact (`STRUCT-EC-A-MAJ-03` closed then reopened) — explicit `ADR-045` R2 trigger. ADR Scope
+fresh-classified `ADR_REQUIRED` per Chapter 0 §4b (Event Schema change; repeated semantic
+correction). Per `ADR-045`, R2 is never delegated and never automatically cross-checked —
+`RECOMMEND OPTIONAL INDEPENDENT CROSS-CHECK`, Product-Owner-only routing; this WP does not perform
+that optional cross-check and does not record a Product Owner decision — both explicitly out of
+scope.
+
+**`docs/adr/ADR-049.md` authored:** `version: "0.1"`, `status: Draft`, `reviewers: []`,
+`approved_by: null`, `approved_at: null`, `depends_on: [ADR-039, ADR-048]`, `supersedes: []`.
+`ADR-048` verified untouched (byte-identical, `git diff --quiet`), remains `Approved`, v0.3, no
+supersession. No Structure Event Contract, `structure.md`, Constitution chapter, or either
+state-dependency/representation derivation artifact modified. No Product Owner decision recorded
+or fabricated. Regime authoring not started.
+
+**M2 unchanged (`BLOCKED`, parallel evidence lane). M3 remains `ACTIVE`** — Structure's
+`STRUCT-EC-A-MAJ-03` representation question now has a bounded Draft ADR candidate pending fresh
+Review A; `STRUCT-EC-A-MAJ-04`/`05`/`06` remain open, unfixed, recorded above. Regime remains
+`PAUSED`. **M4 remains `QUEUED`.** Phase-3 Approval Gate `NOT REACHED`; LIVE remains
+`NOT_AUTHORIZED`.
+
+**Files changed:** `docs/adr/ADR-049.md` (new), plus deterministic bookkeeping: `docs/MANIFEST.md`,
+`docs/CHANGELOG.md`, `docs/project/milestone.md`, `docs/project/milestone-dashboard.html`. No
+Structure/Candle/Regime/Feature Event Contract, Context Input Contract, Approved ADR, Constitution
+chapter, domain contract, registry, or production source/tests/tooling touched. `manifest_version`
+`"10.476"` -> `"10.477"`.
+
+**Next governed action:** Fresh ChatGPT Review A of ADR-049 candidate before any Product Owner
+decision or final Structure Event Contract correction.
 
 ## Decision Log
 
