@@ -10,6 +10,21 @@
 # not fabricated. This transaction does not transition Draft -> Published, does not add a reviewer,
 # and does not call this an authoritative Published snapshot.
 #
+# PRIOR REVIEW A (not self-closed by this correction — closure is a fresh Review A re-review
+# determination): reviewer ChatGPT, role AI Technical Architect, verdict
+# `REVISION_REQUIRED — 0 Blocker / 4 Major / 0 Minor`, Risk `R2`. Reviewed blob (this file,
+# pre-correction) `4abf0b7f764faf88375b8c8ac89c30f6f3ff7256`. Finding `STRUCT-EC-A-MAJ-03`
+# (an invented invariant permitted causation_refs to carry TWO simultaneous direct-cause entries
+# when a SwingInvalidated and a CandleCorrected both directly affect the same fact — that
+# simultaneous-two-direct-causes semantic is not present in structure.md §5, and directly
+# contradicts this artifact's own Approved ADR-048 `mode: exhaustive` declaration below, under
+# which the second cause ref would necessarily have zero role matches and fail closed) —
+# addressed/remediated by this correction (the invented invariant removed; `causation_refs`
+# narrative now aligns exactly to structure.md §5's own exactly-one-direct-cause model, matching
+# the already-declared `invalidation_cause_ref: cardinality: exactly 1` below with no priority
+# rule invented), pending fresh Review A. Correction transaction boundary: HEAD
+# 038439a4ce08ff7b7836e5723ed01fc0ae267f5f (CONTEXT-UPSTREAM-EVENT-CONTRACT-STRUCTURE-001-CORR-001).
+#
 # RETENTION / REFERENCE ELIGIBILITY: Approved ADR-040 (docs/adr/ADR-040.md) establishes Class-G
 # retention/resolvability semantics at architecture level and satisfies ADR-039's own Consequences
 # item (0) retention prerequisite for Event Contract version-artifacts. Concrete past-horizon
@@ -120,7 +135,7 @@ payload_semantics_and_invariants:
     - "This event carries no orientation field (no prior_orientation/new_orientation) — it is not, and must never be interpreted as, a state transition."
     - "envelope.recorded_time MUST be strictly later than the recorded_time of the direct cause event (whichever of (a)/(b)/(c) applies)."
     - "Replay at a cursor before this event's own recorded_time MUST NOT observe it."
-    - "If a SwingInvalidated AND a CandleCorrected both directly affect the same BOS/CHoCH simultaneously (rare — a shared correction reaching both paths), exactly ONE StructureFactInvalidated is still emitted for that fact — causation_refs lists both direct causes as additional entries, invalidation_cause selects whichever is most direct at the fact's own broken_swing_ref/breaking_candle_refs — never two independent StructureFactInvalidated for the same fact."
+    - "envelope.causation_refs contains EXACTLY TWO entries, never more: the invalidated BOS/CHoCH reference (invalidated_fact_ref, exactly one) and EXACTLY ONE direct cause reference selected by payload.invalidation_cause — never two simultaneous direct-cause references for the same fact (fixes STRUCT-EC-A-MAJ-03; see causal_state_dependency_declaration below, whose mode: exhaustive role cardinalities mechanically enforce this exact count)."
 
 causal_state_dependency_declaration:
   mode: exhaustive
@@ -195,7 +210,11 @@ provenance:
   note: >
     Drafting-history citation ONLY (ADR-039 §"Canonical authority/source") — never required to
     interpret this artifact's own meaning; payload_shape and payload_semantics_and_invariants above
-    are fully self-contained. event_class, allowed_streams, and merge_constraints were
+    are fully self-contained and now align exactly to structure.md §5's own exactly-one-direct-
+    cause model (fixes STRUCT-EC-A-MAJ-03 — the invented simultaneous-two-direct-causes invariant,
+    which was not present in §5 and contradicted this artifact's own ADR-048 exhaustive-role
+    cardinality below, has been removed; no multi-cause support, no invented priority rule).
+    event_class, allowed_streams, and merge_constraints were
     governed-authored directly against Chapter 8 §8.3.1/§8.3.4, Approved ADR-036, Approved ADR-047,
     and this repository's own established terminology — NOT mechanically transcribed from
     structure.md, which does not declare any of the three fields anywhere.

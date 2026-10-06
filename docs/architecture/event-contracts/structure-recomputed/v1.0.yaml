@@ -10,6 +10,43 @@
 # not fabricated. This transaction does not transition Draft -> Published, does not add a reviewer,
 # and does not call this an authoritative Published snapshot.
 #
+# PRIOR REVIEW A (not self-closed by this correction — closure is a fresh Review A re-review
+# determination): reviewer ChatGPT, role AI Technical Architect, verdict
+# `REVISION_REQUIRED — 0 Blocker / 4 Major / 0 Minor`, Risk `R2`. Reviewed blob (this file,
+# pre-correction) `7a8a328906ae8d73c7d43df942d465ae21dba093`. Finding `STRUCT-EC-A-MAJ-04`
+# (`payload.input_cursor_ref: {type: object, ...}` lacks a field-level schema; ADR-039 requires
+# the complete payload shape to be inlined) — **STOPPED, authority gap, NOT mechanically resolved**
+# by this correction transaction (CONTEXT-UPSTREAM-EVENT-CONTRACT-STRUCTURE-001-CORR-001, HEAD
+# 038439a4ce08ff7b7836e5723ed01fc0ae267f5f). Fresh-read Chapter 8 §8.5/§8.5.1/§8.5.2 (canonical
+# Replay Cursor) and structure.md §5a: the canonical Chapter 8 §8.5.1 Replay Cursor REQUIRES
+# `input_contract_ref: {contract_id, contract_version}` — it is defined for consumers scoped by an
+# actual Input Contract (the exact shape already reused verbatim by
+# feature-computed/v1.0.yaml's own `computation_cursor`, which pins a real Feature-scoped Input
+# Contract instance). No Structure-scoped Input Contract exists anywhere in this repository
+# (`docs/architecture/input-contracts/` holds only Context- and Feature-scoped instances) for
+# `input_cursor_ref` to pin. structure.md §5a's own invariant text never cites Chapter 8 §8.5, the
+# term "Replay Cursor", or `input_contract_ref` at all — it cites only "tinh thần Chapter 8 §8.1.1
+# Referenced Authoritative Artifact" (a DIFFERENT, general versioned/immutable/resolvable
+# discipline, not the §8.5.1 cursor cardinality table). Existing authority therefore does NOT
+# mechanically determine whether `input_cursor_ref` must be (a) the full canonical §8.5.1 Replay
+# Cursor — which would first require authoring a Structure-scoped Input Contract, or an explicit
+# decision that `input_contract_ref` may be legitimately absent/N-A for a producer's own internal
+# refold, neither of which any current authority states — or (b) a distinct, narrower,
+# Structure-specific "input set" pinning shape that no authority has yet canonically defined. Per
+# this WP's own explicit instruction, this field's schema is NOT invented here; `input_cursor_ref`
+# remains the pre-correction `{type: object, required: true, ...}` shape unchanged. Likely Risk/ADR
+# scope for the eventual decision (non-final, this executor's own estimate only): `R2`,
+# `ADR Required` per Chapter 0 §4b (>1-module/hard-to-reverse — paralleling Feature's own
+# `computation_cursor`/`computation_dependency_content_evidence` precedent, which required no
+# separate ADR only because it directly reused an ALREADY-canonical cursor+Input-Contract pairing;
+# Structure currently lacks the Input-Contract half of that pairing). Smallest next governed
+# action: author a bounded analysis/derivation artifact (or ADR) that either (i) authors a minimal
+# Structure-scoped Input Contract and confirms `input_cursor_ref` is exactly Chapter 8 §8.5.1's
+# Replay Cursor pinning it, or (ii) defines a new, narrower, Structure-specific minimal input-set-
+# pin shape sufficient for §8.1.1's own Referenced-Authoritative-Artifact determinism without
+# requiring a full Input Contract — then propagate the resulting decision back into this artifact
+# in a separate, later, bounded correction. Not performed here.
+#
 # RETENTION / REFERENCE ELIGIBILITY: Approved ADR-040 (docs/adr/ADR-040.md) establishes Class-G
 # retention/resolvability semantics at architecture level and satisfies ADR-039's own Consequences
 # item (0) retention prerequisite for Event Contract version-artifacts. Concrete past-horizon
@@ -89,7 +126,7 @@ merge_constraints:
 payload_shape:
   resulting_orientation: {type: enum, values: [NEUTRAL, BULLISH, BEARISH], required: true}
   justifying_fact_ref: {type: event_record_ref, required: false, description: "REQUIRED when resulting_orientation != NEUTRAL; PROHIBITED when resulting_orientation = NEUTRAL — see invariants."}
-  input_cursor_ref: {type: object, required: true, description: "Pins the exact cursor/input set (Swing + Candle facts still valid) used to refold this result, deterministic enough to reproduce it — Chapter 8 §8.1.1 Referenced Authoritative Artifact spirit."}
+  input_cursor_ref: {type: object, required: true, description: "Pins the exact cursor/input set (Swing + Candle facts still valid) used to refold this result, deterministic enough to reproduce it — Chapter 8 §8.1.1 Referenced Authoritative Artifact spirit. Field-level object schema NOT YET inlined — open authority gap, STOP recorded under STRUCT-EC-A-MAJ-04 (see header); whether this is the canonical Chapter 8 §8.5.1 Replay Cursor or a distinct Structure-specific shape is not yet mechanically determined by existing authority."}
 
 payload_semantics_and_invariants:
   description: >

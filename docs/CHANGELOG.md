@@ -2,6 +2,120 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-10-06 — Structure Event Contract pair bounded correction: self-containment/causation-consistency findings (break-of-structure-detected, change-of-character-detected, structure-fact-invalidated); STOP on structure-recomputed's input_cursor_ref
+
+Starting `main == origin/main == 038439a4ce08ff7b7836e5723ed01fc0ae267f5f`, fresh-verified, working
+tree clean (parent `581c28d3acd1d13c613fc110e80b9e5a5dbc486a`). All four reviewed blobs matched
+exactly: `break-of-structure-detected/v1.0.yaml` `f9171103185beb256a29ab58c728d24633ef7cd9`,
+`change-of-character-detected/v1.0.yaml` `a6ee17dfb71c82e4d9f05ab1974806788fb6bf5d`,
+`structure-fact-invalidated/v1.0.yaml` `4abf0b7f764faf88375b8c8ac89c30f6f3ff7256`,
+`structure-recomputed/v1.0.yaml` `7a8a328906ae8d73c7d43df942d465ae21dba093`. Fresh ChatGPT Review A:
+`REVISION_REQUIRED — 0 Blocker / 4 Major / 0 Minor`, Risk `R2`. No finding self-closed.
+
+**`STRUCT-EC-A-MAJ-01`** (`break-of-structure-detected`/`change-of-character-detected`: Eligible
+Swing membership test omitted normative conditions (5) no-visible-`SwingInvalidated` and (7)
+latest-still-valid-revision from `structure.md` §6a's complete 7-condition predicate): both
+artifacts' `eligible_swing_constraint` rewritten to state all seven conditions explicitly and
+self-contained — (1) `SwingConfirmed` exists for the exact pair; (2) visible at cursor, no
+look-ahead; (3) matching instrument/venue/timeframe/direction; (4) matching
+`depends_on_swing_definition_version`; (5) NO `SwingInvalidated` visible for that exact pair; (6)
+not already consumed by a still-valid BOS/CHoCH for that exact pair; (7) the latest still-valid
+revision of that `swing_id`. Only the producer-side 8-criteria tie-break ORDER (used among multiple
+simultaneously-Eligible distinct `swing_id`s) remains condensed to its outcome, per this WP's own
+clarification that the finding concerns the complete membership/validity predicate, not candidate
+ranking.
+
+**`STRUCT-EC-A-MAJ-02`** (`change-of-character-detected` not self-contained — its
+`break_criterion.price_basis_and_comparison` pointed to `break-of-structure-detected/v1.0.yaml`
+for the actual formula): the full governed Structure break formula (`wick`/`close` ×
+`strict`/`inclusive`, all four comparison-operator variants, equal-high/equal-low touch semantics,
+authoritative-Candle-only requirement) is now inlined directly into
+`change-of-character-detected/v1.0.yaml`, byte-identical in substance to
+`break-of-structure-detected`'s own formula — no Structure semantics changed, cross-reference to
+the BOS artifact remains only as non-required explanatory text.
+
+**`STRUCT-EC-A-MAJ-03`** (`structure-fact-invalidated`: invented invariant permitted
+`causation_refs` to carry two simultaneous direct-cause entries when a `SwingInvalidated` and a
+`CandleCorrected` both directly affect the same fact — a semantic not present in `structure.md` §5
+and directly contradicting this artifact's own Approved `ADR-048` `mode: exhaustive` declaration,
+under which the unmatched second cause ref would necessarily have zero role matches and fail
+closed): the invented invariant removed; `causation_refs` narrative now states exactly two entries
+always — the invalidated-fact reference plus exactly one direct cause reference selected by
+`payload.invalidation_cause` — matching the already-declared `invalidation_cause_ref: cardinality:
+{exactly: 1}` exactly. No priority rule invented, no multi-cause support introduced, the three-value
+enum and the ADR-048 discriminated selector both left unchanged (no authority conflict found).
+
+**`STRUCT-EC-A-MAJ-04`** (`structure-recomputed`: `payload.input_cursor_ref: {type: object, ...}`
+lacks a field-level schema, required by ADR-039 self-containment) — **STOPPED, authority gap, NOT
+mechanically resolved.** Fresh-read Chapter 8 §8.5/§8.5.1/§8.5.2 and `structure.md` §5a: the
+canonical Chapter 8 §8.5.1 Replay Cursor requires `input_contract_ref: {contract_id,
+contract_version}` — it is defined for a consumer scoped by an actual Input Contract (the exact
+shape already reused verbatim by `feature-computed/v1.0.yaml`'s own `computation_cursor`, which
+pins a real Feature-scoped Input Contract instance). No Structure-scoped Input Contract exists
+anywhere in this repository. `structure.md` §5a's own invariant text never cites Chapter 8 §8.5,
+"Replay Cursor", or `input_contract_ref` — only "Chapter 8 §8.1.1 Referenced Authoritative
+Artifact" spirit (a different, general discipline). Existing authority therefore does **not**
+mechanically determine whether `input_cursor_ref` must be the full canonical §8.5.1 Replay Cursor
+(requiring a yet-unauthored Structure-scoped Input Contract, or an explicit decision that
+`input_contract_ref` may be absent for a producer's own internal refold) or a distinct,
+narrower, never-yet-canonically-defined Structure-specific "input set" pin shape. No schema was
+invented; `input_cursor_ref` remains its pre-correction `{type: object, required: true, ...}`
+shape, now with an explicit header + inline-description note recording the STOP and the two
+candidate resolution paths. Likely Risk/ADR scope for the eventual decision (non-final, executor's
+own estimate): `R2`, `ADR Required` (Chapter 0 §4b, paralleling why Feature's own
+`computation_cursor` pairing needed no separate ADR only because it directly reused an
+already-canonical cursor+Input-Contract pairing Structure currently lacks). Smallest next governed
+action: a bounded analysis/derivation artifact (or ADR) that either authors a minimal
+Structure-scoped Input Contract and confirms `input_cursor_ref` is exactly the §8.5.1 cursor
+pinning it, or defines a new, narrower Structure-specific input-set-pin shape — then a separate,
+later, bounded correction propagates the result back into this artifact. Not performed here.
+
+**ADR-048 declarations preserved exactly, none reopened:** all role classifications remain
+`EXTERNAL_NON_STATE_CAUSE` (derivation v0.5 §2.3–§2.6, not re-derived); no role-level `authority`
+field introduced anywhere; `break-of-structure-detected`/`change-of-character-detected` each keep
+their two roles (`broken_swing_confirmed_event_ref` exactly:1, `breaking_candle_refs` min:1/max:null);
+`structure-fact-invalidated` keeps its two roles (`invalidated_fact_ref` exactly:1,
+`invalidation_cause_ref` discriminated exactly:1, three cases unchanged); `structure-recomputed`
+keeps its one role (`cascade_invalidations` static match min:1/max:null) — mode `exhaustive` on all
+four, unchanged.
+
+**Self-containment re-verified** (before commit) on all four: no remaining normative pointer
+requires opening `structure.md`, another Structure Event Contract, the state-dependency derivation,
+or the representation derivation — only the producer-side 8-criteria tie-break order and (for
+`structure-recomputed`) the dependency-forward cascade traversal order remain condensed to outcome
+only, as already accepted in the prior authoring WP and unaffected by this correction.
+
+**No STOP condition beyond `STRUCT-EC-A-MAJ-04` itself** — none of the other three findings
+required changing `structure.md`, an Approved ADR, Constitution, or a new architecture decision.
+
+**Confirmed unchanged:** both Candle Event Contracts, `docs/adr/ADR-048.md`/`ADR-047.md`/
+`ADR-040.md`/`ADR-039.md`, every other Approved ADR, state-dependency derivation v0.5,
+representation derivation v0.5, `docs/domain/structure.md`, every Regime/Feature Event Contract,
+Context Input Contract, every other Domain Contract, every Constitution chapter, every registry,
+all production source/tests/tooling.
+
+All four Structure Event Contracts remain `status: Draft`, `contract_version: v1.0`, `reviewers:
+[]`, `approved_by: null`, `approved_at: null` — no reviewer/approval/publication transition.
+`compatibility_commitment: backward_only` preserved for all four (Approved `ADR-047`, not
+reopened); the corrected `ADR-040` retention/reference-eligibility wording preserved verbatim.
+
+**M2 unchanged (`BLOCKED`, parallel evidence lane). M3 remains `ACTIVE`** — Candle pair `CLEAN` /
+`Draft` / `NOT Published`; Structure four now **bounded-corrected Draft candidates, pending fresh
+ChatGPT Review A**, one open authority gap (`STRUCT-EC-A-MAJ-04`) explicitly flagged, not resolved;
+Regime remains `PAUSED`; Feature vNext dependency-authority follow-up remains `QUEUED later`;
+Context Input Contract v0.3 remains `Draft` / `NOT Published`. **M4 remains `QUEUED`.** Phase-3
+Approval Gate `NOT REACHED`; LIVE remains `NOT_AUTHORIZED`.
+
+**All Review A findings are addressed/remediated pending fresh ChatGPT Review A; executor does not
+self-close them.**
+
+Next governed action: fresh ChatGPT Review A of all four corrected Structure Event Contract Draft
+candidates; `STRUCT-EC-A-MAJ-04`'s own smallest next governed action (bounded analysis/ADR deciding
+`input_cursor_ref`'s canonical shape) remains separately queued before that one field can be
+closed. Regime authoring remains not started.
+
+---
+
 ## [Unreleased] — 2026-10-05 — Four Structure Event Contract v1.0 Draft candidates authored (break-of-structure-detected, change-of-character-detected, structure-fact-invalidated, structure-recomputed)
 
 Starting `main == origin/main == 581c28d3acd1d13c613fc110e80b9e5a5dbc486a`, fresh-verified, working

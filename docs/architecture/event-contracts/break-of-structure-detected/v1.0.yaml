@@ -10,6 +10,16 @@
 # not fabricated. This transaction does not transition Draft -> Published, does not add a reviewer,
 # and does not call this an authoritative Published snapshot.
 #
+# PRIOR REVIEW A (not self-closed by this correction — closure is a fresh Review A re-review
+# determination): reviewer ChatGPT, role AI Technical Architect, verdict
+# `REVISION_REQUIRED — 0 Blocker / 4 Major / 0 Minor`, Risk `R2`. Reviewed blob (this file,
+# pre-correction) `f9171103185beb256a29ab58c728d24633ef7cd9`. Finding `STRUCT-EC-A-MAJ-01`
+# (eligible_swing_constraint omitted normative conditions (5) no-visible-SwingInvalidated and (7)
+# latest-still-valid-revision from structure.md §6a's complete Eligible membership predicate) —
+# addressed/remediated by this correction, pending fresh Review A. Correction transaction boundary:
+# HEAD 038439a4ce08ff7b7836e5723ed01fc0ae267f5f
+# (CONTEXT-UPSTREAM-EVENT-CONTRACT-STRUCTURE-001-CORR-001).
+#
 # RETENTION / REFERENCE ELIGIBILITY: Approved ADR-040 (docs/adr/ADR-040.md) establishes Class-G
 # retention/resolvability semantics at architecture level and satisfies ADR-039's own Consequences
 # item (0) retention prerequisite for Event Contract version-artifacts. Concrete past-horizon
@@ -32,11 +42,12 @@
 # does not declare any of the three fields anywhere. Authority basis is cited inline at each field.
 # payload_shape / payload_semantics_and_invariants are transcribed and governed-synthesized from
 # structure.md v0.4 §1 (subject)/§2 (envelope, payload-relevant portions only)/§3
-# (BreakOfStructureDetected)/§6 (BOS executable criterion)/§6a (broken_swing_ref schema + Eligible
-# Swing membership test, condensed) and are fully self-contained here — a reader does not need to
-# separately consult structure.md to interpret this artifact's own meaning (ADR-039). The producer-
-# side 8-criteria total-order tie-break algorithm used to SELECT which Eligible Swing a producer
-# uses (structure.md §6a) is deliberately condensed to its membership test only, not reproduced
+# (BreakOfStructureDetected)/§6 (BOS executable criterion)/§6a (broken_swing_ref schema + the
+# COMPLETE seven-condition Eligible Swing membership predicate, fixes STRUCT-EC-A-MAJ-01) and are
+# fully self-contained here — a reader does not need to separately consult structure.md to
+# interpret this artifact's own meaning (ADR-039). Only the producer-side 8-criteria total-order
+# tie-break algorithm used to SELECT among multiple simultaneously-Eligible distinct swing_id
+# candidates (structure.md §6a) remains deliberately condensed to its outcome only, not reproduced
 # step-by-step — same discipline already applied to Candle's own precedence-resolution algorithm
 # (candle-closed/v1.0.yaml) — because validating an already-emitted event's own payload requires
 # only that `broken_swing_ref` be a structurally valid, Eligible reference, never a re-derivation of
@@ -162,17 +173,27 @@ payload_semantics_and_invariants:
       Required confirmation uses only authoritative Candle facts (candle-closed/candle-corrected) —
       never a provisional observation.
   eligible_swing_constraint: >
-    broken_swing_ref MUST reference a Swing fact that is CONFIRMED (SwingConfirmed exists for the
-    exact (swing_id, swing_revision) pair), visible at the current cursor (no look-ahead), matching
-    the required instrument/venue/timeframe/direction, matching
-    structure_definition_version.depends_on_swing_definition_version, and NOT already used as the
-    broken_swing_ref of another still-valid BreakOfStructureDetected/ChangeOfCharacterDetected for
-    the exact same (swing_id, swing_revision) pair — a different revision of the same swing_id is an
-    independently eligible pair, never blocked by a prior revision's consumption. When more than one
-    Eligible candidate exists, which one a producer selects is resolved by a total-order tie-break
+    broken_swing_ref MUST reference a (swing_id, swing_revision) pair satisfying ALL seven of the
+    following Eligible conditions simultaneously, at the cursor as of this event's own
+    recorded_time (structure.md §6a, complete membership/validity predicate — fixes
+    STRUCT-EC-A-MAJ-01): (1) a SwingConfirmed fact exists for the exact (swing_id, swing_revision)
+    pair; (2) that SwingConfirmed is visible at the current cursor — no look-ahead; (3) it matches
+    the required instrument_id/venue_id/timeframe, and its direction matches the
+    broken_level_decision_table above; (4) it matches
+    structure_definition_version.depends_on_swing_definition_version; (5) NO SwingInvalidated is
+    visible for that exact (swing_id, swing_revision) pair at the cursor; (6) that exact pair has
+    NOT already been used as the broken_swing_ref of another still-valid (not yet
+    StructureFactInvalidated) BreakOfStructureDetected/ChangeOfCharacterDetected; (7) it is the
+    latest still-valid revision of that swing_id at the cursor — no newer still-valid revision of
+    the same swing_id may be skipped over in favor of an older one. Condition (7) operates per
+    swing_id only — a different revision of a DIFFERENT swing_id (or of the same swing_id once a
+    newer revision supersedes an older one) is always an independently eligible pair, never
+    "locked" merely because some other revision was previously consumed under condition (6). When,
+    after applying all seven conditions, more than one DISTINCT swing_id simultaneously has an
+    Eligible pair, which one a producer selects among them is resolved by a total-order tie-break
     rule that is a producer-side selection concern (full step-by-step mechanics remain
     structure.md §6a's own drafting-history content) — validating this already-emitted event's own
-    payload requires only that the referenced pair satisfy the membership test above, never a
+    payload requires only that the referenced pair satisfy all seven conditions above, never a
     re-derivation of which candidate was selected among several.
   invariants:
     - "envelope.causation_refs MUST contain exactly these two role contributions, and nothing else: broken_swing_ref.swing_confirmed_event_ref (exactly one); breaking_candle_refs (one or more) — see causal_state_dependency_declaration below for the canonical machine-readable classification of each."
@@ -245,9 +266,12 @@ provenance:
   note: >
     Drafting-history citation ONLY (ADR-039 §"Canonical authority/source") — never required to
     interpret this artifact's own meaning; payload_shape and payload_semantics_and_invariants above
-    are fully self-contained, including a condensed but complete membership test for Eligible Swing
-    (not the full 8-criteria producer-side tie-break order, which remains structure.md §6a's own
-    drafting-history content). event_class, allowed_streams, and merge_constraints were
+    are fully self-contained, including the COMPLETE seven-condition Eligible Swing membership
+    predicate (fixes STRUCT-EC-A-MAJ-01 — all seven structure.md §6a conditions are now inlined
+    explicitly, not a partial subset) — only the full 8-criteria producer-side tie-break ORDER
+    (used to select among multiple simultaneously-Eligible distinct swing_id candidates) remains
+    structure.md §6a's own drafting-history content, not needed to validate an already-emitted
+    event's own payload. event_class, allowed_streams, and merge_constraints were
     governed-authored directly against Chapter 8 §8.3.1/§8.3.4, Approved ADR-036, Approved ADR-047,
     and this repository's own established terminology — NOT mechanically transcribed from
     structure.md, which does not declare any of the three fields anywhere.
