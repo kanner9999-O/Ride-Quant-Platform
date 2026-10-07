@@ -1,0 +1,271 @@
+# Event Contract version-artifact — feature-computed v1.1
+#
+# Referenced Authoritative Artifact (Chapter 8 §8.1.1) once Published. Canonical authority/
+# self-containment model, path/version grammar, and immutability discipline per Approved ADR-039
+# v0.1 (docs/adr/ADR-039.md). Retention/archive semantics per Approved ADR-040 v0.1
+# (docs/adr/ADR-040.md).
+#
+# STATUS: Draft — this is a NEW version-artifact, not an edit of the existing Published
+# feature-computed/v1.0.yaml, which remains byte-for-byte immutable and is never touched by this
+# file (ADR-039 "Immutability and identifier non-reuse"; v1.0 blob confirmed unchanged at
+# 9e1da0ac1e72403a780ff16e0d06ed68354da623 — see docs/project/
+# feature-causal-state-dependency-version-impact-001.md §0/§6).
+#
+# This version-artifact adds exactly one new top-level field relative to v1.0:
+# `causal_state_dependency_declaration` (Approved ADR-048, docs/adr/ADR-048.md), governed-authored
+# directly against ADR-048 — NOT mechanically transcribed from feature.md, which does not declare
+# this field (same authoring discipline v1.0 itself already used for event_class/allowed_streams/
+# merge_constraints). event_class, allowed_streams, merge_constraints, payload_shape,
+# payload_semantics_and_invariants, and compatibility_commitment are carried forward from v1.0
+# unchanged in meaning (byte-identical content below, re-stated here per ADR-039's own
+# self-containment requirement — a reader of this artifact must never need to separately consult
+# v1.0 to interpret this one).
+#
+# Version-impact / compatibility classification basis (full reasoning):
+# docs/project/feature-causal-state-dependency-version-impact-001.md §3. Summary: this delta is
+# Event-Contract-artifact-level governed metadata (ADR-048 §1 fixes it as a sibling of event_class/
+# allowed_streams/merge_constraints, explicitly prohibited from payload_shape/
+# payload_semantics_and_invariants) — it adds no element to, and changes no element of,
+# payload_shape, so no currently-valid consumer (context-aggregator, Feature's sole registered
+# consumer per ADR-038 and docs/domain/context-map.yaml) becomes invalid. Classified
+# NON-BREAKING under Chapter 10 §10.3/§10.3.1; contract_version increments minor only, per ADR-039's
+# major.minor grammar: v1.0 -> v1.1.
+#
+# This is distinguished from the prior v1.0 delta (computation_dependency_content_evidence,
+# ADR-037), which WAS added to payload_shape and was correctly classified BREAKING by feature.md
+# v0.6 under the same Chapter 10 §10.3.1 minimal-classification rule applied to an actual payload
+# element — that conclusion is not reopened or reclassified by this artifact.
+#
+# Role declarations below reuse, without re-deriving, the already Review-A-validated
+# EXTERNAL_NON_STATE_CAUSE classification for FEATURE_COMPUTED's two causation-ref categories:
+# docs/project/context-upstream-state-dependency-derivation-001.md v0.5 §2.9.
+
+contract_id: feature-computed
+contract_version: v1.1
+status: Draft
+reviewers: []
+approved_by: null
+approved_at: null
+last_review: null
+
+event_type: FEATURE_COMPUTED
+# feature.md v0.6 §2 event_types table (PAST_TENSE_UPPER_SNAKE per Chapter 3 §3.2, referenced not
+# redefined here). Unchanged from v1.0.
+
+event_class: derived_fact
+# Unchanged from v1.0 — see v1.0.yaml's own provenance/rationale (ADR-039 §"Canonical
+# authority/source": a version-artifact's event_class/allowed_streams/merge_constraints are
+# governed-authored once and carried forward unchanged across non-breaking versions unless the
+# specific delta being published requires revisiting them; this delta does not).
+
+allowed_streams:
+  - stream_id: feature-engine-feature
+# Unchanged from v1.0.
+
+merge_constraints:
+  prerequisite_policy: causation_must_resolve_before_apply
+# Unchanged from v1.0.
+
+causal_state_dependency_declaration:
+  mode: exhaustive
+  # Approved ADR-048 (docs/adr/ADR-048.md) §2 — governed-authored directly against ADR-048, not
+  # transcribed from feature.md (which does not declare this field). mode: exhaustive because
+  # FeatureComputed's causation_refs is never canonically empty (feature.md v0.6 §2 envelope:
+  # "causation_refs KHÔNG BAO GIỜ rỗng cho bất kỳ Feature event nào") — mode: vacuous would be
+  # malformed here (ADR-048 §9 item 3).
+  roles:
+    - role_id: input_fact_refs
+      selector:
+        kind: payload_field
+        path:
+          - input_fact_refs
+      cardinality:
+        min: 0
+        max: null
+      # Form B (ADR-048 §5). min: 0 rather than a fixed positive bound: this role's own cardinality
+      # floor is governed by Feature Definition's own per-feature_type role-cardinality pin
+      # (feature.md §3 invariant, §6), not by this Event Contract artifact — ADR-048 itself commits
+      # only to the closed Form A/Form B shapes, not to re-deriving a Domain-Contract-owned minimum
+      # here. Every entry of input_fact_refs is, by feature.md §3's own invariant, always a subset
+      # of causation_refs; this role's own match set is therefore bounded by causation_refs'
+      # defensible floor of 1 for input_fact_refs specifically (original computation requires all
+      # of them; a correction replacement requires the updated set) — expressed here as min: 0/
+      # max: null to avoid asserting a feature_type-specific exact count this artifact does not own,
+      # while the exactly-one-match Phase-2 rule (ADR-048 §6) still rejects any causation_refs entry
+      # this role and the sibling role below both fail to claim.
+      classification: EXTERNAL_NON_STATE_CAUSE
+      apply_time_requirement: >
+        Authoritative application of this FeatureComputed does not require re-reading any
+        referenced Candle/Swing/Regime input fact's own domain payload: payload.value (together
+        with unit/effective_window) is the complete, self-sufficient computed result (feature.md
+        v0.6 §3). input_fact_refs exist for lineage, precedence, computation-identity
+        construction (the normalized-order/identity-tuple discipline already inlined in this
+        contract_id's own payload_semantics_and_invariants below), and explainability (I-1) —
+        never for apply-time state/input-scope participation. A consumer of an already-emitted
+        FeatureComputed uses payload.value directly and never re-derives it from any input fact's
+        own payload. Evidence: docs/project/context-upstream-state-dependency-derivation-001.md
+        v0.5 §2.9 ("input_fact_refs (Candle and/or Regime and/or Swing evidence,
+        feature_type-dependent)").
+    - role_id: supersedes_fact_ref
+      selector:
+        kind: payload_field
+        path:
+          - supersedes_fact_ref
+      cardinality:
+        min: 0
+        max: 1
+      classification: EXTERNAL_NON_STATE_CAUSE
+      apply_time_requirement: >
+        Present only for a correction replacement (feature.md v0.6 §3 invariants: absent for an
+        original computation, required for a replacement). Authoritative application needs only
+        the identity of the FeatureFactInvalidated being superseded, for lineage/fork-prevention
+        (feature.md §3 rules 2/6/7) — the replacement's own value is recomputed solely from
+        input_fact_refs, never from the superseded fact's own payload. Evidence: docs/project/
+        context-upstream-state-dependency-derivation-001.md v0.5 §2.9 ("FeatureFactInvalidated ref
+        (replacement case)").
+
+payload_shape:
+  feature_subject_id: {type: string, required: true}
+  feature_type: {type: enum, values: [volatility_metric, directional_persistence_metric, distance_to_last_confirmed_swing], required: true}
+  feature_definition_version: {type: string, required: true}
+  value: {type: decimal, required: true, description: "kết quả — KHÔNG phải một phần computation identity, xem payload_semantics_and_invariants.computation_identity_and_dedup dưới đây"}
+  unit: {type: string, required: true, description: "đơn vị số học — pin ở Feature Definition"}
+  effective_window:
+    kind: interval
+    window_start: {type: timestamp, required: true}
+    window_end: {type: timestamp, required: true}
+  input_fact_refs: {type: array, items: event_record_ref, required: true}
+  supersedes_fact_ref: {type: event_record_ref, required: false, description: "VẮNG MẶT cho original computation; BẮT BUỘC cho correction replacement — xem invariants."}
+  computation_cursor:
+    type: replay_cursor
+    required: true
+    description: >
+      Canonical Chapter 8 §8.5 Replay Cursor, applied here, NOT redefined (ADR-035, Approved).
+      Shape owned by Chapter 8 §8.5.1: recorded_time (required), input_contract_ref (required,
+      {contract_id, contract_version}), stream_registry_version (required), lifecycle_frontier
+      (required, {stream_id, position: {kind, sequence}}), stream_positions (required, map
+      stream_id -> sequence). input_contract_ref pins a Feature-scoped Input Contract instance
+      (Chapter 8 §8.3.4). This reference, and stream_registry_version/lifecycle_frontier, MUST
+      each resolve, per Chapter 8 §8.1.1, to their own current governing authoritative artifact —
+      an unresolvable reference, or one that resolves to content failing its own required
+      content-identity/relational-binding validation, is a fail-closed condition (see
+      computation_dependency_content_evidence below); this artifact does not assert whether any
+      particular referenced artifact currently exists, only that resolution/validation must
+      succeed for the cursor to be usable as evidence.
+  computation_dependency_content_evidence:
+    input_contract_content_id: {type: string, required: true, description: "SHA-256 content identity of the exact Input Contract artifact bytes that this fact's own computation_cursor.input_contract_ref resolved to (ADR-037, Approved)."}
+    stream_registry_content_id: {type: string, required: true, description: "SHA-256 content identity of the exact Stream Registry artifact bytes that this fact's own computation_cursor.stream_registry_version resolved to (ADR-037, Approved)."}
+# Unchanged from v1.0 (no payload_shape element added, removed, retyped, or reinterpreted by this
+# version — causal_state_dependency_declaration above is a sibling top-level field, never nested
+# here, per ADR-048 §1's own explicit prohibition).
+
+payload_semantics_and_invariants:
+  description: >
+    Fact AUTHORITATIVE cho MỘT completed valid computation point/window — dùng cho CẢ HAI trường
+    hợp: (a) original computation; (b) correction replacement. Phát sinh cho MỌI computation point
+    mà Feature Definition yêu cầu, KỂ CẢ khi value không đổi so với point liền trước — một
+    computation point khác KHÔNG BAO GIỜ là duplicate chỉ vì value trùng.
+  input_fact_refs_normalization:
+    purpose: >
+      input_fact_refs must be normalized into one canonical, deterministic order before
+      computation identity construction, hashing, equality comparison, dedup, or event
+      serialization — required for computation identity below to be well-defined.
+    canonical_order_criteria:
+      - {order: 1, criterion: "ref's effective_time.window_start (or instant, if not an interval)", direction: ASC}
+      - {order: 2, criterion: "ref's effective_time.window_end (or equals window_start, if instant)", direction: ASC}
+      - {order: 3, criterion: "stream_ref.stream_id", direction: ASC, comparison: lexical}
+      - {order: 4, criterion: "stream_ref.registry_version", direction: ASC, comparison: lexical}
+      - {order: 5, criterion: "sequence", direction: ASC, comparison: "numeric — ONLY evaluated when criteria 3 AND 4 are already equal"}
+      - {order: 6, criterion: "event_id", direction: ASC, comparison: lexical}
+    algorithm: >
+      Compare criteria 1 through 6 in exact order. The first criterion with a differing value
+      between two references decides their relative order. Subsequent criteria are NOT
+      evaluated. `sequence` (criterion 5) is evaluated ONLY when both stream_ref.stream_id AND
+      stream_ref.registry_version already compare equal — comparing raw sequence values across
+      two different stream identities is strictly prohibited (Chapter 8 §8.3.3).
+    duplicate_detection: >
+      If all six criteria values match exactly between two references, they are duplicate
+      representations of the same authoritative fact — retain exactly one canonical reference.
+    determinism_guarantee: >
+      Same input facts arriving in different incoming order produce the same normalized
+      input_fact_refs, and therefore the same computation identity below.
+  computation_identity_and_dedup:
+    computation_identity_tuple:
+      - feature_subject_id
+      - effective_window.window_start
+      - effective_window.window_end
+      - feature_definition_version
+      - "input_fact_refs, normalized per input_fact_refs_normalization above"
+    identity_exclusions: >
+      `value` is the computation RESULT, not part of identity — two computations sharing the
+      same input tuple must produce the same result (determinism), but identity is established
+      by the normalized input tuple, never by the output. `computation_cursor` is likewise NOT
+      part of computation identity — two computations with the same normalized input tuple are
+      the same computation identity regardless of differing computation_cursor (e.g. different
+      evaluation timing resolving to the same input set). `computation_dependency_content_evidence`
+      is also NOT part of computation identity, same discipline as computation_cursor.
+      `causal_state_dependency_declaration` (this version) is likewise NOT a runtime
+      event-instance value at all — it is Event-Contract-artifact-level declarative metadata and
+      therefore categorically outside computation identity/dedup, the same discipline applied to
+      every other non-payload artifact-level field.
+    dedup_rule: >
+      Same feature_subject_id, same effective window, same feature_definition_version, same
+      normalized input_fact_refs → duplicate delivery → do NOT append a second authoritative
+      event for it.
+    distinct_computation_points_not_duplicates: >
+      A different computation point is never a duplicate merely because its value equals a
+      prior point's value — a different effective_window (and therefore different
+      input_fact_refs) is sufficient on its own to constitute a separate fact, regardless of
+      value equality.
+  invariants:
+    - "causation_refs KHÔNG BAO GIỜ rỗng: (a) original computation — PHẢI chứa toàn bộ input_fact_refs; (b) correction replacement — PHẢI chứa input_fact_refs đã cập nhật VÀ chính FeatureFactInvalidated đang được supersede."
+    - "envelope.effective_time = effective_window (interval) của CHÍNH fact này."
+    - "envelope.recorded_time PHẢI muộn hơn recorded_time của input fact mới nhất trong input_fact_refs — KHÔNG được compute trước khi đủ evidence tồn tại (chống look-ahead)."
+    - "payload.feature_subject_id, payload.feature_type, payload.feature_definition_version PHẢI khớp đúng subject_ref.subject_id VÀ toàn bộ subject_ref.scope — trường lặp lại có chủ đích cho query tiện dụng, không phải trục identity thứ hai."
+    - "input_fact_refs PHẢI thỏa mãn ĐÚNG role cardinality mà Feature Definition pin cho feature_type này — không thiếu, không thừa, không trùng lặp; mọi ref PHẢI là authoritative fact (candle-closed/candle-corrected/swing-confirmed/regime-classified tùy feature_type) — KHÔNG dùng CandleObserved, SwingCandidateDetected, hay bất kỳ *-current-view nào."
+    - "input_fact_refs PHẢI được serialize theo đúng canonical normalized order (input_fact_refs_normalization ở trên) — KHÔNG phải thứ tự phát sinh tùy ý của computation. Hai tập input fact giống hệt nhau nhưng đến theo thứ tự khác nhau PHẢI cho ra cùng một input_fact_refs đã serialize, cùng một computation identity."
+    - "value PHẢI dùng kiểu decimal — CẤM binary float — khi cần exact deterministic parity, đúng mọi feature_type."
+    - "supersedes_fact_ref VẮNG MẶT khi và chỉ khi đây là original computation cho (feature_subject_id, effective_window) đó — CHƯA từng có FeatureComputed nào khác cho đúng cặp subject+window này."
+    - "supersedes_fact_ref BẮT BUỘC có mặt khi (feature_subject_id, effective_window) đó đã có một FeatureComputed trước đó — đây là correction replacement."
+    - "supersedes_fact_ref, khi có mặt, PHẢI trỏ đúng lineage head HIỆN TẠI của (feature_subject_id, effective_window) đó — fact CHƯA từng là supersedes_fact_ref của bất kỳ FeatureComputed nào khác (cấm fork), VÀ đã nhận đúng một FeatureFactInvalidated visible — không được trỏ tới một fact đã bị supersede trước đó (cấm nhảy cóc qua lineage)."
+    - "Khi supersedes_fact_ref có mặt, envelope.recorded_time của fact này PHẢI muộn hơn recorded_time của FeatureFactInvalidated tương ứng — replacement không được 'visible' trước invalidation của chính fact nó thay thế."
+    - "Replacement fact PHẢI dùng ĐÚNG CÙNG (feature_subject_id, effective_window) với fact bị supersede — không được đổi window khi correction."
+    - "input_fact_refs của replacement PHẢI phản ánh ancestry ĐÃ SỬA — không được giữ nguyên ref cũ đã không còn authoritative."
+    - "KHÔNG có shortcut khi value không đổi: nếu một upstream correction ảnh hưởng input_fact_refs, cặp FeatureFactInvalidated + replacement PHẢI phát sinh — kể cả khi value cuối cùng giữ nguyên sau khi tính lại."
+    - "payload.computation_cursor PHẢI có mặt trên MỌI FeatureComputed — computation gốc lẫn replacement, KHÔNG NGOẠI LỆ."
+    - "computation_cursor.recorded_time PHẢI <= envelope.recorded_time của CHÍNH FeatureComputed này (Cursor → Fact, Chapter 8 §8.5.2) — một fact khẳng định đã evaluate as-of một cursor SAU thời điểm chính nó được ghi là invalid."
+    - "computation_cursor của một FeatureComputed replacement ĐỘC LẬP với computation_cursor của fact nó supersede — mỗi computation, gốc hay replacement, pin đúng cursor CHÍNH XÁC nó dùng để evaluate, KHÔNG kế thừa/sao chép cursor của fact trước đó."
+    - "payload.computation_dependency_content_evidence PHẢI có mặt trên MỌI FeatureComputed — computation gốc lẫn replacement, KHÔNG NGOẠI LỆ — chứa đúng hai giá trị bắt buộc input_contract_content_id/stream_registry_content_id, sao chép NGUYÊN VĂN (verbatim) từ CÙNG một VerifiedInputContractAuthority instance mà computation engine đã resolve/cache cho CHÍNH computation này (ADR-037, Approved) — KHÔNG được tính lại, phát minh, hay lấy từ một instance khác. Đây là artifact-content evidence, KHÔNG PHẢI một replay-cursor/ordering field."
+    - "computation_dependency_content_evidence.input_contract_content_id/stream_registry_content_id PHẢI tương ứng quan hệ CHÍNH XÁC với computation_cursor.input_contract_ref/computation_cursor.stream_registry_version của ĐÚNG CÙNG fact đó — evidence mang content identity cho một input_contract_ref/stream_registry_version KHÁC với cursor của chính fact đó là malformed, PHẢI bị từ chối bất cứ đâu được validate."
+    - "computation_dependency_content_evidence của một FeatureComputed replacement ĐỘC LẬP với evidence của fact nó supersede — mỗi computation, gốc hay replacement, pin đúng evidence CHÍNH XÁC nó dùng để evaluate, KHÔNG kế thừa/sao chép evidence của fact trước đó, cùng discipline computation_cursor."
+    - "computation_cursor KHÔNG PHẢI một phần computation identity/dedup (computation_identity_and_dedup ở trên) — hai computation với cùng input tuple đã normalize PHẢI được coi là cùng một computation identity bất kể computation_cursor khác nhau."
+    - "computation_dependency_content_evidence tương tự KHÔNG PHẢI một phần computation identity/dedup — cùng discipline computation_cursor."
+# Unchanged from v1.0 — no invariant added, removed, or reworded. Carried forward byte-identical in
+# meaning per ADR-039's self-containment requirement.
+
+compatibility_commitment: backward_only
+# ADR-038 (Approved), Chapter 10 §10.3.1 — explicit policy commitment the platform adopts for this
+# contract_id, unchanged from v1.0: a consumer pinned to an older feature-computed Event Contract
+# version must still correctly read/validate data under a newer version; forward compatibility is
+# NOT committed. This v1.1 delta does not touch payload_shape, so backward_only is trivially
+# satisfied by this delta (docs/project/feature-causal-state-dependency-version-impact-001.md §3.4)
+# — no fresh Compatibility Result is created or required by this publication alone.
+
+provenance:
+  source: docs/domain/feature.md
+  source_version: "0.6"
+  source_status: Draft
+  source_sections: ["§2 Canonical event envelope (payload-relevant portions)", "§3 FeatureComputed"]
+  predecessor_version: v1.0
+  predecessor_blob: 9e1da0ac1e72403a780ff16e0d06ed68354da623
+  version_impact_analysis: docs/project/feature-causal-state-dependency-version-impact-001.md
+  causal_state_dependency_declaration_authority: docs/adr/ADR-048.md
+  drafted_at_commit: e8166e402f1cbf3f95e23908f28562d255b7d43f
+  note: >
+    Drafting-history citation ONLY (ADR-039 §"Canonical authority/source") — never required to
+    interpret this artifact's own meaning once Published; payload_shape and
+    payload_semantics_and_invariants above are fully self-contained and carried forward unchanged
+    from v1.0. event_class, allowed_streams, and merge_constraints are likewise carried forward
+    unchanged from v1.0. causal_state_dependency_declaration is governed-authored directly against
+    Approved ADR-048 — NOT mechanically transcribed from feature.md, which does not declare this
+    field anywhere.
