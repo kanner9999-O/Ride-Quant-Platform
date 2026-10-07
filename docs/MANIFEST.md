@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.477"
+manifest_version: "10.478"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -34363,6 +34363,80 @@ chapter, domain contract, registry, or production source/tests/tooling touched. 
 
 **Next governed action:** Fresh ChatGPT Review A of ADR-049 candidate before any Product Owner
 decision or final Structure Event Contract correction.
+
+## ADR-049 atomic approval — v0.2 Approved (`ADR-049-APPROVAL-001`)
+
+Fresh-verified before mutation: branch `workstream/m3-adr049-narrow` HEAD
+`383e4296c86fd844e8e584d1ad1b8c90aaad7eb2`; `docs/adr/ADR-049.md` matched pinned reviewed candidate
+blob `6e7d4cf1c07b553e74c0bba199befd2f42eb439a` exactly (`version: "0.2"`, `status: Draft`);
+`docs/adr/ADR-048.md` confirmed `Approved`, v0.3, byte-unchanged (`depends_on: [ADR-048]` resolves);
+no Structure Event Contract, `structure.md`, or other Approved ADR touched by this transaction.
+
+**Fresh ChatGPT Review A of ADR-049 v0.2:** `CLEAN — 0 Blocker / 0 Major / 0 Minor`, reviewer
+`ChatGPT`, role `AI Technical Architect`, reviewed boundary
+`383e4296c86fd844e8e584d1ad1b8c90aaad7eb2`, reviewed blob
+`6e7d4cf1c07b553e74c0bba199befd2f42eb439a`, Risk `R2`, ADR Scope `ADR_REQUIRED`, recommendation
+`READY_FOR_PRODUCT_OWNER_DECISION`. Optional R2 cross-check: Product Owner chose `PROCEED WITHOUT
+CROSS-CHECK` — cross-check status `NOT PERFORMED`, not represented as a defect or approval
+prerequisite.
+
+**Product Owner decision (verbatim):** `PROCEED WITHOUT CROSS-CHECK — APPROVE ADR-049 v0.2`,
+recorded `2026-10-07T13:53:10+07:00`. This approves, as governed architecture authority, ADR-049's
+narrowed Decision: `payload.invalidation_cause` MUST be `breaking_candle_corrected` whenever
+`structure-fact-invalidated`'s `causation_refs` contains both a matching `SwingInvalidated` and a
+matching `CandleCorrected` as direct causes for the same invalidated fact (`structure.md` §10's rare
+dual-direct-cause case, applying only to a cascade's direct ancestor, never to a
+`chained_invalidation`-caused descendant). This decision does not itself edit
+`structure-fact-invalidated/v1.0.yaml` — a separate, later bounded correction must inline this rule
+as the authority for that file's own `dual_cause_primary_selection` content.
+
+**Frontmatter finalized:** `status: Draft → Approved`; `reviewers: [] → [ChatGPT]`;
+`approved_by: null → Product Owner`; `approved_at: null → "2026-10-07T13:53:10+07:00"`;
+`last_review: null → "2026-10-07"`; `version: "0.2"` unchanged (not bumped); `depends_on: [ADR-048]`
+unchanged. Body lifecycle-framing text updated for internal consistency with the now-`Approved`
+status (the top "Draft candidate only" disclaimer, the "Review A"/"Product Owner decision" sections,
+and the superseded "Next governed action" footer removed) — no Decision question, Smallest
+coherent decision surface, Alternatives, Decision text, Semantics, Consequences, Risk Classification
+reason, or Scale check content changed by these framing edits, only status/metadata wording and the
+Review A/Product Owner decision evidence addition. **Reviewed Draft boundary/blob (frozen at
+approval, G-ID-001):** commit `383e4296c86fd844e8e584d1ad1b8c90aaad7eb2`, reviewed semantic
+candidate blob `6e7d4cf1c07b553e74c0bba199befd2f42eb439a` — distinct from the resulting post-approval
+lifecycle-record blob (this MANIFEST entry's own commit) per G-ID-001, not conflated. Per Chapter 11
+§11.3, `docs/adr/ADR-049.md` is now immutable byte-for-byte from this approval boundary forward — no
+future in-place edit, no version bump, no `superseded_by` mutation; current lifecycle state and
+reverse supersession relation live in this MANIFEST henceforth; a future decision change requires a
+new ADR with `supersedes: [ADR-049]`.
+
+**Decision effect — governed architecture authority, established:** the deterministic
+`breaking_candle_corrected` primary-cause priority rule above now governs any future authoring of
+`structure-fact-invalidated`'s own `payload.invalidation_cause` dual-cause selection content. This
+does not itself modify `structure-fact-invalidated/v1.0.yaml`, `structure.md`, or `ADR-048`; no
+Event Contract reaches `Published` by this transaction.
+
+**Confirmed unchanged:** `docs/adr/ADR-048.md` (fresh-verified byte-identical, `Approved`, v0.3),
+`docs/domain/structure.md`, all four Structure Event Contracts (`break-of-structure-detected`,
+`change-of-character-detected`, `structure-fact-invalidated`, `structure-recomputed`), every other
+existing ADR, every Constitution chapter, Regime/Feature/Context artifacts, registries, and all
+production source/tests/tooling.
+
+**M3 remains `ACTIVE`** — Structure's `STRUCT-EC-A-MAJ-03` primary-cause selection rule is now
+`ADR-049 APPROVED`; the separate, later bounded correction to inline this rule into
+`structure-fact-invalidated/v1.0.yaml` itself remains outstanding (not performed by this
+transaction). `STRUCT-EC-A-MAJ-04`/`05`/`06` remain resolved per the prior bounded correction on
+`workstream/m3-structure`. Regime remains `PAUSED`. **M4 remains `QUEUED`.** Phase-3 Approval Gate
+`NOT REACHED`; LIVE remains `NOT_AUTHORIZED`.
+
+**Files changed:** `docs/adr/ADR-049.md` (substantive approval edit — now immutable),
+`docs/MANIFEST.md` (this entry). Per explicit transaction scope, no other bookkeeping/index artifact
+(`CHANGELOG.md`, `milestone.md`, `milestone-dashboard.html`) is touched — Chapter 11 §11.6 mechanically
+requires only the ADR file and MANIFEST for an atomic approval transition. No Structure Event
+Contract, `structure.md`, `ADR-048`, other existing ADR, Constitution chapter, registry, or
+production source/tests/tooling touched. `manifest_version` `"10.477"` -> `"10.478"`.
+
+**Next governed action:** a separate, later bounded correction to inline the approved
+`breaking_candle_corrected` rule into `structure-fact-invalidated/v1.0.yaml`'s own
+`dual_cause_primary_selection` content, citing this now-Approved `ADR-049` as authority — not
+performed by this transaction.
 
 ## Decision Log
 
