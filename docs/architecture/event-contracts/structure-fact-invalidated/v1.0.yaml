@@ -19,11 +19,79 @@
 # simultaneous-two-direct-causes semantic is not present in structure.md §5, and directly
 # contradicts this artifact's own Approved ADR-048 `mode: exhaustive` declaration below, under
 # which the second cause ref would necessarily have zero role matches and fail closed) —
-# addressed/remediated by this correction (the invented invariant removed; `causation_refs`
-# narrative now aligns exactly to structure.md §5's own exactly-one-direct-cause model, matching
-# the already-declared `invalidation_cause_ref: cardinality: exactly 1` below with no priority
-# rule invented), pending fresh Review A. Correction transaction boundary: HEAD
-# 038439a4ce08ff7b7836e5723ed01fc0ae267f5f (CONTEXT-UPSTREAM-EVENT-CONTRACT-STRUCTURE-001-CORR-001).
+# CORR-001 (HEAD 038439a4ce08ff7b7836e5723ed01fc0ae267f5f) removed the invented invariant and
+# aligned causation_refs to an exactly-one-direct-cause model.
+#
+# **STRUCT-EC-A-MAJ-03 — REOPENED, then RESOLVED this correction (Product Owner decision:
+# `PROCEED WITH NON-ADR BOUNDED CORRECTION FOR STRUCT-EC-A-MAJ-03`; ADR Scope `ADR_NOT_REQUIRED`;
+# Risk `R2`).** CORR-001's own exactly-one-direct-cause correction was itself incomplete: it
+# checked `structure.md` §5 only. §5's general payload description simply does not special-case
+# the rare branch — silence there is incompleteness, not a prohibition. `structure.md` §10's own
+# dedicated cascade-mechanics section (verbatim, fresh-read this correction): *"nếu cả một
+# `SwingInvalidated` VÀ một `CandleCorrected` trực tiếp cùng ảnh hưởng một
+# `BreakOfStructureDetected`/`ChangeOfCharacterDetected` (trường hợp hiếm — cùng một correction
+# gốc lan tới cả hai đường), chỉ phát **một** `StructureFactInvalidated` cho fact đó —
+# `causation_refs` liệt kê đủ cả hai nguyên nhân dưới dạng nhiều phần tử, `invalidation_cause`
+# chọn nguyên nhân **trực tiếp nhất tại chính broken_swing_ref/breaking_candle_refs của fact đang
+# bị invalidate**."* This is controlling Domain Contract authority for a genuinely legitimate rare
+# case CORR-001 missed, not an invented addition — and not authority to leave uncorrected.
+#
+# Tested fresh against Approved `ADR-048` §4/§5/§6 (not against the parked, unreviewed, unapproved
+# `ADR-049` draft, which is NOT cited as authority anywhere in this correction): the pre-correction
+# **discriminated** `invalidation_cause_ref` role (`kind: by_target`, `discriminant.payload_path:
+# [invalidation_cause]`, `cardinality: {exactly: 1}`) cannot represent the dual-cause case at ANY
+# cardinality — the discriminant resolves `payload.invalidation_cause` (a single scalar enum
+# token) to exactly ONE `cases` entry per event; only that one case's allow-set contributes to the
+# role's match set `M(r)`. In the dual-cause case, `payload.invalidation_cause` still holds exactly
+# one value (the selected primary cause), so the discriminant activates only one case's allow-set —
+# the OTHER direct-cause entry in `causation_refs` matches no case, hence `|matches(c)| = 0` for it
+# under `ADR-048` §6 Phase 2 → fail closed (§9 item 6), regardless of cardinality. This is a
+# structural property of the discriminated form, not a cardinality defect.
+#
+# Corrected representation: replace the discriminated `invalidation_cause_ref` role with a single
+# **static-match** `direct_cause_ref` role (`kind: by_target`, `match:` — already part of
+# `ADR-048`'s existing closed grammar, §4) testing every `causation_refs` entry against ONE fixed
+# allow-set, independent of any payload field — so both direct-cause entries (when both are
+# present) fall into the same role's match set — with `cardinality` widened from `{exactly: 1}` to
+# Form B `{min: 1, max: 2}` (also already part of `ADR-048`'s existing closed grammar, §5). No
+# `ADR-048` amendment: both grammar elements used are already part of its closed grammar; this
+# correction applies that grammar, it does not extend it. Phase-2 exactly-one-role-match still
+# holds for every entry: `invalidated_fact_ref`'s target (the BOS/CHoCH being invalidated) is never
+# `SWING_INVALIDATED`/`CANDLE_CORRECTED`/`STRUCTURE_FACT_INVALIDATED`-typed, so it never falls into
+# `direct_cause_ref`'s match set; the two roles' match sets are disjoint by construction for every
+# real instance (1-cause or 2-cause).
+#
+# Deterministic primary-cause scalar selection for the dual-cause case: `structure.md` §10's own
+# parenthetical frames this rare case as arising from ONE shared root correction propagating via
+# TWO paths — and per `structure.md` §10's own nhánh (a) cascade-trigger definition (a
+# `SwingInvalidated` relevant to this cascade is itself always caused by an upstream
+# `CandleCorrected`, never the reverse — `CandleCorrected → SwingInvalidated → StructureFactInvalidated`),
+# the `CandleCorrected` path to the fact's own `breaking_candle_refs` is always causally nearer
+# (zero intermediate causal steps) than the `SwingInvalidated` path to the fact's own
+# `broken_swing_ref` (one additional causal step removed, through that same originating
+# `CandleCorrected`). This mechanically determines "trực tiếp nhất tại chính
+# broken_swing_ref/breaking_candle_refs" for every well-formed instance of this specific
+# dual-cause shape: `invalidation_cause = breaking_candle_corrected` whenever both direct causes
+# are simultaneously present. This is a derived PROPERTY of `structure.md`'s own cascade-trigger
+# model (§10 nhánh (a)) for this one specific, narrowly-scoped rare case — not an invented global
+# priority ("Candle always beats Swing") independent of causal distance, and not a new priority
+# hierarchy beyond existing authority. `payload.invalidation_cause` remains a required scalar
+# enum, unchanged in type/values — its role is disambiguation-for-the-reader (which cause is
+# primary), never evidence-completeness (that is now `causation_refs`' own job via the
+# widened-cardinality `direct_cause_ref` role).
+#
+# Dual-cause scope is structurally bounded to the cascade's direct ancestor only: a
+# `chained_invalidation`-caused fact depends, by the dependency-forward chain's own linear
+# construction (`E(k+1).prior_orientation = E(k).new_orientation`, §10), on exactly ONE
+# immediately-preceding fact, never two — so `direct_cause_ref`'s `{min: 1, max: 2}` cardinality
+# is correct for every real occurrence (always exactly 1 or exactly 2, never more) without a
+# second role; the additional business constraint that a `chained_invalidation`-caused fact never
+# has 2 entries, and that 2 entries only ever means {one SwingInvalidated, one CandleCorrected},
+# is ordinary Event-Contract-local invariant prose below (`ADR-048`'s own grammar does not itself
+# encode this), not a new architecture mechanism.
+#
+# Correction transaction boundary: this HEAD (workstream/m3-structure branch, continuation of
+# CONTEXT-UPSTREAM-EVENT-CONTRACT-STRUCTURE-001-CORR-001/-002 lineage).
 #
 # RETENTION / REFERENCE ELIGIBILITY: Approved ADR-040 (docs/adr/ADR-040.md) establishes Class-G
 # retention/resolvability semantics at architecture level and satisfies ADR-039's own Consequences
@@ -53,8 +121,10 @@
 # status: Approved) establishes the canonical, machine-readable top-level Event Contract field
 # `causal_state_dependency_declaration` satisfying Chapter 8 §8.2.3's causal-closure
 # `dependency_authority: per_effect_event_contract` requirement. This artifact declares that field
-# below, using ADR-048's exact canonical grammar — including the discriminated `by_target` selector
-# form (`discriminant.payload_path`) for the three mutually-exclusive invalidation causes.
+# below, using ADR-048's exact canonical grammar — a static `by_target.match` direct-cause role
+# with Form B range cardinality `{min: 1, max: 2}`, correctly representing both the normal
+# exactly-one-direct-cause case and structure.md §10's rare legitimate simultaneous
+# SwingInvalidated+CandleCorrected dual-cause case (fixes STRUCT-EC-A-MAJ-03 — see header).
 # Classification semantic evidence:
 # docs/project/context-upstream-state-dependency-derivation-001.md v0.5 §2.5 (Review A CLEAN — 0
 # Blocker / 0 Major / 0 Minor, blob 8acb799ac84b5dadee463f8882e15fbb2ce93657) — evidence only, never
@@ -98,8 +168,9 @@ merge_constraints:
   prerequisite_policy: causation_must_resolve_before_apply
 # Governed-authored per Chapter 8 §8.3.4's own authority split. structure.md v0.4 §2 envelope fixes
 # `causation_refs` as never empty for any Structure event — this event's invalidated_fact_ref AND
-# its one cause reference must both resolve before this event may be applied, per Chapter 8
-# §8.3.4's own P_causation/P_global DAG requirement.
+# its direct-cause reference(s) (one in the normal case, two in structure.md §10's rare dual-cause
+# case) must all resolve before this event may be applied, per Chapter 8 §8.3.4's own
+# P_causation/P_global DAG requirement.
 
 payload_shape:
   invalidated_fact_ref: {type: event_record_ref, required: true, description: "BreakOfStructureDetected or ChangeOfCharacterDetected being negated — duplicates the corresponding causation_refs entry, declared explicitly in payload so query does not need to re-read the envelope."}
@@ -125,17 +196,58 @@ payload_semantics_and_invariants:
     orientation is already NEUTRAL (e.g. a second cascade layered on a prior one) — this event
     never checks or depends on current orientation, it only negates exactly one specific fact
     record. A single cascade emits MULTIPLE StructureFactInvalidated in sequence — one per affected
-    fact — followed by exactly one StructureRecomputed.
+    fact — followed by exactly one StructureRecomputed. RARE CASE (structure.md §10's own
+    "Deduplicate cascade" paragraph, fixes STRUCT-EC-A-MAJ-03): when ONE shared root correction
+    propagates via two paths so that BOTH a SwingInvalidated (matching the invalidated fact's own
+    broken_swing_ref) AND a CandleCorrected (matching one of its own breaking_candle_refs) directly
+    affect the SAME fact simultaneously, still only ONE StructureFactInvalidated is emitted for
+    that fact — causation_refs lists BOTH direct causes as separate entries, while
+    payload.invalidation_cause (the scalar) selects the deterministic primary cause — see
+    dual_cause_primary_selection below. This never applies to chained_invalidation (see
+    dual_cause_primary_selection's own scope note).
+  dual_cause_primary_selection:
+    # Inlined (fixes STRUCT-EC-A-MAJ-03) — self-contained, no reference to the parked ADR-049
+    # draft (NOT authority) required to determine how payload.invalidation_cause's scalar value is
+    # selected when structure.md §10's rare dual-cause case applies.
+    scope: >
+      Applies ONLY to the cascade's direct ancestor (the first StructureFactInvalidated in a
+      cascade, caused directly by an upstream SwingInvalidated and/or CandleCorrected) — never to a
+      chained_invalidation-caused descendant. By the dependency-forward chain's own linear
+      construction (E(k+1).prior_orientation = E(k).new_orientation, structure.md §10), a
+      chained_invalidation-caused fact depends on exactly ONE immediately-preceding
+      StructureFactInvalidated, never two — the dual-cause case below never arises for it.
+    rule: >
+      structure.md §10's own "Deduplicate cascade" paragraph frames this rare case as arising from
+      ONE shared root correction propagating via TWO paths to the same fact ("cùng một correction
+      gốc lan tới cả hai đường") — not two independent, unrelated corrections. Per structure.md
+      §10's own nhánh (a) cascade-trigger definition, a SwingInvalidated relevant to this cascade
+      is itself always caused by an upstream CandleCorrected (CandleCorrected -> SwingInvalidated ->
+      StructureFactInvalidated), never the reverse. Therefore, whenever both direct causes are
+      simultaneously present for the same fact, the CandleCorrected path to that fact's own
+      breaking_candle_refs is always causally nearer (zero intermediate causal steps from the
+      shared root) than the SwingInvalidated path to that fact's own broken_swing_ref (one
+      additional causal step removed, through that same originating CandleCorrected). This
+      mechanically determines structure.md §10's own "trực tiếp nhất tại chính
+      broken_swing_ref/breaking_candle_refs" selection criterion for every well-formed instance of
+      this dual-cause shape: payload.invalidation_cause MUST be breaking_candle_corrected whenever
+      causation_refs contains both a matching SwingInvalidated and a matching CandleCorrected
+      direct-cause entry for this fact. This is a derived property of structure.md's own
+      cascade-trigger model (§10 nhánh (a)), never an invented global priority independent of
+      causal distance, and never a priority hierarchy beyond what §10 itself already defines.
+    not_applicable_when_single_cause: >
+      When only one direct cause is present, payload.invalidation_cause selects exactly that cause
+      (swing_invalidated, breaking_candle_corrected, or chained_invalidation per the invariants
+      below) — this rule only disambiguates the rare simultaneous two-direct-cause instance.
   invariants:
-    - "envelope.causation_refs MUST point to: the BOS/CHoCH event being invalidated (required, exactly one — see invalidated_fact_ref below); AND the one cause reference matching payload.invalidation_cause (required, exactly one) — see causal_state_dependency_declaration below for the canonical machine-readable classification of each."
+    - "envelope.causation_refs MUST point to: the BOS/CHoCH event being invalidated (required, exactly one — see invalidated_fact_ref below); AND one OR (in structure.md §10's rare dual-cause case only) two direct-cause reference(s) matching payload.invalidation_cause's selection rule above — see causal_state_dependency_declaration below for the canonical machine-readable classification of each."
     - "invalidation_cause = swing_invalidated is valid ONLY when the referenced SwingInvalidated matches BOTH the swing_id AND the swing_revision of the invalidated fact's own broken_swing_ref (not swing_id alone) — a SwingInvalidated for one revision MUST NOT be used to invalidate a Structure fact whose broken_swing_ref used a different revision of the same swing_id."
     - "invalidation_cause = breaking_candle_corrected is valid ONLY when the corrected Candle is one of the invalidated fact's own breaking_candle_refs AND the corrected payload no longer satisfies the break criterion."
-    - "invalidation_cause = chained_invalidation is valid ONLY when the invalidated fact's own prior_orientation equals exactly the new_orientation of the fact immediately preceding it in the original orientation chain — determined by the dependency graph, never by the invalidation's own recorded_time order."
-    - "A given BreakOfStructureDetected/ChangeOfCharacterDetected receives EXACTLY ONE authoritative StructureFactInvalidated — never a duplicate invalidation of the same fact twice."
+    - "invalidation_cause = chained_invalidation is valid ONLY when the invalidated fact's own prior_orientation equals exactly the new_orientation of the fact immediately preceding it in the original orientation chain — determined by the dependency graph, never by the invalidation's own recorded_time order. chained_invalidation NEVER co-occurs with a second direct-cause entry — see dual_cause_primary_selection's scope note above."
+    - "A given BreakOfStructureDetected/ChangeOfCharacterDetected receives EXACTLY ONE authoritative StructureFactInvalidated — never a duplicate invalidation of the same fact twice, including in the rare dual-cause case (structure.md §10's own 'chỉ phát một StructureFactInvalidated cho fact đó')."
     - "This event carries no orientation field (no prior_orientation/new_orientation) — it is not, and must never be interpreted as, a state transition."
-    - "envelope.recorded_time MUST be strictly later than the recorded_time of the direct cause event (whichever of (a)/(b)/(c) applies)."
+    - "envelope.recorded_time MUST be strictly later than the recorded_time of every direct cause event referenced (whichever of swing_invalidated/breaking_candle_corrected/chained_invalidation apply — one event in the normal case, two in the rare dual-cause case)."
     - "Replay at a cursor before this event's own recorded_time MUST NOT observe it."
-    - "envelope.causation_refs contains EXACTLY TWO entries, never more: the invalidated BOS/CHoCH reference (invalidated_fact_ref, exactly one) and EXACTLY ONE direct cause reference selected by payload.invalidation_cause — never two simultaneous direct-cause references for the same fact (fixes STRUCT-EC-A-MAJ-03; see causal_state_dependency_declaration below, whose mode: exhaustive role cardinalities mechanically enforce this exact count)."
+    - "envelope.causation_refs contains EXACTLY invalidated_fact_ref (one entry) PLUS one OR two direct-cause entries (fixes STRUCT-EC-A-MAJ-03): exactly TWO entries total in the normal single-cause case; exactly THREE entries total ONLY in structure.md §10's rare dual-cause case, and ONLY when the two direct-cause entries are exactly {one event matching SWING_INVALIDATED, one event matching CANDLE_CORRECTED} — never two chained_invalidation-typed entries, never a chained_invalidation entry combined with a swing/candle entry, and never more than three entries total. See causal_state_dependency_declaration below, whose mode: exhaustive role cardinalities mechanically enforce the one-or-two-direct-cause bound; the {SwingInvalidated, CandleCorrected}-only restriction on the two-entry case is this Event Contract's own business invariant, not separately encoded by ADR-048's generic grammar."
 
 causal_state_dependency_declaration:
   mode: exhaustive
@@ -155,42 +267,48 @@ causal_state_dependency_declaration:
         own payload is exactly {invalidated_fact_ref, invalidation_cause, invalidation_reason}. A
         consumer applying this invalidation needs only to know WHICH fact is invalidated —
         identity, not the invalidated fact's own business content.
-    - role_id: invalidation_cause_ref
+    - role_id: direct_cause_ref
       selector:
         kind: by_target
-        discriminant:
-          payload_path:
-            - invalidation_cause
-          cases:
-            swing_invalidated:
-              event_types: [SWING_INVALIDATED]
-              contract_ids: [swing-invalidated]
-            breaking_candle_corrected:
-              event_types: [CANDLE_CORRECTED]
-              contract_ids: [candle-corrected]
-            chained_invalidation:
-              event_types: [STRUCTURE_FACT_INVALIDATED]
-              contract_ids: [structure-fact-invalidated]
+        match:
+          event_types: [SWING_INVALIDATED, CANDLE_CORRECTED, STRUCTURE_FACT_INVALIDATED]
+          contract_ids: [swing-invalidated, candle-corrected, structure-fact-invalidated]
       cardinality:
-        exactly: 1
+        min: 1
+        max: 2
       classification: EXTERNAL_NON_STATE_CAUSE
       apply_time_requirement: >
         Authoritative application of StructureFactInvalidated does not require re-reading the
         causing fact's own payload content, regardless of which cause fired (SwingInvalidated,
         CandleCorrected, or a prior StructureFactInvalidated in the same cascade) — existence and
         commit-order proof only. This event's own payload never copies the causing fact's business
-        content.
-# Approved ADR-048 (docs/adr/ADR-048.md) canonical mechanism. Two roles, exhaustive: every
-# causation_refs entry is either the invalidated fact's own reference (exactly one) or the one
-# cause reference selected by the discriminant on payload.invalidation_cause (exactly one,
-# regardless of which of the three cases fires) — together exhaustively accounting for this
-# event's own causation_refs, matching payload_semantics_and_invariants.invariants above exactly.
-# Both roles EXTERNAL_NON_STATE_CAUSE — no STATE_DEPENDENCY role exists for this event type
-# (derivation v0.5 §2.5). The discriminant's three cases are mutually exclusive by construction
-# (payload.invalidation_cause is a single enum value); no case produces a different cardinality.
-# Duplicate canonical-locator (stream_id, sequence) rejection within this event's own causation_refs
-# is governed generically by Approved ADR-048's own validation algorithm — no Structure-specific
-# duplicate-detection algorithm is defined here.
+        content. In the rare dual-cause case (structure.md §10), this holds independently for each
+        of the two direct-cause entries.
+# Approved ADR-048 (docs/adr/ADR-048.md) canonical mechanism, fixes STRUCT-EC-A-MAJ-03. Two roles,
+# exhaustive: every causation_refs entry is either the invalidated fact's own reference (exactly
+# one, invalidated_fact_ref) or a direct-cause reference matching the static by_target.match
+# allow-set above (one in the normal case, two in structure.md §10's rare dual-cause case,
+# direct_cause_ref) — together exhaustively accounting for this event's own causation_refs,
+# matching payload_semantics_and_invariants.invariants above exactly. A STATIC match selector is
+# used, deliberately NOT a discriminated selector keyed on payload.invalidation_cause: a
+# discriminated selector resolves the payload's single scalar enum value to exactly ONE `cases`
+# entry per event, so in the dual-cause case the OTHER direct-cause entry would match no case —
+# zero role matches, fail closed under ADR-048 §6 Phase 2 (§9 item 6) — regardless of cardinality.
+# The static form tests every causation_refs entry against one fixed allow-set, independent of any
+# payload field, so both direct-cause entries (when both are present) fall into this one role's
+# match set; only cardinality needed widening, from {exactly: 1} to Form B {min: 1, max: 2} — both
+# already part of ADR-048's existing closed grammar (§4 static match; §5 Form B range), applied
+# here, not extended. Phase-2 exactly-one-role-match still holds for every entry:
+# invalidated_fact_ref's target (a BreakOfStructureDetected/ChangeOfCharacterDetected) is never
+# SWING_INVALIDATED/CANDLE_CORRECTED/STRUCTURE_FACT_INVALIDATED-typed, so it never falls into
+# direct_cause_ref's match set — the two roles' match sets are disjoint by construction for every
+# real instance (1-cause or 2-cause). Both roles EXTERNAL_NON_STATE_CAUSE — no STATE_DEPENDENCY
+# role exists for this event type (derivation v0.5 §2.5); the category COUNT and classification are
+# unaffected by this correction — only how many entries one existing category's role may match
+# changed ({min: 1, max: 2} instead of exactly: 1). Duplicate canonical-locator (stream_id,
+# sequence) rejection within this event's own causation_refs is governed generically by Approved
+# ADR-048's own validation algorithm — no Structure-specific duplicate-detection algorithm is
+# defined here.
 
 compatibility_commitment: backward_only
 # Approved ADR-047 (docs/adr/ADR-047.md), Product Owner decision "APPROVE ADR-047"
@@ -204,17 +322,23 @@ provenance:
   source: docs/domain/structure.md
   source_version: "0.4"
   source_status: Draft
-  source_sections: ["§1 Logical Structure Subject", "§2 Canonical event envelope (payload-relevant portions)", "§5 StructureFactInvalidated"]
+  source_sections: ["§1 Logical Structure Subject", "§2 Canonical event envelope (payload-relevant portions)", "§5 StructureFactInvalidated", "§10 Correction cascade — Deduplicate cascade paragraph (rare dual-cause case, fixes STRUCT-EC-A-MAJ-03)"]
   source_blob: 78964dfb6852bbac3fa1e034d64b4fc8031c3fef
   drafted_at_commit: 581c28d3acd1d13c613fc110e80b9e5a5dbc486a
   note: >
     Drafting-history citation ONLY (ADR-039 §"Canonical authority/source") — never required to
     interpret this artifact's own meaning; payload_shape and payload_semantics_and_invariants above
-    are fully self-contained and now align exactly to structure.md §5's own exactly-one-direct-
-    cause model (fixes STRUCT-EC-A-MAJ-03 — the invented simultaneous-two-direct-causes invariant,
-    which was not present in §5 and contradicted this artifact's own ADR-048 exhaustive-role
-    cardinality below, has been removed; no multi-cause support, no invented priority rule).
-    event_class, allowed_streams, and merge_constraints were
+    are fully self-contained, including the inlined dual_cause_primary_selection (fixes
+    STRUCT-EC-A-MAJ-03 — structure.md §10's own rare, legitimate simultaneous
+    SwingInvalidated+CandleCorrected dual-cause case is now correctly represented via a static
+    by_target.match direct_cause_ref role with {min: 1, max: 2} cardinality, replacing the
+    discriminated role that could only ever represent exactly one direct cause; this is NOT a
+    reversion of CORR-001's own correct removal of an earlier INVENTED two-direct-cause invariant —
+    this correction is grounded directly in structure.md §10's own text, not reinstating anything
+    CORR-001 removed without basis). ADR-049 (docs/adr/ADR-049.md, Draft, PARKED) is NOT cited as
+    authority anywhere above — this correction is derived independently from structure.md §5/§10,
+    Approved ADR-048, and Approved ADR-039 directly. event_class, allowed_streams, and
+    merge_constraints were
     governed-authored directly against Chapter 8 §8.3.1/§8.3.4, Approved ADR-036, Approved ADR-047,
     and this repository's own established terminology — NOT mechanically transcribed from
     structure.md, which does not declare any of the three fields anywhere.
