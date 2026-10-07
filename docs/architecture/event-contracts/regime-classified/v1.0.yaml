@@ -1,0 +1,292 @@
+# Event Contract version-artifact — regime-classified v1.0 (DRAFT CANDIDATE)
+#
+# Referenced Authoritative Artifact (Chapter 8 §8.1.1). Canonical authority/self-containment model,
+# path/version grammar, and immutability discipline per Approved ADR-039 v0.1
+# (docs/adr/ADR-039.md). Retention/archive semantics per Approved ADR-040 v0.1 (docs/adr/ADR-040.md).
+#
+# STATUS: Draft candidate only — NOT Published, NOT reviewed, NOT approved. `status: Draft`,
+# `reviewers: []`, `approved_by: null`, `approved_at: null`, `last_review: null` below are exact and
+# not fabricated. This transaction does not transition Draft -> Published, does not add a reviewer,
+# and does not call this an authoritative Published snapshot.
+#
+# This is the FIRST version for contract_id: regime-classified — no prior Published Event Contract
+# snapshot exists for it (regime.md v0.2 declares event_contract_ref as a required envelope field,
+# per Chapter 8 §8.2, but pins no contract_version anywhere; context-map.yaml pins contract_id
+# only). Per ADR-039's "First authoritative version" rule, contract_version is fixed at v1.0 — no
+# other value is valid for a first publication.
+#
+# event_class / allowed_streams / merge_constraints below are GOVERNED-AUTHORED against current
+# higher authority (Chapter 8 §8.3.1/§8.3.4, Approved ADR-036 Genesis Stream Registry topology,
+# Approved ADR-047 compatibility commitment) — NOT mechanically transcribed from regime.md, which
+# does not declare any of the three fields anywhere. payload_shape / payload_semantics_and_invariants
+# are transcribed and governed-synthesized fresh from regime.md v0.2 §1 (subject)/§2 (envelope,
+# payload-relevant portions only)/§3 (RegimeClassified)/§6 (class enum sets, policy identifiers)/§7
+# (time semantics)/§8a (canonical Candle evidence normalization)/§8b (computation identity/dedup)/
+# §9 (classification frequency)/§10 (correction lineage) and are fully self-contained here — a
+# reader does not need to separately consult regime.md to interpret this artifact's own meaning
+# (ADR-039). This is a first authoring pass derived fresh against the full Domain Contract — no
+# finding/content from the Candle or Structure Event Contract authoring rounds is imported
+# unexamined; Regime's own full-text reading is the sole semantic source. regime.md's own envelope
+# fields remain Chapter 8 §8.2's own owned concept, applied not redefined here — this artifact
+# declares the PAYLOAD portion only.
+#
+# NO computation_cursor FIELD (deliberate, not an omission): unlike feature-computed/v1.0.yaml,
+# regime.md's own envelope (§2) and §3 payload declare no cursor-shaped field anywhere — Regime
+# consumes only Candle facts directly (§13), with no Feature-style Input-Contract-pinned
+# cross-mode-evaluation cursor concept in its Domain Contract text. Not inlining one here is fidelity
+# to regime.md as actually written, not an incomplete-self-containment gap.
+#
+# STATE-DEPENDENCY REPRESENTATION AUTHORITY: Approved ADR-048 (docs/adr/ADR-048.md, v0.3,
+# status: Approved) establishes the canonical, machine-readable top-level Event Contract field
+# `causal_state_dependency_declaration` satisfying Chapter 8 §8.2.3's causal-closure
+# `dependency_authority: per_effect_event_contract` requirement. This artifact declares that field
+# below, using ADR-048's exact canonical grammar. Classification semantic evidence:
+# docs/project/context-upstream-state-dependency-derivation-001.md v0.5 §2.7 (Review A CLEAN — 0
+# Blocker / 0 Major / 0 Minor, blob 8acb799ac84b5dadee463f8882e15fbb2ce93657) — evidence only, never
+# itself interpretive/runtime authority. Canonical representation authority: Approved ADR-048. This
+# Draft candidate's own declaration below is not itself an authoritative Published declaration — the
+# Published Event Contract will own it once this Draft is reviewed and Published.
+#
+# Governed authoring transaction boundary: HEAD e8166e402f1cbf3f95e23908f28562d255b7d43f
+# (M3-REGIME-WORKSTREAM-001, isolated worktree/branch m3-regime-workstream).
+
+contract_id: regime-classified
+contract_version: v1.0
+status: Draft
+reviewers: []
+approved_by: null
+approved_at: null
+last_review: null
+
+event_type: REGIME_CLASSIFIED
+# regime.md v0.2 §2 event_types table (PAST_TENSE_UPPER_SNAKE per Chapter 3 §3.2, referenced not
+# redefined here).
+
+event_class: derived_fact
+# Governed-authored. NOT `decision` (no decision_time/decision_context_cursor anywhere in regime.md's
+# own envelope §2). `derived_fact` reuses this repository's own already-established vocabulary for
+# exactly this event category — identical usage in candle-closed(observation)/feature-computed
+# (derived_fact)/structure events (derived_fact); regime.md's own prose repeatedly describes Regime
+# facts as "phân loại thống kê, deterministic, authoritative... tính trực tiếp từ raw market-data
+# fact" — a computed/derived conclusion over Candle evidence, never itself a raw venue observation,
+# so `derived_fact` (not `observation`) applies, matching feature-computed/structure-events'
+# precedent exactly.
+
+allowed_streams:
+  - stream_id: raw-regime-engine-regime
+# Governed-authored from docs/architecture/stream-registry.yaml (Genesis Registry, `status:
+# Approved`, `registry_version: v1.0`) + Chapter 8 §8.3.1. `raw-regime-engine-regime` is
+# raw-regime-engine's sole registered stream (`writer_authority.module_id: raw-regime-engine`,
+# `status: active`, `genesis_position: 0`) — Approved ADR-036's "one logical stream per
+# authoritative fact family a writer module owns" topology means both of raw-regime-engine's event
+# types (RegimeClassified here, and RegimeFactInvalidated) target this one stream, the same
+# one-stream-per-fact-family pattern already realized for market-data-ingestion/feature-engine (one
+# stream each) and structure-engine (two streams, for its two distinct fact families).
+
+merge_constraints:
+  prerequisite_policy: causation_must_resolve_before_apply
+# Governed-authored per Chapter 8 §8.3.4's own authority split. regime.md v0.2 §2 envelope fixes
+# `causation_refs` as "KHÔNG BAO GIỜ rỗng cho bất kỳ Regime event nào" — this event's candle evidence
+# references (and, for a correction replacement, the superseded RegimeFactInvalidated) must all
+# resolve before this event may be applied, per Chapter 8 §8.3.4's own P_causation/P_global DAG
+# requirement. No additional Regime-specific merge constraint beyond this baseline was identified —
+# every other Regime-specific ordering requirement (correction-lineage recorded_time ordering,
+# supersedes_fact_ref chain integrity) is already fully captured as payload/envelope invariants
+# below, not as a cross-stream merge constraint Input Contract would need beyond standard
+# causal-topological ordering.
+
+payload_shape:
+  regime_subject_id: {type: string, required: true}
+  regime_dimension: {type: enum, values: [volatility, directional_persistence], required: true}
+  class:
+    type: enum
+    required: true
+    description: >
+      Value set is CONDITIONAL on regime_dimension (regime.md §6's own "Candidate class enum" —
+      inlined here in full, no external reference needed to validate this field):
+      regime_dimension = volatility -> values [LOW, NORMAL, HIGH, EXTREME];
+      regime_dimension = directional_persistence -> values [NON_DIRECTIONAL, DIRECTIONAL, TRANSITIONAL].
+      These two value sets are disjoint and mutually exclusive — see invariants below for the
+      cross-field restriction this field-level description alone cannot express.
+  computed_metric: {type: decimal, required: true, description: "giá trị số học chính xác đã sinh ra class, theo metric_formula_id pin ở regime_definition_version (§6) — I-9: decimal, không float."}
+  analysis_window:
+    kind: interval
+    window_start: {type: timestamp, required: true}
+    window_end: {type: timestamp, required: true}
+  candle_evidence_refs: {type: array, items: event_record_ref, required: true}
+  regime_definition_version: {type: string, required: true}
+  supersedes_fact_ref: {type: event_record_ref, required: false, description: "VẮNG MẶT cho original computation; BẮT BUỘC cho correction replacement — xem invariants."}
+
+payload_semantics_and_invariants:
+  description: >
+    Fact AUTHORITATIVE cho MỘT completed valid analysis window — dùng cho CẢ HAI trường hợp: (a)
+    original computation (window chưa từng được classify); (b) correction replacement (window đã có
+    fact trước đó, nay bị CandleCorrected ảnh hưởng, §10). Phát sinh cho MỌI completed valid window,
+    KỂ CẢ khi class không đổi so với window liền trước (regime.md §9's own classification-frequency
+    decision — window là fact identity, không phải class). Class transition là dữ liệu derived (so
+    sánh hai fact liên tiếp cùng subject theo analysis_window), KHÔNG có event riêng cho "class
+    changed"/"class unchanged". This event never models Regime as a class-to-class state-transition
+    chain — each completed valid window independently produces its own authoritative fact.
+  candle_evidence_refs_normalization:
+    # Inlined (regime.md §8a) — self-contained, no reference to regime.md required to validate this
+    # artifact's own payload, mirroring feature-computed/v1.0.yaml's own
+    # input_fact_refs_normalization pattern exactly.
+    purpose: >
+      candle_evidence_refs must be normalized into one canonical, deterministic order before
+      computation identity construction, hashing, equality comparison, dedup, or event
+      serialization — candle_evidence_refs is a MATHEMATICAL SET of Candle facts, never an
+      arbitrary-incoming-order array; two evidence sets identical in content but delivered in
+      different order must produce the same normalized list and the same computation identity.
+    canonical_order_criteria:
+      - {order: 1, criterion: "Candle's effective_time.window_start", direction: ASC}
+      - {order: 2, criterion: "Candle's effective_time.window_end", direction: ASC}
+      - {order: 3, criterion: "stream_ref.stream_id", direction: ASC, comparison: lexical}
+      - {order: 4, criterion: "stream_ref.registry_version", direction: ASC, comparison: lexical}
+      - {order: 5, criterion: "sequence", direction: ASC, comparison: "numeric — ONLY evaluated when criteria 3 AND 4 are already equal"}
+      - {order: 6, criterion: "event_id", direction: ASC, comparison: lexical}
+    algorithm: >
+      Compare criteria 1 through 6 in exact order. The first criterion with a differing value
+      between two references decides their relative order. Subsequent criteria are NOT evaluated.
+      `sequence` (criterion 5) is evaluated ONLY when both stream_ref.stream_id AND
+      stream_ref.registry_version already compare equal — comparing raw sequence values across two
+      different stream identities is strictly prohibited (Chapter 8 §8.3.3).
+    duplicate_detection: >
+      If all six criteria values match exactly between two references, they are duplicate
+      representations of the same authoritative Candle fact — retain exactly one canonical
+      reference, removed before counting against regime_definition_version's own pinned
+      window_candle_count.
+    determinism_guarantee: >
+      Same evidence Candle facts arriving in different incoming order produce the same normalized
+      candle_evidence_refs, and therefore the same computation identity below.
+    canonical_policy_identifier: >
+      Sole canonical identifier for this policy is regime_definition_version's own
+      candle_evidence_normalization_policy field (regime.md §6) — this artifact's own
+      canonical_order_criteria above is the full inlined content of that policy; it is declared
+      exactly once here and never restated with a risk of drifting out of sync.
+  computation_identity_and_dedup:
+    # Inlined (regime.md §8b) — self-contained, mirrors feature-computed/v1.0.yaml's own
+    # computation_identity_and_dedup pattern.
+    computation_identity_tuple:
+      - regime_subject_id
+      - analysis_window.window_start
+      - analysis_window.window_end
+      - regime_definition_version
+      - "candle_evidence_refs, normalized per candle_evidence_refs_normalization above"
+    identity_exclusions: >
+      `class` and `computed_metric` are the computation RESULT, not part of identity — two
+      computations sharing the same input tuple must produce the same result (determinism), but
+      identity is established by the normalized input tuple, never by the output.
+    dedup_rule: >
+      Same regime_subject_id, same analysis window (window_start, window_end), same
+      regime_definition_version, same normalized candle_evidence_refs -> duplicate delivery -> do
+      NOT append a second authoritative event for it. Recomputation (re-run after restart, or
+      Live/Backtest/Replay computing independently and possibly receiving evidence in different
+      order) is idempotent under this rule, never a duplicate source, regardless of original
+      evidence arrival order.
+    distinct_windows_not_duplicates: >
+      A different analysis window is never a duplicate merely because its class equals a prior
+      window's class — a different (window_start, window_end), and therefore a different
+      candle_evidence_refs, is sufficient on its own to constitute a separate fact, regardless of
+      class equality (regime.md §9).
+  invariants:
+    - "causation_refs KHÔNG BAO GIỜ rỗng: (a) original computation — PHẢI chứa toàn bộ candle_evidence_refs; (b) correction replacement — PHẢI chứa candle_evidence_refs đã cập nhật VÀ chính RegimeFactInvalidated đang được supersede — xem causal_state_dependency_declaration dưới đây cho mapping role chính xác."
+    - "envelope.effective_time = analysis_window (interval) của CHÍNH fact này — [window_start, window_end)."
+    - "envelope.recorded_time PHẢI muộn hơn recorded_time của Candle fact mới nhất trong candle_evidence_refs — KHÔNG được classify trước khi đủ evidence tồn tại (chống look-ahead)."
+    - "payload.regime_subject_id VÀ payload.regime_dimension PHẢI khớp đúng subject_ref.subject_id VÀ subject_ref.scope.regime_dimension — trường lặp lại có chủ đích cho query tiện dụng, không phải trục identity thứ hai."
+    - "payload.regime_definition_version PHẢI khớp đúng subject_ref.scope.regime_definition_version."
+    - "payload.class PHẢI thuộc đúng value set tương ứng payload.regime_dimension — volatility CHỈ dùng [LOW, NORMAL, HIGH, EXTREME]; directional_persistence CHỈ dùng [NON_DIRECTIONAL, DIRECTIONAL, TRANSITIONAL]. Hai value set này mutually exclusive — dùng value của dimension sai là malformed."
+    - "candle_evidence_refs PHẢI thỏa mãn CHÍNH XÁC window_candle_count đã pin ở regime_definition_version (§6, configuration instance — giá trị cụ thể không pin ở đây) cho analysis_window đã khai — không thiếu, không thừa, không trùng lặp; mọi ref PHẢI là candle-closed hoặc candle-corrected đang authoritative, KHÔNG dùng CandleObserved provisional."
+    - "candle_evidence_refs PHẢI được serialize theo đúng canonical normalized order (candle_evidence_refs_normalization ở trên) — KHÔNG phải thứ tự phát sinh tùy ý của computation. Hai tập evidence fact giống hệt nhau nhưng đến theo thứ tự khác nhau PHẢI cho ra cùng một candle_evidence_refs đã serialize, cùng một computation identity."
+    - "computed_metric PHẢI dùng kiểu decimal — CẤM binary float (I-9)."
+    - "supersedes_fact_ref VẮNG MẶT khi và chỉ khi đây là original computation cho (regime_subject_id, analysis_window) đó — CHƯA từng có RegimeClassified nào khác cho đúng cặp subject+window này."
+    - "supersedes_fact_ref BẮT BUỘC có mặt khi (regime_subject_id, analysis_window) đó đã có một RegimeClassified trước đó — đây là correction replacement."
+    - "supersedes_fact_ref, khi có mặt, PHẢI trỏ đúng lineage head HIỆN TẠI của (regime_subject_id, analysis_window) đó — fact CHƯA từng là supersedes_fact_ref của bất kỳ RegimeClassified nào khác (cấm fork), VÀ đã nhận đúng một RegimeFactInvalidated visible — không được trỏ tới một fact đã bị supersede trước đó (cấm nhảy cóc qua lineage)."
+    - "Khi supersedes_fact_ref có mặt, envelope.recorded_time của fact này PHẢI muộn hơn recorded_time của RegimeFactInvalidated đang được tham chiếu gián tiếp qua fact bị supersede — replacement không được 'visible' trước invalidation của chính fact nó thay thế."
+    - "Replacement fact PHẢI dùng ĐÚNG CÙNG (regime_subject_id, analysis_window.window_start, analysis_window.window_end) với fact bị supersede — không được đổi window khi correction."
+    - "candle_evidence_refs của replacement PHẢI phản ánh Candle ancestry ĐÃ SỬA — không được giữ nguyên ref cũ đã không còn authoritative."
+    - "KHÔNG có shortcut khi class không đổi: nếu CandleCorrected ảnh hưởng candle_evidence_refs của một fact, cặp RegimeFactInvalidated + replacement RegimeClassified PHẢI phát sinh — kể cả khi computed_metric thay đổi nhưng class giữ nguyên, VÀ kể cả khi cả computed_metric lẫn class cuối cùng đều giữ nguyên sau khi tính lại."
+    - "Một CandleCorrected ảnh hưởng NHIỀU window overlapping cùng lúc (rolling window) được xử lý ĐỘC LẬP cho mỗi window bị ảnh hưởng, thứ tự bất kỳ — KHÔNG có dependency-forward ordering giữa các window độc lập (khác structure.md §10's cascade — Regime windows không chain vào nhau qua một trường tương tự prior_orientation)."
+
+causal_state_dependency_declaration:
+  mode: exhaustive
+  roles:
+    - role_id: candle_evidence_ref
+      selector:
+        kind: payload_field
+        path:
+          - candle_evidence_refs
+      cardinality:
+        min: 1
+        max: null
+      classification: EXTERNAL_NON_STATE_CAUSE
+      apply_time_requirement: >
+        Authoritative application of RegimeClassified does not require re-reading any evidence
+        Candle's own OHLCV payload — this event's own payload already carries the fully materialized
+        result (class, computed_metric). The metric_formula_id computation over Candle OHLC is a
+        producer-side (computation-time) dependency, not an apply-time one (derivation v0.5 §2.7). A
+        consumer applying this fact needs only existence/commit-order proof of each referenced
+        Candle, never its business content.
+    - role_id: superseded_invalidation_ref
+      selector:
+        kind: by_target
+        match:
+          event_types: [REGIME_FACT_INVALIDATED]
+          contract_ids: [regime-fact-invalidated]
+      cardinality:
+        min: 0
+        max: 1
+      classification: EXTERNAL_NON_STATE_CAUSE
+      apply_time_requirement: >
+        Present only for a correction replacement (absent for original computation — see
+        payload_semantics_and_invariants.invariants above). class/computed_metric of the replacement
+        are recomputed solely from candle_evidence_refs, never from the referenced
+        RegimeFactInvalidated's own payload ({invalidated_fact_ref, invalidation_reason}) — only
+        existence/visibility proof that the invalidation has committed is required (derivation v0.5
+        §2.7).
+# Approved ADR-048 (docs/adr/ADR-048.md) canonical mechanism. Two roles, exhaustive: every
+# causation_refs entry is either one of the candle_evidence_refs array elements (role 1, matched via
+# payload_field — cardinality min:1/max:null since window_candle_count is a configuration-pinned
+# value, not fixed by this Event Contract) or, only for a correction replacement, the one
+# RegimeFactInvalidated being superseded (role 2, matched via by_target static match — cardinality
+# min:0/max:1). The two roles' match sets are disjoint for every real instance: no Candle event type
+# ever matches role 2's REGIME_FACT_INVALIDATED allow-set, and the superseding RegimeFactInvalidated
+# is never itself listed in payload.candle_evidence_refs, so it never matches role 1. Both roles
+# EXTERNAL_NON_STATE_CAUSE — no STATE_DEPENDENCY role exists for this event type (derivation v0.5
+# §2.7). Duplicate canonical-locator (stream_id, sequence) rejection within this event's own
+# causation_refs is governed generically by Approved ADR-048's own validation algorithm — no
+# Regime-specific duplicate-detection algorithm is defined here (candle_evidence_refs_normalization
+# above already deduplicates equal Candle references before this validation runs).
+
+compatibility_commitment: backward_only
+# Approved ADR-047 (docs/adr/ADR-047.md), Product Owner decision "APPROVE ADR-047"
+# (2026-09-28T14:44:39+07:00), Chapter 10 §10.3.1 — explicit policy commitment the platform adopts
+# for this contract_id: a consumer pinned to an older regime-classified Event Contract version must
+# still correctly read/validate data under a newer version; forward compatibility is NOT committed.
+# No concrete schema delta exists yet for this first v1.0 version, so no compatibility
+# CLASSIFICATION of any delta is performed or claimed by this artifact.
+
+provenance:
+  source: docs/domain/regime.md
+  source_version: "0.2"
+  source_status: Draft
+  source_sections: ["§1 Logical Regime Subject", "§2 Canonical event envelope (payload-relevant portions)", "§3 RegimeClassified", "§6 Classification representation (class enum sets, policy identifiers)", "§7 Time semantics", "§8a Canonical Candle evidence normalization", "§8b Computation identity and dedup", "§9 Classification frequency", "§10 Correction lineage"]
+  source_blob: edd1584377f1db84269e7b1dfdd4926d0ce01c70
+  drafted_at_commit: e8166e402f1cbf3f95e23908f28562d255b7d43f
+  note: >
+    Drafting-history citation ONLY (ADR-039 §"Canonical authority/source") — never required to
+    interpret this artifact's own meaning; payload_shape and payload_semantics_and_invariants above
+    (including the inlined candle_evidence_refs_normalization and computation_identity_and_dedup
+    sections, mirroring the self-containment discipline already established for
+    feature-computed/v1.0.yaml) are fully self-contained. event_class, allowed_streams, and
+    merge_constraints were governed-authored directly against Chapter 8 §8.3.1/§8.3.4, Approved
+    ADR-036, Approved ADR-047, and this repository's own established terminology — NOT mechanically
+    transcribed from regime.md, which does not declare any of the three fields anywhere.
+    State-dependency classification semantic evidence:
+    docs/project/context-upstream-state-dependency-derivation-001.md v0.5 §2.7 (Review A CLEAN — 0
+    Blocker / 0 Major / 0 Minor) — drafting-history citation only, never runtime/interpretive
+    authority. Canonical representation authority: Approved ADR-048 (docs/adr/ADR-048.md) — this
+    artifact's causal_state_dependency_declaration field above uses ADR-048's own exact canonical
+    grammar, not a mutable analysis-artifact identity embedded in the canonical role schema.
+    regime.md §5 (RegimeCurrentView)/§11 (total order for the read model) are explicitly OUT of this
+    artifact's own scope — RegimeCurrentView is a non-authoritative projection (Chapter 7 §7.4), not
+    an Event Contract this file declares.

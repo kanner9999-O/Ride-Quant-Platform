@@ -1,0 +1,186 @@
+# Event Contract version-artifact — regime-fact-invalidated v1.0 (DRAFT CANDIDATE)
+#
+# Referenced Authoritative Artifact (Chapter 8 §8.1.1). Canonical authority/self-containment model,
+# path/version grammar, and immutability discipline per Approved ADR-039 v0.1
+# (docs/adr/ADR-039.md). Retention/archive semantics per Approved ADR-040 v0.1 (docs/adr/ADR-040.md).
+#
+# STATUS: Draft candidate only — NOT Published, NOT reviewed, NOT approved. `status: Draft`,
+# `reviewers: []`, `approved_by: null`, `approved_at: null`, `last_review: null` below are exact and
+# not fabricated. This transaction does not transition Draft -> Published, does not add a reviewer,
+# and does not call this an authoritative Published snapshot.
+#
+# This is the FIRST version for contract_id: regime-fact-invalidated — no prior Published Event
+# Contract snapshot exists for it. Per ADR-039's "First authoritative version" rule,
+# contract_version is fixed at v1.0 — no other value is valid for a first publication.
+#
+# event_class / allowed_streams / merge_constraints below are GOVERNED-AUTHORED against current
+# higher authority (Chapter 8 §8.3.1/§8.3.4, Approved ADR-036 Genesis Stream Registry topology,
+# Approved ADR-047 compatibility commitment) — NOT mechanically transcribed from regime.md, which
+# does not declare any of the three fields anywhere. payload_shape / payload_semantics_and_invariants
+# are transcribed and governed-synthesized fresh from regime.md v0.2 §1 (subject)/§2 (envelope,
+# payload-relevant portions only)/§4 (RegimeFactInvalidated)/§10 (correction lineage) and are fully
+# self-contained here — a reader does not need to separately consult regime.md to interpret this
+# artifact's own meaning (ADR-039). This is a first authoring pass derived fresh against the full
+# Domain Contract.
+#
+# SINGLE-CAUSE EVENT (deliberate, not an under-specification): regime.md §4's own description states
+# explicitly "Nguyên nhân DUY NHẤT trong B2 (khác structure.md — Regime không tiêu thụ Swing nên
+# không có nhánh swing_invalidated/chained_invalidation): một CandleCorrected ảnh hưởng tới
+# candle_evidence_refs của fact bị invalidate." Unlike structure-fact-invalidated (three possible
+# direct-cause types, requiring a discriminated selector — and unlike that artifact's own
+# since-reopened multi-cause representation question, ADR-049, not applicable here) or
+# feature-fact-invalidated (four possible causes), Regime genuinely has exactly ONE possible direct
+# cause type — CandleCorrected — always. payload therefore carries no `invalidation_cause` enum
+# field (regime.md §4's own payload has none), and causal_state_dependency_declaration below uses a
+# single static `by_target` match role, never a discriminant.
+#
+# STATE-DEPENDENCY REPRESENTATION AUTHORITY: Approved ADR-048 (docs/adr/ADR-048.md, v0.3,
+# status: Approved) establishes the canonical, machine-readable top-level Event Contract field
+# `causal_state_dependency_declaration` satisfying Chapter 8 §8.2.3's causal-closure
+# `dependency_authority: per_effect_event_contract` requirement. This artifact declares that field
+# below, using ADR-048's exact canonical grammar. Classification semantic evidence:
+# docs/project/context-upstream-state-dependency-derivation-001.md v0.5 §2.8 (Review A CLEAN — 0
+# Blocker / 0 Major / 0 Minor, blob 8acb799ac84b5dadee463f8882e15fbb2ce93657) — evidence only, never
+# itself interpretive/runtime authority. Canonical representation authority: Approved ADR-048. This
+# Draft candidate's own declaration below is not itself an authoritative Published declaration — the
+# Published Event Contract will own it once this Draft is reviewed and Published.
+#
+# Governed authoring transaction boundary: HEAD e8166e402f1cbf3f95e23908f28562d255b7d43f
+# (M3-REGIME-WORKSTREAM-001, isolated worktree/branch m3-regime-workstream).
+
+contract_id: regime-fact-invalidated
+contract_version: v1.0
+status: Draft
+reviewers: []
+approved_by: null
+approved_at: null
+last_review: null
+
+event_type: REGIME_FACT_INVALIDATED
+# regime.md v0.2 §2 event_types table (PAST_TENSE_UPPER_SNAKE per Chapter 3 §3.2, referenced not
+# redefined here).
+
+event_class: derived_fact
+# Governed-authored, identical basis to regime-classified/v1.0.yaml: NOT `decision` (no
+# decision_time/decision_context_cursor anywhere in regime.md's own envelope §2). `derived_fact`
+# reuses this repository's own already-established vocabulary — an invalidation of a prior derived
+# fact is itself a derived fact, never a raw venue observation, same precedent as
+# structure-fact-invalidated/feature-fact-invalidated.
+
+allowed_streams:
+  - stream_id: raw-regime-engine-regime
+# Governed-authored, identical basis to regime-classified/v1.0.yaml: Approved ADR-036's
+# one-stream-per-fact-family topology means both of raw-regime-engine's event types target this one
+# stream — an invalidation fact is not a separate fact family from the fact it invalidates, the same
+# pattern already realized for every other module's positive/negative event pairs.
+
+merge_constraints:
+  prerequisite_policy: causation_must_resolve_before_apply
+# Governed-authored per Chapter 8 §8.3.4's own authority split. regime.md v0.2 §2 envelope fixes
+# `causation_refs` as never empty for any Regime event — this event's invalidated_fact_ref AND its
+# one CandleCorrected cause reference must both resolve before this event may be applied, per
+# Chapter 8 §8.3.4's own P_causation/P_global DAG requirement.
+
+payload_shape:
+  invalidated_fact_ref: {type: event_record_ref, required: true}
+  invalidation_reason: {type: string, required: false}
+
+payload_semantics_and_invariants:
+  description: >
+    Phủ định MỘT RegimeClassified lịch sử cụ thể — thuần túy ghi nhận "fact này không còn hợp lệ",
+    KHÔNG tự nó tuyên bố classification mới và KHÔNG tự nó mutate RegimeCurrentView (§11 tự resolve
+    trạng thái PENDING_CORRECTION khi thấy event này mà chưa có replacement). Nguyên nhân DUY NHẤT —
+    một CandleCorrected ảnh hưởng tới candle_evidence_refs của fact bị invalidate (regime.md không
+    tiêu thụ Swing nên không có nhánh swing_invalidated/chained_invalidation nào tương tự
+    structure.md). Là event MỚI, append-only (I-3) — không mutate record gốc.
+  envelope_binding:
+    # Inlined (regime.md §4) — self-contained.
+    rule: >
+      envelope.subject_ref và envelope.effective_time của CHÍNH event này KHÔNG được khai báo độc
+      lập — PHẢI kế thừa nguyên vẹn từ invalidated_fact_ref (fact F đang bị invalidate), không tính
+      toán/suy diễn riêng. Đây là cơ chế duy nhất ngăn một invalidation "nhắm nhầm" subject hoặc
+      window khác với fact nó tuyên bố đang phủ định.
+  invariants:
+    - "envelope.subject_ref PHẢI BẰNG HỆT subject_ref của invalidated_fact_ref (F) — cùng context_id, subject_kind, subject_type, subject_id, VÀ toàn bộ scope (instrument_id, venue_id, timeframe, regime_dimension, regime_definition_version). KHÔNG được khai báo subject_ref độc lập/khác biệt. Cấm target một fact thuộc subject KHÁC — kể cả khi mọi field khác đúng nhưng regime_definition_version sai hoặc regime_dimension sai (khác subject theo §1)."
+    - "envelope.effective_time PHẢI BẰNG HỆT analysis_window của invalidated_fact_ref (F) — [window_start, window_end) giống hệt, không sai lệch dù chỉ một trong hai biên. Cấm target một fact đúng subject nhưng SAI window."
+    - "payload.invalidated_fact_ref PHẢI resolve đúng CHÍNH XÁC bản ghi event F — dùng event_record_ref (Chapter 8 §8.2.3: canonical locator + event_id verification field), không phải một mô tả gần đúng."
+    - "causation_refs PHẢI trỏ: invalidated_fact_ref (RegimeClassified đang bị invalidate — bắt buộc, đúng một, PHẢI trùng chính xác payload.invalidated_fact_ref); VÀ CandleCorrected là nguyên nhân trực tiếp — đúng một, không có cause type nào khác hợp lệ cho event này — xem causal_state_dependency_declaration dưới đây."
+    - "invalidated_fact_ref PHẢI trỏ một RegimeClassified CHƯA từng nhận RegimeFactInvalidated khác — một fact chỉ bị invalidate đúng một lần (không invalidate trùng lặp)."
+    - "Đúng một RegimeClassified có thể trỏ supersedes_fact_ref về invalidated_fact_ref này (cấm fork) — invariant này thuộc về fact thay thế (regime-classified/v1.0.yaml), không phải chính event này, nhưng RegimeFactInvalidated là điều kiện TIÊN QUYẾT cho một replacement hợp lệ."
+    - "envelope.recorded_time PHẢI muộn hơn recorded_time của invalidated_fact_ref VÀ muộn hơn recorded_time của CandleCorrected gây ra nó."
+    - "Replay tại cursor trước recorded_time của invalidation KHÔNG được thấy invalidation này (chống look-ahead)."
+
+causal_state_dependency_declaration:
+  mode: exhaustive
+  roles:
+    - role_id: invalidated_fact_ref
+      selector:
+        kind: payload_field
+        path:
+          - invalidated_fact_ref
+      cardinality:
+        exactly: 1
+      classification: EXTERNAL_NON_STATE_CAUSE
+      apply_time_requirement: >
+        Authoritative application of RegimeFactInvalidated does not require re-reading the
+        invalidated RegimeClassified's own business content (class, computed_metric,
+        candle_evidence_refs) — this event's own payload is exactly {invalidated_fact_ref,
+        invalidation_reason}. A consumer applying this invalidation needs only to know WHICH fact is
+        invalidated — identity, not the invalidated fact's own business content (derivation v0.5
+        §2.8).
+    - role_id: candle_corrected_ref
+      selector:
+        kind: by_target
+        match:
+          event_types: [CANDLE_CORRECTED]
+          contract_ids: [candle-corrected]
+      cardinality:
+        exactly: 1
+      classification: EXTERNAL_NON_STATE_CAUSE
+      apply_time_requirement: >
+        Authoritative application of RegimeFactInvalidated does not require re-reading the causing
+        CandleCorrected's own OHLCV payload — this producer's invalidation policy is unconditional
+        whenever an affecting CandleCorrected exists (regime.md §10), never re-validating
+        class/computed_metric before invalidating. Existence/identity proof only (derivation v0.5
+        §2.8).
+# Approved ADR-048 (docs/adr/ADR-048.md) canonical mechanism. Two roles, exhaustive: every
+# causation_refs entry is either the invalidated fact's own reference (exactly one, matched via
+# payload_field) or the one CandleCorrected direct cause (exactly one, matched via a single static
+# by_target match — NOT a discriminated selector, since regime.md §4 declares exactly one possible
+# direct-cause type, unlike structure-fact-invalidated's three-case/feature-fact-invalidated's
+# four-case discriminants). Both roles EXTERNAL_NON_STATE_CAUSE — no STATE_DEPENDENCY role exists for
+# this event type (derivation v0.5 §2.8). The two roles' match sets are disjoint by construction: the
+# invalidated RegimeClassified is never itself a CANDLE_CORRECTED-typed event, and the causing
+# CandleCorrected is never the value of payload.invalidated_fact_ref. Duplicate canonical-locator
+# (stream_id, sequence) rejection within this event's own causation_refs is governed generically by
+# Approved ADR-048's own validation algorithm — no Regime-specific duplicate-detection algorithm is
+# defined here.
+
+compatibility_commitment: backward_only
+# Approved ADR-047 (docs/adr/ADR-047.md), Product Owner decision "APPROVE ADR-047"
+# (2026-09-28T14:44:39+07:00), Chapter 10 §10.3.1 — explicit policy commitment the platform adopts
+# for this contract_id: a consumer pinned to an older regime-fact-invalidated Event Contract version
+# must still correctly read/validate data under a newer version; forward compatibility is NOT
+# committed. No concrete schema delta exists yet for this first v1.0 version, so no compatibility
+# CLASSIFICATION of any delta is performed or claimed by this artifact.
+
+provenance:
+  source: docs/domain/regime.md
+  source_version: "0.2"
+  source_status: Draft
+  source_sections: ["§1 Logical Regime Subject", "§2 Canonical event envelope (payload-relevant portions)", "§4 RegimeFactInvalidated", "§10 Correction lineage"]
+  source_blob: edd1584377f1db84269e7b1dfdd4926d0ce01c70
+  drafted_at_commit: e8166e402f1cbf3f95e23908f28562d255b7d43f
+  note: >
+    Drafting-history citation ONLY (ADR-039 §"Canonical authority/source") — never required to
+    interpret this artifact's own meaning; payload_shape and payload_semantics_and_invariants above
+    are fully self-contained. event_class, allowed_streams, and merge_constraints were
+    governed-authored directly against Chapter 8 §8.3.1/§8.3.4, Approved ADR-036, Approved ADR-047,
+    and this repository's own established terminology — NOT mechanically transcribed from
+    regime.md, which does not declare any of the three fields anywhere.
+    State-dependency classification semantic evidence:
+    docs/project/context-upstream-state-dependency-derivation-001.md v0.5 §2.8 (Review A CLEAN — 0
+    Blocker / 0 Major / 0 Minor) — drafting-history citation only, never runtime/interpretive
+    authority. Canonical representation authority: Approved ADR-048 (docs/adr/ADR-048.md) — this
+    artifact's causal_state_dependency_declaration field above uses ADR-048's own exact canonical
+    grammar, not a mutable analysis-artifact identity embedded in the canonical role schema.
