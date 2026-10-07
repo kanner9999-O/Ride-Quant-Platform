@@ -50,28 +50,35 @@ footer{margin-top:30px;color:var(--mute);font-size:11px}
 
 <h2>M3 major workstreams</h2>
 <div class="grid">
-  <div class="card DONE"><div class="top"><b>Candle</b><span class="badge DONE">DONE</span></div><p>Contracts authored and reviewed; publication pending.</p></div>
-  <div class="card WAITING"><div class="top"><b>Structure</b><span class="badge WAITING">WAITING</span></div><p>Architecture decision approved; correction branch awaiting integration.</p><p class="next">Next: merge, then batched review.</p></div>
-  <div class="card READY"><div class="top"><b>Regime</b><span class="badge READY">READY</span></div><p>Draft contracts authored.</p><p class="next">Next: request Review A.</p></div>
-  <div class="card READY"><div class="top"><b>Feature</b><span class="badge READY">READY</span></div><p>Impact analysis done; v1.1 drafts authored.</p><p class="next">Next: request Review A.</p></div>
-  <div class="card BLOCKED"><div class="top"><b>Context</b><span class="badge BLOCKED">BLOCKED</span></div><p>Waits for all upstream contracts to be published.</p></div>
+  <div class="card DONE"><div class="top"><b>Candle</b><span class="badge DONE">DONE</span></div><p>Workstream complete.</p><p class="next">Next: publication/integration boundary.</p></div>
+  <div class="card DONE"><div class="top"><b>Structure</b><span class="badge DONE">DONE</span></div><p>Integrated.</p><p class="next">Next: publication/integration boundary.</p></div>
+  <div class="card DONE"><div class="top"><b>Regime</b><span class="badge DONE">DONE</span></div><p>Workstream complete.</p><p class="next">Next: publication/integration boundary.</p></div>
+  <div class="card READY"><div class="top"><b>Feature</b><span class="badge READY">READY</span></div><p>Review: revision required (1 Major).</p><p class="next">Next: bounded ADR-050 correction.</p></div>
+  <div class="card BLOCKED"><div class="top"><b>Context</b><span class="badge BLOCKED">BLOCKED</span></div><p>Feature unresolved; upstream publication not complete.</p></div>
+</div>
+
+<h2>Execution board</h2>
+<div class="grid board" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">
+  <div class="card READY"><div class="top"><b>READY TO ASSIGN</b></div><p>Feature — ADR-050 correction</p><p>Candle / Structure / Regime — publication/integration boundary</p></div>
+  <div class="card REVIEW"><div class="top"><b>REVIEW / RUNNING</b></div><p>None</p></div>
+  <div class="card BLOCKED"><div class="top"><b>BLOCKED</b></div><p>Context</p></div>
+  <div class="card DONE"><div class="top"><b>DONE</b></div><p>Candle, Structure, Regime</p></div>
 </div>
 
 <h2>Next action</h2>
 <section class="next-box">
   <h3>NEXT ACTION</h3>
   <ul>
-    <li>Integrate the Structure correction into main</li>
-    <li>Run Review A on Regime and Feature candidates</li>
+    <li>Feature: bounded ADR-050 correction</li>
+    <li>Candle / Structure / Regime: publication/integration boundary</li>
   </ul>
 </section>
 
 <h2>Summary</h2>
 <div class="sum">
-  <span class="DONE"><b>1</b>DONE</span>
+  <span class="DONE"><b>3</b>DONE</span>
   <span class="RUNNING"><b>0</b>RUNNING</span>
-  <span class="READY"><b>2</b>READY</span>
-  <span class="WAITING"><b>1</b>WAITING</span>
+  <span class="READY"><b>1</b>READY</span>
   <span class="BLOCKED"><b>1</b>BLOCKED</span>
 </div>
 

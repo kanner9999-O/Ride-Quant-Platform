@@ -55,11 +55,13 @@ milestone:
 
 planning_head: "197100785fb786278816b5b694dc9d380d9c1b8b"
 generated_at: "2026-10-07"
+state_recorded_against_head: "92c0b4e388f574e3db4c17098648cd6ab6efbaf8"
+candle_state: "DONE — next: publication/integration boundary (not a tracked lane)"
 verified_fresh_this_transaction: true
 
 lanes:
   - lane_id: structure
-    state: IN_PROGRESS
+    state: DONE
     owner_label: "AI Technical Architect (Claude or ChatGPT) — bounded WP Executor, per Lean Ride Operating Model v1.1 §3"
     true_dependencies: []
     dependency_rationale: >
@@ -67,47 +69,14 @@ lanes:
       độc lập)" — Structure and Regime are canonically parallel/independent. No
       authoritative artifact makes Structure's Event Contract correction work depend
       on Regime's.
-    blockers:
-      - id: STRUCT-MAJ-03-PENDING-ARCHITECTURE-DISPOSITION
-        description: >
-          structure-fact-invalidated/v1.0.yaml's STRUCT-EC-A-MAJ-03 (multi-cause
-          representation) is PENDING_ARCHITECTURE_DISPOSITION (fixes
-          M3-CP-A-MAJ-02). ADR-049 (docs/adr/ADR-049.md, v0.1, status: Draft) is an
-          executor-authored Draft candidate that self-proposes an ADR_REQUIRED/R2
-          scope/risk classification for this finding — that self-classification is
-          NOT yet fresh-Review-A-validated, and this control plane does not treat
-          it as an already-decided architecture fact. The actual disposition route
-          (ADR-049 approval, an alignment/correction resolvable under existing
-          authority without a new ADR per G-ADR-001/G-ADR-004, or another governed
-          route) is resolved independently under Chapter 0 §4b / Review A /
-          architecture triage — never pre-decided here. This blocker applies ONLY
-          to that one finding/file, not to the rest of the structure lane.
-    terminal_state_rule: >
-      (fixes M3-CP-A-MAJ-02) The structure lane MAY execute every independently
-      resolvable finding (MAJ-04/05/06 below) inside this same lane. It MUST NOT
-      report WORKSTREAM_COMPLETE while STRUCT-EC-A-MAJ-03 remains
-      PENDING_ARCHITECTURE_DISPOSITION — if MAJ-03 is the only finding left
-      unresolved, the lane's terminal state is BLOCKED_BY_EXTERNAL_DEPENDENCY (or
-      the structure packet's equivalent architecture-disposition block), never
-      WORKSTREAM_COMPLETE. A single batched Structure Review A request is made
-      only once the full four-contract Structure integration candidate (MAJ-03
-      included) is coherent — never for a partial 3-of-4 subset by default —
-      unless an existing higher-authority rule explicitly requires a narrower
-      review boundary for a specific finding/artifact.
-    not_blocked:
-      - "STRUCT-EC-A-MAJ-04 (structure-recomputed input_cursor_ref) — Chapter 8 §8.5.1's canonical Replay Cursor shape is already mechanically determined; actionable now."
-      - "STRUCT-EC-A-MAJ-05 (BOS/CHoCH 8-criteria total order inlining) — actionable now."
-      - "STRUCT-EC-A-MAJ-06 (structure-recomputed cascade algorithm inlining) — actionable now."
-    expected_outputs:
-      - "docs/architecture/event-contracts/break-of-structure-detected/v1.0.yaml (MAJ-05 inlined)"
-      - "docs/architecture/event-contracts/change-of-character-detected/v1.0.yaml (MAJ-05 inlined)"
-      - "docs/architecture/event-contracts/structure-recomputed/v1.0.yaml (MAJ-04 canonical replay_cursor + MAJ-06 inlined)"
-      - "docs/architecture/event-contracts/structure-fact-invalidated/v1.0.yaml (MAJ-03 — withheld pending PENDING_ARCHITECTURE_DISPOSITION resolution; not pre-assigned to any specific route)"
-      - "a coherent FOUR-contract integration candidate (not three) before any batched Review A request, unless a narrower review boundary is required by existing authority"
+    blockers: []
+    integration_state: INTEGRATED
+    reviewed_and_integrated_head: "92c0b4e388f574e3db4c17098648cd6ab6efbaf8"
+    next: "publication/integration boundary"
     packet: "docs/project/workstreams/m3/structure-workstream.md"
 
   - lane_id: regime
-    state: NOT_STARTED
+    state: DONE
     owner_label: "AI Technical Architect (Claude or ChatGPT) — bounded WP Executor, per Lean Ride Operating Model v1.1 §3"
     true_dependencies: []
     dependency_rationale: >
@@ -123,10 +92,11 @@ lanes:
       - "docs/architecture/event-contracts/regime-classified/v1.0.yaml (new Draft candidate)"
       - "docs/architecture/event-contracts/regime-fact-invalidated/v1.0.yaml (new Draft candidate)"
       - "one coherent integration candidate, ready for a single batched Review A request"
+    next: "publication/integration boundary"
     packet: "docs/project/workstreams/m3/regime-workstream.md"
 
   - lane_id: feature_future_dependency_authority
-    state: NOT_STARTED
+    state: READY
     owner_label: "AI Technical Architect (Claude or ChatGPT) — bounded WP Executor, per Lean Ride Operating Model v1.1 §3"
     true_dependencies: []
     dependency_rationale: >
@@ -146,6 +116,10 @@ lanes:
     expected_outputs:
       - "a bounded analysis artifact resolving whether feature-computed/feature-fact-invalidated v1.0 (both status: Published) require a new vNext version to carry ADR-048's causal_state_dependency_declaration field, and what Chapter 10 §10.4 Compatibility Result classification applies"
       - "IF the analysis concludes a new version is warranted: a Draft (not Published) vNext Event Contract candidate — analysis only otherwise"
+    branch: "workstream/m3-feature-future-dependency-authority-triage"
+    reviewed_candidate_head: "feac559ea2a124e6c9eef107a53a248e029bd48b"
+    review_state: "REVISION_REQUIRED — 0 Blocker / 1 Major / 0 Minor"
+    next: "bounded ADR-050 correction for ADR050-A-MAJ-02"
     packet: "docs/project/workstreams/m3/feature-future-dependency-workstream.md"
 
   - lane_id: context_publication_readiness
@@ -161,9 +135,8 @@ lanes:
       upstream event type's OWN Event Contract is the per-effect authority Context's
       publication readiness delegates to. Context Input Contract v1.0 cannot
       legitimately leave status: Draft while any of those per-effect authorities
-      remains unresolved: Structure (four Draft candidates, open findings), Regime
-      (not yet authored), Feature (Published v1.0 exists but ADR-048 field/version
-      status unresolved). This is a genuine, repository-authority-supported
+      remains unresolved: Structure (DONE/INTEGRATED, not yet published), Regime
+      (DONE, not yet published), Feature (READY; ADR-050 correction pending). This is a genuine, repository-authority-supported
       dependency, not an inherited serialization assumption.
     additional_note: >
       Candle (candle-closed/candle-corrected, both Draft, Review A CLEAN but not yet
@@ -172,6 +145,8 @@ lanes:
       already-complete Review A evidence pending its own publication decision, not
       re-opened by this transaction.
     blockers:
+      - id: FEATURE-UNRESOLVED
+        description: "Feature lane unresolved (ADR-050 review REVISION_REQUIRED)."
       - id: UPSTREAM-LANES-NOT-PUBLISHED
         description: "Cannot start until structure/regime/feature_future_dependency_authority each reach a Published (not merely Draft-reviewed) Event Contract state for their respective event types."
     expected_outputs: []
@@ -186,18 +161,9 @@ integration:
     Context Input Contract or any Event Contract publication; publication remains a
     separate, explicitly later governed decision (ADR-039/ADR-047/Chapter 10/12
     authority, unchanged).
-  last_integration_review_state: "NONE — no workstream has reached an integration boundary yet; this transaction only establishes topology."
+  last_integration_review_state: "Structure INTEGRATED at 92c0b4e388f574e3db4c17098648cd6ab6efbaf8; Candle/Regime/Structure at publication/integration boundary; Feature pending ADR-050 correction."
 
-parked_items:
-  - id: ADR-049
-    path: "docs/adr/ADR-049.md"
-    state: "PARKED / NOT ACTIVE WORK"
-    rationale: >
-      v0.1, status: Draft, pending fresh ChatGPT Review A and a Product Owner
-      decision. Operationally relevant only to the structure lane's STRUCT-MAJ-03-
-      PENDING-ADR blocker above. NOT mutated by this transaction, per explicit
-      instruction. Any workstream reading ADR-049 for context must NOT treat its
-      conclusions as approved architecture authority until the Product Owner decides.
+parked_items: []
 
 escalation_queue: []
 
@@ -207,5 +173,5 @@ verification:
   no_adr_created_or_modified: true
   all_packet_paths_resolve: true
   dependency_graph_acyclic: true
-  each_lane_has_one_terminal_contract: "WORKSTREAM_COMPLETE | ARCHITECTURE_ESCALATION | BLOCKED_BY_EXTERNAL_DEPENDENCY (context_publication_readiness defaults to BLOCKED_BY_EXTERNAL_DEPENDENCY until its three true_dependencies each resolve; structure defaults to BLOCKED_BY_EXTERNAL_DEPENDENCY, never WORKSTREAM_COMPLETE, while STRUCT-EC-A-MAJ-03 remains PENDING_ARCHITECTURE_DISPOSITION, per terminal_state_rule above)"
+  each_lane_has_one_terminal_contract: "WORKSTREAM_COMPLETE | ARCHITECTURE_ESCALATION | BLOCKED_BY_EXTERNAL_DEPENDENCY (context_publication_readiness defaults to BLOCKED_BY_EXTERNAL_DEPENDENCY until its three true_dependencies each resolve)"
   no_lane_falsely_blocked_by_historical_sequencing: true
