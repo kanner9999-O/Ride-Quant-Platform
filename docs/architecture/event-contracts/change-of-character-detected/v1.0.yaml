@@ -45,15 +45,12 @@
 # payload_shape / payload_semantics_and_invariants are transcribed and governed-synthesized from
 # structure.md v0.4 §1 (subject)/§2 (envelope, payload-relevant portions only)/§4
 # (ChangeOfCharacterDetected)/§6 (break-criterion formula, fully inlined here, fixes
-# STRUCT-EC-A-MAJ-02)/§7 (CHoCH semantics)/§6a (broken_swing_ref schema + the COMPLETE
-# seven-condition Eligible Swing membership predicate, fixes STRUCT-EC-A-MAJ-01) and are fully
-# self-contained here — a reader does not need to separately consult structure.md, or
-# break-of-structure-detected/v1.0.yaml, to interpret this artifact's own meaning (ADR-039). Only
-# the producer-side 8-criteria total-order tie-break algorithm used to SELECT among multiple
-# simultaneously-Eligible distinct swing_id candidates (structure.md §6a) remains deliberately
-# condensed to its outcome only, same discipline already applied to
-# break-of-structure-detected/v1.0.yaml and Candle's own precedence-resolution algorithm.
-# structure.md's own envelope fields (event_id, recorded_time, subject_ref, stream_ref,
+# STRUCT-EC-A-MAJ-02)/§7 (CHoCH semantics)/§6a (broken_swing_ref schema, the COMPLETE
+# seven-condition Eligible Swing membership predicate (fixes STRUCT-EC-A-MAJ-01), and the COMPLETE
+# 8-criteria deterministic total order, now fully inlined as `relevant_swing_total_order` below
+# (fixes STRUCT-EC-A-MAJ-05)) and are fully self-contained here — a reader does not need to
+# separately consult structure.md, or break-of-structure-detected/v1.0.yaml, to interpret this
+# artifact's own meaning (ADR-039). structure.md's own envelope fields (event_id, recorded_time, subject_ref, stream_ref,
 # sequence, producer_ref, correlation_id, causation_refs, related_event_refs, effective_time) remain
 # Chapter 8 §8.2's own owned concept, applied not redefined here — this artifact declares the
 # PAYLOAD portion only.
@@ -182,11 +179,57 @@ payload_semantics_and_invariants:
     newer revision supersedes an older one) is always an independently eligible pair, never
     "locked" merely because some other revision was previously consumed under condition (6). When,
     after applying all seven conditions, more than one DISTINCT swing_id simultaneously has an
-    Eligible pair, which one a producer selects among them is resolved by a total-order tie-break
-    rule that is a producer-side selection concern (full step-by-step mechanics remain
-    structure.md §6a's own drafting-history content) — validating this already-emitted event's own
-    payload requires only that the referenced pair satisfy all seven conditions above, never a
-    re-derivation of which candidate was selected among several.
+    Eligible pair, exactly one is selected by the deterministic total order inlined below
+    (relevant_swing_total_order) — never ambiguously, never by an unstated producer convention.
+  relevant_swing_total_order:
+    # Inlined (fixes STRUCT-EC-A-MAJ-05) — self-contained, no reference to structure.md §6a or to
+    # break-of-structure-detected/v1.0.yaml required to determine which Eligible candidate is the
+    # winner when more than one distinct swing_id simultaneously satisfies
+    # eligible_swing_constraint above. Identical rule to break-of-structure-detected/v1.0.yaml's
+    # own relevant_swing_total_order — both BOS and CHoCH share the same §6a-defined total order.
+    scope: >
+      Applies only when, after eligible_swing_constraint's seven conditions above, more than one
+      DISTINCT swing_id simultaneously has an Eligible (swing_id, swing_revision) pair. When
+      exactly one Eligible pair exists, it is the winner trivially and this order is not needed to
+      determine it.
+    criteria:
+      - {order: 1, field: "pivot_effective_time.window_start", direction: DESC, rationale: "the pivot nearest the cursor wins (\"nearest still-unbroken level\")"}
+      - {order: 2, field: "SwingConfirmed.recorded_time", direction: ASC, rationale: "known earlier wins (T vs T+n)"}
+      - {order: 3, field: "stream_ref.stream_id", direction: ASC, comparison: lexical, rationale: "establishes stream identity as the basis for comparing sequence at (5)"}
+      - {order: 4, field: "stream_ref.registry_version", direction: ASC, comparison: lexical, rationale: "same stream_id but a different registry snapshot is still distinguishable (Chapter 8 §8.3.1)"}
+      - {order: 5, field: sequence, direction: ASC, comparison: "numeric — ONLY meaningful within the exact stream identity already fixed by criteria 3 AND 4"}
+      - {order: 6, field: swing_revision, direction: DESC, rationale: "when every business-time/stream criterion above ties, the latest valid revision wins"}
+      - {order: 7, field: swing_id, direction: ASC, comparison: lexical, rationale: "pure technical tie-break"}
+      - {order: 8, field: "SwingConfirmed.event_id", direction: ASC, comparison: lexical, rationale: "final technical tie-break"}
+    algorithm: >
+      Compare criteria 1 through 8 in exact order. The FIRST criterion with a differing value
+      between two candidates decides the winner. Subsequent criteria are NOT evaluated. This is
+      strict lexicographic comparison — there is no branch that "skips" a criterion other than
+      stopping at the first one that already distinguishes the candidates.
+    criterion_5_precondition: >
+      `sequence` (criterion 5) is evaluated ONLY when criteria 3 AND 4 both already tie (same
+      stream_id AND same registry_version) — this is a precondition for criterion 5 to be
+      meaningful at all, never an exception that "jumps past" it. If criterion 3 differs, it alone
+      decides and criteria 4-8 are never evaluated. If criterion 3 ties but criterion 4 differs, it
+      alone decides and criteria 5-8 are never evaluated. Raw `sequence` values are NEVER compared
+      across two different streams as if they formed one global order (Chapter 8 §8.3.3; ADR-009) —
+      stopping at criterion 3 or 4 whenever they differ is the exact mechanism that prevents this,
+      not a weakening of their own role as ordering criteria.
+    worked_examples: >
+      (1) A.stream_id=alpha, B.stream_id=beta: alpha < beta -> A wins at criterion 3; criteria 4-8
+      not evaluated. (2) Same stream_id=alpha for both, A.registry_version=v1, B.registry_version=v2:
+      v1 < v2 -> A wins at criterion 4; criteria 5-8 not evaluated. (3) Same stream_id=alpha, same
+      registry_version=v1, A.sequence=100, B.sequence=105: criteria 3 and 4 tie, so criterion 5 is
+      evaluated -> 100 < 105 -> A wins at criterion 5.
+    duplicate_detection: >
+      If all eight criteria values match exactly between two candidates, they are duplicate
+      representations of the same authoritative fact (see §11 Deduplication) — there is no ninth
+      criterion.
+    opaque_identifier_rule: >
+      swing_id (criterion 7) and event_id (criterion 8) are pure technical tie-breaks, deterministic
+      by string ordering of an opaque identifier, carrying no business meaning — opaque identifiers
+      are never parsed to infer a timestamp or business semantic (Chapter 6 §6.8); string ordering
+      is used only to guarantee a total order, never to interpret the identifier's content.
   invariants:
     - "envelope.causation_refs MUST contain exactly these two role contributions, and nothing else: broken_swing_ref.swing_confirmed_event_ref (exactly one); breaking_candle_refs (one or more) — see causal_state_dependency_declaration below for the canonical machine-readable classification of each."
     - "prior_orientation MUST be BULLISH or BEARISH — not valid on UNDETERMINED/NEUTRAL."
@@ -252,17 +295,18 @@ provenance:
   source: docs/domain/structure.md
   source_version: "0.4"
   source_status: Draft
-  source_sections: ["§1 Logical Structure Subject", "§2 Canonical event envelope (payload-relevant portions)", "§4 ChangeOfCharacterDetected", "§6 break-criterion formula (fully inlined)", "§7 CHoCH semantics", "§6a Deterministic relevant Swing selection (complete seven-condition membership predicate)"]
+  source_sections: ["§1 Logical Structure Subject", "§2 Canonical event envelope (payload-relevant portions)", "§4 ChangeOfCharacterDetected", "§6 break-criterion formula (fully inlined)", "§7 CHoCH semantics", "§6a Deterministic relevant Swing selection (complete seven-condition membership predicate AND complete 8-criteria total order)"]
   source_blob: 78964dfb6852bbac3fa1e034d64b4fc8031c3fef
   drafted_at_commit: 581c28d3acd1d13c613fc110e80b9e5a5dbc486a
   note: >
     Drafting-history citation ONLY (ADR-039 §"Canonical authority/source") — never required to
     interpret this artifact's own meaning; payload_shape and payload_semantics_and_invariants above
     are fully self-contained, including the COMPLETE seven-condition Eligible Swing membership
-    predicate (fixes STRUCT-EC-A-MAJ-01) and the fully-inlined break-criterion formula (fixes
-    STRUCT-EC-A-MAJ-02, no pointer to break-of-structure-detected/v1.0.yaml remains) — only the
-    full 8-criteria producer-side tie-break ORDER remains structure.md §6a's own drafting-history
-    content. event_class, allowed_streams, and merge_constraints were
+    predicate (fixes STRUCT-EC-A-MAJ-01), the fully-inlined break-criterion formula (fixes
+    STRUCT-EC-A-MAJ-02, no pointer to break-of-structure-detected/v1.0.yaml remains), and the
+    COMPLETE 8-criteria deterministic total order (fixes STRUCT-EC-A-MAJ-05, inlined as
+    relevant_swing_total_order) — no external reference to structure.md §6a remains for any of the
+    three. event_class, allowed_streams, and merge_constraints were
     governed-authored directly against Chapter 8 §8.3.1/§8.3.4, Approved ADR-036, Approved ADR-047,
     and this repository's own established terminology — NOT mechanically transcribed from
     structure.md, which does not declare any of the three fields anywhere.
