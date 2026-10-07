@@ -1,0 +1,177 @@
+# M3 Execution Control Plane — project orchestration state ONLY.
+#
+# NOT governance authority. NOT architecture authority. NOT a replacement for
+# docs/project/milestone.md (which remains the authoritative project-state record).
+# Subordinate to: Constitution (Locked chapters) > Approved ADR > MANIFEST current
+# state > Global Execution Rules > Current Phase Rules (docs/governance/execution-
+# rules.md §Authority hierarchy, unchanged, applied here, not redefined).
+#
+# Instantiates EXISTING Lean Ride Operating Model v1.1 principles (docs/governance/
+# lean-ride-operating-model-v1-candidate.md, status: Active, adopted 2026-09-22):
+# Work Package batching, WIP=1 per critical-path track, batched Review A at WP
+# completion, critical-path prioritization against Chapter 14 §14.2's roadmap
+# dependency graph. Does NOT invent or activate a new governance model. Does NOT
+# create an ADR. Does NOT perform Review A. Does NOT review ADR-049 or any Structure/
+# Regime/Feature semantics.
+#
+# This artifact is CURRENT M3 ONLY — superseded/replaced wholesale at the next
+# milestone, not amended into a cross-milestone history document.
+
+schema_note: >
+  project execution / orchestration state only — a scheduling/dependency view over
+  work already governed by docs/project/milestone.md and Constitution/ADR authority.
+  Never cited as architecture or governance evidence in any ADR, Review A, or
+  Product Owner decision record.
+
+milestone:
+  id: M3
+  name: "Context Projection / context-aggregator"
+  objective: >
+    Reach a Published, self-contained, ADR-048-compliant Event Contract set for every
+    upstream fact family (Candle, Structure, Regime, Feature) that the Context Input
+    Contract's included_streams references, so Context Input Contract v1.0 can
+    legitimately leave status: Draft and reach Published — per docs/domain/context.md
+    v0.4 §16 and docs/architecture/input-contracts/context-market-input.yaml v0.3's own
+    fixed four-stream composition. This control plane does not itself publish
+    anything; it only sequences the bounded workstreams required to get there.
+
+planning_head: "197100785fb786278816b5b694dc9d380d9c1b8b"
+generated_at: "2026-10-07"
+verified_fresh_this_transaction: true
+
+lanes:
+  - lane_id: structure
+    state: IN_PROGRESS
+    owner_label: "AI Technical Architect (Claude or ChatGPT) — bounded WP Executor, per Lean Ride Operating Model v1.1 §3"
+    true_dependencies: []
+    dependency_rationale: >
+      Chapter 14 §14.2 (Locked): "Structure Engine & Raw Regime Engine (song song,
+      độc lập)" — Structure and Regime are canonically parallel/independent. No
+      authoritative artifact makes Structure's Event Contract correction work depend
+      on Regime's.
+    blockers:
+      - id: STRUCT-MAJ-03-PENDING-ADR
+        description: >
+          structure-fact-invalidated/v1.0.yaml's STRUCT-EC-A-MAJ-03 correction
+          (multi-cause representation) cannot be implemented by this lane alone: it
+          depends on ADR-049 (docs/adr/ADR-049.md, v0.1, status: Draft) reaching fresh
+          Review A and a Product Owner decision — ADR-049 is fresh-classified
+          ADR_REQUIRED/R2, which the Lean model's own "must escalate" criterion 1/2
+          (§3) requires routing to Product Owner regardless of this control plane.
+          This blocker applies ONLY to that one finding/file, not to the rest of the
+          structure lane.
+    not_blocked:
+      - "STRUCT-EC-A-MAJ-04 (structure-recomputed input_cursor_ref) — Chapter 8 §8.5.1's canonical Replay Cursor shape is already mechanically determined; actionable now."
+      - "STRUCT-EC-A-MAJ-05 (BOS/CHoCH 8-criteria total order inlining) — actionable now."
+      - "STRUCT-EC-A-MAJ-06 (structure-recomputed cascade algorithm inlining) — actionable now."
+    expected_outputs:
+      - "docs/architecture/event-contracts/break-of-structure-detected/v1.0.yaml (MAJ-05 inlined)"
+      - "docs/architecture/event-contracts/change-of-character-detected/v1.0.yaml (MAJ-05 inlined)"
+      - "docs/architecture/event-contracts/structure-recomputed/v1.0.yaml (MAJ-04 canonical replay_cursor + MAJ-06 inlined)"
+      - "docs/architecture/event-contracts/structure-fact-invalidated/v1.0.yaml (MAJ-03 — deferred until ADR-049 clears Product Owner decision)"
+      - "one coherent integration candidate, ready for a single batched Review A request"
+    packet: "docs/project/workstreams/m3/structure-workstream.md"
+
+  - lane_id: regime
+    state: NOT_STARTED
+    owner_label: "AI Technical Architect (Claude or ChatGPT) — bounded WP Executor, per Lean Ride Operating Model v1.1 §3"
+    true_dependencies: []
+    dependency_rationale: >
+      Same Chapter 14 §14.2 parallel/independent declaration as structure, in the
+      other direction. docs/domain/regime.md v0.2 (Draft) already exists
+      independently; docs/project/context-upstream-state-dependency-derivation-001.md
+      v0.5 §2.7/§2.8 already classifies both REGIME_CLASSIFIED/REGIME_FACT_INVALIDATED
+      causation categories; ADR-047 (Approved) already enumerates both regime
+      contract_ids' backward_only compatibility_commitment. No missing prerequisite
+      artifact blocks starting this lane.
+    blockers: []
+    expected_outputs:
+      - "docs/architecture/event-contracts/regime-classified/v1.0.yaml (new Draft candidate)"
+      - "docs/architecture/event-contracts/regime-fact-invalidated/v1.0.yaml (new Draft candidate)"
+      - "one coherent integration candidate, ready for a single batched Review A request"
+    packet: "docs/project/workstreams/m3/regime-workstream.md"
+
+  - lane_id: feature_future_dependency_authority
+    state: NOT_STARTED
+    owner_label: "AI Technical Architect (Claude or ChatGPT) — bounded WP Executor, per Lean Ride Operating Model v1.1 §3"
+    true_dependencies: []
+    dependency_rationale: >
+      REJECTED ASSUMPTION (recorded per this WP's own §8 requirement): a plausible but
+      unsupported reading of Chapter 14 §14.2's roadmap sequence ("... -> Feature
+      Engine -> Context Projection ...") would suggest Feature work is sequentially
+      gated on Structure/Regime completing first. Repository authority does not
+      support that reading for THIS lane's actual scope: Feature's own causation-ref
+      classification evidence is already fully derived (state-dependency derivation
+      v0.5 §2.1/§2.2, covering feature-computed/feature-fact-invalidated, independent
+      of Structure/Regime's own Event Contract text) and context-map.yaml confirms
+      feature-engine is NOT a registered consumer of the four Structure event types.
+      The roadmap sequence governs module IMPLEMENTATION order (build/runtime), not
+      this Event-Contract-authority analysis lane. No true dependency on structure or
+      regime exists for this lane.
+    blockers: []
+    expected_outputs:
+      - "a bounded analysis artifact resolving whether feature-computed/feature-fact-invalidated v1.0 (both status: Published) require a new vNext version to carry ADR-048's causal_state_dependency_declaration field, and what Chapter 10 §10.4 Compatibility Result classification applies"
+      - "IF the analysis concludes a new version is warranted: a Draft (not Published) vNext Event Contract candidate — analysis only otherwise"
+    packet: "docs/project/workstreams/m3/feature-future-dependency-workstream.md"
+
+  - lane_id: context_publication_readiness
+    state: BLOCKED
+    owner_label: "(unassigned — no packet authored this transaction; lane not yet actionable)"
+    true_dependencies: [structure, regime, feature_future_dependency_authority]
+    dependency_rationale: >
+      docs/architecture/input-contracts/context-market-input.yaml v0.3's own
+      included_streams is a fixed four-stream composition (market-data-ingestion-
+      candle, structure-engine-structure, raw-regime-engine-regime, feature-engine-
+      feature) with causal_closure_policy.dependency_authority: per_effect_event_
+      contract (Approved ADR-048's own canonical mechanism) — meaning every reachable
+      upstream event type's OWN Event Contract is the per-effect authority Context's
+      publication readiness delegates to. Context Input Contract v1.0 cannot
+      legitimately leave status: Draft while any of those per-effect authorities
+      remains unresolved: Structure (four Draft candidates, open findings), Regime
+      (not yet authored), Feature (Published v1.0 exists but ADR-048 field/version
+      status unresolved). This is a genuine, repository-authority-supported
+      dependency, not an inherited serialization assumption.
+    additional_note: >
+      Candle (candle-closed/candle-corrected, both Draft, Review A CLEAN but not yet
+      Published) is also a factual prerequisite for this lane, even though Candle is
+      not one of this control plane's four tracked lanes — it is carried forward as
+      already-complete Review A evidence pending its own publication decision, not
+      re-opened by this transaction.
+    blockers:
+      - id: UPSTREAM-LANES-NOT-PUBLISHED
+        description: "Cannot start until structure/regime/feature_future_dependency_authority each reach a Published (not merely Draft-reviewed) Event Contract state for their respective event types."
+    expected_outputs: []
+    packet: null
+
+integration:
+  integration_dependency: >
+    Lane outputs do not auto-integrate. A dedicated integration boundary — a single
+    batched Review A covering the full aggregate delta across whichever lanes have
+    reached WORKSTREAM_COMPLETE — is the only point at which Context Input Contract
+    publication readiness is reassessed. No lane's completion alone authorizes
+    Context Input Contract or any Event Contract publication; publication remains a
+    separate, explicitly later governed decision (ADR-039/ADR-047/Chapter 10/12
+    authority, unchanged).
+  last_integration_review_state: "NONE — no workstream has reached an integration boundary yet; this transaction only establishes topology."
+
+parked_items:
+  - id: ADR-049
+    path: "docs/adr/ADR-049.md"
+    state: "PARKED / NOT ACTIVE WORK"
+    rationale: >
+      v0.1, status: Draft, pending fresh ChatGPT Review A and a Product Owner
+      decision. Operationally relevant only to the structure lane's STRUCT-MAJ-03-
+      PENDING-ADR blocker above. NOT mutated by this transaction, per explicit
+      instruction. Any workstream reading ADR-049 for context must NOT treat its
+      conclusions as approved architecture authority until the Product Owner decides.
+
+escalation_queue: []
+
+verification:
+  only_orchestration_files_changed: true
+  no_authority_artifact_changed: true
+  no_adr_created_or_modified: true
+  all_packet_paths_resolve: true
+  dependency_graph_acyclic: true
+  each_lane_has_one_terminal_contract: "WORKSTREAM_COMPLETE | ARCHITECTURE_ESCALATION | BLOCKED_BY_EXTERNAL_DEPENDENCY (context_publication_readiness defaults to BLOCKED_BY_EXTERNAL_DEPENDENCY until its three true_dependencies each resolve)"
+  no_lane_falsely_blocked_by_historical_sequencing: true
