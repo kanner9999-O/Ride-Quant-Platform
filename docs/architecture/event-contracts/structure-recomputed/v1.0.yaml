@@ -67,20 +67,27 @@
 # payload_semantics_and_invariants) now inlines enough of structure.md §10 to determine, without
 # external reference: cascade root (the direct invalidated ancestor); dependency-forward descendant
 # membership (E(k+1) depends on E(k) when E(k+1).prior_orientation = E(k).new_orientation in the
-# original orientation chain); the direct-vs-chained invalidation relation (a cascade's first
-# StructureFactInvalidated carries invalidation_cause ∈ {swing_invalidated, breaking_candle_corrected};
-# every subsequent member carries invalidation_cause = chained_invalidation referencing the
-# StructureFactInvalidated immediately before it in the same cascade); the completion condition
-# (every fact reachable by the dependency-forward chain from the direct ancestor has received its
-# own StructureFactInvalidated); the complete causation set (this event's own causation_refs,
-# unchanged from the pre-correction declaration below); and exactly-one-StructureRecomputed-per-
-# cascade (already an existing invariant, unchanged). The full numeric worked-example emission
-# ORDERING (structure.md §10's own illustrative E1/E2/E3 trace) remains that document's own
-# drafting-history content — not needed to validate this already-emitted event's own payload, same
-# discipline already applied to the 8-criteria Eligible-Swing tie-break order in
-# break-of-structure-detected/v1.0.yaml and change-of-character-detected/v1.0.yaml. structure.md's
-# own envelope fields remain Chapter 8 §8.2's own owned concept, applied not redefined here — this
-# artifact declares the PAYLOAD portion only.
+# original orientation chain); the direct-vs-chained invalidation relation (a cascade's root
+# StructureFactInvalidated carries invalidation_cause ∈ {swing_invalidated, breaking_candle_corrected}
+# with normally exactly one direct upstream cause, or — in Approved ADR-049 v0.2's own rare
+# dual-cause case — both one matching SwingInvalidated AND one matching CandleCorrected
+# simultaneously with invalidation_cause = breaking_candle_corrected; every subsequent member
+# carries invalidation_cause = chained_invalidation referencing exactly one StructureFactInvalidated
+# immediately before it in the same cascade, never two); the completion condition (every fact
+# reachable by the dependency-forward chain from the direct ancestor has received its own
+# StructureFactInvalidated); the complete causation set (this event's own causation_refs, unchanged
+# from the pre-correction declaration below); and exactly-one-StructureRecomputed-per-cascade
+# (already an existing invariant, unchanged). STRUCTURE-FINAL-A-MAJ-01 fix (this correction): the
+# root's direct-cause description above now explicitly permits Approved ADR-049 v0.2's rare
+# dual-cause case (one SwingInvalidated + one CandleCorrected), consistent with
+# structure-fact-invalidated/v1.0.yaml's own already-corrected causation_refs/invalidation_cause
+# semantics — previously stated only in the singular, an inconsistency between the two
+# self-contained artifacts. The full numeric worked-example emission ORDERING (structure.md §10's
+# own illustrative E1/E2/E3 trace) remains that document's own drafting-history content — not needed
+# to validate this already-emitted event's own payload, same discipline already applied to the
+# 8-criteria Eligible-Swing tie-break order in break-of-structure-detected/v1.0.yaml and
+# change-of-character-detected/v1.0.yaml. structure.md's own envelope fields remain Chapter 8 §8.2's
+# own owned concept, applied not redefined here — this artifact declares the PAYLOAD portion only.
 #
 # STATE-DEPENDENCY REPRESENTATION AUTHORITY: Approved ADR-048 (docs/adr/ADR-048.md, v0.3,
 # status: Approved) establishes the canonical, machine-readable top-level Event Contract field
@@ -170,10 +177,18 @@ payload_semantics_and_invariants:
     # artifact's own payload.
     cascade_root: >
       A cascade's ROOT is its direct invalidated ancestor — the first BreakOfStructureDetected/
-      ChangeOfCharacterDetected to receive a StructureFactInvalidated in this cascade, caused
-      directly by an upstream SwingInvalidated or CandleCorrected (structure-fact-invalidated/v1.0.yaml
-      invalidation_cause: swing_invalidated or breaking_candle_corrected). Every other
-      StructureFactInvalidated in the same cascade is a DESCENDANT of this root.
+      ChangeOfCharacterDetected to receive a StructureFactInvalidated in this cascade. NORMAL: the
+      root's StructureFactInvalidated is caused directly by exactly one upstream SwingInvalidated
+      or CandleCorrected (structure-fact-invalidated/v1.0.yaml invalidation_cause: swing_invalidated
+      or breaking_candle_corrected). RARE (Approved ADR-049 v0.2's own dual-cause case,
+      structure.md §10's "Deduplicate cascade" paragraph): the root's StructureFactInvalidated may
+      instead be caused directly by BOTH one matching SwingInvalidated AND one matching
+      CandleCorrected simultaneously — both direct causes remain listed in that
+      StructureFactInvalidated's own causation_refs, and its scalar invalidation_cause is
+      breaking_candle_corrected (Approved ADR-049's own deterministic priority rule,
+      structure-fact-invalidated/v1.0.yaml's own dual_cause_primary_selection) — this is still
+      exactly one root StructureFactInvalidated, never two. Every other StructureFactInvalidated in
+      the same cascade is a DESCENDANT of this root.
     dependency_forward_membership: >
       A fact E(k+1) is a dependency-forward DESCENDANT of fact E(k) in the same cascade when and
       only when E(k+1).prior_orientation equals exactly E(k).new_orientation in the original
@@ -184,13 +199,19 @@ payload_semantics_and_invariants:
     direct_vs_chained_relation: >
       The cascade's root StructureFactInvalidated carries invalidation_cause ∈ {swing_invalidated,
       breaking_candle_corrected} (structure-fact-invalidated/v1.0.yaml), with causation_refs
-      pointing to the root's own invalidated_fact_ref plus the direct upstream cause
-      (SwingInvalidated/CandleCorrected). Every subsequent (descendant) StructureFactInvalidated in
-      the same cascade carries invalidation_cause = chained_invalidation, with causation_refs
-      pointing to its own invalidated_fact_ref plus the StructureFactInvalidated immediately
-      preceding it in this cascade (its dependency-forward predecessor per
-      dependency_forward_membership above) — never a SwingInvalidated/CandleCorrected directly, and
-      never skipping to an earlier ancestor.
+      pointing to the root's own invalidated_fact_ref plus its direct-cause reference(s). NORMAL:
+      exactly one direct upstream cause (SwingInvalidated or CandleCorrected). RARE (Approved
+      ADR-049 v0.2's own dual-cause case, structure.md §10's "Deduplicate cascade" paragraph): both
+      one matching SwingInvalidated AND one matching CandleCorrected simultaneously — causation_refs
+      lists both, and invalidation_cause is breaking_candle_corrected (Approved ADR-049's own
+      deterministic priority rule) — this rare case is bounded to the root only; it never applies
+      to a descendant (see structure-fact-invalidated/v1.0.yaml's own dual_cause_primary_selection
+      scope note). Every subsequent (descendant) StructureFactInvalidated in the same cascade
+      carries invalidation_cause = chained_invalidation, with causation_refs pointing to its own
+      invalidated_fact_ref plus EXACTLY ONE immediately preceding StructureFactInvalidated in this
+      cascade (its dependency-forward predecessor per dependency_forward_membership above) — never
+      a SwingInvalidated/CandleCorrected directly, never skipping to an earlier ancestor, and never
+      two direct causes.
     completion_condition: >
       A cascade is COMPLETE once every fact in its membership set (cascade_root plus every
       transitive dependency-forward descendant, per dependency_forward_membership above) has
