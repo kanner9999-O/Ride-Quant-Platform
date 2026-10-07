@@ -15,37 +15,29 @@
 # `REVISION_REQUIRED — 0 Blocker / 4 Major / 0 Minor`, Risk `R2`. Reviewed blob (this file,
 # pre-correction) `7a8a328906ae8d73c7d43df942d465ae21dba093`. Finding `STRUCT-EC-A-MAJ-04`
 # (`payload.input_cursor_ref: {type: object, ...}` lacks a field-level schema; ADR-039 requires
-# the complete payload shape to be inlined) — **STOPPED, authority gap, NOT mechanically resolved**
-# by this correction transaction (CONTEXT-UPSTREAM-EVENT-CONTRACT-STRUCTURE-001-CORR-001, HEAD
-# 038439a4ce08ff7b7836e5723ed01fc0ae267f5f). Fresh-read Chapter 8 §8.5/§8.5.1/§8.5.2 (canonical
-# Replay Cursor) and structure.md §5a: the canonical Chapter 8 §8.5.1 Replay Cursor REQUIRES
-# `input_contract_ref: {contract_id, contract_version}` — it is defined for consumers scoped by an
-# actual Input Contract (the exact shape already reused verbatim by
-# feature-computed/v1.0.yaml's own `computation_cursor`, which pins a real Feature-scoped Input
-# Contract instance). No Structure-scoped Input Contract exists anywhere in this repository
-# (`docs/architecture/input-contracts/` holds only Context- and Feature-scoped instances) for
-# `input_cursor_ref` to pin. structure.md §5a's own invariant text never cites Chapter 8 §8.5, the
-# term "Replay Cursor", or `input_contract_ref` at all — it cites only "tinh thần Chapter 8 §8.1.1
-# Referenced Authoritative Artifact" (a DIFFERENT, general versioned/immutable/resolvable
-# discipline, not the §8.5.1 cursor cardinality table). Existing authority therefore does NOT
-# mechanically determine whether `input_cursor_ref` must be (a) the full canonical §8.5.1 Replay
-# Cursor — which would first require authoring a Structure-scoped Input Contract, or an explicit
-# decision that `input_contract_ref` may be legitimately absent/N-A for a producer's own internal
-# refold, neither of which any current authority states — or (b) a distinct, narrower,
-# Structure-specific "input set" pinning shape that no authority has yet canonically defined. Per
-# this WP's own explicit instruction, this field's schema is NOT invented here; `input_cursor_ref`
-# remains the pre-correction `{type: object, required: true, ...}` shape unchanged. Likely Risk/ADR
-# scope for the eventual decision (non-final, this executor's own estimate only): `R2`,
-# `ADR Required` per Chapter 0 §4b (>1-module/hard-to-reverse — paralleling Feature's own
-# `computation_cursor`/`computation_dependency_content_evidence` precedent, which required no
-# separate ADR only because it directly reused an ALREADY-canonical cursor+Input-Contract pairing;
-# Structure currently lacks the Input-Contract half of that pairing). Smallest next governed
-# action: author a bounded analysis/derivation artifact (or ADR) that either (i) authors a minimal
-# Structure-scoped Input Contract and confirms `input_cursor_ref` is exactly Chapter 8 §8.5.1's
-# Replay Cursor pinning it, or (ii) defines a new, narrower, Structure-specific minimal input-set-
-# pin shape sufficient for §8.1.1's own Referenced-Authoritative-Artifact determinism without
-# requiring a full Input Contract — then propagate the resulting decision back into this artifact
-# in a separate, later, bounded correction. Not performed here.
+# the complete payload shape to be inlined) — CORR-001 (HEAD 038439a4ce08ff7b7836e5723ed01fc0ae267f5f)
+# STOPPED on this finding, reasoning that no Structure-scoped Input Contract exists to pin the
+# canonical cursor's required `input_contract_ref` field, and that existing authority therefore did
+# not mechanically determine the field's shape.
+#
+# **STRUCT-EC-A-MAJ-04 — RESOLVED this correction (disposition reversed from CORR-001's own STOP,
+# per the m3-structure workstream packet's explicit instruction).** Fresh-read Chapter 8
+# §8.5/§8.5.1/§8.5.2 and structure.md §15 (Authority boundary: "Áp dụng, không định nghĩa lại...
+# ordering/replay cursor mechanics (Chapter 5/Chapter 8)") together establish that CORR-001's own
+# STOP reasoning was itself the error: Chapter 8 §8.5.1 fixes ONE canonical Replay Cursor shape for
+# EVERY cursor in the platform, with no carve-out for a producer lacking a dedicated Input Contract
+# — `input_contract_ref` is a required field of that one shape, not evidence that the shape itself
+# is undecided when a Structure-scoped Input Contract has not yet been authored. The absence of a
+# Structure-scoped Input Contract is a missing REFERENCED-ARTIFACT PREREQUISITE for the field to be
+# operationally resolvable (exactly the same class of deferred-resolvability already accepted
+# elsewhere in this repository — e.g. `stream_ref`/`producer_ref` Phase-1 deferral,
+# feature-computed/v1.0.yaml's own `computation_cursor.input_contract_ref` before Feature-scoped
+# Input Contract artifacts existed) — it is NOT authority to invent a second, Structure-local cursor
+# schema, and it is not a representation gap. `payload.input_cursor_ref` below is now the canonical
+# `type: replay_cursor` (Chapter 8 §8.5.1's full field set, §8.5.2's relational invariants) — no
+# local cursor schema is invented; the still-missing Structure-scoped Input Contract remains
+# recorded as the operational prerequisite for `input_contract_ref` to resolve, not as a reason to
+# withhold the representation itself.
 #
 # RETENTION / REFERENCE ELIGIBILITY: Approved ADR-040 (docs/adr/ADR-040.md) establishes Class-G
 # retention/resolvability semantics at architecture level and satisfies ADR-039's own Consequences
@@ -66,14 +58,29 @@
 # Approved ADR-047 compatibility commitment) — NOT mechanically transcribed from structure.md, which
 # does not declare any of the three fields anywhere. payload_shape / payload_semantics_and_invariants
 # are transcribed and governed-synthesized from structure.md v0.4 §1 (subject)/§2 (envelope,
-# payload-relevant portions only)/§5a (StructureRecomputed) and are fully self-contained here — a
-# reader does not need to separately consult structure.md to interpret this artifact's own meaning
-# (ADR-039). The full dependency-forward cascade traversal algorithm that PRODUCES the set of
-# StructureFactInvalidated this event references (structure.md §10) is a producer-side concern,
-# deliberately not reproduced step-by-step here — validating this already-emitted event's own
-# payload requires only the completeness/cardinality invariants below, never a re-derivation of the
-# cascade traversal order. structure.md's own envelope fields remain Chapter 8 §8.2's own owned
-# concept, applied not redefined here — this artifact declares the PAYLOAD portion only.
+# payload-relevant portions only)/§5a (StructureRecomputed)/§10 (correction cascade — cascade
+# root/dependency-forward membership/direct-vs-chained relation/completion, fixes
+# STRUCT-EC-A-MAJ-06 below) and are fully self-contained here — a reader does not need to separately
+# consult structure.md to interpret this artifact's own meaning (ADR-039).
+#
+# **STRUCT-EC-A-MAJ-06 — RESOLVED this correction.** `cascade_semantics` (below, in
+# payload_semantics_and_invariants) now inlines enough of structure.md §10 to determine, without
+# external reference: cascade root (the direct invalidated ancestor); dependency-forward descendant
+# membership (E(k+1) depends on E(k) when E(k+1).prior_orientation = E(k).new_orientation in the
+# original orientation chain); the direct-vs-chained invalidation relation (a cascade's first
+# StructureFactInvalidated carries invalidation_cause ∈ {swing_invalidated, breaking_candle_corrected};
+# every subsequent member carries invalidation_cause = chained_invalidation referencing the
+# StructureFactInvalidated immediately before it in the same cascade); the completion condition
+# (every fact reachable by the dependency-forward chain from the direct ancestor has received its
+# own StructureFactInvalidated); the complete causation set (this event's own causation_refs,
+# unchanged from the pre-correction declaration below); and exactly-one-StructureRecomputed-per-
+# cascade (already an existing invariant, unchanged). The full numeric worked-example emission
+# ORDERING (structure.md §10's own illustrative E1/E2/E3 trace) remains that document's own
+# drafting-history content — not needed to validate this already-emitted event's own payload, same
+# discipline already applied to the 8-criteria Eligible-Swing tie-break order in
+# break-of-structure-detected/v1.0.yaml and change-of-character-detected/v1.0.yaml. structure.md's
+# own envelope fields remain Chapter 8 §8.2's own owned concept, applied not redefined here — this
+# artifact declares the PAYLOAD portion only.
 #
 # STATE-DEPENDENCY REPRESENTATION AUTHORITY: Approved ADR-048 (docs/adr/ADR-048.md, v0.3,
 # status: Approved) establishes the canonical, machine-readable top-level Event Contract field
@@ -126,7 +133,25 @@ merge_constraints:
 payload_shape:
   resulting_orientation: {type: enum, values: [NEUTRAL, BULLISH, BEARISH], required: true}
   justifying_fact_ref: {type: event_record_ref, required: false, description: "REQUIRED when resulting_orientation != NEUTRAL; PROHIBITED when resulting_orientation = NEUTRAL — see invariants."}
-  input_cursor_ref: {type: object, required: true, description: "Pins the exact cursor/input set (Swing + Candle facts still valid) used to refold this result, deterministic enough to reproduce it — Chapter 8 §8.1.1 Referenced Authoritative Artifact spirit. Field-level object schema NOT YET inlined — open authority gap, STOP recorded under STRUCT-EC-A-MAJ-04 (see header); whether this is the canonical Chapter 8 §8.5.1 Replay Cursor or a distinct Structure-specific shape is not yet mechanically determined by existing authority."}
+  input_cursor_ref:
+    type: replay_cursor
+    required: true
+    description: >
+      Canonical Chapter 8 §8.5 Replay Cursor, applied here, NOT redefined (fixes
+      STRUCT-EC-A-MAJ-04 — disposition reversed from CORR-001's own STOP, see header). Pins the
+      exact cursor/input set (still-valid Swing + Candle facts) used to refold resulting_orientation,
+      deterministic enough to reproduce it. Shape owned by Chapter 8 §8.5.1: recorded_time
+      (required), input_contract_ref (required, {contract_id, contract_version}),
+      stream_registry_version (required), lifecycle_frontier (required, {stream_id, position:
+      {kind, sequence}}), stream_positions (required, map stream_id -> sequence).
+      input_contract_ref pins a Structure-scoped Input Contract instance (Chapter 8 §8.3.4). This
+      reference, and stream_registry_version/lifecycle_frontier, MUST each resolve, per Chapter 8
+      §8.1.1, to their own current governing authoritative artifact — an unresolvable reference, or
+      one that resolves to content failing its own required validation, is a fail-closed condition.
+      This artifact does not assert whether a Structure-scoped Input Contract currently exists in
+      this repository, only that resolution/validation must succeed for the cursor to be usable as
+      evidence (the still-missing Structure-scoped Input Contract is an operational prerequisite for
+      resolvability, not a reason to withhold this representation — see header).
 
 payload_semantics_and_invariants:
   description: >
@@ -139,11 +164,56 @@ payload_semantics_and_invariants:
     determined by directly refolding every still-valid Swing/Candle fact at input_cursor_ref — it
     can be NEUTRAL (no fact justifies any direction) or BULLISH/BEARISH (a still-valid fact, or a
     re-derived chain from input, still justifies that direction).
+  cascade_semantics:
+    # Inlined (fixes STRUCT-EC-A-MAJ-06) — self-contained, no reference to structure.md §10
+    # required to determine cascade root/membership/completion/causation-set completeness for this
+    # artifact's own payload.
+    cascade_root: >
+      A cascade's ROOT is its direct invalidated ancestor — the first BreakOfStructureDetected/
+      ChangeOfCharacterDetected to receive a StructureFactInvalidated in this cascade, caused
+      directly by an upstream SwingInvalidated or CandleCorrected (structure-fact-invalidated/v1.0.yaml
+      invalidation_cause: swing_invalidated or breaking_candle_corrected). Every other
+      StructureFactInvalidated in the same cascade is a DESCENDANT of this root.
+    dependency_forward_membership: >
+      A fact E(k+1) is a dependency-forward DESCENDANT of fact E(k) in the same cascade when and
+      only when E(k+1).prior_orientation equals exactly E(k).new_orientation in the original
+      orientation chain (the BOS/CHoCH sequence as it was originally emitted, BEFORE any
+      invalidation) — determined by this dependency graph, NEVER by the recorded_time order in
+      which the invalidations themselves are later emitted. Membership in the cascade is exactly
+      the root plus every fact transitively reachable by this forward relation from the root.
+    direct_vs_chained_relation: >
+      The cascade's root StructureFactInvalidated carries invalidation_cause ∈ {swing_invalidated,
+      breaking_candle_corrected} (structure-fact-invalidated/v1.0.yaml), with causation_refs
+      pointing to the root's own invalidated_fact_ref plus the direct upstream cause
+      (SwingInvalidated/CandleCorrected). Every subsequent (descendant) StructureFactInvalidated in
+      the same cascade carries invalidation_cause = chained_invalidation, with causation_refs
+      pointing to its own invalidated_fact_ref plus the StructureFactInvalidated immediately
+      preceding it in this cascade (its dependency-forward predecessor per
+      dependency_forward_membership above) — never a SwingInvalidated/CandleCorrected directly, and
+      never skipping to an earlier ancestor.
+    completion_condition: >
+      A cascade is COMPLETE once every fact in its membership set (cascade_root plus every
+      transitive dependency-forward descendant, per dependency_forward_membership above) has
+      received its own StructureFactInvalidated — no member of the membership set may remain
+      un-invalidated. This StructureRecomputed MUST NOT be emitted before completion; there is no
+      "partial" StructureRecomputed for a still-incomplete cascade.
+    causation_set_completeness: >
+      This event's own envelope.causation_refs MUST equal exactly the complete set of
+      StructureFactInvalidated belonging to the completed cascade (cascade_root plus every
+      transitive descendant) — no member omitted, no fact from a DIFFERENT cascade included. See
+      the invariants below and causal_state_dependency_declaration's cascade_invalidations role,
+      which mechanically enforces non-empty cardinality for this set.
+    exactly_one_per_cascade: >
+      Exactly one StructureRecomputed is emitted for a completed cascade — never more than one for
+      the same invalidation set (see invariants below; unchanged from the pre-correction
+      declaration).
   invariants:
-    - "envelope.causation_refs MUST point to every StructureFactInvalidated belonging to the same cascade — none affected by the cascade may be omitted from causation — see causal_state_dependency_declaration below for the canonical machine-readable classification."
+    - "envelope.causation_refs MUST point to every StructureFactInvalidated belonging to the same cascade (cascade_root plus every transitive dependency-forward descendant, per cascade_semantics above) — none affected by the cascade may be omitted from causation, and no fact from a different cascade may be included — see causal_state_dependency_declaration below for the canonical machine-readable classification."
     - "resulting_orientation MUST be one of {NEUTRAL, BULLISH, BEARISH} — NEVER UNDETERMINED (once a fact has existed and been invalidated, the minimum valid conclusion is NEUTRAL, never a regression to the notional UNDETERMINED starting point)."
     - "justifying_fact_ref is REQUIRED when resulting_orientation is BULLISH or BEARISH — MUST reference a still-valid (not yet StructureFactInvalidated) BreakOfStructureDetected/ChangeOfCharacterDetected directly justifying that direction; it is PROHIBITED when resulting_orientation is NEUTRAL (no surviving fact justifies any direction — that is precisely what NEUTRAL means)."
-    - "input_cursor_ref is REQUIRED on every resulting_orientation, including NEUTRAL — it pins the exact cursor/input set used to refold this result, sufficient to deterministically reproduce it."
+    - "input_cursor_ref is REQUIRED on every resulting_orientation, including NEUTRAL — canonical Chapter 8 §8.5 Replay Cursor (fixes STRUCT-EC-A-MAJ-04), pinning the exact cursor/input set used to refold this result, sufficient to deterministically reproduce it."
+    - "input_cursor_ref.recorded_time MUST be <= envelope.recorded_time of this exact StructureRecomputed (Cursor → Fact, Chapter 8 §8.5.2) — a fact claiming to have refolded as-of a cursor AFTER its own recorded_time is invalid."
+    - "This StructureRecomputed MUST NOT be emitted before cascade completion_condition above holds — no partial StructureRecomputed for an incomplete cascade."
     - "envelope.recorded_time MUST be strictly later than the recorded_time of the last StructureFactInvalidated in the cascade."
     - "Exactly ONE StructureRecomputed is emitted per cascade — never more than one for the same invalidation set."
     - "This event does not delete or overwrite any prior output — it is an additional append-only fact (I-3)."
@@ -193,19 +263,23 @@ provenance:
   source: docs/domain/structure.md
   source_version: "0.4"
   source_status: Draft
-  source_sections: ["§1 Logical Structure Subject", "§2 Canonical event envelope (payload-relevant portions)", "§5a StructureRecomputed"]
+  source_sections: ["§1 Logical Structure Subject", "§2 Canonical event envelope (payload-relevant portions)", "§5a StructureRecomputed", "§10 Correction cascade (cascade root/dependency-forward membership/direct-vs-chained relation/completion, fixes STRUCT-EC-A-MAJ-06)"]
   source_blob: 78964dfb6852bbac3fa1e034d64b4fc8031c3fef
   drafted_at_commit: 581c28d3acd1d13c613fc110e80b9e5a5dbc486a
+  cursor_representation_authority: "docs/constitution/08-event-model.md §8.5/§8.5.1/§8.5.2 (fixes STRUCT-EC-A-MAJ-04)"
   note: >
     Drafting-history citation ONLY (ADR-039 §"Canonical authority/source") — never required to
     interpret this artifact's own meaning; payload_shape and payload_semantics_and_invariants above
-    are fully self-contained — the full dependency-forward cascade traversal algorithm that produces
-    the referenced StructureFactInvalidated set (structure.md §10) remains that document's own
-    drafting-history content, not needed to validate this already-emitted event's own payload.
-    event_class, allowed_streams, and merge_constraints were governed-authored directly against
-    Chapter 8 §8.3.1/§8.3.4, Approved ADR-036, Approved ADR-047, and this repository's own
-    established terminology — NOT mechanically transcribed from structure.md, which does not
-    declare any of the three fields anywhere.
+    are fully self-contained, including the inlined cascade_semantics (cascade root/dependency-
+    forward membership/direct-vs-chained relation/completion/causation-set completeness, fixes
+    STRUCT-EC-A-MAJ-06) and the canonical Chapter 8 §8.5 Replay Cursor shape for input_cursor_ref
+    (fixes STRUCT-EC-A-MAJ-04) — only the full numeric worked-example emission ORDERING
+    (structure.md §10's own illustrative trace) remains that document's own drafting-history
+    content, not needed to validate this already-emitted event's own payload. event_class,
+    allowed_streams, and merge_constraints were governed-authored directly against Chapter 8
+    §8.3.1/§8.3.4, Approved ADR-036, Approved ADR-047, and this repository's own established
+    terminology — NOT mechanically transcribed from structure.md, which does not declare any of the
+    three fields anywhere.
     State-dependency classification semantic evidence:
     docs/project/context-upstream-state-dependency-derivation-001.md v0.5 §2.6 (Review A CLEAN — 0
     Blocker / 0 Major / 0 Minor) — drafting-history citation only, never runtime/interpretive
