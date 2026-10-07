@@ -26,14 +26,32 @@ schema_note: >
 milestone:
   id: M3
   name: "Context Projection / context-aggregator"
-  objective: >
-    Reach a Published, self-contained, ADR-048-compliant Event Contract set for every
-    upstream fact family (Candle, Structure, Regime, Feature) that the Context Input
-    Contract's included_streams references, so Context Input Contract v1.0 can
-    legitimately leave status: Draft and reach Published — per docs/domain/context.md
-    v0.4 §16 and docs/architecture/input-contracts/context-market-input.yaml v0.3's own
-    fixed four-stream composition. This control plane does not itself publish
-    anything; it only sequences the bounded workstreams required to get there.
+  authoritative_state_source: >
+    docs/project/milestone.md §3 (### M3 entry) / §4a — the sole authoritative
+    record of M3's state and acceptance condition. This control plane is
+    subordinate to it and does not supersede, narrow, or duplicate it.
+  acceptance_condition: >
+    NOT YET DERIVED, by any authority — docs/project/milestone.md §3's own ### M3
+    entry states exactly: "Acceptance condition: NOT invented by this transaction.
+    Scope / implementation readiness to be fresh-derived in the next
+    separately-scoped WP." This control plane does NOT define, narrow, or
+    pre-derive that condition (fixes M3-CP-A-MAJ-01 — the prior version of this
+    file expressed the upstream Event-Contract/Context-Input publication path as
+    milestone.objective, which read as an invented acceptance condition).
+  current_execution_tranche: >
+    The bounded prerequisite/execution work this control plane currently
+    sequences — NOT M3's acceptance condition, only a current tranche of work
+    toward it: reaching a Published, self-contained, ADR-048-compliant Event
+    Contract for every upstream fact family (Candle, Structure, Regime, Feature)
+    that Context's own included_streams references, and separately assessing
+    whether/how the Context Input Contract itself can reach Published — per
+    docs/domain/context.md v0.4 §16 and
+    docs/architecture/input-contracts/context-market-input.yaml v0.3's own
+    fixed four-stream composition. Completing this tranche is necessary but not
+    stated or assumed to be SUFFICIENT for M3's eventual acceptance — that
+    determination remains the separately-scoped derivation WP milestone.md §3
+    already calls for. This control plane does not itself publish anything; it
+    only sequences bounded workstreams against this current tranche.
 
 planning_head: "197100785fb786278816b5b694dc9d380d9c1b8b"
 generated_at: "2026-10-07"
@@ -50,16 +68,32 @@ lanes:
       authoritative artifact makes Structure's Event Contract correction work depend
       on Regime's.
     blockers:
-      - id: STRUCT-MAJ-03-PENDING-ADR
+      - id: STRUCT-MAJ-03-PENDING-ARCHITECTURE-DISPOSITION
         description: >
-          structure-fact-invalidated/v1.0.yaml's STRUCT-EC-A-MAJ-03 correction
-          (multi-cause representation) cannot be implemented by this lane alone: it
-          depends on ADR-049 (docs/adr/ADR-049.md, v0.1, status: Draft) reaching fresh
-          Review A and a Product Owner decision — ADR-049 is fresh-classified
-          ADR_REQUIRED/R2, which the Lean model's own "must escalate" criterion 1/2
-          (§3) requires routing to Product Owner regardless of this control plane.
-          This blocker applies ONLY to that one finding/file, not to the rest of the
-          structure lane.
+          structure-fact-invalidated/v1.0.yaml's STRUCT-EC-A-MAJ-03 (multi-cause
+          representation) is PENDING_ARCHITECTURE_DISPOSITION (fixes
+          M3-CP-A-MAJ-02). ADR-049 (docs/adr/ADR-049.md, v0.1, status: Draft) is an
+          executor-authored Draft candidate that self-proposes an ADR_REQUIRED/R2
+          scope/risk classification for this finding — that self-classification is
+          NOT yet fresh-Review-A-validated, and this control plane does not treat
+          it as an already-decided architecture fact. The actual disposition route
+          (ADR-049 approval, an alignment/correction resolvable under existing
+          authority without a new ADR per G-ADR-001/G-ADR-004, or another governed
+          route) is resolved independently under Chapter 0 §4b / Review A /
+          architecture triage — never pre-decided here. This blocker applies ONLY
+          to that one finding/file, not to the rest of the structure lane.
+    terminal_state_rule: >
+      (fixes M3-CP-A-MAJ-02) The structure lane MAY execute every independently
+      resolvable finding (MAJ-04/05/06 below) inside this same lane. It MUST NOT
+      report WORKSTREAM_COMPLETE while STRUCT-EC-A-MAJ-03 remains
+      PENDING_ARCHITECTURE_DISPOSITION — if MAJ-03 is the only finding left
+      unresolved, the lane's terminal state is BLOCKED_BY_EXTERNAL_DEPENDENCY (or
+      the structure packet's equivalent architecture-disposition block), never
+      WORKSTREAM_COMPLETE. A single batched Structure Review A request is made
+      only once the full four-contract Structure integration candidate (MAJ-03
+      included) is coherent — never for a partial 3-of-4 subset by default —
+      unless an existing higher-authority rule explicitly requires a narrower
+      review boundary for a specific finding/artifact.
     not_blocked:
       - "STRUCT-EC-A-MAJ-04 (structure-recomputed input_cursor_ref) — Chapter 8 §8.5.1's canonical Replay Cursor shape is already mechanically determined; actionable now."
       - "STRUCT-EC-A-MAJ-05 (BOS/CHoCH 8-criteria total order inlining) — actionable now."
@@ -68,8 +102,8 @@ lanes:
       - "docs/architecture/event-contracts/break-of-structure-detected/v1.0.yaml (MAJ-05 inlined)"
       - "docs/architecture/event-contracts/change-of-character-detected/v1.0.yaml (MAJ-05 inlined)"
       - "docs/architecture/event-contracts/structure-recomputed/v1.0.yaml (MAJ-04 canonical replay_cursor + MAJ-06 inlined)"
-      - "docs/architecture/event-contracts/structure-fact-invalidated/v1.0.yaml (MAJ-03 — deferred until ADR-049 clears Product Owner decision)"
-      - "one coherent integration candidate, ready for a single batched Review A request"
+      - "docs/architecture/event-contracts/structure-fact-invalidated/v1.0.yaml (MAJ-03 — withheld pending PENDING_ARCHITECTURE_DISPOSITION resolution; not pre-assigned to any specific route)"
+      - "a coherent FOUR-contract integration candidate (not three) before any batched Review A request, unless a narrower review boundary is required by existing authority"
     packet: "docs/project/workstreams/m3/structure-workstream.md"
 
   - lane_id: regime
@@ -173,5 +207,5 @@ verification:
   no_adr_created_or_modified: true
   all_packet_paths_resolve: true
   dependency_graph_acyclic: true
-  each_lane_has_one_terminal_contract: "WORKSTREAM_COMPLETE | ARCHITECTURE_ESCALATION | BLOCKED_BY_EXTERNAL_DEPENDENCY (context_publication_readiness defaults to BLOCKED_BY_EXTERNAL_DEPENDENCY until its three true_dependencies each resolve)"
+  each_lane_has_one_terminal_contract: "WORKSTREAM_COMPLETE | ARCHITECTURE_ESCALATION | BLOCKED_BY_EXTERNAL_DEPENDENCY (context_publication_readiness defaults to BLOCKED_BY_EXTERNAL_DEPENDENCY until its three true_dependencies each resolve; structure defaults to BLOCKED_BY_EXTERNAL_DEPENDENCY, never WORKSTREAM_COMPLETE, while STRUCT-EC-A-MAJ-03 remains PENDING_ARCHITECTURE_DISPOSITION, per terminal_state_rule above)"
   no_lane_falsely_blocked_by_historical_sequencing: true

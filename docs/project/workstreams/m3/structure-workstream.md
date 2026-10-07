@@ -12,8 +12,10 @@ parent_milestone: M3 — Context Projection / context-aggregator
 planning_head:   197100785fb786278816b5b694dc9d380d9c1b8b
 owner/executor:  AI Technical Architect (Claude or ChatGPT) — bounded WP Executor,
                  per Lean Ride Operating Model v1.1 §3
-state:           IN_PROGRESS (one finding externally blocked — see §Existing
-                 findings / debt)
+state:           IN_PROGRESS (MAJ-04/05/06 independently actionable; MAJ-03
+                 PENDING_ARCHITECTURE_DISPOSITION — see §Existing findings /
+                 debt and §Completion contract; terminal state cannot be
+                 WORKSTREAM_COMPLETE while MAJ-03 is unresolved)
 ```
 
 ## Objective
@@ -52,14 +54,14 @@ Before any mutation, derive this matrix (minimum rows below; add rows if full-se
 | BOS/CHoCH winner-selection rule (8-criteria total order) | `structure.md` §6a | content resolved, representation not yet inlined | no | inline the deterministic rule itself (not just its outcome) into both BOS/CHoCH Event Contracts |
 | `structure-recomputed.input_cursor_ref` shape | Chapter 8 §8.5.1 | resolved | no | use canonical `type: replay_cursor`, full §8.5.1 field set + §8.5.2 relational invariants; note the still-missing Structure-scoped Input Contract as an operational prerequisite, not a representation gap |
 | `structure-recomputed` cascade membership/completion algorithm | `structure.md` §10 | content resolved, representation not yet inlined | no | inline cascade root / dependency-forward descendant membership / direct-vs-chained relation / completion / causation-set completeness / exactly-one-recompute-per-cascade |
-| `StructureFactInvalidated` multi-cause representation | `structure.md` §5 + §10; `ADR-049` (Draft, not approved) | **not resolved at architecture-decision level** | yes — pending Product Owner decision on ADR-049 | do not mutate `structure-fact-invalidated/v1.0.yaml` for this finding until ADR-049 clears Review A + Product Owner decision |
+| `StructureFactInvalidated` multi-cause representation | `structure.md` §5 + §10; `ADR-049` (Draft, not approved, self-proposed ADR_REQUIRED/R2 — not yet Review-A-validated) | **PENDING_ARCHITECTURE_DISPOSITION** | yes — which disposition route applies (ADR-049 approval, alignment/correction under existing authority, or another governed route) is itself undecided | do not mutate `structure-fact-invalidated/v1.0.yaml` for this finding; do not assume any specific route; resolve independently under Chapter 0 §4b / G-ADR-001/004 / Review A triage |
 
 ## Existing findings / debt
 
 Carry forward, do not treat prior reviewer conclusions as ground truth — re-derive from the closure set above:
 
 - `STRUCT-EC-A-MAJ-01`/`02` — `CLOSED — REVIEW A VALIDATED`. No further action.
-- `STRUCT-EC-A-MAJ-03` — REOPENED, then analyzed in `ADR-049` (Draft, pending Review A + Product Owner decision). **BLOCKED for this workstream** — do not implement a representation change in `structure-fact-invalidated/v1.0.yaml` ahead of that decision; CORR-001's own prior "exactly-one-direct-cause" fix is itself acknowledged incorrect and must not be reinstated or defended.
+- `STRUCT-EC-A-MAJ-03` — REOPENED; analyzed (not decided) by `ADR-049` (Draft, v0.1, self-proposed ADR_REQUIRED/R2, not yet Review-A-validated, not approved). Status: **PENDING_ARCHITECTURE_DISPOSITION** — this workstream does not pre-decide whether the eventual resolution is ADR-049 approval, an alignment/correction resolvable under existing authority without a new ADR, or another governed route; that determination happens independently under Chapter 0 §4b / G-ADR-001/004 / Review A triage. **BLOCKED for this workstream** — do not implement a representation change in `structure-fact-invalidated/v1.0.yaml` ahead of that determination; CORR-001's own prior "exactly-one-direct-cause" fix is itself acknowledged incorrect and must not be reinstated or defended.
 - `STRUCT-EC-A-MAJ-04` — disposition reversed from CORR-001's own STOP: Chapter 8 §8.5.1 already mechanically determines the cursor shape; actionable now.
 - `STRUCT-EC-A-MAJ-05` (new) — BOS/CHoCH still externalize §6a's 8-criteria total order; actionable now.
 - `STRUCT-EC-A-MAJ-06` (new) — `structure-recomputed` still externalizes §10's cascade algorithm; actionable now.
@@ -71,7 +73,7 @@ After semantic closure, this lane MAY:
 - Correct `break-of-structure-detected/v1.0.yaml` and `change-of-character-detected/v1.0.yaml` to inline the §6a winner-selection rule (MAJ-05).
 - Correct `structure-recomputed/v1.0.yaml`'s `input_cursor_ref` to the canonical `type: replay_cursor` shape (MAJ-04) and inline the §10 cascade algorithm (MAJ-06).
 - Update each corrected file's own provenance/header annotations and `causal_state_dependency_declaration` only as mechanically required by the above (no new role/selector invented beyond what ADR-048's existing grammar already supports).
-- Leave `structure-fact-invalidated/v1.0.yaml` untouched pending ADR-049's resolution.
+- Leave `structure-fact-invalidated/v1.0.yaml` untouched pending STRUCT-EC-A-MAJ-03's PENDING_ARCHITECTURE_DISPOSITION resolution — not pre-assigned to ADR-049 approval specifically.
 
 ## Explicit forbidden scope
 
@@ -96,4 +98,28 @@ Do not author an ADR as part of the escalation report.
 
 ## Completion contract
 
-Report exactly one of: `WORKSTREAM_COMPLETE` (MAJ-04/05/06 resolved into one coherent integration candidate, MAJ-03 explicitly carried forward as externally blocked — this still counts as complete for THIS workstream's actionable scope), `ARCHITECTURE_ESCALATION`, or `BLOCKED_BY_EXTERNAL_DEPENDENCY` (only if even the actionable findings turn out to require something not listed in the authority closure set above). No Review A request is made until one coherent integration candidate exists.
+This lane MAY execute every independently resolvable finding (MAJ-04/05/06) now,
+inside this same lane — that work is never blocked by MAJ-03.
+
+Report exactly one of:
+
+- `WORKSTREAM_COMPLETE` — ONLY once the full four-contract Structure integration
+  candidate is coherent, i.e. MAJ-03 is ALSO resolved (under whatever disposition
+  route Chapter 0 §4b / Review A triage determines) in addition to MAJ-04/05/06.
+  **Never** report this while MAJ-03 remains `PENDING_ARCHITECTURE_DISPOSITION` —
+  even if MAJ-04/05/06 are fully resolved.
+- `BLOCKED_BY_EXTERNAL_DEPENDENCY` — the correct terminal state when MAJ-04/05/06
+  are resolved but MAJ-03 is the only remaining open item. This is not a failure
+  state for the lane's own executed work; it accurately reports that one required
+  finding for the four-contract candidate still awaits an architecture disposition
+  this lane has no authority to resolve or predict.
+- `ARCHITECTURE_ESCALATION` — if a genuinely new unresolved semantic/authority
+  question (beyond MAJ-03, already tracked above) is found.
+
+A single batched Structure Review A request is made only once the full
+four-contract integration candidate (MAJ-03 included) is coherent — never
+requested for a partial 3-of-4 subset by default — unless an existing
+higher-authority rule explicitly requires a narrower review boundary for a
+specific finding or artifact (in which case that narrower boundary controls, per
+Lean Ride Operating Model v1.1 §1's own "Batched Review A (default, not an
+override)" clause).
