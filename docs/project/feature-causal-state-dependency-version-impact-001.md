@@ -2,7 +2,7 @@
 id: feature-causal-state-dependency-version-impact-001
 title: "Feature Output Event Contracts — ADR-048 causal_state_dependency_declaration Version-Impact and Compatibility Classification"
 kind: analysis
-version: "0.1"
+version: "0.2"
 status: Draft
 owner: Product Owner
 generated_at: "2026-10-07"
@@ -12,11 +12,49 @@ generated_at: "2026-10-07"
 
 **Analysis/derivation artifact, produced under
 `docs/project/workstreams/m3/feature-future-dependency-workstream.md`
-(packet blob `a400521aa42ea5e4645696872b7192580c7052f4`, confirmed exact this transaction).** Does
-not modify or version any Published Event Contract in place; does not modify `feature.md`,
-`ADR-038`, `ADR-039`, or `ADR-048`; does not author an ADR; does not touch any Structure/Regime
-workstream file; does not publish anything (Draft candidates produced by this transaction remain
-`status: Draft`, not `Published`).
+(packet blob `a400521aa42ea5e4645696872b7192580c7052f4`, originally confirmed exact; re-verified
+this transaction).** Does not modify or version any Published Event Contract in place; does not
+modify `feature.md`, `ADR-038`, `ADR-039`, or `ADR-048`; does not author an ADR; does not touch any
+Structure/Regime workstream file; does not publish anything (the Draft `v1.1` candidates this
+artifact's own prior version produced remain `status: Draft`, not `Published`, and are not edited
+by this correction).
+
+> **v0.2 — bounded correction (this transaction), per explicit architecture disposition: a new ADR
+> is NOT required for this classification; this is a bounded application of already-Approved
+> authority (`ADR-038`, `ADR-039`, `ADR-048`, Chapter 10 §10.3/§10.7) to one concrete delta.** A
+> separate, parallel Draft ADR candidate was authored, corrected twice, and then explicitly
+> abandoned on a different branch during this same workstream's review cycle — this correction does
+> not reference, inherit, or depend on that candidate in any way; every conclusion below is
+> re-derived directly from Approved/Locked authority. Two defects in v0.1 are corrected:
+>
+> 1. **§3.3/§3.4 described `ADR-038`'s `backward_only` commitment as "not engaged" by this delta.**
+>    Read against `ADR-038`'s own Decision text — *"The Feature Output Event Contracts
+>    (`feature-computed`, `feature-fact-invalidated`) commit to backward compatibility only"*,
+>    committing the whole artifact, not only its payload — that framing was imprecise enough to
+>    read as narrowing `ADR-038`'s own commitment by implication. **Corrected:** `ADR-038`'s
+>    commitment is restated as applying in full to the entire artifact, `causal_state_dependency_declaration`
+>    included; what v0.1 actually established (and v0.2 restates precisely) is which Chapter 10
+>    mechanism correctly TESTS a delta against that still-fully-applicable commitment — §10.3's
+>    general contract-surface/current-consumer test, read with §10.7's downstream-impact-assessment
+>    requirement, rather than §10.3.1's own data-presence-calibrated schema-element rules, which do
+>    not mechanically fit a field that is never serialized into any event instance.
+> 2. **§3.3's second bullet stated `causal_state_dependency_declaration`'s `declared-state-dependencies`
+>    consumption mode is "a consumption mode no currently-registered consumer of Feature's events
+>    uses."** This is factually stale. Fresh-read this transaction:
+>    `docs/architecture/input-contracts/context-market-input.yaml` (Draft v0.3) already declares
+>    `causal_closure_policy: {mode: declared-state-dependencies, dependency_authority:
+>    per_effect_event_contract}` over `included_streams` that explicitly include
+>    `feature-engine-feature`. `context-aggregator`'s own Draft Input Contract already structurally
+>    depends on this exact field for this exact stream. **Corrected** throughout §3.3/§3.4 below —
+>    this field's addition is confirmed *enabling* a consumer's own already-declared dependency, not
+>    merely harmless to an unrelated one.
+>
+> §3.3 is also extended with an explicit §10.7 downstream-impact-assessment that additionally checks
+> tooling/validator consumers of the Event-Contract-artifact document itself (not only event-instance
+> data readers) by direct code inspection — not by assuming tolerant-reader behavior anywhere. The
+> bottom-line conclusion (non-breaking, `v1.0 → v1.1`) is unchanged by this correction; only its
+> grounding and its consumer-topology fact are corrected. A new §8 records this transaction's own
+> `ADR_NOT_REQUIRED` Scope and `ADR-045` Risk classification.
 
 ## 0. Boundary and fresh-verification record
 
@@ -51,6 +89,27 @@ text names it — a stale path reference in the packet, not a drift/conflict in 
 artifact itself, fresh-read, is unchanged in content from what the packet's authority closure set
 describes).
 
+**This transaction's own fresh boundary:** starting `main == origin/main == d8308785705369916909b5070d8e3306acb452cb`,
+executed on a clean continuation branch cut directly from this commit (no Draft-ADR-candidate
+history from any other branch pulled in). Re-confirmed, fresh, at this boundary, by direct blob
+comparison against values this artifact already pinned: `feature-computed/v1.0.yaml`
+(`9e1da0ac1e72403a780ff16e0d06ed68354da623`), `feature-fact-invalidated/v1.0.yaml`
+(`7015fa4c09b0fa6993c1324858719ebca76d260d`), `feature-computed/v1.1.yaml`
+(`34023c8958ad13df86c17d66634d219bf2c777b7`), `feature-fact-invalidated/v1.1.yaml`
+(`2fbd9cd528582324a70dce1458c6ee8b54465622`) — all four byte-identical, no drift since this
+artifact's own v0.1. `docs/adr/ADR-039.md` (blob `717904b8fd75104a681805c0c94ab7c9b19e878f`) and
+`docs/adr/ADR-048.md` (blob `560d5191d08a80ae4fa3dd1b8bab93fc9f36c11f`) likewise byte-identical to
+values independently pinned earlier in this same workstream. `docs/adr/ADR-038.md`'s own exact
+Decision sentence re-read verbatim this transaction (quoted in full in the v0.2 banner above) — no
+amendment, `status: Approved` unchanged. `docs/architecture/input-contracts/context-market-input.yaml`
+(Draft v0.3) fresh-read in full this transaction — the specific correction to §3.3/§3.4 below is
+grounded directly in its own current `causal_closure_policy`/`included_streams` content, re-verified
+line-by-line, not inherited from any prior session's summary. `python/feature-engine/src/feature_engine/output_contract_resolver.py`
+and `python/feature-engine/src/feature_engine/authority_resolver.py` — the two actual,
+currently-existing pieces of tooling in this repository that read an Event Contract/Input Contract
+artifact's own file content (as opposed to event-instance data) — fresh-inspected this transaction
+(§3.3 below).
+
 ## 1. Objective recap
 
 Determine, as one coherent bounded analysis, whether `feature-computed`/`feature-fact-invalidated`
@@ -62,9 +121,9 @@ classification that delta would receive.
 
 | semantic topic | authoritative source | resolved? | conclusion |
 |---|---|---|---|
-| Feature's own causation-ref classification (`STATE_DEPENDENCY` vs `EXTERNAL_NON_STATE_CAUSE`) | derivation v0.5 §2.9 (`FEATURE_COMPUTED`, 2 categories)/§2.10 (`FEATURE_FACT_INVALIDATED`, 5 categories, collapsing to 2 declared roles — §3.4 below) | resolved | reused as-is, not re-derived: all 7 category rows classify `EXTERNAL_NON_STATE_CAUSE`; 0 `STATE_DEPENDENCY`; 0 `UNRESOLVED` |
+| Feature's own causation-ref classification (`STATE_DEPENDENCY` vs `EXTERNAL_NON_STATE_CAUSE`) | derivation v0.5 §2.9 (`FEATURE_COMPUTED`, 2 categories)/§2.10 (`FEATURE_FACT_INVALIDATED`, 5 categories, collapsing to 2 declared roles — §3.5 below) | resolved | reused as-is, not re-derived: all 7 category rows classify `EXTERNAL_NON_STATE_CAUSE`; 0 `STATE_DEPENDENCY`; 0 `UNRESOLVED` |
 | Whether a Published v1.0 Event Contract may gain `causal_state_dependency_declaration` without a version bump | `ADR-039` self-containment model + Chapter 10 §10.3 (three independent version axes, Event Contract axis owns `event_class`/`allowed_streams`/`merge_constraints`/payload semantic as one bundle) | resolved | **No.** `ADR-039`'s immutability discipline (*"a version-artifact file transitions `Draft` → `Published`; from the `Published` boundary forward it is immutable byte-for-byte — no in-place edits"*) applies to the whole artifact, not only `payload_shape` — confirmed independently by `ADR-048`'s own §Non-retroactivity item 5 (*"An existing immutable Event Contract version requiring this capability must receive a NEW version-artifact"*). This is a confirmation of already-decided authority, not a new architecture question |
-| Compatibility Result classification of that delta (additive field vs. breaking) | Chapter 10 §10.3/§10.3.1/§10.4 | resolved this transaction (§3.3 below) | **Non-breaking** — contract-surface-evolving, minor bump (`v1.0` → `v1.1`) for both `feature-computed` and `feature-fact-invalidated`. Reasoning in §3.3; distinguished explicitly from `feature.md` v0.6's own `BREAKING` precedent for `computation_dependency_content_evidence`, which is a different kind of delta (§3.2) |
+| Compatibility classification of that delta (additive field vs. breaking), and which Chapter 10 mechanism tests it | Chapter 10 §10.3/§10.7 (§10.3.1's own schema-element rule confirmed not to mechanically fit, §3.3 below) | resolved this transaction (§3.3 below) | **Non-breaking**, under `ADR-038`'s fully-applicable `backward_only` commitment tested via §10.3's general consumer-invalidation test + §10.7's downstream-impact assessment — contract-surface-evolving, minor bump (`v1.0` → `v1.1`) for both `feature-computed` and `feature-fact-invalidated`. Reasoning in §3.3; distinguished explicitly from `feature.md` v0.6's own `BREAKING` precedent for `computation_dependency_content_evidence`, which is a different kind of delta correctly tested under §10.3.1 (§3.2/§3.3) |
 | Whether Feature consumes any Structure/Regime event type directly (would create a true cross-lane dependency this packet does not currently assume) | `docs/domain/context-map.yaml` v0.19 fresh-read, `feature.md` v0.6 §1 `events_consumed` | re-verified fresh this transaction | **No new/unexpected edge.** Feature consumes Candle (`candle-closed`/`candle-corrected`), Swing (`swing-confirmed`/`swing-invalidated`), and Regime (`regime-classified`/`regime-fact-invalidated`) — all three already registered, `feature-engineering` as sole consumer context, in `context-map.yaml`'s `relationships` block. **Feature does not consume any Structure event** (`break-of-structure-detected`/`change-of-character-detected`/`structure-fact-invalidated`/`structure-recomputed` — no relationship edge from `market-structure-analysis` to `feature-engineering` carries any of these four `contract_id`s; only `swing-confirmed`/`swing-invalidated`, a distinct contract family within the same `market-structure-analysis` context). This confirms, rather than contradicts, the control plane's "Feature is independent of Structure/Regime's own Event Contract content" assumption — no escalation triggered |
 
 ## 3. Analysis
@@ -98,54 +157,103 @@ still forbidden in place and still requires a new `contract_version`. This is no
 re-derived here — it is `ADR-039`/`ADR-048`'s own already-decided position, confirmed by direct
 re-read (§0).
 
-### 3.3 Breaking vs. non-breaking classification of this specific delta
+### 3.3 Classification mechanism, and why §10.3.1's schema-element rule is the wrong tool here
 
-Applying Chapter 10 §10.3's own general breaking-change test — *"thay đổi làm consumer hợp lệ hiện
-tại không còn hợp lệ"* (a change that makes a currently-valid consumer invalid) — against Feature's
-one confirmed registered consumer (`context-aggregation`/`context-projection`, per `ADR-038`'s own
-finding and independently reconfirmed in `context-map.yaml`'s `relationships` block, §2 above):
+`ADR-038`'s `backward_only` commitment (Chapter 10 §10.3.1) applies, **in full**, to the entire
+Feature Output Event Contract artifact — `ADR-038`'s own Decision text commits "The Feature Output
+Event Contracts," not merely their `payload_shape`, to `backward_only` (quoted verbatim, §0 above).
+This delta does not sit outside that commitment, is not exempt from it, and this analysis creates no
+exception to it. The question this section actually resolves is narrower: **which Chapter 10
+mechanism correctly tests this specific delta against that still-fully-applicable commitment.**
 
-- `context-aggregator` reads `payload.value`/`unit`/`effective_window`/`input_fact_refs`/
-  `supersedes_fact_ref`/`computation_cursor`/`computation_dependency_content_evidence`
-  (`FeatureComputed`) and the analogous `FeatureFactInvalidated` payload fields — none of which
-  change shape, type, nullability, or meaning under this delta.
-- `causal_state_dependency_declaration` is read only by a validator implementing
-  `dependency_authority: per_effect_event_contract` for an Input Contract that specifically
-  declares `causal_closure_policy.mode: declared-state-dependencies` — a consumption mode no
-  currently-registered consumer of Feature's events uses. Even a consumer that *does* read it in
-  the future reads a field that is wholly new (nothing it previously depended on is withdrawn,
-  narrowed, or reinterpreted).
-- Per §10.3.1's own minimal classification principles: *"thêm element optional có semantic/default
-  an toàn cho reader chưa biết nó → có thể non-breaking."* A reader unaware of
-  `causal_state_dependency_declaration` is unaffected by its presence — it sits outside
-  `payload_shape` entirely and is not a value any currently-valid consumer's reader must parse to
-  continue correctly reading `value`/`unit`/`effective_window`/etc.
+§10.3.1's own minimal-classification sub-rules (*"thêm element required không có fallback →
+breaking"*, and the symmetric data-presence reasoning throughout the section) are written for, and
+calibrated to, elements of **payload data** a consumer's reader actually parses out of event
+instances — *"consumer CŨ vẫn đọc/validate đúng dữ liệu MỚI"*. `causal_state_dependency_declaration`
+is never present in any event instance's own payload bytes (§3.1 above, confirmed by direct
+inspection of both Draft `v1.1` candidates) — no reader of event DATA ever encounters it, favorably
+or unfavorably. Mechanically applying §10.3.1's data-presence rules to it would answer a
+reader-tolerance question for a field that raises no reader-tolerance question at all — a category
+error, not a more faithful reading of `ADR-038`'s commitment.
 
-**Conclusion: non-breaking.** No currently-valid consumer becomes invalid; no existing commitment
-`context-aggregator` relies on is withdrawn or reinterpreted. Per `ADR-039`'s major.minor grammar
-(*"a non-breaking, contract-surface-evolving change is published as a new version-artifact whose
-minor component is incremented by exactly `1`, major unchanged"*), the correct next identifier for
-both `contract_id`s is **`v1.1`** (not `v2.0`).
+**The correct mechanism is instead Chapter 10 §10.3's own general breaking-change test — *"thay đổi
+làm consumer hợp lệ hiện tại không còn hợp lệ"* (a change that makes a currently-valid consumer
+invalid) — read together with §10.7's downstream-impact-assessment requirement, both applied
+entirely within, and in service of, `ADR-038`'s fully-applicable commitment:**
 
-This conclusion is reached entirely from existing Approved/Locked authority (`ADR-039`, `ADR-048`,
-Chapter 10 §10.3/§10.3.1, `ADR-038`'s own consumer-topology finding, and `context-map.yaml`'s
-registered edges) — it invents no new classification rule and reopens no prior decision. It does
-not retroactively reclassify `computation_dependency_content_evidence`'s own, separately-grounded
-`BREAKING` conclusion (`feature.md` v0.6), which remains correct for that different, payload-level
-delta.
+- **Published contract surface / output semantic (§10.7).** The delta strictly adds one new
+  top-level field; it removes, narrows, or reinterprets no existing field, value, or meaning.
+  `value`/`unit`/`effective_window`/`input_fact_refs`/`supersedes_fact_ref`/`computation_cursor`/
+  `computation_dependency_content_evidence` (`FeatureComputed`) and the analogous
+  `FeatureFactInvalidated` fields are byte-for-byte unchanged in shape, type, nullability, and
+  meaning.
+- **Capability set / dependency graph — event-instance-data consumers (§10.7).**
+  `context-aggregator` (Feature's one confirmed registered consumer, `ADR-038`'s own finding,
+  independently reconfirmed in `context-map.yaml`'s `relationships` block, §2 above) reads only the
+  `payload_shape` fields listed above — never `causal_state_dependency_declaration`, which sits
+  outside `payload_shape` entirely. No event-data-reading consumer's behavior changes in any way.
+  This is not an assumption of tolerant-reader behavior: a reader cannot fail to tolerate bytes that
+  are never present in the data it processes.
+- **Capability set / dependency graph — the one validator this field has a defined role for
+  (§10.7, corrected consumer-topology fact).** `docs/architecture/input-contracts/context-market-input.yaml`
+  (Draft v0.3, fresh-read this transaction, §0 above) already declares
+  `causal_closure_policy: {mode: declared-state-dependencies, dependency_authority:
+  per_effect_event_contract}` over `included_streams` that explicitly include
+  `feature-engine-feature`. **This corrects v0.1's own stale claim** that no currently-registered
+  consumer uses this mode for Feature's stream — `context-aggregator`'s own Draft Input Contract
+  already structurally commits to exactly this mode, for exactly this stream. Per Chapter 8
+  §8.2.3's own text, that mode cannot be satisfied for `feature-engine-feature` until a Feature
+  Event Contract version actually carries `causal_state_dependency_declaration`. This consumer is
+  therefore not merely unaffected by the delta — it currently **cannot** satisfy its own
+  already-declared dependency at all, and this field's addition is what first makes that
+  satisfiable. Enabling, not breaking.
+- **Dependency graph — tooling/validator consumers of the Event-Contract-artifact document itself
+  (§10.7), checked by direct code inspection, not assumed tolerant.**
+  `python/feature-engine/src/feature_engine/output_contract_resolver.py` is the one actual,
+  currently-existing piece of tooling in this repository that reads a Feature output Event Contract
+  version-artifact's own file content (feature-engine's own producer-side self-resolution of its
+  `event_contract_ref` identity before emitting a fact). Its `_extract_scalar`/`_extract_allowed_streams`
+  functions extract only `contract_id`/`contract_version`/`status` scalars and the
+  `allowed_streams:` block, each via a targeted prefix-match line scan — confirmed, by reading the
+  exact implementation, to enforce no closed or exhaustive top-level key set, and to terminate each
+  scan on its own specific target, never on "any unrecognized key." Adding
+  `causal_state_dependency_declaration` as a new top-level key neither alters, truncates, nor
+  interferes with any of these four extraction targets. `authority_resolver.py` (the analogous
+  Input-Contract-side resolver) uses the identical targeted-key-scan discipline. No code anywhere in
+  this repository enforces a closed top-level key set against an Event Contract or Input Contract
+  artifact that would reject an unrecognized additional field — confirmed by repository-wide search,
+  not merely undiscovered.
+- **Permission requirement / freshness-latency commitment (§10.7).** Neither is introduced,
+  narrowed, or otherwise touched by this delta.
 
-### 3.4 Existing `backward_only` commitment — scope of what it actually governs here
+**Conclusion: non-breaking under Chapter 10 §10.3's general test, applied with §10.7's
+downstream-impact assessment — `ADR-038`'s `backward_only` commitment is satisfied, not bypassed.**
+No currently-valid consumer, of any category checked above, becomes invalid. Per `ADR-039`'s
+major.minor grammar (*"a non-breaking, contract-surface-evolving change is published as a new
+version-artifact whose minor component is incremented by exactly `1`, major unchanged"*), the
+correct next identifier for both `contract_id`s is **`v1.1`** (not `v2.0`) — confirming, under this
+corrected grounding, the same identifier the Draft candidates already use (§4/§6 below; the
+candidates themselves are not edited by this correction, having been authored correctly the first
+time on this specific point).
 
-`ADR-038`'s `backward_only` commitment (Chapter 10 §10.3.1, *"consumer CŨ vẫn đọc/validate đúng dữ
-liệu MỚI"*) governs the DATA these two Event Contracts carry — `payload_shape` content, as read by
-an advancing consumer (§ "What this commitment protects" in `ADR-038`). Because this delta touches
-no `payload_shape` content, the commitment is not engaged by it in any way that could fail: there is
-no new required payload element for an old reader to stumble on. No fresh Chapter 10 §10.4
-Compatibility Result is created or required by this delta's publication alone (consistent with the
-packet's forbidden scope — this transaction creates no evaluator/grant/policy-registry mechanism);
-should a Compatibility Result ever be sought for a specific consumer/subject pinning this new
-version, that remains separate, later, governed work exactly as `ADR-038`'s own Consequences already
-scope it.
+This conclusion is reached entirely from existing Approved/Locked authority (`ADR-038`, `ADR-039`,
+`ADR-048`, Chapter 10 §10.3/§10.7, and `context-map.yaml`/`context-market-input.yaml`'s registered
+edges) — it invents no new classification rule, no reader/format policy, and reopens no prior
+decision. It does not retroactively reclassify `computation_dependency_content_evidence`'s own,
+separately-grounded `BREAKING` conclusion (`feature.md` v0.6), which remains correct for that
+different, payload-level delta, correctly tested under §10.3.1's own data-presence rule (the right
+tool for a true `payload_shape` field).
+
+### 3.4 Why no Chapter 10 §10.4 Compatibility Result is created here
+
+This analysis reaches a classification conclusion (non-breaking) by direct application of §10.3/§10.7
+to the facts above; it does not itself produce a Chapter 10 §10.4 Compatibility Result — that is a
+heavier, separately-governed artifact requiring a registered, granted evaluator (Declaration → Grant
+→ Enforcement → Verification) and full subject/input/policy-version/grant/evaluation-boundary
+evidence (§10.4.1), none of which this transaction creates or invokes. Should a Compatibility Result
+ever be sought for a specific consumer/subject pinning the new `v1.1` version, producing one remains
+separate, later, governed work, exactly as `ADR-038`'s own Consequences already scope it — unaffected
+either way by this correction.
 
 ### 3.5 Role declarations for the Draft `v1.1` candidates
 
@@ -228,12 +336,56 @@ nor `ADR-038` is touched to produce these candidates** — consistent with prece
 
 - **Version-impact:** a new version is warranted; neither Published `v1.0` artifact may be edited
   in place (confirmation of existing authority, not a new decision).
-- **Compatibility classification:** non-breaking, contract-surface-evolving delta — minor bump,
-  `v1.0` → `v1.1`, for both `feature-computed` and `feature-fact-invalidated`.
+- **`ADR-038`'s `backward_only` commitment:** unchanged, applies in full to the entire artifact; not
+  narrowed, not exempted, not reopened by this analysis (v0.2 correction).
+- **Compatibility classification:** non-breaking, contract-surface-evolving delta, tested under
+  Chapter 10 §10.3's general consumer-invalidation test + §10.7's downstream-impact assessment
+  (§10.3.1's own schema-element rule confirmed not to mechanically fit a non-payload artifact field)
+  — minor bump, `v1.0` → `v1.1`, for both `feature-computed` and `feature-fact-invalidated`. **`v1.1`
+  is confirmed the correct identifier** — no change to the existing Draft candidates' own
+  `contract_version` is warranted.
+- **Corrected consumer-topology fact (v0.2):** `context-aggregator`'s own Draft Input Contract
+  (`context-market-input.yaml`) already declares `declared-state-dependencies` for
+  `feature-engine-feature` — this field's addition is enabling an already-declared dependency, not
+  merely harmless to an unrelated one.
+- **Tooling/validator consumers of the artifact document checked, not assumed tolerant (v0.2):**
+  `output_contract_resolver.py`/`authority_resolver.py` confirmed unaffected by direct code
+  inspection.
 - **No `ARCHITECTURE_ESCALATION`:** every question in the Semantic Closure matrix (§2) resolves from
   existing Approved/Locked authority; no genuinely unresolved architecture decision was found; no
-  new/undisclosed cross-lane dependency was found.
-- Draft `v1.1` candidates for both `contract_id`s are produced (§4), carrying the `ADR-048`
-  declaration, `status: Draft`, not self-certified as `Published`, not requested for Review A by this
-  transaction (per the packet's own completion contract — Review A is a separate, later, human/
-  governed step).
+  new/undisclosed cross-lane dependency was found; no new ADR is required (§8).
+- Draft `v1.1` candidates for both `contract_id`s already exist (§4), carrying the `ADR-048`
+  declaration, `status: Draft`, not self-certified as `Published`, not edited by this correction,
+  not requested for Review A by this transaction — Review A is a separate, later, human/governed
+  step.
+
+## 8. ADR Scope and Risk Classification (this transaction)
+
+**ADR Scope — `ADR_NOT_REQUIRED`.** This transaction applies already-Approved/Locked authority
+(`ADR-038`'s `backward_only` commitment, `ADR-039`'s immutability/versioning model, `ADR-048`'s
+`causal_state_dependency_declaration` grammar, Chapter 10 §10.3/§10.7) to one bounded,
+individually-verifiable classification case. It creates no new Platform Invariant, Event Schema,
+module-taxonomy/dependency edge, compatibility policy, or architecture rule — it corrects a stale
+factual claim and selects, among already-locked Chapter 10 mechanisms, the one that actually fits a
+non-payload artifact field, a determination the governing text itself (§10.3 vs. §10.3.1's own
+respective scope) already supports without requiring a new decision. Per `G-ADR-004`: (1) existing
+authority resolves this without a new decision — YES, confirmed above; (2) not a new architecture
+decision, cheaply correctable if wrong — this is a classification conclusion for one already-Draft,
+not-yet-Published pair of candidates, reversible by ordinary correction before publication; (3)
+Chapter 0 §4b triggers — none fire: no Event Schema is changed (the Draft candidates are not edited
+by this correction), no new module/dependency edge is created (the `context-aggregator`/
+`feature-engine-feature` edge already existed in `context-map.yaml` before this transaction); (4)
+not authored to "complete" a prior ADR's open item, because no ADR is authored at all.
+
+**Risk Classification (`ADR-045`) — `R1`.** Bounded semantic correction: a factual-topology fix
+(`context-aggregator` already uses `declared-state-dependencies`) plus a classification-mechanism
+correction (§10.3/§10.7, not §10.3.1) applied to one concrete, already-identified delta — internal
+to this analysis artifact, does not alter any external contract/authority (`ADR-038`/`ADR-039`/
+`ADR-048` all unchanged), reversible with limited blast radius (only this Draft analysis artifact is
+edited; neither Draft `v1.1` candidate's own content changes). Not `R2`: no Platform Invariant or
+Event Schema is changed; no new authority/source-of-truth semantic is created (the opposite — an
+existing semantic is correctly applied); this exact artifact has not been through a prior round of
+semantic correction (`ADR-045`'s own "repeated semantic correction" criterion does not fire for a
+first correction); no conflicting authority/evidence was found once the stale consumer-topology
+claim was corrected. Per `ADR-045`, R1 defaults to `NO CROSS-CHECK` — Review A (separate, later,
+human/governed step) is sufficient.
