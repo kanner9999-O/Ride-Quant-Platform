@@ -2,6 +2,67 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-10-08 — Feature v1.1 Event Contracts PUBLISHED; M3 upstream publication-prerequisite tranche complete; Context lane READY
+
+Mechanical lifecycle-recording transaction (`workstream/m3-feature-v11-publication`) — publishes
+the exact Product-Owner-approved Feature semantic candidate at commit
+`db53cefdb8e260f3a40dc689394b366937118905` (`workstream/m3-feature-compat-finish`, which diverged
+from `main` before the prior M3 upstream Candle/Structure/Regime publication). Integrated onto
+current `main` via clean cherry-pick of commits `46d9e2eb968a5679cc5ff4ead6757586b7bcd43a` and
+`db53cefdb8e260f3a40dc689394b366937118905` onto a fresh continuation branch — no conflict, no
+semantic judgment exercised, the old branch was NOT merged wholesale. No semantic content changed
+on either artifact.
+
+**Fresh ChatGPT Review A** on the complete Feature v1.1 candidate: `CLEAN — 0 Blocker / 0 Major / 0
+Minor`. **Feature version-impact analysis v0.2:** `CLEAN — 0 Blocker / 0 Major / 0 Minor`, ADR
+Scope `ADR_NOT_REQUIRED`. **Publication lifecycle Risk Classification:** `R2`. **Product Owner
+chose `PROCEED WITHOUT CROSS-CHECK`** (cross-check `NOT PERFORMED`). **Product Owner decision
+(verbatim):** `PROCEED WITHOUT CROSS-CHECK — APPROVE FEATURE v1.1 PUBLICATION CANDIDATE at
+db53cefdb8e260f3a40dc689394b366937118905` — recorded `2026-10-08T14:01+07:00`.
+
+**Published (both, `status: Draft → Published`, `contract_version` unchanged `v1.1`):**
+
+```text
+feature-computed/v1.1                 (reviewed blob 9a42fc1b8db1cb54bc1fb7f5134669b040d11ca9)
+feature-fact-invalidated/v1.1         (reviewed blob 7b05cc64ce416b96b34a47521848ff94453962f8)
+```
+
+Per `G-ID-001`, the reviewed-semantic-candidate blobs above are distinct from, and never confused
+with, the resulting lifecycle-record blobs this transaction's mechanical edit produces — the
+integration/publication commit is NOT the Review A boundary. Verified fresh by direct diff: every
+field other than the five lifecycle fields and header provenance prose — `contract_id`,
+`contract_version: v1.1`, `event_type`, `event_class`, `allowed_streams`, `merge_constraints`,
+`payload_shape`, `payload_semantics_and_invariants`, `causal_state_dependency_declaration`
+(selectors/role cardinalities/classifications unchanged), `compatibility_commitment` — is
+byte-identical to the reviewed candidate for both artifacts. Feature `v1.0` Published artifacts
+confirmed byte-unchanged. `ADR-050` (Draft, pending correction) not referenced or resurrected.
+
+**M3 upstream Event Contract publication-prerequisite tranche now COMPLETE:** Candle (2/2
+Published), Structure (4/4 Published), Regime (2/2 Published), Feature (2/2 Published — this
+transaction) — ten of ten upstream Event Contracts the current M3 execution tranche tracks are now
+Published. `docs/project/m3-execution-control-plane.yaml` and `docs/project/milestone-dashboard.html`
+reconciled in this same transaction: Feature lane `DONE`/Published; `context_publication_readiness`
+lane `READY` (its three tracked `true_dependencies` — `structure`, `regime`,
+`feature_future_dependency_authority` — are now satisfied). This is state-recording only, not a
+new milestone decision — `docs/project/milestone.md` is NOT touched; M3's own acceptance condition
+remains **NOT YET DERIVED**, unchanged; M3 remains `ACTIVE`.
+
+**Not touched:** `ADR-050`/`ADR-048`/`ADR-049`/any other Approved ADR; `feature.md`/any other
+Domain Contract; the eight already-Published Candle/Structure/Regime artifacts; Context Input
+Contract or any other Context artifact; Constitution; any registry; production source/tests/
+tooling; `docs/project/milestone.md` or its acceptance condition. No ADR, WP, or workstream
+created. No second Review A. No second Product Owner approval requested. No optional cross-check
+created (Product Owner explicitly declined one).
+
+**Next governed action:** Context publication-readiness/integration work — the M3 control-plane's
+`context_publication_readiness` lane's three tracked dependencies are now all satisfied. The
+still-open Feature `causal_state_dependency_declaration` scope-boundary question (`ADR-050`
+candidate, Draft, pending correction/Review A) remains separate, unaffected, later governed work —
+already bypassed for this concrete delta by the bounded, no-new-ADR application recorded in
+`docs/project/feature-causal-state-dependency-version-impact-001.md` v0.2, not a blocker here.
+
+---
+
 ## [Unreleased] — 2026-10-08 — M3 upstream Candle + Structure + Regime Event Contracts PUBLISHED (eight artifacts, Draft → Published)
 
 Mechanical lifecycle-recording transaction (`workstream/m3-upstream-publication-boundary`) —

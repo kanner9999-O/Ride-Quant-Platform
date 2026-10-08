@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.479"
+manifest_version: "10.480"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -34505,6 +34505,77 @@ fields only), `docs/MANIFEST.md` (this entry), `docs/CHANGELOG.md`. `manifest_ve
 (unaffected by, and not required by, this publication): the still-open Feature `causal_state_
 dependency_declaration` compatibility-classification question (`ADR-050` candidate correction);
 Context Input Contract's own remaining publication-readiness prerequisites.
+
+## Feature v1.1 Event Contract publication (`workstream/m3-feature-v11-publication`) — two artifacts Draft → Published; M3 upstream-prerequisite tranche complete
+
+Mechanical lifecycle-recording transaction only — publishes the exact Product-Owner-approved
+Feature semantic candidate; no semantic content changed on either artifact.
+
+**Exact reviewed semantic candidate:** commit `db53cefdb8e260f3a40dc689394b366937118905`
+(`workstream/m3-feature-compat-finish`, diverged from `main` before the M3 upstream
+Candle/Structure/Regime publication). Integrated onto current `main` via clean cherry-pick of
+commits `46d9e2eb968a5679cc5ff4ead6757586b7bcd43a`/`db53cefdb8e260f3a40dc689394b366937118905` onto a
+fresh continuation branch (`workstream/m3-feature-v11-publication`) — no conflict, no semantic
+judgment exercised, the old Feature branch was NOT merged wholesale. **Fresh ChatGPT Review A** on
+the complete Feature v1.1 candidate: `CLEAN — 0 Blocker / 0 Major / 0 Minor`. **Feature
+version-impact analysis v0.2:** `CLEAN — 0 Blocker / 0 Major / 0 Minor`, ADR Scope
+`ADR_NOT_REQUIRED`. **Publication lifecycle Risk Classification:** `R2`. **Product Owner chose
+`PROCEED WITHOUT CROSS-CHECK`** (cross-check `NOT PERFORMED`). **Product Owner decision
+(verbatim):** `PROCEED WITHOUT CROSS-CHECK — APPROVE FEATURE v1.1 PUBLICATION CANDIDATE at
+db53cefdb8e260f3a40dc689394b366937118905` — recorded `2026-10-08T14:01+07:00`.
+
+**Published (both, `status: Draft → Published`, `reviewers: [] → [ChatGPT]`, `approved_by: null →
+Product Owner`, `approved_at: null → "2026-10-08T14:01+07:00"`, `last_review: null →
+"2026-10-08"`, `contract_version` unchanged `v1.1` for both):**
+
+| `contract_id` | reviewed semantic candidate blob |
+|---|---|
+| `feature-computed` | `9a42fc1b8db1cb54bc1fb7f5134669b040d11ca9` |
+| `feature-fact-invalidated` | `7b05cc64ce416b96b34a47521848ff94453962f8` |
+
+Per `G-ID-001`, the reviewed semantic candidate identity above (`db53cef...` boundary content) is
+distinct from each artifact's own resulting lifecycle-record blob — the integration/publication
+commit SHA is a lifecycle-record identity only, never represented as the Review A boundary itself.
+Verified fresh by direct diff: every field other than the five lifecycle fields and header
+provenance prose (`contract_id`, `contract_version: v1.1`, `event_type`, `event_class`,
+`allowed_streams`, `merge_constraints`, `payload_shape`, `payload_semantics_and_invariants`,
+`causal_state_dependency_declaration` — selectors/role cardinalities/classifications unchanged —
+`compatibility_commitment`) is byte-identical to the reviewed candidate for both artifacts. Feature
+`v1.0` Published artifacts confirmed byte-unchanged by this transaction. `ADR-050` (Draft, pending
+correction) is NOT referenced or resurrected anywhere in this publication.
+
+**M3 upstream Event Contract publication prerequisite tranche now COMPLETE:** Candle (2/2
+Published), Structure (4/4 Published), Regime (2/2 Published), Feature (2/2 Published — this
+transaction). All eight Candle/Structure/Regime artifacts (prior transaction) plus both Feature
+`v1.1` artifacts (this transaction) are now Referenced Authoritative Artifacts in force per Chapter
+8 §8.1.1/`ADR-039`'s immutability discipline. `docs/project/m3-execution-control-plane.yaml` and
+`docs/project/milestone-dashboard.html` reconciled in this same transaction to reflect Feature
+`DONE`/Published and Context lane `READY` (upstream Event-Contract-existence prerequisites the
+current control-plane dependency topology tracks are now satisfied) — this is state-recording only,
+not a new milestone decision; `docs/project/milestone.md` itself is NOT touched, M3's own
+acceptance condition remains **NOT YET DERIVED**, unchanged, and M3 remains `ACTIVE`.
+
+**Not touched by this transaction:** `ADR-050`/`ADR-048`/`ADR-049`/any other Approved ADR;
+`feature.md`/any other Domain Contract; the eight already-Published Candle/Structure/Regime
+artifacts (byte-unchanged); Context Input Contract or any other Context artifact; Constitution; any
+registry; production source/tests/tooling; `docs/project/milestone.md` or its acceptance condition.
+No ADR, WP, or workstream created. No second Review A. No second Product Owner approval requested.
+No optional cross-check created (Product Owner explicitly declined one).
+
+**Files changed:** `docs/architecture/event-contracts/feature-computed/v1.1.yaml`,
+`docs/architecture/event-contracts/feature-fact-invalidated/v1.1.yaml` (lifecycle/header-provenance
+fields only), `docs/MANIFEST.md` (this entry), `docs/CHANGELOG.md`,
+`docs/project/m3-execution-control-plane.yaml`, `docs/project/milestone-dashboard.html`.
+`manifest_version` `"10.479"` -> `"10.480"`.
+
+**Next governed action:** Context publication-readiness/integration work (the M3 control-plane's
+own `context_publication_readiness` lane) — all three of its tracked `true_dependencies`
+(`structure`, `regime`, `feature_future_dependency_authority`) are now satisfied. The still-open
+Feature `causal_state_dependency_declaration`-scope-boundary question (`ADR-050` candidate,
+Draft, pending correction/Review A) remains separate, unaffected, later governed work — it concerns
+a scope-boundary interpretation question already bypassed for this concrete delta by the bounded,
+no-new-ADR application recorded in `docs/project/feature-causal-state-dependency-version-impact-001.md`
+v0.2, not a blocker to this publication.
 
 ## Decision Log
 
