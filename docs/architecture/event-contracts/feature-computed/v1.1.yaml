@@ -22,14 +22,22 @@
 # v1.0 to interpret this one).
 #
 # Version-impact / compatibility classification basis (full reasoning):
-# docs/project/feature-causal-state-dependency-version-impact-001.md §3. Summary: this delta is
+# docs/project/feature-causal-state-dependency-version-impact-001.md §3.3 (Review A CLEAN — 0
+# Blocker / 0 Major / 0 Minor, ADR Scope ADR_NOT_REQUIRED, Risk R1). Summary: this delta is
 # Event-Contract-artifact-level governed metadata (ADR-048 §1 fixes it as a sibling of event_class/
 # allowed_streams/merge_constraints, explicitly prohibited from payload_shape/
-# payload_semantics_and_invariants) — it adds no element to, and changes no element of,
-# payload_shape, so no currently-valid consumer (context-aggregator, Feature's sole registered
-# consumer per ADR-038 and docs/domain/context-map.yaml) becomes invalid. Classified
-# NON-BREAKING under Chapter 10 §10.3/§10.3.1; contract_version increments minor only, per ADR-039's
-# major.minor grammar: v1.0 -> v1.1.
+# payload_semantics_and_invariants). Approved ADR-038's backward_only commitment applies, in full,
+# to the entire Feature Output Event Contract artifact, this field included — not exempted, not
+# narrowed. Because the field is never serialized into any event instance's own payload bytes,
+# Chapter 10 §10.3.1's data-presence-calibrated schema-element rules do not mechanically fit it;
+# the concrete classification instead uses §10.3's own general contract-surface/current-consumer
+# breaking-change test, read together with §10.7's downstream-impact assessment (real evidence:
+# context-aggregator, Feature's sole registered consumer per ADR-038/context-map.yaml, reads no
+# field this delta touches; context-aggregator's own Draft Input Contract already depends on this
+# field for feature-engine-feature; feature-engine's own output_contract_resolver.py tooling
+# confirmed unaffected by direct code inspection) — both applied entirely within ADR-038's
+# fully-applicable commitment, never as a bypass of it. Classified NON-BREAKING; contract_version
+# increments minor only, per ADR-039's major.minor grammar: v1.0 -> v1.1.
 #
 # This is distinguished from the prior v1.0 delta (computation_dependency_content_evidence,
 # ADR-037), which WAS added to payload_shape and was correctly classified BREAKING by feature.md
@@ -247,9 +255,18 @@ compatibility_commitment: backward_only
 # ADR-038 (Approved), Chapter 10 §10.3.1 — explicit policy commitment the platform adopts for this
 # contract_id, unchanged from v1.0: a consumer pinned to an older feature-computed Event Contract
 # version must still correctly read/validate data under a newer version; forward compatibility is
-# NOT committed. This v1.1 delta does not touch payload_shape, so backward_only is trivially
-# satisfied by this delta (docs/project/feature-causal-state-dependency-version-impact-001.md §3.4)
-# — no fresh Compatibility Result is created or required by this publication alone.
+# NOT committed. This commitment remains fully applicable to the entire artifact, this v1.1 delta
+# included — not exempted, not narrowed. The concrete classification of this specific delta against
+# that commitment is established in docs/project/feature-causal-state-dependency-version-impact-001.md
+# §3.3 using Chapter 10 §10.3's general current-consumer-invalidation test together with §10.7's
+# downstream-impact assessment (§10.3.1's own data-presence-calibrated schema-element rule does not
+# mechanically fit a field that is never serialized into payload_shape) — supported by actual
+# consumer/tooling evidence (context-aggregator's own payload reads, its separately-declared
+# declared-state-dependencies dependency on this exact field, and output_contract_resolver.py's
+# confirmed-unaffected extraction logic), not merely by the absence of a payload_shape change. This
+# classification is distinct from a formal Chapter 10 §10.4 Compatibility Result — no such Result is
+# created or required by this publication alone; one remains separate, later, governed work should
+# it ever be sought for a specific consumer/subject pinning this version.
 
 provenance:
   source: docs/domain/feature.md
