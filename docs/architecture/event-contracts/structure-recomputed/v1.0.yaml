@@ -102,6 +102,14 @@
 #
 # Governed authoring transaction boundary: HEAD 581c28d3acd1d13c613fc110e80b9e5a5dbc486a
 # (CONTEXT-UPSTREAM-EVENT-CONTRACT-STRUCTURE-001).
+#
+# PUB-AGG-MAJ-01 (M3 upstream publication-boundary aggregate readiness assessment, 2026-10-08): this
+# artifact entirely omitted structure.md §11's computation-identity/idempotency dedup rule. Fixed: a
+# new `computation_identity_and_dedup` block inlines §11's rule in full — `(structure_subject_id,
+# event_type, causation_refs-as-a-set, complete payload)` identity; recomputation from unchanged
+# input is idempotent, never a second record. No new identity mechanism invented; no cascade
+# semantics, ADR-049 dual-cause text, ADR-048 declaration, compatibility commitment, or payload
+# shape changed.
 
 contract_id: structure-recomputed
 contract_version: v1.0
@@ -228,6 +236,27 @@ payload_semantics_and_invariants:
       Exactly one StructureRecomputed is emitted for a completed cascade — never more than one for
       the same invalidation set (see invariants below; unchanged from the pre-correction
       declaration).
+  computation_identity_and_dedup:
+    # Inlined (fixes PUB-AGG-MAJ-01) — self-contained, no reference to structure.md §11 required to
+    # validate this artifact's own payload. Structure is internally computed from Swing/Candle
+    # evidence, never externally redelivered — there is no source_identity/retry-redelivery concept
+    # (Chapter 6 §6.6) to dedup against; identity and dedup are computation-based.
+    computation_identity_tuple:
+      - "structure_subject_id (envelope.subject_ref.subject_id)"
+      - "event_type (STRUCTURE_RECOMPUTED)"
+      - "envelope.causation_refs, treated as a SET (order-independent) — the complete cascade_invalidations set (cascade_semantics above)"
+      - "the complete payload content above (resulting_orientation, justifying_fact_ref, input_cursor_ref)"
+    dedup_rule: >
+      Two computations whose identity tuple above matches exactly are the SAME authoritative fact.
+      Recomputation from an unchanged, already-completed cascade (exactly_one_per_cascade above) —
+      e.g. a re-run after restart, or Live/Backtest/Replay independently recomputing the same
+      completed cascade — is idempotent and MUST NOT append a second StructureRecomputed record for
+      it, consistent with exactly_one_per_cascade.
+    distinct_facts_not_duplicates: >
+      A StructureRecomputed for a different cascade (a different causation_refs set), or citing a
+      different resulting_orientation/justifying_fact_ref, is never a duplicate of this fact merely
+      because some other field happens to match — the identity tuple above compares the full
+      payload and the complete causation_refs set, not a partial subset.
   invariants:
     - "envelope.causation_refs MUST point to every StructureFactInvalidated belonging to the same cascade (cascade_root plus every transitive dependency-forward descendant, per cascade_semantics above) — none affected by the cascade may be omitted from causation, and no fact from a different cascade may be included — see causal_state_dependency_declaration below for the canonical machine-readable classification."
     - "resulting_orientation MUST be one of {NEUTRAL, BULLISH, BEARISH} — NEVER UNDETERMINED (once a fact has existed and been invalidated, the minimum valid conclusion is NEUTRAL, never a regression to the notional UNDETERMINED starting point)."
@@ -239,6 +268,7 @@ payload_semantics_and_invariants:
     - "Exactly ONE StructureRecomputed is emitted per cascade — never more than one for the same invalidation set."
     - "This event does not delete or overwrite any prior output — it is an additional append-only fact (I-3)."
     - "Replay at a cursor before this event's own recorded_time MUST NOT observe it."
+    - "Two computations sharing an identical computation_identity_and_dedup tuple are the same authoritative fact — recomputation from an unchanged, already-completed cascade is idempotent and MUST NOT produce a second record (fixes PUB-AGG-MAJ-01; see computation_identity_and_dedup above)."
 
 causal_state_dependency_declaration:
   mode: exhaustive
@@ -284,7 +314,7 @@ provenance:
   source: docs/domain/structure.md
   source_version: "0.4"
   source_status: Draft
-  source_sections: ["§1 Logical Structure Subject", "§2 Canonical event envelope (payload-relevant portions)", "§5a StructureRecomputed", "§10 Correction cascade (cascade root/dependency-forward membership/direct-vs-chained relation/completion, fixes STRUCT-EC-A-MAJ-06)"]
+  source_sections: ["§1 Logical Structure Subject", "§2 Canonical event envelope (payload-relevant portions)", "§5a StructureRecomputed", "§10 Correction cascade (cascade root/dependency-forward membership/direct-vs-chained relation/completion, fixes STRUCT-EC-A-MAJ-06)", "§11 Deduplication and ordering (computation-identity/idempotency rule, fixes PUB-AGG-MAJ-01)"]
   source_blob: 78964dfb6852bbac3fa1e034d64b4fc8031c3fef
   drafted_at_commit: 581c28d3acd1d13c613fc110e80b9e5a5dbc486a
   cursor_representation_authority: "docs/constitution/08-event-model.md §8.5/§8.5.1/§8.5.2 (fixes STRUCT-EC-A-MAJ-04)"
@@ -293,10 +323,12 @@ provenance:
     interpret this artifact's own meaning; payload_shape and payload_semantics_and_invariants above
     are fully self-contained, including the inlined cascade_semantics (cascade root/dependency-
     forward membership/direct-vs-chained relation/completion/causation-set completeness, fixes
-    STRUCT-EC-A-MAJ-06) and the canonical Chapter 8 §8.5 Replay Cursor shape for input_cursor_ref
-    (fixes STRUCT-EC-A-MAJ-04) — only the full numeric worked-example emission ORDERING
-    (structure.md §10's own illustrative trace) remains that document's own drafting-history
-    content, not needed to validate this already-emitted event's own payload. event_class,
+    STRUCT-EC-A-MAJ-06), the canonical Chapter 8 §8.5 Replay Cursor shape for input_cursor_ref
+    (fixes STRUCT-EC-A-MAJ-04), and the computation-identity/idempotency dedup rule (fixes
+    PUB-AGG-MAJ-01, inlined as computation_identity_and_dedup) — only the full numeric
+    worked-example emission ORDERING (structure.md §10's own illustrative trace) remains that
+    document's own drafting-history content, not needed to validate this already-emitted event's
+    own payload. event_class,
     allowed_streams, and merge_constraints were governed-authored directly against Chapter 8
     §8.3.1/§8.3.4, Approved ADR-036, Approved ADR-047, and this repository's own established
     terminology — NOT mechanically transcribed from structure.md, which does not declare any of the

@@ -68,6 +68,18 @@
 #
 # Governed authoring transaction boundary: HEAD 581c28d3acd1d13c613fc110e80b9e5a5dbc486a
 # (CONTEXT-UPSTREAM-EVENT-CONTRACT-STRUCTURE-001).
+#
+# PUB-AGG-MAJ-01 (M3 upstream publication-boundary aggregate readiness assessment, 2026-10-08):
+# this artifact's `relevant_swing_total_order.duplicate_detection` pointed to "structure.md §11
+# Deduplication" for the authoritative-fact-duplicate concept, and separately omitted structure.md
+# §11's own computation-identity/idempotency rule for this EVENT's own dedup entirely (a distinct
+# concept from the Swing-candidate-tie dedup that block actually states). Fixed: `duplicate_detection`
+# no longer cites §11 (it is already fully self-contained, and is now explicitly distinguished from
+# this event's own dedup); a new `computation_identity_and_dedup` block inlines structure.md §11's
+# computation-identity rule in full — `(structure_subject_id, event_type, causation_refs-as-a-set,
+# complete payload)` identity; recomputation from unchanged input is idempotent, never a second
+# record. No new identity mechanism invented; no Eligible Swing rule, ADR-049 semantics, ADR-048
+# declaration, cascade semantics, compatibility commitment, or payload shape changed.
 
 contract_id: break-of-structure-detected
 contract_version: v1.0
@@ -232,14 +244,37 @@ payload_semantics_and_invariants:
       registry_version=v1, A.sequence=100, B.sequence=105: criteria 3 and 4 tie, so criterion 5 is
       evaluated -> 100 < 105 -> A wins at criterion 5.
     duplicate_detection: >
-      If all eight criteria values match exactly between two candidates, they are duplicate
-      representations of the same authoritative fact (see §11 Deduplication) — there is no ninth
-      criterion.
+      If all eight criteria values match exactly between two SwingConfirmed candidates being
+      compared for this total order, they are duplicate representations of the same authoritative
+      Swing fact — there is no ninth criterion. This is a distinct concern from this event's own
+      computation-identity dedup, which governs whether two BreakOfStructureDetected computations
+      are themselves duplicates — see computation_identity_and_dedup below.
     opaque_identifier_rule: >
       swing_id (criterion 7) and event_id (criterion 8) are pure technical tie-breaks, deterministic
       by string ordering of an opaque identifier, carrying no business meaning — opaque identifiers
       are never parsed to infer a timestamp or business semantic (Chapter 6 §6.8); string ordering
       is used only to guarantee a total order, never to interpret the identifier's content.
+  computation_identity_and_dedup:
+    # Inlined (fixes PUB-AGG-MAJ-01) — self-contained, no reference to structure.md §11 required to
+    # validate this artifact's own payload. Structure is internally computed from Swing/Candle
+    # evidence, never externally redelivered — there is no source_identity/retry-redelivery concept
+    # (Chapter 6 §6.6) to dedup against; identity and dedup are computation-based, not
+    # source-redelivery-based.
+    computation_identity_tuple:
+      - "structure_subject_id (envelope.subject_ref.subject_id)"
+      - "event_type (BREAK_OF_STRUCTURE_DETECTED)"
+      - "envelope.causation_refs, treated as a SET (order-independent) — broken_swing_ref.swing_confirmed_event_ref plus every breaking_candle_refs entry"
+      - "the complete payload content above (prior_orientation, new_orientation, broken_swing_ref, breaking_candle_refs)"
+    dedup_rule: >
+      Two computations whose identity tuple above matches exactly are the SAME authoritative fact.
+      Recomputation from unchanged, still-valid authoritative Swing/Candle input — e.g. a re-run
+      after restart, or Live/Backtest/Replay independently recomputing the same Eligible pair — is
+      idempotent and MUST NOT append a second BreakOfStructureDetected record for it.
+    distinct_facts_not_duplicates: >
+      A different broken_swing_ref, a different breaking_candle_refs set, or a different
+      prior_orientation/new_orientation pair is never a duplicate of this fact merely because some
+      other field happens to match — the identity tuple above compares the full payload and the
+      complete causation_refs set, not a partial subset.
   invariants:
     - "envelope.causation_refs MUST contain exactly these two role contributions, and nothing else: broken_swing_ref.swing_confirmed_event_ref (exactly one); breaking_candle_refs (one or more) — see causal_state_dependency_declaration below for the canonical machine-readable classification of each."
     - "broken_swing_ref.direction MUST match the broken_level_decision_table above for the declared prior_orientation/new_orientation pair."
@@ -247,6 +282,7 @@ payload_semantics_and_invariants:
     - "envelope.effective_time = effective_time of the last Candle in breaking_candle_refs."
     - "Replay at a cursor before this event's own recorded_time MUST NOT observe it — no backfilling a BOS as if known earlier than it actually was computed."
     - "This event is never overwritten in place — it may only later be negated via StructureFactInvalidated (structure-fact-invalidated/v1.0.yaml) with an explicit cause, never because price later moved differently (that is always a new, independent BOS/CHoCH)."
+    - "Two computations sharing an identical computation_identity_and_dedup tuple are the same authoritative fact — recomputation from unchanged input is idempotent and MUST NOT produce a second record (fixes PUB-AGG-MAJ-01; see computation_identity_and_dedup above)."
 
 causal_state_dependency_declaration:
   mode: exhaustive
@@ -305,7 +341,7 @@ provenance:
   source: docs/domain/structure.md
   source_version: "0.4"
   source_status: Draft
-  source_sections: ["§1 Logical Structure Subject", "§2 Canonical event envelope (payload-relevant portions)", "§3 BreakOfStructureDetected", "§6 BOS semantics — executable criterion", "§6a Deterministic relevant Swing selection (complete seven-condition membership predicate AND complete 8-criteria total order)"]
+  source_sections: ["§1 Logical Structure Subject", "§2 Canonical event envelope (payload-relevant portions)", "§3 BreakOfStructureDetected", "§6 BOS semantics — executable criterion", "§6a Deterministic relevant Swing selection (complete seven-condition membership predicate AND complete 8-criteria total order)", "§11 Deduplication and ordering (computation-identity/idempotency rule)"]
   source_blob: 78964dfb6852bbac3fa1e034d64b4fc8031c3fef
   drafted_at_commit: 581c28d3acd1d13c613fc110e80b9e5a5dbc486a
   note: >
@@ -313,9 +349,11 @@ provenance:
     interpret this artifact's own meaning; payload_shape and payload_semantics_and_invariants above
     are fully self-contained, including the COMPLETE seven-condition Eligible Swing membership
     predicate (fixes STRUCT-EC-A-MAJ-01 — all seven structure.md §6a conditions are now inlined
-    explicitly, not a partial subset) and the COMPLETE 8-criteria deterministic total order
+    explicitly, not a partial subset), the COMPLETE 8-criteria deterministic total order
     (fixes STRUCT-EC-A-MAJ-05 — inlined as relevant_swing_total_order, no external reference to
-    structure.md §6a remains for either the membership predicate or the winner-selection order).
+    structure.md §6a remains for either the membership predicate or the winner-selection order),
+    and the COMPLETE computation-identity/idempotency dedup rule (fixes PUB-AGG-MAJ-01 — inlined as
+    computation_identity_and_dedup, no external reference to structure.md §11 remains).
     event_class, allowed_streams, and merge_constraints were
     governed-authored directly against Chapter 8 §8.3.1/§8.3.4, Approved ADR-036, Approved ADR-047,
     and this repository's own established terminology — NOT mechanically transcribed from

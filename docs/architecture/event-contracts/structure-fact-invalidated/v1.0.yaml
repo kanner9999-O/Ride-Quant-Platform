@@ -127,6 +127,14 @@
 #
 # Governed authoring transaction boundary: HEAD 581c28d3acd1d13c613fc110e80b9e5a5dbc486a
 # (CONTEXT-UPSTREAM-EVENT-CONTRACT-STRUCTURE-001).
+#
+# PUB-AGG-MAJ-01 (M3 upstream publication-boundary aggregate readiness assessment, 2026-10-08): this
+# artifact entirely omitted structure.md §11's computation-identity/idempotency dedup rule. Fixed: a
+# new `computation_identity_and_dedup` block inlines §11's rule in full — `(structure_subject_id,
+# event_type, causation_refs-as-a-set, complete payload)` identity; recomputation from unchanged
+# input is idempotent, never a second record. No new identity mechanism invented; no Eligible Swing
+# rule, ADR-049 dual-cause semantics, ADR-048 declaration, cascade semantics, compatibility
+# commitment, or payload shape changed.
 
 contract_id: structure-fact-invalidated
 contract_version: v1.0
@@ -233,6 +241,31 @@ payload_semantics_and_invariants:
       (swing_invalidated, breaking_candle_corrected, or chained_invalidation per the invariants
       below) — ADR-049's rule only disambiguates the rare simultaneous two-direct-cause instance;
       it does not alter the single-cause case in any way.
+  computation_identity_and_dedup:
+    # Inlined (fixes PUB-AGG-MAJ-01) — self-contained, no reference to structure.md §11 required to
+    # validate this artifact's own payload. Structure is internally computed from Swing/Candle
+    # evidence (directly, or via the StructureFactInvalidated it chains from), never externally
+    # redelivered — there is no source_identity/retry-redelivery concept (Chapter 6 §6.6) to dedup
+    # against; identity and dedup are computation-based.
+    computation_identity_tuple:
+      - "structure_subject_id (envelope.subject_ref.subject_id)"
+      - "event_type (STRUCTURE_FACT_INVALIDATED)"
+      - "envelope.causation_refs, treated as a SET (order-independent) — invalidated_fact_ref plus the one or two direct_cause_ref entries (rare dual-cause case, dual_cause_primary_selection above)"
+      - "the complete payload content above (invalidated_fact_ref, invalidation_cause, invalidation_reason)"
+    dedup_rule: >
+      Two computations whose identity tuple above matches exactly are the SAME authoritative fact.
+      Recomputation from unchanged, still-valid authoritative input — e.g. a re-run after restart,
+      or Live/Backtest/Replay independently recomputing the same cascade step — is idempotent and
+      MUST NOT append a second StructureFactInvalidated record for it. This is distinct from, and
+      additional to, the already-stated per-fact-targeting uniqueness invariant below (a given
+      BOS/CHoCH receives exactly one authoritative StructureFactInvalidated) — that invariant bounds
+      WHICH fact may be targeted at most once; this rule bounds whether two computations describing
+      the SAME invalidation are themselves duplicates.
+    distinct_facts_not_duplicates: >
+      A StructureFactInvalidated targeting a different invalidated_fact_ref, or citing a different
+      invalidation_cause/direct-cause set, is never a duplicate of this fact merely because some
+      other field happens to match — the identity tuple above compares the full payload and the
+      complete causation_refs set, not a partial subset.
   invariants:
     - "envelope.causation_refs MUST point to: the BOS/CHoCH event being invalidated (required, exactly one — see invalidated_fact_ref below); AND one OR (in structure.md §10's rare dual-cause case only) two direct-cause reference(s), with payload.invalidation_cause selected per dual_cause_primary_selection above (Approved ADR-049) — see causal_state_dependency_declaration below for the canonical machine-readable classification of each."
     - "invalidation_cause = swing_invalidated is valid ONLY when the referenced SwingInvalidated matches BOTH the swing_id AND the swing_revision of the invalidated fact's own broken_swing_ref (not swing_id alone) — a SwingInvalidated for one revision MUST NOT be used to invalidate a Structure fact whose broken_swing_ref used a different revision of the same swing_id."
@@ -243,6 +276,7 @@ payload_semantics_and_invariants:
     - "envelope.recorded_time MUST be strictly later than the recorded_time of every direct cause event referenced (whichever of swing_invalidated/breaking_candle_corrected/chained_invalidation apply — one event in the normal case, two in the rare dual-cause case)."
     - "Replay at a cursor before this event's own recorded_time MUST NOT observe it."
     - "envelope.causation_refs contains EXACTLY invalidated_fact_ref (one entry) PLUS one OR two direct-cause entries (fixes STRUCT-EC-A-MAJ-03): exactly TWO entries total in the normal single-cause case; exactly THREE entries total ONLY in structure.md §10's rare dual-cause case, and ONLY when the two direct-cause entries are exactly {one event matching SWING_INVALIDATED, one event matching CANDLE_CORRECTED} — never two chained_invalidation-typed entries, never a chained_invalidation entry combined with a swing/candle entry, and never more than three entries total. See causal_state_dependency_declaration below, whose mode: exhaustive role cardinalities mechanically enforce the one-or-two-direct-cause bound; the {SwingInvalidated, CandleCorrected}-only restriction on the two-entry case is this Event Contract's own business invariant, not separately encoded by ADR-048's generic grammar."
+    - "Two computations sharing an identical computation_identity_and_dedup tuple are the same authoritative fact — recomputation from unchanged input is idempotent and MUST NOT produce a second record (fixes PUB-AGG-MAJ-01; see computation_identity_and_dedup above)."
 
 causal_state_dependency_declaration:
   mode: exhaustive
@@ -317,7 +351,7 @@ provenance:
   source: docs/domain/structure.md
   source_version: "0.4"
   source_status: Draft
-  source_sections: ["§1 Logical Structure Subject", "§2 Canonical event envelope (payload-relevant portions)", "§5 StructureFactInvalidated", "§10 Correction cascade — Deduplicate cascade paragraph (rare dual-cause case, fixes STRUCT-EC-A-MAJ-03)"]
+  source_sections: ["§1 Logical Structure Subject", "§2 Canonical event envelope (payload-relevant portions)", "§5 StructureFactInvalidated", "§10 Correction cascade — Deduplicate cascade paragraph (rare dual-cause case, fixes STRUCT-EC-A-MAJ-03)", "§11 Deduplication and ordering (computation-identity/idempotency rule, fixes PUB-AGG-MAJ-01)"]
   source_blob: 78964dfb6852bbac3fa1e034d64b4fc8031c3fef
   drafted_at_commit: 581c28d3acd1d13c613fc110e80b9e5a5dbc486a
   decision_authority: "docs/adr/ADR-049.md (Approved, v0.2, approved_at: \"2026-10-07T13:53:10+07:00\") — sole authority for dual_cause_primary_selection's priority rule."
@@ -336,6 +370,8 @@ provenance:
     does not repeat that argument as if proven). structure.md §10 remains authority for the rare
     case's existence and for causation_refs' required content; Approved ADR-048 remains authority
     for the representation grammar; Approved ADR-049 remains authority for the priority rule itself.
+    The computation-identity/idempotency dedup rule (fixes PUB-AGG-MAJ-01) is now fully inlined as
+    computation_identity_and_dedup — no external reference to structure.md §11 remains.
     event_class, allowed_streams, and merge_constraints were governed-authored directly against
     Chapter 8 §8.3.1/§8.3.4, Approved ADR-036, Approved ADR-047, and this repository's own
     established terminology — NOT mechanically transcribed from structure.md, which does not

@@ -2,7 +2,7 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
-## [Unreleased] — 2026-10-08 — M3 upstream publication/integration boundary (Candle + Structure + Regime): terminal REVISION_REQUIRED
+## [Unreleased] — 2026-10-08 — M3 upstream publication/integration boundary (Candle + Structure + Regime): terminal REVISION_REQUIRED, now PUB-AGG-MAJ-01 remediated pending fresh Review A
 
 Read-only aggregate readiness assessment of the eight Draft Event Contract candidates, from
 `main == origin/main == d8308785705369916909b5070d8e3306acb452cb`. Feature and Context out of scope.
@@ -10,9 +10,10 @@ No contract, ADR, or domain file modified; no Draft -> Published transition; no 
 Owner approval asserted. Existing lifecycle (ADR-039: Draft -> Review A -> Product Owner decision ->
 publication recording) applied unchanged.
 
-**Terminal: `REVISION_REQUIRED`** — one batched Major finding (below). All other checks passed.
+**Terminal at assessment time: `REVISION_REQUIRED`** — one batched Major finding (below). All other
+checks passed.
 
-Current blobs (all `status: Draft`, `reviewers: []`, `compatibility_commitment: backward_only`):
+Blobs at assessment time (all `status: Draft`, `reviewers: []`, `compatibility_commitment: backward_only`):
 `candle-closed` `7c2e3d4d`, `candle-corrected` `3cb963fa`, `break-of-structure-detected` `427e64d6`,
 `change-of-character-detected` `a7c7ea7c`, `structure-recomputed` `d158b5ba`,
 `structure-fact-invalidated` `de3c26fb`, `regime-classified` `9f61d19c`, `regime-fact-invalidated` `ea5a19890`.
@@ -25,30 +26,48 @@ Stream Registry and `context-market-input.yaml` included_streams; Class G canoni
 Structure dual-cause text consistent across `structure-fact-invalidated`/`structure-recomputed` and
 grounded in Approved ADR-049 v0.2; no stale pending/STOP wording in normative content.
 
-**Finding `PUB-AGG-MAJ-01` (Major, Structure x4):** none of the four Structure contracts inlines the
-computation-identity / idempotency (dedup) rule that `structure.md` §11 states
-(`(subject_id, event_type, causation_refs-set, payload)` identical => no second record).
-`break-of-structure-detected` / `change-of-character-detected` `relevant_swing_total_order.duplicate_detection`
-defers to "see §11 Deduplication" by pointer. Candle (`precedence_and_uniqueness`) and Regime
-(`computation_identity_and_dedup`) inline the equivalent; Feature's `P3-FEATURE-EC-A-MAJ-01` is the
-same ADR-039 self-containment class.
+**Finding `PUB-AGG-MAJ-01` (Major, Structure x4) — REMEDIATED this transaction
+(`workstream/m3-upstream-publication-boundary`), pending fresh Review A, not self-closed:** none of
+the four Structure contracts inlined the computation-identity / idempotency (dedup) rule that
+`structure.md` §11 states (`(subject_id, event_type, causation_refs-set, payload)` identical => no
+second record). `break-of-structure-detected` / `change-of-character-detected`
+`relevant_swing_total_order.duplicate_detection` deferred to "see §11 Deduplication" by pointer;
+`structure-fact-invalidated` / `structure-recomputed` omitted the rule entirely. Fixed, all four: a
+new `computation_identity_and_dedup` block inlines §11's rule in full, adapted to each event type's
+own `(structure_subject_id, event_type, causation_refs-as-a-set, complete payload)` identity tuple
+and dedup rule; `duplicate_detection` (BOS/CHoCH) no longer cites §11 and is now explicitly
+distinguished from this event-level dedup. No new identity mechanism invented. Eligible Swing rules,
+ADR-049 dual-cause semantics, ADR-048 causal-state-dependency declarations, cascade semantics,
+compatibility commitments, and payload shapes all preserved unchanged. Fresh blobs after
+remediation: `break-of-structure-detected` `9a32b638`, `change-of-character-detected` `56213542`,
+`structure-fact-invalidated` `1fc99bf2`, `structure-recomputed` `e3a2be5f`. Candle/Regime blobs
+unchanged (`7c2e3d4d`/`3cb963fa`/`9f61d19c`/`ea5a19890`, verified fresh, confirmed above).
 
-Non-blocking observations (not findings): (1) `swing-confirmed`/`swing-invalidated` contract_ids are
-referenced (BOS/CHoCH `swing_confirmed_event_ref`; `structure-fact-invalidated` allow-set) but no Swing
-Event Contract exists and none is in ADR-047's eight-contract scope — Architect to confirm acceptable
-under ADR-048 ("selector does not legitimize the target pairing"). (2) `structure-recomputed`
+Aggregate readiness re-verified after remediation (same checklist as above, re-run against the four
+new Structure blobs): all eight still parse; ADR-048 grammar still closed/valid for all roles across
+all eight (selector key sets, cardinality forms, unique role_ids, non-empty allow-sets,
+apply_time_requirement present); dual-cause text still cross-consistent between
+`structure-fact-invalidated`/`structure-recomputed`; no stale pending/STOP wording. No other Major,
+Minor, or new finding surfaced by this remediation.
+
+Non-blocking observations (carried forward unchanged, not findings, not addressed by this
+transaction): (1) `swing-confirmed`/`swing-invalidated` contract_ids are referenced (BOS/CHoCH
+`swing_confirmed_event_ref`; `structure-fact-invalidated` allow-set) but no Swing Event Contract
+exists and none is in ADR-047's eight-contract scope — Architect to confirm acceptable under ADR-048
+("selector does not legitimize the target pairing"). (2) `structure-recomputed`
 `input_cursor_ref.input_contract_ref` needs a Structure-scoped Input Contract that does not exist;
 same deferred-resolvability class as Feature's `computation_cursor` precedent. (3) The repository
-records no CLEAN Review A verdict for the current blobs: Candle's last recorded review is
-REVISION_REQUIRED on `064fcf5` (correction `581c28d` "pending fresh Review A"); Structure's last
-recorded review is REVISION_REQUIRED fixed by `92c0b4e`; Regime has none. Architect-reported
-verdicts are not verifiable from the repository, and any Review A must target these exact blobs
-(Structure blobs change if the finding is remediated). (4) `docs/MANIFEST.md`/this CHANGELOG were
-not updated by the Structure `fa6b52f`/`a7e9736`/`92c0b4e` or Regime `558ac7e` commits.
+records no CLEAN Review A verdict for the current (post-remediation) blobs — any Review A must
+target the exact fresh Structure blobs recorded above, not the pre-remediation ones. (4)
+`docs/MANIFEST.md` was not updated by this transaction either (same carried-forward observation as
+the original assessment).
 
-Remaining lifecycle after remediation: bounded Structure correction -> single batched Review A of
-the eight blobs -> Product Owner publication decision -> publication recording (Draft -> Published,
-per the Feature v1.0 precedent). Candle/Regime require no content change from this assessment.
+**Terminal now: remediated, pending fresh Review A** — not self-closed; no Review A performed or
+asserted by this transaction.
+
+Remaining lifecycle: single batched Review A of the eight blobs recorded above -> Product Owner
+publication decision -> publication recording (Draft -> Published, per the Feature v1.0 precedent).
+Candle/Regime require no content change from this assessment or its remediation.
 
 ---
 
