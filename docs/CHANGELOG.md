@@ -2,6 +2,56 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-10-08 — M3 upstream publication/integration boundary (Candle + Structure + Regime): terminal REVISION_REQUIRED
+
+Read-only aggregate readiness assessment of the eight Draft Event Contract candidates, from
+`main == origin/main == d8308785705369916909b5070d8e3306acb452cb`. Feature and Context out of scope.
+No contract, ADR, or domain file modified; no Draft -> Published transition; no Review A or Product
+Owner approval asserted. Existing lifecycle (ADR-039: Draft -> Review A -> Product Owner decision ->
+publication recording) applied unchanged.
+
+**Terminal: `REVISION_REQUIRED`** — one batched Major finding (below). All other checks passed.
+
+Current blobs (all `status: Draft`, `reviewers: []`, `compatibility_commitment: backward_only`):
+`candle-closed` `7c2e3d4d`, `candle-corrected` `3cb963fa`, `break-of-structure-detected` `427e64d6`,
+`change-of-character-detected` `a7c7ea7c`, `structure-recomputed` `d158b5ba`,
+`structure-fact-invalidated` `de3c26fb`, `regime-classified` `9f61d19c`, `regime-fact-invalidated` `ea5a19890`.
+
+Passed: all eight parse; required ADR-039 fields present; ADR-048 grammar (closed selector/role keys,
+cardinality forms, unique role_ids, payload_field paths resolve to event_record_ref/array in own
+payload_shape, non-empty allow-sets, apply_time_requirement self-contained, vacuous mode has no roles);
+`compatibility_commitment: backward_only` matches ADR-047 for all eight; `allowed_streams` match the
+Stream Registry and `context-market-input.yaml` included_streams; Class G canonical paths (ADR-040);
+Structure dual-cause text consistent across `structure-fact-invalidated`/`structure-recomputed` and
+grounded in Approved ADR-049 v0.2; no stale pending/STOP wording in normative content.
+
+**Finding `PUB-AGG-MAJ-01` (Major, Structure x4):** none of the four Structure contracts inlines the
+computation-identity / idempotency (dedup) rule that `structure.md` §11 states
+(`(subject_id, event_type, causation_refs-set, payload)` identical => no second record).
+`break-of-structure-detected` / `change-of-character-detected` `relevant_swing_total_order.duplicate_detection`
+defers to "see §11 Deduplication" by pointer. Candle (`precedence_and_uniqueness`) and Regime
+(`computation_identity_and_dedup`) inline the equivalent; Feature's `P3-FEATURE-EC-A-MAJ-01` is the
+same ADR-039 self-containment class.
+
+Non-blocking observations (not findings): (1) `swing-confirmed`/`swing-invalidated` contract_ids are
+referenced (BOS/CHoCH `swing_confirmed_event_ref`; `structure-fact-invalidated` allow-set) but no Swing
+Event Contract exists and none is in ADR-047's eight-contract scope — Architect to confirm acceptable
+under ADR-048 ("selector does not legitimize the target pairing"). (2) `structure-recomputed`
+`input_cursor_ref.input_contract_ref` needs a Structure-scoped Input Contract that does not exist;
+same deferred-resolvability class as Feature's `computation_cursor` precedent. (3) The repository
+records no CLEAN Review A verdict for the current blobs: Candle's last recorded review is
+REVISION_REQUIRED on `064fcf5` (correction `581c28d` "pending fresh Review A"); Structure's last
+recorded review is REVISION_REQUIRED fixed by `92c0b4e`; Regime has none. Architect-reported
+verdicts are not verifiable from the repository, and any Review A must target these exact blobs
+(Structure blobs change if the finding is remediated). (4) `docs/MANIFEST.md`/this CHANGELOG were
+not updated by the Structure `fa6b52f`/`a7e9736`/`92c0b4e` or Regime `558ac7e` commits.
+
+Remaining lifecycle after remediation: bounded Structure correction -> single batched Review A of
+the eight blobs -> Product Owner publication decision -> publication recording (Draft -> Published,
+per the Feature v1.0 precedent). Candle/Regime require no content change from this assessment.
+
+---
+
 ## [Unreleased] — 2026-10-06 — ADR-049 v0.1 Draft candidate authored: StructureFactInvalidated multi-cause representation and deterministic primary-cause semantics
 
 Fresh-verified before mutation: `main == origin/main == ad66cf535d5d36f3338ac86a2362fe15686103b8`,
