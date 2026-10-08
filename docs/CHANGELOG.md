@@ -2,6 +2,60 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-10-08 — M3 upstream Candle + Structure + Regime Event Contracts PUBLISHED (eight artifacts, Draft → Published)
+
+Mechanical lifecycle-recording transaction (`workstream/m3-upstream-publication-boundary`) —
+publishes the exact Product-Owner-approved semantic candidate at commit
+`95f80058cb1fc50933e153ad7b1a74c81aa4155e` (confirmed fresh this transaction: a clean fast-forward
+descendant of `main` at `d8308785705369916909b5070d8e3306acb452cb`, which matched
+`origin/main` exactly before this transaction). No semantic content changed on any artifact.
+
+**Fresh ChatGPT Review A** at that exact boundary: `CLEAN — 0 Blocker / 0 Major / 0 Minor`, Risk
+`R2`. **Product Owner chose `PROCEED WITHOUT CROSS-CHECK`** (cross-check `NOT PERFORMED`).
+**Product Owner decision (verbatim):** `PROCEED WITHOUT CROSS-CHECK — APPROVE M3 UPSTREAM
+PUBLICATION CANDIDATE at 95f80058cb1fc50933e153ad7b1a74c81aa4155e` — recorded
+`2026-10-08T13:00+07:00`.
+
+**Published (all eight, `status: Draft → Published`, `reviewers: [] → [ChatGPT]`,
+`approved_by: null → Product Owner`, `approved_at: null → "2026-10-08T13:00+07:00"`,
+`last_review: null → "2026-10-08"`, `contract_version` unchanged `v1.0` — first publication of
+each `contract_id`):**
+
+```text
+candle-closed/v1.0                    (reviewed blob 7c2e3d4d07d1da1388d98efdcf5a4ba30b56fd50)
+candle-corrected/v1.0                 (reviewed blob 3cb963fa884416167deb996533617d1f5f9881c8)
+break-of-structure-detected/v1.0      (reviewed blob 9a32b63865d878879f28fd06f7e3a994b8aa6154)
+change-of-character-detected/v1.0     (reviewed blob 562135427115e774a18677f15cd4f897b11984c5)
+structure-fact-invalidated/v1.0       (reviewed blob 1fc99bf2b64030e5dee3102bb9a374a01b9afce9)
+structure-recomputed/v1.0             (reviewed blob e3a2be5fd67c2b0d3e8f231eedadefa34be3df93)
+regime-classified/v1.0                (reviewed blob 9f61d19cba30a6a581f25a315fbe8d3c94da2737)
+regime-fact-invalidated/v1.0          (reviewed blob ea5a19890436bc7e78ebba00625ff1dbc826d9eb)
+```
+
+Per `G-ID-001`, each reviewed-semantic-candidate blob above (the content at the `95f8005...`
+boundary) is distinct from, and never confused with, the resulting lifecycle-record blob this
+transaction's own mechanical edit produces — the publication commit's own identity is NOT the
+Review A boundary. Verified fresh by direct diff (not asserted): every field other than the five
+lifecycle fields and header provenance prose — `contract_id`, `contract_version`, `event_type`,
+`event_class`, `allowed_streams`, `merge_constraints`, `payload_shape`,
+`payload_semantics_and_invariants`, `causal_state_dependency_declaration`,
+`compatibility_commitment`, `provenance` — is byte-identical to the reviewed candidate for all
+eight artifacts. All eight are now Referenced Authoritative Artifacts in force per Chapter 8
+§8.1.1/`ADR-039`'s immutability discipline — immutable byte-for-byte from this boundary forward.
+
+**Not touched:** `ADR-048`/`ADR-049`/any other Approved ADR; `structure.md`/any other Domain
+Contract; Feature Event Contracts; Context Input Contract or any Context artifact; Constitution;
+any registry; production source/tests/tooling; milestone acceptance conditions. No ADR, WP, or
+workstream created. No second Review A. No second Product Owner approval requested. No optional
+cross-check created (Product Owner explicitly declined one).
+
+**Next governed action:** none required to close this transaction. The still-open Feature
+`causal_state_dependency_declaration` compatibility-classification question (`ADR-050` candidate,
+`workstream/m3-feature-future-dependency-authority-triage`) and Context Input Contract's own
+remaining publication-readiness prerequisites are separate, unaffected, later governed work.
+
+---
+
 ## [Unreleased] — 2026-10-08 — M3 upstream publication/integration boundary (Candle + Structure + Regime): terminal REVISION_REQUIRED, now PUB-AGG-MAJ-01 remediated pending fresh Review A
 
 Read-only aggregate readiness assessment of the eight Draft Event Contract candidates, from

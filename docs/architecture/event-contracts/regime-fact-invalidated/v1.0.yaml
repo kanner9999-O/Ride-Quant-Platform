@@ -1,13 +1,27 @@
-# Event Contract version-artifact — regime-fact-invalidated v1.0 (DRAFT CANDIDATE)
+# Event Contract version-artifact — regime-fact-invalidated v1.0
 #
 # Referenced Authoritative Artifact (Chapter 8 §8.1.1). Canonical authority/self-containment model,
 # path/version grammar, and immutability discipline per Approved ADR-039 v0.1
 # (docs/adr/ADR-039.md). Retention/archive semantics per Approved ADR-040 v0.1 (docs/adr/ADR-040.md).
 #
-# STATUS: Draft candidate only — NOT Published, NOT reviewed, NOT approved. `status: Draft`,
-# `reviewers: []`, `approved_by: null`, `approved_at: null`, `last_review: null` below are exact and
-# not fabricated. This transaction does not transition Draft -> Published, does not add a reviewer,
-# and does not call this an authoritative Published snapshot.
+# STATUS: Published — frozen, immutable byte-for-byte from this publication boundary forward
+# (ADR-039 §"Immutability and identifier non-reuse"; Chapter 11 §11.3 discipline applied). No
+# in-place edits, no reassigning contract_version: v1.0 to different content, ever again. This is
+# now a Referenced Authoritative Artifact fully in force per Chapter 8 §8.1.1.
+#
+# PUBLISHED (2026-10-08T13:00+07:00, vai trò: "M3 Upstream Event Contract Publication Recording
+# Executor") — Product Owner decision (verbatim): "PROCEED WITHOUT CROSS-CHECK — APPROVE M3
+# UPSTREAM PUBLICATION CANDIDATE at 95f80058cb1fc50933e153ad7b1a74c81aa4155e." Fresh ChatGPT Review
+# A at this exact reviewed semantic boundary: `CLEAN — 0 Blocker / 0 Major / 0 Minor`, Risk `R2`;
+# Product Owner chose `PROCEED WITHOUT CROSS-CHECK` (cross-check `NOT PERFORMED`). Reviewed
+# semantic candidate identity (G-ID-001): commit `95f80058cb1fc50933e153ad7b1a74c81aa4155e`, this
+# file's own content identity at that boundary `ea5a19890436bc7e78ebba00625ff1dbc826d9eb` — distinct from this transaction's own
+# resulting lifecycle-record identity (mechanical status/reviewers/approved_by/approved_at/
+# last_review edit only; event_type/event_class/allowed_streams/merge_constraints/payload_shape/
+# payload_semantics_and_invariants/causal_state_dependency_declaration/compatibility_commitment
+# content byte-identical to the reviewed candidate). Product Owner approved publication of this
+# artifact together with the other seven M3 upstream Candle/Structure/Regime Event Contract
+# candidates as one atomic publication decision, same boundary.
 #
 # This is the FIRST version for contract_id: regime-fact-invalidated — no prior Published Event
 # Contract snapshot exists for it. Per ADR-039's "First authoritative version" rule,
@@ -50,11 +64,11 @@
 
 contract_id: regime-fact-invalidated
 contract_version: v1.0
-status: Draft
-reviewers: []
-approved_by: null
-approved_at: null
-last_review: null
+status: Published
+reviewers: [ChatGPT]
+approved_by: Product Owner
+approved_at: "2026-10-08T13:00+07:00"
+last_review: "2026-10-08"
 
 event_type: REGIME_FACT_INVALIDATED
 # regime.md v0.2 §2 event_types table (PAST_TENSE_UPPER_SNAKE per Chapter 3 §3.2, referenced not

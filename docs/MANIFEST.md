@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.478"
+manifest_version: "10.479"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -34437,6 +34437,74 @@ production source/tests/tooling touched. `manifest_version` `"10.477"` -> `"10.4
 `breaking_candle_corrected` rule into `structure-fact-invalidated/v1.0.yaml`'s own
 `dual_cause_primary_selection` content, citing this now-Approved `ADR-049` as authority — not
 performed by this transaction.
+
+## M3 upstream Candle + Structure + Regime Event Contract publication (`workstream/m3-upstream-publication-boundary`) — eight artifacts Draft → Published
+
+Mechanical lifecycle-recording transaction only — publishes the exact Product-Owner-approved
+semantic candidate; no semantic content changed on any of the eight artifacts.
+
+**Exact reviewed semantic candidate:** commit `95f80058cb1fc50933e153ad7b1a74c81aa4155e`
+(`workstream/m3-upstream-publication-boundary`, a clean fast-forward descendant of `main` at
+`d8308785705369916909b5070d8e3306acb452cb`, confirmed fresh this transaction). **Fresh ChatGPT
+Review A** at that exact boundary: `CLEAN — 0 Blocker / 0 Major / 0 Minor`, Risk `R2`. **Product
+Owner chose `PROCEED WITHOUT CROSS-CHECK`** (cross-check `NOT PERFORMED`). **Product Owner decision
+(verbatim):** `PROCEED WITHOUT CROSS-CHECK — APPROVE M3 UPSTREAM PUBLICATION CANDIDATE at
+95f80058cb1fc50933e153ad7b1a74c81aa4155e` — recorded `2026-10-08T13:00+07:00`.
+
+**Published (all eight, frontmatter `status: Draft → Published`, `reviewers: [] → [ChatGPT]`,
+`approved_by: null → Product Owner`, `approved_at: null → "2026-10-08T13:00+07:00"`,
+`last_review: null → "2026-10-08"`, `contract_version` unchanged `v1.0` for every one — first
+publication of each `contract_id`, per `ADR-039`'s own "First authoritative version" rule):**
+
+| `contract_id` | reviewed semantic candidate blob | resulting lifecycle-record blob |
+|---|---|---|
+| `candle-closed` | `7c2e3d4d07d1da1388d98efdcf5a4ba30b56fd50` | (mechanical edit only, G-ID-001) |
+| `candle-corrected` | `3cb963fa884416167deb996533617d1f5f9881c8` | (mechanical edit only, G-ID-001) |
+| `break-of-structure-detected` | `9a32b63865d878879f28fd06f7e3a994b8aa6154` | (mechanical edit only, G-ID-001) |
+| `change-of-character-detected` | `562135427115e774a18677f15cd4f897b11984c5` | (mechanical edit only, G-ID-001) |
+| `structure-fact-invalidated` | `1fc99bf2b64030e5dee3102bb9a374a01b9afce9` | (mechanical edit only, G-ID-001) |
+| `structure-recomputed` | `e3a2be5fd67c2b0d3e8f231eedadefa34be3df93` | (mechanical edit only, G-ID-001) |
+| `regime-classified` | `9f61d19cba30a6a581f25a315fbe8d3c94da2737` | (mechanical edit only, G-ID-001) |
+| `regime-fact-invalidated` | `ea5a19890436bc7e78ebba00625ff1dbc826d9eb` | (mechanical edit only, G-ID-001) |
+
+Per `G-ID-001`, the reviewed semantic candidate blob above (the `95f8005...`-boundary content) is
+distinct from each artifact's own resulting lifecycle-record blob (after this transaction's
+mechanical `status`/`reviewers`/`approved_by`/`approved_at`/`last_review`/header-provenance edit) —
+neither is confused with the other; the reviewed semantic candidate is NOT itself the publication
+commit's own identity. Verified fresh this transaction: every field other than the five lifecycle
+fields and header provenance prose (`contract_id`, `contract_version`, `event_type`, `event_class`,
+`allowed_streams`, `merge_constraints`, `payload_shape`, `payload_semantics_and_invariants`,
+`causal_state_dependency_declaration`, `compatibility_commitment`, `provenance`) is byte-identical
+to the reviewed semantic candidate for all eight artifacts — confirmed by direct diff, not asserted.
+
+All eight are now Referenced Authoritative Artifacts in force per Chapter 8 §8.1.1/`ADR-039`'s own
+immutability discipline (Chapter 11 §11.3 applied identically) — immutable byte-for-byte from this
+publication boundary forward; no further in-place edit, ever, under `contract_version: v1.0` for
+any of the eight `contract_id`s. Any future change requires a new `contract_version` per `ADR-039`.
+
+**Not changed by this transaction:** `ADR-048`/`ADR-049`/any other Approved ADR; `structure.md`/any
+other Domain Contract; Feature Event Contracts (`feature-computed`/`feature-fact-invalidated`,
+unaffected, unreferenced); Context Input Contract or any Context artifact; Constitution; any
+registry; production source/tests/tooling; milestone acceptance conditions. No ADR, WP, or
+workstream created. No second Review A performed. No second Product Owner approval requested. No
+optional cross-check created (Product Owner explicitly declined one).
+
+**M3 current execution tranche:** Candle + Structure + Regime upstream Event Contracts now
+`Published` (eight of eight). Feature's own `causal_state_dependency_declaration` version-impact/
+compatibility-classification question (`workstream/m3-feature-future-dependency-authority-triage`,
+`ADR-050` candidate, Draft, pending correction/Review A) remains entirely separate and unaffected.
+Context Input Contract publication readiness is unblocked on the upstream-artifact-existence axis
+for Candle/Structure/Regime specifically — full M3 acceptance-condition determination remains the
+separately-scoped derivation WP `docs/project/milestone.md` §3 already calls for, not decided here.
+
+**Files changed:** the eight Event Contract artifacts listed above (lifecycle/header-provenance
+fields only), `docs/MANIFEST.md` (this entry), `docs/CHANGELOG.md`. `manifest_version` `"10.478"` ->
+`"10.479"`.
+
+**Next governed action:** none required to close this transaction. Future, separately-governed work
+(unaffected by, and not required by, this publication): the still-open Feature `causal_state_
+dependency_declaration` compatibility-classification question (`ADR-050` candidate correction);
+Context Input Contract's own remaining publication-readiness prerequisites.
 
 ## Decision Log
 
