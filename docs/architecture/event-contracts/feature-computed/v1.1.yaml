@@ -5,11 +5,31 @@
 # v0.1 (docs/adr/ADR-039.md). Retention/archive semantics per Approved ADR-040 v0.1
 # (docs/adr/ADR-040.md).
 #
-# STATUS: Draft — this is a NEW version-artifact, not an edit of the existing Published
-# feature-computed/v1.0.yaml, which remains byte-for-byte immutable and is never touched by this
-# file (ADR-039 "Immutability and identifier non-reuse"; v1.0 blob confirmed unchanged at
-# 9e1da0ac1e72403a780ff16e0d06ed68354da623 — see docs/project/
-# feature-causal-state-dependency-version-impact-001.md §0/§6).
+# STATUS: Published — frozen, immutable byte-for-byte from this publication boundary forward
+# (ADR-039 §"Immutability and identifier non-reuse"; Chapter 11 §11.3 discipline applied). This is a
+# NEW version-artifact, not an edit of the existing Published feature-computed/v1.0.yaml, which
+# remains byte-for-byte immutable and is never touched by this file; v1.0 blob confirmed unchanged
+# at 9e1da0ac1e72403a780ff16e0d06ed68354da623 — see docs/project/
+# feature-causal-state-dependency-version-impact-001.md §0/§6.
+#
+# PUBLISHED (2026-10-08T14:01+07:00, vai trò: "M3 Feature v1.1 Publication Recording Executor") —
+# Product Owner decision (verbatim): "PROCEED WITHOUT CROSS-CHECK — APPROVE FEATURE v1.1
+# PUBLICATION CANDIDATE at db53cefdb8e260f3a40dc689394b366937118905." Fresh ChatGPT Review A on the
+# complete Feature v1.1 candidate: `CLEAN — 0 Blocker / 0 Major / 0 Minor`. Feature version-impact
+# analysis v0.2: `CLEAN — 0 Blocker / 0 Major / 0 Minor`, ADR Scope `ADR_NOT_REQUIRED`. Publication
+# lifecycle Risk Classification: `R2`; Product Owner chose `PROCEED WITHOUT CROSS-CHECK` (cross-check
+# `NOT PERFORMED`). Reviewed semantic candidate identity (G-ID-001): commit
+# `db53cefdb8e260f3a40dc689394b366937118905`, this file's own content identity at that boundary
+# `9a42fc1b8db1cb54bc1fb7f5134669b040d11ca9` — distinct from this transaction's own resulting
+# lifecycle-record identity (mechanical status/reviewers/approved_by/approved_at/last_review edit
+# only; event_type/event_class/allowed_streams/merge_constraints/payload_shape/
+# payload_semantics_and_invariants/causal_state_dependency_declaration/compatibility_commitment
+# content byte-identical to the reviewed candidate). Product Owner approved publication of this
+# artifact together with feature-fact-invalidated/v1.1.yaml as one atomic publication decision, same
+# boundary. The reviewed candidate's own git history (commits 46d9e2eb968a5679cc5ff4ead6757586b7bcd43a,
+# db53cefdb8e260f3a40dc689394b366937118905) was integrated onto current main via clean cherry-pick
+# (no semantic judgment required, no conflict) — the resulting integration/publication commit SHA
+# is a lifecycle-record identity only, never the Review A boundary itself.
 #
 # This version-artifact adds exactly one new top-level field relative to v1.0:
 # `causal_state_dependency_declaration` (Approved ADR-048, docs/adr/ADR-048.md), governed-authored
@@ -50,11 +70,11 @@
 
 contract_id: feature-computed
 contract_version: v1.1
-status: Draft
-reviewers: []
-approved_by: null
-approved_at: null
-last_review: null
+status: Published
+reviewers: [ChatGPT]
+approved_by: Product Owner
+approved_at: "2026-10-08T14:01+07:00"
+last_review: "2026-10-08"
 
 event_type: FEATURE_COMPUTED
 # feature.md v0.6 §2 event_types table (PAST_TENSE_UPPER_SNAKE per Chapter 3 §3.2, referenced not
