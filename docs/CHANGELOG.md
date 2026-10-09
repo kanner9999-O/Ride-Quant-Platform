@@ -2,6 +2,57 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-10-09 — ADR-053 APPROVED — Context Output Event Contract Classification and Compatibility Policy
+
+Mechanical Chapter-11 approval-recording transaction (`workstream/adr053-approval`) —
+records the Product Owner's already-made approval decision into `docs/adr/ADR-053.md`'s own
+frontmatter plus a new approval banner: `status: Draft -> Approved`, `reviewers: [] ->
+[ChatGPT]`, `approved_by: null -> Product Owner`, `approved_at: null ->
+"2026-10-09T22:50:13+07:00"`, `last_review: null -> "2026-10-09"`; `version: "0.1"`
+unchanged. No other line in the file is touched — the architecture Decision body (§1–§6,
+Alternatives, Consequences, Scale check), including both accepted Minor prose residuals,
+remains byte-identical to the reviewed Draft candidate; `depends_on`/`addresses`/
+`resolves`/`supersedes` all unchanged. Integrated onto current `main` via a clean,
+file-scoped continuation branch — the candidate branch's own history is not merged
+wholesale.
+
+**Review A:** `CLEAN — 0 Blocker / 0 Major / 2 Minor`. **ADR Scope:** `ADR_REQUIRED`
+(Event Schema change — selecting `event_class`/`compatibility_commitment` for two
+brand-new `contract_id`s — fires independently of whether a verified current consumer
+exists). **Risk Classification:** `R2`. **Product Owner chose `PROCEED WITHOUT
+CROSS-CHECK`** (cross-check `NOT PERFORMED`). **Accepted non-blocking residuals:**
+`ADR053-A-MIN-01` (historical "not authored" prose in §3; material conclusion — no
+verified Context-output consumer registered in `context-map.yaml` — remains accurate) and
+`ADR053-A-MIN-02` (§6's informal "invalidation_cause/reason" wording; authoritative
+`context.md` §4 has optional `invalidation_reason` only; the `EXTERNAL_NON_STATE_CAUSE`
+classification does not depend on this wording) — both accepted under semantic
+sufficiency, no standalone correction performed, per explicit Product Owner instruction.
+**Product Owner decision (verbatim):** `PROCEED WITHOUT CROSS-CHECK — APPROVE ADR-053 v0.1
+at 6a5d025b63a40c3b87d395c2e9b35d24c3d3f2c4, blob 52fbdaaf7d9a6e1b2afe0c938b2da59cfcb2575f.
+Accept ADR053-A-MIN-01 and ADR053-A-MIN-02 as non-blocking factual/documentation residuals
+under semantic sufficiency; no standalone correction required.` — recorded
+`2026-10-09T22:50:13+07:00` (approval-recording transaction time, repository `+07:00`
+convention; no earlier Product Owner decision instant was supplied, none fabricated).
+
+**Decision now Approved, architecture authority:** `event_class: projection_record` (new,
+narrowly-scoped value — immutable, replayable, envelope-bearing record from a Type 2
+Projection's deterministic fold/aggregate over already-authoritative facts; never itself
+an authoritative source; does not change `context-aggregator`'s `owns_authoritative_state`;
+does not decide any future consumer's own treatment of Context output) and
+`compatibility_commitment: backward_only`, both for `market-context-snapshot` and
+`market-context-fact-invalidated` — the two fields Approved `ADR-051` (item 8) explicitly
+reserved as separate, later, governed work. The preserved Context authority/terminology
+gap (`ADR-051` item 4) remains explicitly open, not resolved by this approval.
+
+**Not touched:** `stream-registry.yaml`; `module-registry.yaml`; `docs/domain/context.md`;
+any other Approved ADR (including the separate, still-Draft `ADR-052`); `python/
+context-aggregator/**`; `docs/project/milestone.md`; any dashboard/control-plane file.
+Draft authoring of the two concrete Event Contract artifacts is a separate, later
+transaction — not performed here.
+
+**Files changed:** `docs/adr/ADR-053.md` (frontmatter + approval-banner edit),
+`docs/MANIFEST.md`, `docs/CHANGELOG.md` only.
+
 ## [Unreleased] — 2026-10-09 — ADR-051 APPROVED — Context Projection Output Stream Identity and Writer Authority
 
 Mechanical Chapter-11 approval-recording transaction (`workstream/m3-adr051-approval`) —

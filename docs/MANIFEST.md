@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.483"
+manifest_version: "10.484"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -34889,6 +34889,101 @@ architecture question (M3 Context Closure derivation §5 D2) is now RESOLVED at 
 architecture-decision level; the mechanical Stream Registry transition instantiating it
 remains NOT YET performed (separate, later transaction, fresh-assessed next). M3 remains
 `ACTIVE`, not complete.
+
+## ADR-053 atomic approval: Context Output Event Contract Classification and Compatibility Policy
+
+**Atomic approval-recording transaction — vai trò: `ADR-053 Approval Recording Executor`.**
+Records the already-completed Review A + Product Owner decision onto the reviewed Draft
+candidate — no new review, no new architecture content.
+
+**Fresh boundary verification (before any edit):** `origin/main` confirmed exactly
+`29fbc680212f86fd736e4d56e4902625105eeb68`; reviewed candidate confirmed exactly at branch
+`workstream/m3-context-output-policy`, HEAD `6a5d025b63a40c3b87d395c2e9b35d24c3d3f2c4`;
+`docs/adr/ADR-053.md` at that HEAD confirmed exactly blob
+`52fbdaaf7d9a6e1b2afe0c938b2da59cfcb2575f` — all three matched expected, no drift. File
+brought over onto a fresh continuation branch from current `main` (never merging the
+candidate branch's own history wholesale) and re-verified byte-identical to the same blob
+before the frontmatter edit was made.
+
+**Review A:** `CLEAN — 0 Blocker / 0 Major / 2 Minor`, reviewed candidate
+`6a5d025b63a40c3b87d395c2e9b35d24c3d3f2c4`, reviewed ADR blob
+`52fbdaaf7d9a6e1b2afe0c938b2da59cfcb2575f`. **ADR Scope:** `ADR_REQUIRED` (Event Schema
+change — selecting `event_class`/`compatibility_commitment` for two brand-new
+`contract_id`s — fires independently of whether a verified current consumer exists, same
+class as `ADR-038`/`ADR-047`/`ADR-051`). **Risk Classification:** `R2`. **Cross-check:**
+`NOT PERFORMED` — Product Owner chose `PROCEED WITHOUT CROSS-CHECK`; per Chapter 11 §11.5,
+this is never a defect or an approval prerequisite.
+
+**Accepted non-blocking residuals (Minor, NOT corrected — Product Owner explicitly
+instructed no standalone correction; both belong to the exact reviewed/approved semantic
+boundary, unchanged):**
+
+```text
+ADR053-A-MIN-01: §3's historical prose says Strategy/Decision are "not authored"; the
+  current repository may contain those Domain Contract files by now, but the material
+  conclusion — no verified Context-output consumer relationship is currently registered
+  in context-map.yaml — remains accurate and is what the Decision is actually grounded on.
+ADR053-A-MIN-02: §6's causal-analysis prose informally describes the invalidation payload
+  as containing "invalidation_cause/reason"; authoritative context.md §4 has optional
+  invalidation_reason only, never a scalar invalidation_cause. The causal_state_dependency_
+  declaration classification conclusion (EXTERNAL_NON_STATE_CAUSE) does not depend on this
+  wording.
+Both accepted under semantic sufficiency; no standalone correction required (Product Owner
+  decision, verbatim, below).
+```
+
+**Product Owner decision (verbatim):** `PROCEED WITHOUT CROSS-CHECK — APPROVE ADR-053 v0.1
+at 6a5d025b63a40c3b87d395c2e9b35d24c3d3f2c4, blob 52fbdaaf7d9a6e1b2afe0c938b2da59cfcb2575f.
+Accept ADR053-A-MIN-01 and ADR053-A-MIN-02 as non-blocking factual/documentation residuals
+under semantic sufficiency; no standalone correction required.` — recorded
+`2026-10-09T22:50:13+07:00` (approval-recording transaction time, repository `+07:00`
+convention; no earlier Product Owner decision instant was supplied in the governing task,
+so none is fabricated here). Accepts ADR-053 v0.1's complete Decision surface: `event_class:
+projection_record` (new, narrowly-scoped value, mints no generic platform-wide taxonomy)
+and `compatibility_commitment: backward_only` for both `market-context-snapshot` and
+`market-context-fact-invalidated` — the two fields Approved `ADR-051` (item 8) explicitly
+reserved as separate, later, governed work. Does not resolve the preserved Context
+authority/terminology gap (`ADR-051` item 4, unchanged); does not change
+`context-aggregator`'s Module Taxonomy classification or `owns_authoritative_state`
+(remains Type 2 Projection, `false`); does not author or publish either Event Contract.
+
+**Reviewed semantic candidate (distinguished from the resulting lifecycle-record artifact,
+G-ID-001):** commit `6a5d025b63a40c3b87d395c2e9b35d24c3d3f2c4`, ADR blob
+`52fbdaaf7d9a6e1b2afe0c938b2da59cfcb2575f`. The final `docs/adr/ADR-053.md` blob (after
+this mechanical frontmatter-only edit plus the approval banner) is a distinct identity —
+never represented as the originally reviewed semantic candidate identity. The architecture
+Decision body (§1–§6, Alternatives, Consequences, Scale check), including both accepted
+Minor prose residuals, is preserved byte-for-byte from the reviewed Draft.
+
+**Immutability:** per Chapter 11 §11.3, `docs/adr/ADR-053.md` is now immutable
+byte-for-byte from this approval boundary forward. Future changes require a new ADR with
+`supersedes: [ADR-053]`; this transaction does not edit ADR-053 in place again after this
+commit, does not bump its version, and does not add `superseded_by`.
+
+**Decision effect:** ADR-053 approval establishes `event_class: projection_record` and
+`compatibility_commitment: backward_only` as governed architecture authority for the two
+future `market-context-snapshot`/`market-context-fact-invalidated` Event Contract Draft
+candidates — it does **not** itself: author or publish either Event Contract; modify
+`docs/domain/context.md`, `module-registry.yaml`, or `stream-registry.yaml`; implement
+`context-aggregator` runtime; touch Context Input Contract semantics; resolve the
+preserved Context authority/terminology tension; assign a Quality Tier; or authorize LIVE.
+
+**Not changed by this transaction:** any other Approved ADR (`ADR-039`/`ADR-046`/`ADR-048`/
+`ADR-051` cited, unedited); `docs/domain/context.md`; `docs/architecture/stream-registry.yaml`;
+`docs/architecture/module-registry.yaml`; `python/context-aggregator/**`;
+`docs/project/milestone.md`; any dashboard/control-plane file; `docs/adr/ADR-052.md`
+(separate, still-Draft, unrelated candidate — untouched).
+
+**Files changed:** `docs/adr/ADR-053.md` (frontmatter + approval-banner edit, as detailed
+above), `docs/MANIFEST.md` (this entry), `docs/CHANGELOG.md` — verified via
+`git status --porcelain=v1`; no other file touched.
+
+**Resulting MANIFEST transition (authoritative tại atomic recording boundary — commit
+này):** `manifest_version` `"10.483"` → `"10.484"`. `current_phase` KHÔNG đổi — VẪN
+`"Phase 3 — Core Backend"`. ADR-053 now `Approved`, immutable. Both remaining architecture
+fields `ADR-051` item 8 reserved for Context's output Event Contracts are now RESOLVED;
+Draft authoring of the two concrete Event Contract artifacts may proceed next (separate,
+later, bounded transaction). M3 remains `ACTIVE`, not complete.
 
 ## Decision Log
 
