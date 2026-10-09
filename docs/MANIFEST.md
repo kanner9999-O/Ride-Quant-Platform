@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.481"
+manifest_version: "10.482"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -34657,6 +34657,149 @@ branch, brought over unmodified from the approved candidate), `docs/architecture
 **Next governed action:** Context output-stream architecture (an ADR-required Event Model change,
 Chapter 8 §8.3.1 — minting a stream identity/writer authority) / Context's own output Event
 Contract authoring / `context-aggregator` runtime integration — none performed by this transaction.
+
+## `context-aggregator` Quality Tier — Product Owner decision recorded, `module-registry.yaml` semantically amended (Tier 1 — Core Logic, genuine semantic amendment, NOT a mechanical recorder)
+
+**Semantic Module Registry amendment transaction — vai trò: `Context Aggregator Tier-1 Module Registry Semantic Amendment Executor`.** Records an already-made Product Owner decision into `module-registry.yaml` as a genuine authoritative Module Registry fact addition (Chapter 13 §13.4 branch 1) — explicitly NOT a mechanical/wording-only registry write. Same precedent already established for `market-reference-service`/`market-data-ingestion`/`structure-engine`/`raw-regime-engine`/`feature-engine`'s own `quality_tier` additions. Does not perform Review A. Does not perform Independent Review B (none required — see below). Does not run or record the formal Chapter 13 Quality Gate. Does not approve the `context-aggregator` module. Does not authorize LIVE. Does not reconsolidate Package 1.1. Does not author an ADR, a Context output stream, a Context output Event Contract, or any `python/context-aggregator/**` code.
+
+**Fresh boundary verification (before any edit):** `origin/main` confirmed exactly `690e06c4d7ae9bacab8dfb1c431b8523f972ede2` via `git fetch`/`git rev-parse` — matched expected. Reviewed quality-tier candidate confirmed exactly at branch `workstream/m3-context-aggregator-quality-tier`, HEAD `b0bb2d6af0938e5fdecba22fca1a40162d738b95`; its derivation artifact `docs/project/context-aggregator-quality-tier-derivation-001.md` confirmed exactly blob `1515c8ceffd3cafae9cc9d7432955adac8ddccaa` at that HEAD, and brought over to the recording branch byte-identical (re-verified via `git hash-object` after copy — same blob). `module-registry.yaml` verified matching expected starting state: `version: "1.7"`, `status: Draft`, `package_lifecycle: Consolidated Stable`; `context-aggregator` entry verified with no `quality_tier` field (`module_type: projection`, `owns_authoritative_state: false`, `depends_on: [market-data-ingestion, structure-engine, raw-regime-engine, feature-engine]`, `forbidden_dependencies: []`, `security_classification: none`, `status: candidate` — all unchanged, none altered by this transaction).
+
+### Review evidence recorded
+
+```text
+ChatGPT Review A, reviewed candidate b0bb2d6af0938e5fdecba22fca1a40162d738b95:
+  Disposition: CLEAN — 0 Blocker / 0 Major / 0 Minor.
+ADR Scope: ADR_NOT_REQUIRED.
+Risk Classification: R1.
+Delegation: NOT DELEGATED — module-registry quality_tier classification is
+  Product-Owner-reserved (same authority path Chapter 13 §13.4 branch 1 names:
+  "Runtime module -> resolve tier từ module-registry.yaml", Chapter 7 §7.5), consistent
+  with every prior tier decision recorded in this registry.
+Independent Review B: not performed for this candidate and not required to proceed —
+  unlike the market-reference-service/market-data-ingestion/structure-engine/
+  raw-regime-engine/feature-engine precedents (each R2, each with an Independent Review
+  B step), this candidate's own governing WP classified it R1 with Review A CLEAN and no
+  cross-check requested; Chapter 11 §11.5's minimum-two-review requirement is scoped to
+  the governing WP's own risk/delegation classification, not re-derived here.
+Product Owner Tier decision (verbatim): "APPROVE CONTEXT-AGGREGATOR TIER 1 — CORE LOGIC
+  AT b0bb2d6af0938e5fdecba22fca1a40162d738b95." Decision authority: Product Owner.
+  Decision timestamp: 2026-10-09T14:33+07:00 (minute precision as supplied — no seconds
+  field fabricated).
+Decision scope (explicit): this Product Owner decision approves ONLY the
+  context-aggregator Quality Tier classification. It does NOT approve context-aggregator
+  as a module, does NOT constitute Chapter 13 Quality Gate PASS, does NOT open the Phase
+  3 Approval Gate, does NOT authorize LIVE, and does NOT reconsolidate Package 1.1.
+```
+
+### Three distinct governance/evidence boundaries (not to be conflated)
+
+```text
+Tier candidate boundary (candidate authored, reviewed, PO decision made against):
+  b0bb2d6af0938e5fdecba22fca1a40162d738b95
+Product Owner Tier decision: "APPROVE CONTEXT-AGGREGATOR TIER 1 — CORE LOGIC AT
+  b0bb2d6af0938e5fdecba22fca1a40162d738b95" — a governance decision, not itself a commit.
+Registry semantic amendment boundary (this transaction's own commit, recording the
+  decision into module-registry.yaml): a separate, later commit on a fresh continuation
+  branch from main — never reinterpreted as the Tier candidate boundary above.
+```
+
+### Registry amendment (this transaction)
+
+```text
+docs/architecture/module-registry.yaml `context-aggregator.quality_tier: {tier: "Tier 1
+  — Core Logic", approved_by: "Product Owner", approved_at: "2026-10-09T14:33+07:00"}`
+  added — the ONE new field on the ONE module; no other field on context-aggregator or
+  any other module touched. `version: "1.7" -> "1.8"` (genuine semantic amendment — same
+  established precedent as market-reference-service's v1.1 -> v1.2, market-data-
+  ingestion's v1.2 -> v1.3, structure-engine's v1.3 -> v1.4, raw-regime-engine's v1.4 ->
+  v1.5, and feature-engine's v1.6 -> v1.7 quality_tier amendments). `package_lifecycle:
+  Consolidated Stable -> candidate` (reopened — a genuine content change is not silently
+  absorbed into Consolidated Stable, same precedent). `status: Draft` unchanged.
+  `generated_at` preserved unchanged. Verified fresh, before and after (YAML re-parsed,
+  script-verified): 27 modules (unchanged), dependency graph unchanged (context-
+  aggregator's own depends_on/forbidden_dependencies byte-identical; no edge added/
+  removed anywhere), every other module's quality_tier and every other semantic field
+  byte-identical/unchanged (zero non-quality_tier field differences across all 27
+  modules, verified directly).
+```
+
+### Current classification state
+
+```text
+context-aggregator's Chapter 13 Quality Tier is now authoritatively RESOLVED — Tier 1 —
+  Core Logic — pinned in module-registry.yaml v1.8 (no longer UNRESOLVED/absent), because
+  Chapter 13 §13.4 branch 1 resolves runtime-module tier directly from module-registry.yaml.
+  This is NOT a Quality Gate PASS (none has been run at this new tier boundary) and NOT a
+  module/package approval (Chapter 12 phase-approval remains a separate, untouched
+  authority) and NOT a Phase 3 Approval Gate opening and NOT a LIVE authorization. It is
+  also explicitly NOT a standalone per-module approval gate (the false model
+  `docs/project/milestone.md` §3.1 already removed) — ordinary Quality-Gate evidence
+  feeding the single Phase-3 Approval Gate, same as every other module.
+
+Resulting Tier-1 consequences (recorded, none evaluated/claimed PASS by this transaction):
+  line coverage >= 90% AND branch coverage >= 90%, both independently (no averaging/
+  compensation between the two metrics, Chapter 13 §13.3); Tier 0/1 test-effectiveness
+  evidence (mutation testing or an accepted equivalent, Chapter 13 §13.3, tooling/
+  threshold deferred to Engineering Foundation §13.14); mandatory Tier-1 Parity Test
+  (Chapter 13 §13.4/§13.6/§13.12(C)); every other Chapter 13 dimension applicable per
+  §13.12's trigger rules for a Tier-1 Projection. The 76 passing tests recorded for
+  `python/context-aggregator/`'s existing deterministic core (`REVIEW A VALIDATED —
+  CLEAN`, unaffected by this transaction) are explicitly NOT formal Chapter 13 Quality
+  Gate evidence and are not treated as satisfying any of the above — this transaction
+  does not run, fabricate, or claim coverage, Parity Test, or any Quality Gate result.
+```
+
+### No scope expansion — explicit verification
+
+```text
+module-registry.yaml's only semantic change: the one quality_tier field + the two
+  lifecycle-metadata fields (version, package_lifecycle) above — verified via script-
+  driven before/after YAML diff (27 modules, zero non-quality_tier field differences).
+  docs/project/context-aggregator-quality-tier-derivation-001.md brought over byte-
+  identical (blob 1515c8ceffd3cafae9cc9d7432955adac8ddccaa, verified via git hash-object).
+  docs/adr/**, docs/domain/**, docs/constitution/**, docs/governance/**,
+  docs/architecture/stream-registry.yaml, docs/architecture/engine/
+  feature-context-architecture.md, python/context-aggregator/**, and every other
+  module's fields all unchanged (verified git diff --quiet for each path). No Quality
+  Gate assigned/run. context-aggregator not approved at any level. module `status`
+  remains `candidate` (unchanged — a genuine content addition correctly does not, by
+  itself, change module `status`). LIVE not authorized. Files touched, confirmed via
+  `git status --porcelain=v1`: docs/architecture/module-registry.yaml,
+  docs/project/context-aggregator-quality-tier-derivation-001.md (new on this branch),
+  docs/MANIFEST.md, docs/CHANGELOG.md — no other file touched.
+```
+
+### State summary
+
+```text
+context-aggregator Quality Tier: RESOLVED — Tier 1 — Core Logic (module-registry.yaml
+  v1.8, approved_by "Product Owner", approved_at "2026-10-09T14:33+07:00").
+Formal Chapter 13 Quality Gate for context-aggregator: NOT RUN / NOT COMPLETE.
+context-aggregator module approval: NOT APPROVED (unchanged). status: candidate
+  (unchanged).
+package_lifecycle: candidate (reopened by this genuine semantic amendment, same
+  established precedent).
+LIVE: NOT_AUTHORIZED (unchanged).
+M3 ("Context Projection / context-aggregator"): still ACTIVE, NOT complete — this
+  transaction resolves one governed prerequisite (quality tier) among several the M3
+  Context Closure derivation (`docs/project/m3-context-closure-derivation-001.md` §1/§6)
+  already named; it does not by itself close M3.
+```
+
+### Next governed action (not performed in this transaction)
+
+Formal Chapter 13 Quality Gate evaluation for `context-aggregator` at its now-resolved Tier 1 boundary (coverage, test-effectiveness, Parity Test) — not performed here. Context output-stream ADR (`ADR-051`, Draft, separate branch) / Context output Event Contract authoring / `context-aggregator` runtime integration remain the other open prerequisites this decision does not touch.
+
+**Files changed:** `docs/architecture/module-registry.yaml`,
+`docs/project/context-aggregator-quality-tier-derivation-001.md` (new on this branch,
+brought over unmodified from the approved candidate), `docs/MANIFEST.md` (this entry),
+`docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
+
+**Resulting MANIFEST transition (authoritative tại atomic recording boundary — commit
+này):** `manifest_version` `"10.481"` → `"10.482"`. `current_phase` KHÔNG đổi — VẪN
+`"Phase 3 — Core Backend"`. context-aggregator Quality Tier now RESOLVED — Tier 1 — Core
+Logic (see State summary above); QG/module-approval/LIVE states unchanged; M3 remains
+`ACTIVE`, not complete.
 
 ## Decision Log
 

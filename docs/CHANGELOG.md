@@ -2,6 +2,53 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-10-09 — `context-aggregator` Quality Tier RESOLVED — Tier 1 — Core Logic
+
+Mechanical semantic Module Registry amendment (`workstream/m3-context-aggregator-tier1-recording`)
+— records the Product Owner's approved quality-tier decision for `context-aggregator` into
+`docs/architecture/module-registry.yaml` (Chapter 13 §13.4 branch 1), recording the exact
+reviewed quality-tier candidate at commit `b0bb2d6af0938e5fdecba22fca1a40162d738b95`
+(`workstream/m3-context-aggregator-quality-tier`,
+`docs/project/context-aggregator-quality-tier-derivation-001.md`, blob
+`1515c8ceffd3cafae9cc9d7432955adac8ddccaa`). Integrated onto current `main` via a clean,
+file-scoped continuation branch — only the one reviewed derivation artifact was brought over,
+byte-identical; no other content from the quality-tier source branch was merged. No new
+architecture decision performed.
+
+**Review A:** `CLEAN — 0 Blocker / 0 Major / 0 Minor`. **ADR Scope:** `ADR_NOT_REQUIRED`. **Risk
+Classification:** `R1`. **Delegation:** `NOT DELEGATED` — module-registry `quality_tier`
+classification is Product-Owner-reserved. **Product Owner decision (verbatim):** `APPROVE
+CONTEXT-AGGREGATOR TIER 1 — CORE LOGIC at b0bb2d6af0938e5fdecba22fca1a40162d738b95` — recorded
+`2026-10-09T14:33+07:00`.
+
+**Registry amendment:** `context-aggregator.quality_tier: {tier: "Tier 1 — Core Logic",
+approved_by: "Product Owner", approved_at: "2026-10-09T14:33+07:00"}` — the one new field on the
+one module, same inline format already used for `market-reference-service`/`market-data-
+ingestion`/`structure-engine`/`raw-regime-engine`/`feature-engine`. `module-registry.yaml`
+`version: "1.7" -> "1.8"` (genuine semantic amendment, same established precedent);
+`package_lifecycle: Consolidated Stable -> candidate` (reopened, not silently absorbed); `status:
+Draft` unchanged. Coverage floor, Parity Test requirement, and test-effectiveness requirements
+are NOT duplicated into the registry — both derive from Chapter 13 §13.4's own Locked table for
+Tier 1.
+
+**Verified unchanged (script-verified, 27 modules):** every other module's `quality_tier` and
+every other semantic field on `context-aggregator` (`module_type: projection`,
+`owns_authoritative_state: false`, `depends_on`, `forbidden_dependencies`, `status: candidate`,
+`notes`, etc.) — byte-identical; dependency graph byte-equivalent, zero edge changes.
+
+**Not claimed by this transaction:** no coverage/Parity Test run or fabricated; no Chapter 13
+Quality Gate PASS claimed; `context-aggregator` NOT approved as a module; `status` remains
+`candidate` (unchanged); no ADR created; no cross-check performed; no second Review A performed;
+Package 1.1 NOT reconsolidated in this transaction. `docs/domain/context.md`,
+`docs/architecture/stream-registry.yaml`, any ADR, and all implementation code remain untouched.
+**M3 remains `ACTIVE`, not complete** — this resolves one governed prerequisite among several the
+M3 Context Closure derivation already named (`docs/project/m3-context-closure-derivation-001.md`
+§1/§6); it does not itself close M3.
+
+**Files changed:** `docs/architecture/module-registry.yaml`,
+`docs/project/context-aggregator-quality-tier-derivation-001.md` (new, byte-identical to the
+reviewed candidate), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only.
+
 ## [Unreleased] — 2026-10-09 — Context Input Contract v1.0 PUBLISHED (immutable snapshot); current/active artifact remains Draft by design
 
 Mechanical lifecycle-recording/publication transaction (`workstream/m3-context-input-v1-publication`)
