@@ -60,30 +60,50 @@
 # frontier_policy, included_streams, contract_id, contract_version, and
 # stream_registry_version are all byte-identical to v0.3):
 #
-# (A) ARTIFACT EXISTENCE — NOW RESOLVED for all four included_streams. Fresh-verified this
-# transaction: Published Event Contracts exist for every upstream event family reachable
-# through these four streams — market-data-ingestion-candle (candle-closed v1.0,
-# candle-corrected v1.0), structure-engine-structure (break-of-structure-detected v1.0,
-# change-of-character-detected v1.0, structure-fact-invalidated v1.0, structure-recomputed
-# v1.0), raw-regime-engine-regime (regime-classified v1.0, regime-fact-invalidated v1.0),
-# feature-engine-feature (feature-computed v1.1, feature-fact-invalidated v1.1 — superseding
-# the v0.3-era v1.0 pair, both v1.0 and v1.1 remain status: Published). All twelve artifacts
-# are status: Published (docs/architecture/event-contracts/, fresh-read this transaction).
+# (A) ARTIFACT EXISTENCE — NOW RESOLVED for the CURRENT TARGET version of all four
+# included_streams. Fresh-verified this transaction, with ADR-048 non-retroactivity
+# (docs/adr/ADR-048.md, "Non-retroactivity and existing Published Event Contracts")
+# applied exactly, not glossed over (v0.5 correction, CONTEXT-IC-CLOSURE-002 — v0.4's
+# "all twelve artifacts" framing collapsed a real distinction ADR-048 itself draws):
 #
-# (B) STATE-DEPENDENCY CLASSIFICATION — NOW RESOLVED for all four included_streams. Chapter
-# 8 §8.2.3's controlling text for mode: declared-state-dependencies requires that each
-# effect event's own pinned Event Contract classify, per causation_ref, STATE DEPENDENCY
-# (in-scope, requires payload/cursor-visibility, per §8.3.4's P_run) vs EXTERNAL NON-STATE
-# CAUSE (existence/commitment proof only, never in-scope) — Approved ADR-048's canonical
-# `causal_state_dependency_declaration` field. Fresh inspection this transaction: every one
-# of the twelve Published Event Contracts named in (A) now carries this field (candle-closed
-# correctly `mode: vacuous`, its own causation_refs being canonically empty; the remaining
-# eleven `mode: exhaustive` with an explicit per-role `classification` of either
-# STATE_DEPENDENCY or EXTERNAL_NON_STATE_CAUSE) — this was NOT true at v0.3's own reviewed
-# boundary (ADR-048 itself was only Approved 2026-10-05, after v0.3's 2026-09-26 review).
-# per_effect_event_contract state-dependency classification is therefore now resolved for
-# the transitive frontier-extension/causal-closure algorithm below, across all four
-# included_streams — not merely for feature-engine-feature.
+#   CURRENT TARGET (10 version-artifacts, all ADR-048-capable — carry
+#   causal_state_dependency_declaration from their own first Published version):
+#     market-data-ingestion-candle : candle-closed v1.0, candle-corrected v1.0
+#     structure-engine-structure   : break-of-structure-detected v1.0,
+#                                    change-of-character-detected v1.0,
+#                                    structure-fact-invalidated v1.0, structure-recomputed v1.0
+#     raw-regime-engine-regime     : regime-classified v1.0, regime-fact-invalidated v1.0
+#     feature-engine-feature       : feature-computed v1.1, feature-fact-invalidated v1.1
+#
+#   HISTORICAL, CO-EXISTING (2 version-artifacts, status: Published, NOT ADR-048-capable):
+#     feature-engine-feature       : feature-computed v1.0, feature-fact-invalidated v1.0
+#     Predate ADR-048's 2026-10-05 approval; per ADR-048's own Non-retroactivity section
+#     item 1, this does NOT make them retroactively invalid — they remain valid, immutable
+#     historical artifacts under the authority effective when Published (ADR-039). They are
+#     NOT malformed, NOT superseded-as-invalid, and this correction does not claim either.
+#
+# (B) STATE-DEPENDENCY CLASSIFICATION — NOW RESOLVED for the 10 current-target
+# version-artifacts named in (A); NOT RESOLVED, and permanently so by ADR-048's own design,
+# for the 2 historical v1.0 Feature artifacts. Chapter 8 §8.2.3's controlling text for
+# mode: declared-state-dependencies requires that each effect event's own PINNED Event
+# Contract classify, per causation_ref, STATE DEPENDENCY (in-scope, requires
+# payload/cursor-visibility, per §8.3.4's P_run) vs EXTERNAL NON-STATE CAUSE
+# (existence/commitment proof only, never in-scope) — Approved ADR-048's canonical
+# `causal_state_dependency_declaration` field. Fresh inspection this transaction: all 10
+# current-target artifacts carry this field (candle-closed correctly `mode: vacuous`, its
+# own causation_refs being canonically empty; the remaining 9 `mode: exhaustive` with an
+# explicit per-role `classification`); the 2 historical v1.0 Feature artifacts do not and,
+# per ADR-048's Non-retroactivity item 3, **MUST NOT be used as the per-effect
+# state-dependency authority** for this Input Contract's run — resolution must fail closed
+# for that purpose specifically, exactly as Chapter 8 §8.2.3 already requires when a
+# declaration is absent. This is a permanent, by-design characteristic of
+# feature-engine-feature as a mixed-version stream (ADR-048 item 5: an existing immutable
+# version needing this capability receives a NEW version-artifact, never a retroactive
+# edit) — not a residual gap this Input Contract, or any future correction to it, "fixes."
+# No compatibility/fallback/best-effort mechanism is invented to paper over this; a
+# concrete causal-closure run that actually needs to classify a causation_ref carried by a
+# v1.0-pinned FeatureComputed/FeatureFactInvalidated event fails closed for that event,
+# per Chapter 8 §8.2.3/ADR-048, exactly as it would for any other undeclared contract.
 #
 # (C) Scope of what (A)/(B) do NOT resolve, stated precisely (no over-conclusion, same
 # discipline CONTEXT-IC-A-MAJ-02 required of v0.2's over-conclusion): (A)/(B) resolve the
@@ -92,24 +112,32 @@
 # UPSTREAM streams' own internal causation chains (e.g. a Structure fact's reference back to
 # a Swing fact — correctly classified EXTERNAL_NON_STATE_CAUSE by Structure's own
 # declarations, which is why structure-engine-swing is correctly excluded from
-# included_streams above, confirmed not merely assumed). (A)/(B) do NOT resolve, and were
-# never claimed to resolve: Context's OWN future output Event Contract's own
-# causal_state_dependency_declaration (classifying Context's seven causation_refs against
-# ITS OWN not-yet-authored contract — a separate §21 deferred item, this Input Contract
-# artifact is not that Event Contract and does not substitute for it); Context Input
-# Contract v1.0's own publication (still Draft, unchanged by this correction); or
+# included_streams above, confirmed not merely assumed) — for the 10 current-target
+# artifacts only, with the historical-Feature-v1.0 fail-closed carve-out (B) states. (A)/(B)
+# do NOT resolve, and were never claimed to resolve: Context's OWN future output Event
+# Contract's own causal_state_dependency_declaration (classifying Context's OWN
+# causation_refs against ITS OWN not-yet-authored contract — a separate §21 deferred item,
+# this Input Contract artifact is not that Event Contract and does not substitute for it;
+# Context's causation_refs shape is NOT a uniform seven-ref set for both of Context's own
+# output event types — see docs/project/m3-context-closure-derivation-001.md §3 for the
+# actual, variable shape per context.md §3/§4, not decided here); Context Input Contract
+# v1.0's own publication (still Draft, unchanged by this correction); or
 # context-aggregator's runtime/publishing implementation (unchanged, python/
 # context-aggregator/README.md's own "What this slice does not implement" list, unaffected).
 #
 # (D) OVERALL RESULT — causal_closure_policy below remains correctly *pinned as
-# architecture*, byte-identical to v0.3 — this correction changes zero policy/YAML values,
-# only the factual readiness narrative. The four-included-stream frontier/causal-closure
-# mechanism this file's own protocol specifies is now operationally resolvable in full
-# (upstream Event Contract dependency authority no longer blocks it). Context authoritative
-# publication as a whole remains NOT operationally enabled — unchanged — but for the
-# different, narrower set of reasons stated in the Scope containment paragraph below (this
-# Input Contract's own Published status; Context's own output Event Contract; Context
-# runtime), not for upstream Event Contract absence, which is now resolved.
+# architecture*, byte-identical to v0.3/v0.4 — this correction changes zero policy/YAML
+# values, only the factual readiness narrative. The four-included-stream frontier/
+# causal-closure mechanism this file's own protocol specifies is now operationally
+# resolvable for the 10 current-target artifacts, with the historical-Feature-v1.0
+# fail-closed carve-out in (B) as a permanent, by-design exception (not a defect, not
+# something further correction resolves). Context authoritative publication as a whole
+# remains NOT operationally enabled — unchanged — but for the different, narrower set of
+# reasons stated in the Scope containment paragraph below (this Input Contract's own
+# Published status; Context's own output Event Contract; Context runtime; and the Context
+# output stream's own ADR-required Stream Registry identity, which does not yet exist —
+# see docs/project/m3-context-closure-derivation-001.md §5), not for current-target
+# upstream Event Contract dependency authority, which is resolved.
 #
 # merge_policy — reused exactly, not invented: `deterministic-causal-topological-order` +
 # `[stream_id, sequence]` tie-break is Chapter 8's own single mandated interleave
@@ -303,23 +331,57 @@
 # remains fail-closed until at minimum: Context Input Contract v1.0 is actually Published
 # as an immutable snapshot (fresh-verified this transaction: still NOT published — no
 # artifact exists at docs/architecture/input-contract-versions/context-market-input/
-# v1.0.yaml); the referenced Stream Registry snapshot resolves (v0.4 correction,
-# CONTEXT-IC-CLOSURE-001 — fresh-verified this transaction: it does —
-# docs/architecture/stream-registry.yaml is status: Approved, registry_version: v1.0, and
-# its immutable docs/architecture/stream-registry-versions/v1.0.yaml snapshot genuinely
-# exists; all four included_streams are status: active in it); required upstream Event
-# Contract dependency authority resolves in full across all four included_streams (v0.4
-# correction, CONTEXT-IC-CLOSURE-001 — superseding v0.3's CONTEXT-IC-A-MAJ-02 narrative,
-# now stale: this is RESOLVED, see (A)/(B)/(C) above); Context's own output Event Contracts/
-# output stream are separately governed and authored (still NOT done — §21 deferred item,
-# unaffected by this correction); and context-aggregator's runtime (stream_ref/
-# producer_ref/publishing/frontier capture) is implemented (still NOT done — python/
+# v1.0.yaml); the referenced Stream Registry snapshot resolves (fresh-verified this
+# transaction: it does — docs/architecture/stream-registry.yaml is status: Approved,
+# registry_version: v1.0, and its immutable docs/architecture/stream-registry-versions/
+# v1.0.yaml snapshot genuinely exists; all four included_streams are status: active in
+# it); required upstream Event Contract dependency authority resolves for the 10
+# current-target version-artifacts across all four included_streams, with a permanent,
+# by-design fail-closed carve-out for any causal-closure step that would need to classify
+# a causation_ref carried by a historical v1.0-pinned Feature event (v0.5 correction,
+# CONTEXT-IC-CLOSURE-002 — superseding v0.4's "RESOLVED, see (A)/(B)/(C)" framing, which
+# did not yet distinguish the current-target/historical-Feature split; see (A)/(B)/(C)
+# above); Context's own output Event Contracts/output stream are separately governed and
+# authored (still NOT done — §21 deferred item, unaffected by this correction) — AND, per
+# docs/project/m3-context-closure-derivation-001.md §5, minting that output stream's
+# identity and writer authority is itself an ADR-required Event Model change (Chapter 8
+# §8.3.1: "Tạo/xóa/tách stream, hoặc đổi writer authority, là thay đổi Event Model → ADR
+# Required"), not a mechanical registry edit this Input Contract or any similarly-bounded
+# correction may perform; and context-aggregator's runtime (stream_ref/producer_ref/
+# publishing/frontier capture) is implemented (still NOT done — python/
 # context-aggregator/README.md's own "What this slice does not implement" list, unaffected
 # by this correction). This file does not modify docs/adr/ADR-046.md,
 # docs/architecture/stream-registry.yaml, docs/architecture/module-registry.yaml, any
 # existing Feature Input Contract/published Event Contract or Input Contract version
 # snapshot, docs/domain/context.md's own normative semantics, or python/
 # context-aggregator/**.
+#
+# v0.5 bounded factual correction (2026-10-09, this transaction) —
+# CONTEXT-IC-CLOSURE-002, performed under the M3 Context Closure Work Package's own
+# Review-A correction round (ChatGPT Review A on v0.4, `REVISION_REQUIRED — 0 Blocker / 4
+# Major / 0 Minor`, Risk R2, findings `CONTEXT-CLOSURE-A-MAJ-01`/`-02`/`-03`/`-04` against
+# the pair of artifacts this WP owns; this file remediates the `-02` finding against
+# itself), pending fresh Review A (not self-closed by the correction executor — closure is
+# a Review A re-review determination, never asserted here): v0.4's "(A) ARTIFACT
+# EXISTENCE — NOW RESOLVED... All twelve artifacts are status: Published" and "(B) ...
+# every one of the twelve Published Event Contracts... now carries this field" collapsed a
+# distinction ADR-048 itself draws and explicitly preserves (docs/adr/ADR-048.md,
+# "Non-retroactivity and existing Published Event Contracts"): feature-computed/v1.0 and
+# feature-fact-invalidated/v1.0 remain status: Published (fresh-verified, unchanged, NOT
+# malformed or retroactively invalid) but do NOT carry `causal_state_dependency_declaration`
+# — they predate ADR-048's 2026-10-05 approval and ADR-048 applies prospectively only.
+# Corrected: (A)/(B)/(C)/(D) above and the Scope containment paragraph now distinguish 10
+# current-target version-artifacts (Candle v1.0 ×2, Structure v1.0 ×4, Regime v1.0 ×2,
+# Feature v1.1 ×2 — all ADR-048-capable, resolved) from the 2 historical, co-existing
+# Feature v1.0 artifacts (Published, NOT ADR-048-capable, MUST NOT serve as per-effect
+# state-dependency authority per ADR-048's Non-retroactivity item 3 — a permanent
+# fail-closed carve-out for that narrow case, not a gap any future correction removes).
+# No compatibility/fallback mechanism is invented; no claim is made that this is a defect
+# in either historical artifact. included_streams, merge_policy, frontier_policy YAML
+# values, causal_closure_policy, contract_id, contract_version, and
+# stream_registry_version remain byte-identical to v0.3/v0.4.
+#
+# `CONTEXT-CLOSURE-A-MAJ-02`: addressed/remediated pending fresh Review A.
 #
 # v0.4 bounded factual/readiness correction (2026-10-08, this transaction) —
 # CONTEXT-IC-CLOSURE-001, performed under the M3 Context Closure Work Package, pending
@@ -446,10 +508,10 @@
 # `CONTEXT-IC-A-MAJ-02`: addressed/remediated pending fresh Review A.
 
 schema_version: 1
-version: "0.4"
+version: "0.5"
 status: Draft
 owner: Product Owner
-generated_at: "2026-10-08"
+generated_at: "2026-10-09"
 
 input_contract_ref:
   contract_id: context-market-input
