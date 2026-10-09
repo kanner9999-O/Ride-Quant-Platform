@@ -1,0 +1,341 @@
+# Event Contract version-artifact — market-context-snapshot v1.0
+#
+# Referenced Authoritative Artifact (Chapter 8 §8.1.1) once Published. Canonical authority/
+# self-containment model, path/version grammar, and immutability discipline per Approved ADR-039
+# v0.1 (docs/adr/ADR-039.md). Retention/archive semantics per Approved ADR-040 v0.1
+# (docs/adr/ADR-040.md).
+#
+# STATUS: Draft. This is the FIRST version for contract_id: market-context-snapshot — no prior
+# Published Event Contract snapshot exists for it. Per ADR-039's "First authoritative version"
+# rule, contract_version is fixed at v1.0 — no other value is valid for a first publication.
+#
+# event_class / compatibility_commitment are NOT governed-authored here — both are already
+# Approved architecture authority as of ADR-053 (docs/adr/ADR-053.md, status: Approved,
+# approved_at: "2026-10-09T22:50:13+07:00"), applied directly below, not re-derived. allowed_streams
+# is Approved architecture authority per ADR-051 (docs/adr/ADR-051.md, status: Approved). payload_shape
+# / payload_semantics_and_invariants are governed-synthesized from docs/domain/context.md v0.4
+# (blob d7b2c07b82984958e52ede0d536cc443ade22577) §1 (subject)/§2 (envelope, payload-relevant
+# portions)/§3 (MarketContextSnapshot)/§8 (Eligible Upstream Fact selection)/§9 (role
+# cardinality)/§10 (fact identity/normalization)/§11 (cadence)/§12 (correction lineage)/§14 (cursor
+# time semantics)/§15 (no repaint) and are fully self-contained here — a reader does not need to
+# separately consult context.md to interpret this artifact's own meaning (ADR-039). merge_constraints
+# is governed-authored directly against Chapter 8 §8.3.4, derived from this contract's own actual
+# causation shape (never non-empty), NOT mechanically copied from Feature's or Regime's own value.
+#
+# PUBLICATION BLOCKER — stated explicitly, semantic interpretation below does NOT depend on this
+# prose: `context-aggregator-context` (allowed_streams, below) is Approved identity/writer-authority
+# architecture (ADR-051) but is NOT YET activated in any authoritative post-Genesis Stream Registry
+# version (docs/architecture/stream-registry.yaml remains registry_version: v1.0, the seven-stream
+# Genesis Registry — fresh-verified this transaction, unchanged, not edited by this candidate).
+# ADR-052 (Draft, pending Review A) proposes the lifecycle activation Event Contract architecture
+# the eventual registry transition requires; that transition is separate, later, governed work. Draft
+# authoring of this candidate is permitted now (ADR-051 Consequences Track B); Publication of this
+# artifact, and any runtime/authoritative use of it, remain fail-closed until the Stream Registry
+# transition genuinely resolves and Review A of this complete candidate is CLEAN. This blocker is
+# recorded here for readiness tracking ONLY — it does not alter, narrow, or otherwise participate in
+# any field's own semantic meaning below.
+#
+# CONTEXT AUTHORITY/TERMINOLOGY GAP — explicitly NOT resolved by this artifact (ADR-051 item 4,
+# ADR-053 §2, m3-context-closure-derivation-001.md §5 D1, all unchanged): this artifact does not
+# claim that `context-aggregator` owns authoritative domain state, that Context replaces Candle/
+# Structure/Regime/Feature as a source of truth for any concept, that `event_class:
+# projection_record` is a new authoritative-business-fact-ownership class, or that any future
+# Strategy consumer is authorized to treat this event as authoritative input. `module-registry.yaml`'s
+# `context-aggregator` entry remains `module_type: projection`, `owns_authoritative_state: false`,
+# unchanged, unedited by this transaction. `projection_record` means exactly what Approved ADR-053
+# §2 defines — an immutable, replayable, envelope-bearing record from a Type-2 Projection's own
+# deterministic fold/aggregate computation, never itself an authoritative source — and nothing
+# broader.
+
+contract_id: market-context-snapshot
+contract_version: v1.0
+status: Draft
+reviewers: []
+approved_by: null
+approved_at: null
+last_review: null
+
+event_type: MARKET_CONTEXT_SNAPSHOT
+# context.md v0.4 §2 event_types table (PAST_TENSE_UPPER_SNAKE per Chapter 3 §3.2, referenced not
+# redefined here).
+
+event_class: projection_record
+# Approved ADR-053 §2 (docs/adr/ADR-053.md) — governed-authored new value, narrowly scoped to this
+# contract_id and market-context-fact-invalidated only, mechanically applied here, not re-derived.
+# Neither `observation` (reserved for root, first-hand, non-derived external capture — this event is
+# never a root event, see causal_state_dependency_declaration below) nor `derived_fact` (reserved,
+# so far, for a Type-1 Compute Engine's own new authoritative conclusion — context.md §17 forbids
+# Context from ever recomputing/re-deriving/reproducing any upstream formula) fits.
+
+allowed_streams:
+  - stream_id: context-aggregator-context
+# Approved ADR-051 (docs/adr/ADR-051.md) — the one new post-Genesis logical stream Context's output
+# is decided to use, sole writer authority context-aggregator. NOT yet active in
+# docs/architecture/stream-registry.yaml (fresh-verified this transaction, still registry_version:
+# v1.0, seven Genesis streams only) — see PUBLICATION BLOCKER header note above. This field declares
+# eligibility per Chapter 8 §8.3.1's one-way declaration rule; it does not itself assert the stream
+# is currently active.
+
+merge_constraints:
+  prerequisite_policy: causation_must_resolve_before_apply
+# Governed-authored directly against this contract's own actual causation shape (Chapter 8 §8.3.4),
+# not copied from Feature/Regime's own declared value merely because it matches. MarketContextSnapshot
+# is never a root event — context.md v0.4 §3 line "causation_refs KHÔNG BAO GIỜ rỗng" (both original
+# and correction-replacement branches always populate it, see causal_state_dependency_declaration
+# below) — so the genuine, Context-owned causal-ordering requirement is that every one of its
+# declared causes (the seven upstream evidence refs, and, for a replacement, the superseded
+# MarketContextFactInvalidated) must resolve before this event is authoritatively applied. This
+# artifact does not declare any Input-Contract-level run-scope/frontier/merge-policy semantic here —
+# those remain exclusively docs/architecture/input-contracts/context-market-input.yaml's own
+# authority (Chapter 8 §8.3.4's own authority split, applied not redefined).
+
+causal_state_dependency_declaration:
+  mode: exhaustive
+  # Approved ADR-048 (docs/adr/ADR-048.md) §2 — governed-authored directly against ADR-048 and
+  # ADR-053 §6's own fresh apply-time analysis of this contract's actual payload, NOT transcribed
+  # from context.md (which declares no such field) and NOT borrowed from any other contract_id's
+  # own result merely because the conclusion happens to match. mode: exhaustive because
+  # causation_refs is never canonically empty for this event type — context.md v0.4 §3 fixes it as
+  # non-empty for BOTH original computation (context_cutoff_source_ref + all six role refs, §9) AND
+  # correction replacement (the current/updated seven refs PLUS the superseded
+  # MarketContextFactInvalidated, §12) — mode: vacuous would be malformed here (ADR-048 §9 item 3).
+  roles:
+    - role_id: upstream_evidence_refs
+      selector:
+        kind: payload_field
+        path:
+          - normalized_input_fact_refs
+      cardinality:
+        exactly: 7
+      # context.md v0.4 §10: normalized_input_fact_refs "PHẢI chứa CHÍNH XÁC BẢY phần tử
+      # (context_cutoff_source_ref + sáu role ref)" — unconditionally, for EVERY MarketContextSnapshot
+      # instance, original computation and correction replacement alike (a replacement's own §8
+      # rerun always repopulates the full seven-role tuple, since all seven role-ref payload fields
+      # below are `required: true` regardless of original/replacement — there is no "partial
+      # snapshot," context.md §9's own absolute prohibition). This single role, via the array-typed
+      # payload_field terminal (ADR-048 §4: "The terminal field MUST be declared by payload_shape as
+      # exactly one of event_record_ref or an array/list of event_record_ref" — Phase 1 iterates
+      # every element of the array as its own candidate), exhaustively and non-overlappingly claims
+      # all seven upstream causation_refs entries without needing seven separate role declarations —
+      # every element of normalized_input_fact_refs is, by context.md §3's own causation_refs
+      # invariant, always also literally present in causation_refs (ADR-048 §4's own integrity rule
+      # for payload_field selectors).
+      classification: EXTERNAL_NON_STATE_CAUSE
+      apply_time_requirement: >
+        Authoritative application of an already-emitted MarketContextSnapshot (a downstream
+        consumer accepting/using it) never requires re-reading any of these seven upstream facts'
+        own domain payload. context.md v0.4 §3's own context_values invariant: every context_values
+        field is "bản sao trực tiếp từ trường giá trị authoritative của đúng fact ref tương ứng"
+        (a direct, verbatim copy) with "KHÔNG tự tính toán lại, KHÔNG diễn giải thêm ý nghĩa" (no
+        recomputation, no added interpretation) — the structure_orientation/regime-class/feature-
+        metric values are already fully present in THIS event's own context_values; and this event's
+        own envelope.effective_time is likewise a direct copy of context_cutoff_source_ref's own
+        effective_time (§3/§11), already present in THIS event's own envelope. A consumer therefore
+        never needs to fetch any of the seven referenced facts' own records to use this event; the
+        refs exist for lineage, identity-tuple construction (§10), and explainability (I-1) only.
+        Approved ADR-053 §6 independently confirms this conclusion, fresh-derived against this exact
+        payload shape, not inferred from any other contract_id's own result.
+    - role_id: superseded_fact_invalidation
+      selector:
+        kind: by_target
+        match:
+          event_types: [MARKET_CONTEXT_FACT_INVALIDATED]
+          contract_ids: [market-context-fact-invalidated]
+      cardinality:
+        min: 0
+        max: 1
+      # Present (exactly 1) only on a correction replacement; absent (0) on an original computation.
+      # context.md v0.4 §3 line "(b) correction replacement — PHẢI chứa ... chính
+      # MarketContextFactInvalidated đang được supersede" — this is a DISTINCT causal predecessor
+      # from payload.supersedes_fact_ref (below): supersedes_fact_ref points to the prior
+      # MarketContextSnapshot lineage head itself (a lineage pointer, context.md §3/§12 rules 2-8),
+      # never to the MarketContextFactInvalidated event that invalidated it; causation_refs instead
+      # cites the invalidation event directly, because context.md §3 requires "envelope.recorded_time
+      # của fact này PHẢI muộn hơn recorded_time của MarketContextFactInvalidated tương ứng" — a
+      # genuine direct-causal-predecessor relationship (Chapter 6 §6.7) distinct from the lineage-
+      # pointer relationship supersedes_fact_ref expresses. This role's by_target selector matches
+      # only on the target's own envelope event_type/contract_id — never the target's domain payload
+      # — satisfying ADR-048 §4's own prohibition on reading target payload through a by_target
+      # selector.
+      classification: EXTERNAL_NON_STATE_CAUSE
+      apply_time_requirement: >
+        Authoritative application of a replacement MarketContextSnapshot never requires re-reading
+        the superseded MarketContextFactInvalidated's own payload (invalidated_fact_ref/
+        affected_upstream_roles/invalidation_reason) — only its existence/identity as a direct causal
+        predecessor, proving the replacement's own precedence relationship (context.md §3/§12 rule
+        7) is satisfied. No value from that event is copied into this event's own context_values or
+        any other payload field.
+
+payload_shape:
+  context_subject_id: {type: string, required: true}
+  context_type: {type: enum, values: [market_context], required: true}
+  context_definition_version: {type: string, required: true}
+  computation_cursor:
+    type: replay_cursor
+    required: true
+    description: >
+      Canonical Chapter 8 §8.5 Replay Cursor, applied here, NOT redefined (ADR-046, Approved) —
+      the exact knowledge boundary R used to evaluate context.md §8's two-phase Eligible Upstream
+      Fact selection for THIS fact. Shape owned by Chapter 8 §8.5.1: recorded_time (required),
+      input_contract_ref (required, {contract_id, contract_version}), stream_registry_version
+      (required), lifecycle_frontier (required, {stream_id, position: {kind, sequence}}),
+      stream_positions (required, map stream_id -> sequence). NOT inherited/copied from a superseded
+      snapshot when this is a replacement — context.md §3 invariant: "computation_cursor của một
+      replacement fact ĐỘC LẬP HOÀN TOÀN với computation_cursor của fact nó supersede" — every
+      instance, original or replacement, pins the cursor it actually used to evaluate §8 itself.
+  effective_window:
+    kind: interval
+    window_start: {type: timestamp, required: true}
+    window_end: {type: timestamp, required: true}
+  context_cutoff_source_ref:
+    type: event_record_ref
+    required: true
+    description: >
+      The candle-closed/candle-corrected authoritative fact whose effective_time defines this
+      computation point (context.md §7.0/§11) — cadence/cutoff driver, not itself one of the six
+      context_values roles.
+  structure_fact_ref: {type: event_record_ref, required: true}
+  volatility_regime_fact_ref: {type: event_record_ref, required: true}
+  directional_persistence_regime_fact_ref: {type: event_record_ref, required: true}
+  feature_fact_refs:
+    volatility_metric_fact_ref: {type: event_record_ref, required: true}
+    directional_persistence_metric_fact_ref: {type: event_record_ref, required: true}
+    distance_to_last_confirmed_swing_fact_ref: {type: event_record_ref, required: true}
+  normalized_input_fact_refs:
+    type: array
+    items: event_record_ref
+    required: true
+    description: >
+      Mathematical-set tuple of exactly seven elements (context_cutoff_source_ref + the six role
+      refs above), normalized into one canonical, deterministic order BEFORE computation identity/
+      hashing/equality/dedup/serialization — effective-boundary window_start ASC, window_end ASC,
+      stream_id ASC, registry_version ASC, sequence ASC (only when stream identity ties), event_id
+      ASC (context.md §6/§10). The same seven facts, delivered in any incoming order, MUST produce
+      the identical normalized list and the identical computation identity.
+  context_values:
+    structure_orientation: {type: enum, values: [NEUTRAL, BULLISH, BEARISH], required: true}
+    volatility_regime_class: {type: enum, values: [LOW, NORMAL, HIGH, EXTREME], required: true}
+    directional_persistence_regime_class: {type: enum, values: [NON_DIRECTIONAL, DIRECTIONAL, TRANSITIONAL], required: true}
+    volatility_metric: {type: decimal, required: true}
+    directional_persistence_metric: {type: decimal, required: true}
+    distance_to_last_confirmed_swing: {type: decimal, required: true}
+  supersedes_fact_ref:
+    type: event_record_ref
+    required: false
+    description: >
+      ABSENT if and only if this is the original computation for (context_subject_id,
+      effective_window) — no prior MarketContextSnapshot exists for that exact pair yet (context.md
+      §3 rule 1). REQUIRED, and MUST point to the current lineage head, when this is a correction
+      replacement (rule 2) — never a fact already superseded by another (casp fork, rule 6), never a
+      jump over an intermediate head (rule 4/5). This is a lineage pointer ONLY — see
+      causal_state_dependency_declaration's superseded_fact_invalidation role above for the distinct
+      causal-predecessor relationship to the actual MarketContextFactInvalidated event.
+
+payload_semantics_and_invariants:
+  description: >
+    The one authoritative record for a single completed valid Market Context computation point —
+    used identically for an original computation and for a correction replacement (context.md v0.4
+    §3). Produced for EVERY computation point the governed cadence requires (context.md §11,
+    computation_cadence_policy: DRIVEN_BY_CANDLE_CLOSE — every candle-closed/candle-corrected
+    authoritative fact at this subject's own (instrument_id, venue_id, timeframe) defines exactly
+    one new computation point), including when context_values is identical to the immediately
+    preceding point — no dedup-by-value shortcut exists (context.md §11).
+  subject_binding:
+    subject_kind: entity
+    subject_type: MarketContext
+    context_id: context-projection
+    scope_fields: [instrument_id, venue_id, timeframe, context_type, context_definition_version]
+    note: >
+      envelope.subject_ref carries this binding per Chapter 8 §8.2.2, applied here, not redefined:
+      subject_ref.context_id = context-projection (the Domain Context context.md §1 declares
+      itself under, capability_id context-aggregation); subject_ref.subject_id =
+      payload.context_subject_id (opaque, stable, resolved deterministically from exactly the five
+      scope_fields above, context.md §1 — domain logic must never parse it); subject_ref.scope
+      carries the five scope_fields verbatim. event_class = projection_record does NOT change this
+      binding or its authority — context.md §1's own subject semantics are applied unmodified, not
+      reinterpreted because of this artifact's own event_class classification.
+  no_recomputation_invariant: >
+    context.md v0.4 §17: Context performs ONLY as-of selection of an already-authoritative
+    Structure/Regime/Feature fact (context.md §8), deterministic cutoff/window alignment (§11/§14),
+    and verbatim copy of already-existing values into context_values (§3 invariant) — it NEVER
+    computes a new engineered Feature value, never reproduces Feature Engine's own formula/
+    transformation, never derives a trade signal, never scores a setup, and never reaches a
+    Strategy/Decision conclusion. context_values below NEVER contains: signal strength; setup
+    quality; long/short bias; buy/sell/hold; entry/stop/target price; position size; strategy ID;
+    or account state (context.md §17) — a direct violation of this list is a malformed payload,
+    rejected, never a schema the implementation "happens to" avoid populating.
+  eligible_upstream_fact_selection: >
+    Each of the seven refs above MUST be the Eligible Upstream Fact for its own role, resolved by
+    context.md §8's two-phase pipeline against THIS fact's own computation_cursor: Phase 1
+    (per-candidate eligibility — identity/scope match; full cursor visibility per the three-leg
+    predicate context.md §14 defines, Chapter 8 §8.3.5 Retained-in-Universe semantics included;
+    effective-time cutoff, inclusive, independent of and never collapsed into cursor visibility;
+    role-specific validity at cursor — no visible invalidation targeting this exact candidate, and
+    for the Candle role, current correction lineage for that exact window); then Phase 2
+    (role-specific current selection on Phase 1's survivors only — Structure: max recorded_time;
+    Regime/Feature: current, non-superseded lineage head; ties broken by the shared seven-criterion
+    total order, context.md §8). A role with an empty Phase-1 survivor set is "missing" — context.md
+    §9 governs that case (no MarketContextSnapshot is emitted for the computation point; this event
+    is simply not produced, never produced with a null/partial field).
+  temporal_eligible_upstream_supersession: >
+    For the six non-Candle roles only (Candle/context_cutoff_source is explicitly excluded,
+    context.md §8), a currently-current-valid MarketContextSnapshot can become superseded at a
+    later computation_cursor R_later when a later-visible upstream fact becomes the new §8 winner
+    for that role, even if the old ref was never directly invalidated (context.md §8 "Temporal
+    eligible-upstream supersession," ADR-046 Decision item 7) — this is the producer-side condition
+    that triggers a MarketContextFactInvalidated against THIS fact; it does not change this
+    artifact's own payload shape, only when a sibling MarketContextFactInvalidated event becomes
+    required.
+  anti_look_ahead:
+    - "envelope.recorded_time MUST be later than the recorded_time of the most recent fact among the seven refs in normalized_input_fact_refs (context.md §14) — this event is never computed before sufficient evidence exists."
+    - "computation_cursor.recorded_time MUST be <= envelope.recorded_time of THIS exact fact (Cursor → fact relation, Chapter 8 §8.5.2, context.md §3) — equality permitted only when the knowledge-cut capture and record append belong to the same valid processing boundary. Violation means an invalid cursor; the record MUST NOT be published. Neither timestamp may be substituted for, or clamped toward, the other."
+    - "No input whose effective boundary exceeds this fact's own context_cutoff (= effective_window.window_end, context.md §6/§11) is ever used as evidence for this computation point, regardless of when it later becomes cursor-visible (context.md §14)."
+  identity_and_idempotency:
+    computation_identity_tuple: "(context_subject_id, effective_window.window_start, effective_window.window_end, context_definition_version, normalized_input_fact_refs after normalization) — context.md §10."
+    output_not_identity: "context_values is the RESULT of a computation identity, never a component of it — two computations sharing the identical, already-normalized input tuple MUST produce the identical context_values (determinism), but identity itself never depends on context_values."
+    dedup_rule: "Identical (context_subject_id, effective_window, context_definition_version, normalized normalized_input_fact_refs) delivered more than once MUST NOT append a second authoritative event — recomputation under the identical tuple is idempotent (context.md §10)."
+    cursor_excluded_from_identity: "computation_cursor is explicitly NOT part of the computation identity/hash/dedup tuple (context.md §10, ADR-046) — the identical evidence tuple evaluated under two different operational computation_cursor values is still exactly one computation identity, never two."
+  correction_lineage_invariants:
+    - "An original computation (no prior MarketContextSnapshot exists for this exact (context_subject_id, effective_window) pair) MUST NOT carry supersedes_fact_ref (context.md §3/§12 rule 1)."
+    - "A correction replacement MUST carry supersedes_fact_ref, pointing to the current lineage head of this exact (context_subject_id, effective_window) pair — never a fact already superseded by another (fork, rule 6), never skipping over an intermediate head (rules 4/5)."
+    - "A replacement MUST use the identical (context_subject_id, effective_window) as the fact it supersedes — a correction never changes the window (rule 3)."
+    - "Every ref on a replacement MUST reflect the corrected ancestry — never retaining a ref that is no longer authoritative (rule 8)."
+    - "No shortcut when context_values does not change across a correction: if an upstream correction affects any role ref, the MarketContextFactInvalidated + replacement pair MUST still be produced (context.md §3), even when the recomputed context_values happens to equal the prior value."
+    - "A historical lineage member, once superseded, is NEVER reused as if current — context.md §12 rule 9/10; append-only (I-3), no in-place mutation anywhere."
+  cross_mode_parity: >
+    All four execution modes (Live, Backtest, Paper Trading, Replay) consume the identical envelope
+    (Chapter 8 §8.2) and payload shape above — historical batch computation proceeds strictly
+    sequentially by the governed cadence, never skipping to a later computation point (context.md
+    §14/§19). Domain semantics never vary by mode.
+
+compatibility_commitment: backward_only
+# Approved ADR-053 §5 (docs/adr/ADR-053.md), Chapter 10 §10.3.1 — explicit policy commitment this
+# contract_id adopts: a consumer pinned to an older market-context-snapshot Event Contract version
+# must still correctly read/validate data under a newer version claimed compatible; forward
+# compatibility is NOT committed. No concrete schema delta exists yet for this first v1.0 version,
+# so no compatibility CLASSIFICATION of any delta is performed or claimed by this artifact. This
+# value is cited as already-Approved authority, not re-decided here.
+
+provenance:
+  source: docs/domain/context.md
+  source_version: "0.4"
+  source_status: Draft
+  source_sections: ["§1 Logical Market Context Subject", "§2 Canonical event envelope", "§3 MarketContextSnapshot", "§6 Context Definition", "§7 Upstream input roles", "§8 Eligible Upstream Fact selection", "§9 Role cardinality / missing-input policy", "§10 Fact identity and input normalization", "§11 Snapshot cadence", "§12 Correction lineage", "§14 Time semantics", "§15 No repaint and mode parity", "§17 Context and Strategy boundary"]
+  source_blob: d7b2c07b82984958e52ede0d536cc443ade22577
+  event_class_authority: docs/adr/ADR-053.md
+  compatibility_commitment_authority: docs/adr/ADR-053.md
+  stream_identity_authority: docs/adr/ADR-051.md
+  causal_state_dependency_declaration_authority: docs/adr/ADR-048.md
+  drafted_at_commit: b8eb824779d7a6e08ffec49ba8dda492d2add134
+  note: >
+    Drafting-history citation ONLY (ADR-039 §"Canonical authority/source") — never required to
+    interpret this artifact's own meaning; payload_shape and payload_semantics_and_invariants above
+    are fully self-contained, condensed from context.md's own §3/§8/§9/§10/§12/§14/§15/§17 content
+    into exactly what this event's own validation needs, not a pointer requiring separate
+    consultation of context.md. event_class and compatibility_commitment were governed-authored by
+    Approved ADR-053 (not this transaction) and are applied here by direct citation.
+    allowed_streams was governed-decided by Approved ADR-051 (not this transaction) and is applied
+    here by direct citation. causal_state_dependency_declaration above is fresh-derived directly
+    against Approved ADR-048's own grammar and this contract's own actual payload/causation shape —
+    not transcribed from context.md, which declares no such field, and not borrowed from any other
+    contract_id's own result.

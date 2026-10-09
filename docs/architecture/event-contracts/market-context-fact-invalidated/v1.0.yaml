@@ -1,0 +1,287 @@
+# Event Contract version-artifact — market-context-fact-invalidated v1.0
+#
+# Referenced Authoritative Artifact (Chapter 8 §8.1.1) once Published. Canonical authority/
+# self-containment model, path/version grammar, and immutability discipline per Approved ADR-039
+# v0.1 (docs/adr/ADR-039.md). Retention/archive semantics per Approved ADR-040 v0.1
+# (docs/adr/ADR-040.md).
+#
+# STATUS: Draft. This is the FIRST version for contract_id: market-context-fact-invalidated — no
+# prior Published Event Contract snapshot exists for it. Per ADR-039's "First authoritative version"
+# rule, contract_version is fixed at v1.0 — no other value is valid for a first publication.
+#
+# event_class / compatibility_commitment are NOT governed-authored here — both are already
+# Approved architecture authority as of ADR-053 (docs/adr/ADR-053.md, status: Approved,
+# approved_at: "2026-10-09T22:50:13+07:00"), applied directly below, not re-derived. allowed_streams
+# is Approved architecture authority per ADR-051 (docs/adr/ADR-051.md, status: Approved). payload_shape
+# / payload_semantics_and_invariants are governed-synthesized from docs/domain/context.md v0.4
+# (blob d7b2c07b82984958e52ede0d536cc443ade22577) §1 (subject)/§2 (envelope)/§4
+# (MarketContextFactInvalidated)/§8 (temporal eligible-upstream supersession)/§12 (correction
+# lineage, cursor semantics, COVERS_CONTEXT)/§14 (full cursor visibility, COVERS_CONTEXT
+# definition) and are fully self-contained here — a reader does not need to separately consult
+# context.md to interpret this artifact's own meaning (ADR-039). merge_constraints is
+# governed-authored directly against Chapter 8 §8.3.4, derived from this contract's own actual
+# causation shape, NOT mechanically copied from Feature's or Regime's own value.
+#
+# PUBLICATION BLOCKER — stated explicitly, semantic interpretation below does NOT depend on this
+# prose: `context-aggregator-context` (allowed_streams, below) is Approved identity/writer-authority
+# architecture (ADR-051) but is NOT YET activated in any authoritative post-Genesis Stream Registry
+# version (docs/architecture/stream-registry.yaml remains registry_version: v1.0, the seven-stream
+# Genesis Registry — fresh-verified this transaction, unchanged, not edited by this candidate).
+# ADR-052 (Draft, pending Review A) proposes the lifecycle activation Event Contract architecture
+# the eventual registry transition requires; that transition is separate, later, governed work. Draft
+# authoring of this candidate is permitted now (ADR-051 Consequences Track B); Publication of this
+# artifact, and any runtime/authoritative use of it, remain fail-closed until the Stream Registry
+# transition genuinely resolves and Review A of this complete candidate is CLEAN. This blocker is
+# recorded here for readiness tracking ONLY — it does not alter, narrow, or otherwise participate in
+# any field's own semantic meaning below.
+#
+# CONTEXT AUTHORITY/TERMINOLOGY GAP — explicitly NOT resolved by this artifact (ADR-051 item 4,
+# ADR-053 §2, m3-context-closure-derivation-001.md §5 D1, all unchanged): this artifact does not
+# claim that `context-aggregator` owns authoritative domain state, that Context replaces Candle/
+# Structure/Regime/Feature as a source of truth for any concept, that `event_class:
+# projection_record` is a new authoritative-business-fact-ownership class, or that any future
+# Strategy consumer is authorized to treat this event as authoritative input. `module-registry.yaml`'s
+# `context-aggregator` entry remains `module_type: projection`, `owns_authoritative_state: false`,
+# unchanged, unedited by this transaction. `projection_record` means exactly what Approved ADR-053
+# §2 defines — an immutable, replayable, envelope-bearing record from a Type-2 Projection's own
+# deterministic fold/aggregate computation, never itself an authoritative source — and nothing
+# broader.
+
+contract_id: market-context-fact-invalidated
+contract_version: v1.0
+status: Draft
+reviewers: []
+approved_by: null
+approved_at: null
+last_review: null
+
+event_type: MARKET_CONTEXT_FACT_INVALIDATED
+# context.md v0.4 §2 event_types table (PAST_TENSE_UPPER_SNAKE per Chapter 3 §3.2, referenced not
+# redefined here).
+
+event_class: projection_record
+# Approved ADR-053 §2 (docs/adr/ADR-053.md) — governed-authored new value, narrowly scoped to this
+# contract_id and market-context-snapshot only, mechanically applied here, not re-derived. Not
+# `observation` (never a root event, causation_refs is never empty for this event type — context.md
+# §4). Not `derived_fact` (this event asserts no new authoritative conclusion — it purely negates a
+# historical MarketContextSnapshot, "KHÔNG tự nó tuyên bố giá trị mới," context.md §4 description).
+
+allowed_streams:
+  - stream_id: context-aggregator-context
+# Approved ADR-051 (docs/adr/ADR-051.md) — the same one logical stream market-context-snapshot
+# targets (one writer, one coherent record family, original fact plus its own invalidation
+# counterpart sharing one stream — ADR-051 Decision item 2). NOT yet active — see PUBLICATION
+# BLOCKER header note above.
+
+merge_constraints:
+  prerequisite_policy: causation_must_resolve_before_apply
+# Governed-authored directly against this contract's own actual causation shape (Chapter 8 §8.3.4),
+# not copied from Feature/Regime's own declared value merely because it matches. MarketContextFactInvalidated
+# is never a root event — causation_refs always contains at minimum invalidated_fact_ref plus the
+# minimal-complete direct-cause set for every affected role (context.md §4) — so the genuine,
+# Context-owned causal-ordering requirement is that every declared cause must resolve before this
+# event is authoritatively applied. No Input-Contract-level run-scope/frontier/merge-policy semantic
+# is declared here — that remains exclusively the governing Input Contract's own authority.
+
+causal_state_dependency_declaration:
+  mode: exhaustive
+  # Approved ADR-048 (docs/adr/ADR-048.md) §2 — governed-authored directly against ADR-048 and
+  # ADR-053 §6's own fresh apply-time analysis of this contract's actual payload, NOT transcribed
+  # from context.md (which declares no such field). mode: exhaustive because causation_refs is
+  # never canonically empty for this event type (context.md v0.4 §4: "causation_refs không rỗng" —
+  # invalidated_fact_ref alone already guarantees at least one entry) — mode: vacuous would be
+  # malformed here (ADR-048 §9 item 3).
+  roles:
+    - role_id: invalidated_fact_ref
+      selector:
+        kind: payload_field
+        path:
+          - invalidated_fact_ref
+      cardinality:
+        exactly: 1
+      classification: EXTERNAL_NON_STATE_CAUSE
+      apply_time_requirement: >
+        Authoritative application of this invalidation (accepting it, marking the target
+        MarketContextSnapshot obsolete) requires only the identity of which fact is invalidated —
+        never a re-read of that fact's own context_values/effective_window/computation_cursor
+        payload. context.md v0.4 §4's own payload shape confirms no value from the invalidated fact
+        is copied into this event's own payload.
+    - role_id: direct_cause_set
+      selector:
+        kind: by_target
+        match:
+          event_types: [CANDLE_CORRECTED, STRUCTURE_FACT_INVALIDATED, STRUCTURE_RECOMPUTED, BREAK_OF_STRUCTURE_DETECTED, CHANGE_OF_CHARACTER_DETECTED, REGIME_FACT_INVALIDATED, REGIME_CLASSIFIED, FEATURE_FACT_INVALIDATED, FEATURE_COMPUTED]
+          contract_ids: [candle-corrected, structure-fact-invalidated, structure-recomputed, break-of-structure-detected, change-of-character-detected, regime-fact-invalidated, regime-classified, feature-fact-invalidated, feature-computed]
+      cardinality:
+        min: 1
+        max: null
+      # Form B (ADR-048 §5), min: 1 because affected_upstream_roles is never empty (context.md §4:
+      # "PHẢI không rỗng") and EVERY affected role requires at least one direct cause in its own
+      # minimal-complete direct-cause set (ADR-046 Decision item 7) — so the union across all
+      # affected roles is always >= 1; max: null because multiple roles may be affected
+      # simultaneously by one correction, and a single role's own compound branch (c) may require
+      # more than one direct-cause ref (e.g. a later-visible successor plus its own subsequent
+      # invalidation, context.md §4 example "{B, I_B}"). This single role exhaustively covers EVERY
+      # direct-cause event type context.md §4's three branches (a/b/c) ever name, across all seven
+      # possible affected_upstream_roles values, for exactly the reason the classification test
+      # below is uniform across every one of them — a finer, per-affected-role split is not needed
+      # to satisfy ADR-048's exactly-one-match rule, because none of these nine target event types
+      # ever collides with MARKET_CONTEXT_SNAPSHOT (the invalidated_fact_ref role's own target type,
+      # above) or with each other. This role's by_target selector matches only on each target's own
+      # envelope event_type/contract_id — never any target's domain payload (e.g. never reading
+      # RegimeClassified's own regime_dimension, or FeatureComputed's own feature_type, to decide
+      # role membership) — context.md §4's own attribution text ("Attribution role→cause-set là
+      # deterministic từ governed event type + role discriminant... KHÔNG từ thứ tự phần tử") is a
+      # DOMAIN-level attribution rule for which `affected_upstream_roles` entry a given cause
+      # corresponds to; it is not, and is not represented here as, an ADR-048 role-classification
+      # requirement — this role's own job is only the STATE_DEPENDENCY-vs-EXTERNAL_NON_STATE_CAUSE
+      # test (see apply_time_requirement below), which is identical for every member of this set,
+      # not the separate domain-level role-attribution question context.md §4 answers on its own
+      # terms, outside this grammar.
+      classification: EXTERNAL_NON_STATE_CAUSE
+      apply_time_requirement: >
+        Authoritative application of this invalidation never requires re-reading any of these
+        direct causes' own domain payload (a CandleCorrected's own OHLCV; a StructureFactInvalidated/
+        StructureRecomputed/BreakOfStructureDetected/ChangeOfCharacterDetected's own orientation
+        fields; a RegimeFactInvalidated/RegimeClassified's own class/metric fields; a
+        FeatureFactInvalidated/FeatureComputed's own value field) — only each cause's own
+        existence/identity as a direct causal predecessor proving why this invalidation occurred
+        (context.md §4's own causation_refs invariant: "Mọi phần tử PHẢI là genuine direct domain
+        causal predecessor/prerequisite... KHÔNG BAO GIỜ dùng causation_refs như một evidence bag
+        chung"). No value from any of these causes is copied into this event's own payload.
+
+payload_shape:
+  computation_cursor:
+    type: replay_cursor
+    required: true
+    description: >
+      Canonical Chapter 8 §8.5 Replay Cursor, applied here, NOT redefined (ADR-046, Approved) — this
+      is R_later, the cursor boundary proving invalidated_fact_ref is no longer the current-valid
+      lineage head for its computation point. NOT the invalidated fact's own computation_cursor
+      (a distinct field on that other fact), NOT envelope.recorded_time (a different axis — append
+      time), and NOT a future replacement's own computation_cursor (an independent fact) —
+      context.md §4 keeps these three axes strictly independent, never substituted for one another.
+  invalidated_fact_ref:
+    type: event_record_ref
+    required: true
+    description: >
+      Resolves exactly one historical MarketContextSnapshot record. MUST NOT already have received
+      another MarketContextFactInvalidated — a fact is invalidated exactly once (context.md §4/§12
+      rule 6, "cấm fork").
+  affected_upstream_roles:
+    type: array
+    items:
+      type: enum
+      values: [context_cutoff_source, structure, volatility_regime, directional_persistence_regime, volatility_metric_feature, directional_persistence_metric_feature, distance_to_last_confirmed_swing_feature]
+    required: true
+    description: >
+      One or more affected roles — never empty, never duplicated (context.md §4). Each element here
+      has a corresponding minimal-complete direct-cause set (one or more refs) present among
+      causation_refs (see causal_state_dependency_declaration above); attribution of which specific
+      causation_refs entries belong to which affected_upstream_roles element is a context.md §4
+      domain-level rule (deterministic from governed event type + role discriminant + target/ref
+      relationship), not represented as a structural field here.
+  invalidation_reason: {type: string, required: false}
+
+payload_semantics_and_invariants:
+  description: >
+    Negates ONE specific historical MarketContextSnapshot — purely records "this fact is no longer
+    valid," never itself asserting a new value (context.md v0.4 §4). The cause for each affected role
+    falls into exactly one of three branches, per role: (a) one or more direct correction/
+    invalidation events of that role's own upstream type (CandleCorrected for context_cutoff_source;
+    StructureFactInvalidated or StructureRecomputed for structure; RegimeFactInvalidated for either
+    Regime dimension; FeatureFactInvalidated for any Feature role); (b) a later-visible authoritative
+    fact of that role's own type becoming the new §8 Phase-2 winner at a later computation_cursor
+    (StructureRecomputed/BreakOfStructureDetected/ChangeOfCharacterDetected for structure;
+    RegimeClassified for either Regime dimension; FeatureComputed for any Feature role) — the old ref
+    need not have been directly invalidated (context.md §8 "Temporal eligible-upstream supersession";
+    Candle/context_cutoff_source is explicitly excluded from this branch, context.md §8 "Candle
+    exclusion"); or (c) a compound role-state transition whose minimal-complete direct-cause set
+    contains every direct domain causal predecessor genuinely required to prove the new role-
+    resolution state, regardless of whether each element targets an old or new ref (e.g. a successor
+    B later-visible per branch (b) which itself subsequently receives its own invalidation I_B,
+    cause set {B, I_B} — context.md §4, ADR-046 Decision item 7). If multiple roles are affected
+    simultaneously by the same underlying correction, exactly ONE MarketContextFactInvalidated is
+    produced for the target fact — affected_upstream_roles lists every affected role,
+    causation_refs is the flat, deduplicated union of every role's own direct-cause set (no
+    per-role grouping structure in the envelope). Append-only (I-3) — never a mutation of the
+    invalidated fact's own record.
+  subject_binding:
+    subject_kind: entity
+    subject_type: MarketContext
+    context_id: context-projection
+    note: >
+      envelope.subject_ref and envelope.effective_time of THIS event are NOT independently declared
+      — both MUST be inherited verbatim from invalidated_fact_ref's own subject_ref/effective_window
+      (context.md §4 "Envelope binding bắt buộc"): identical context_id, subject_kind, subject_type,
+      subject_id, and full scope; identical [window_start, window_end). A target with any matching
+      field but the wrong subject or wrong window is never a valid invalidation target.
+  invariants:
+    - "envelope.subject_ref MUST exactly equal invalidated_fact_ref's own subject_ref — same context_id, subject_kind, subject_type, subject_id, and full scope. Never independently declared; never targets a fact of a different subject."
+    - "envelope.effective_time MUST exactly equal invalidated_fact_ref's own effective_window — identical [window_start, window_end). Never targets a fact of the correct subject but the wrong window."
+    - "payload.invalidated_fact_ref MUST resolve exactly the one target MarketContextSnapshot record (event_record_ref canonical locator + event_id verification field, Chapter 8 §8.2.3)."
+    - "payload.affected_upstream_roles MUST be non-empty, with unique elements. Each element MUST have a corresponding minimal-complete deterministic direct-cause set (one or more refs — never required to be exactly one, ADR-046 Decision item 7) present in causation_refs, falling into exactly one of the three branches (a)/(b)/(c) described above."
+    - "causation_refs MUST point to: invalidated_fact_ref (required, exactly one, MUST equal payload.invalidated_fact_ref exactly) AND the minimal-complete direct-cause set (one or more refs each) for EVERY role listed in affected_upstream_roles — unioned/deduplicated into one flat causation_refs array; no entry missing, no extra entry, no duplicate. Every element MUST be a genuine direct domain causal predecessor/prerequisite (Chapter 6 §6.7, Chapter 8 §8.2.3) — causation_refs is never used as a generic evidence bag; coverage evidence (see COVERS_CONTEXT below) that is merely visible at R_later is never added here just because it is visible."
+    - "invalidated_fact_ref MUST point to a MarketContextSnapshot that has never received another MarketContextFactInvalidated — a fact is invalidated exactly once (no fork)."
+    - "At most one MarketContextSnapshot may point supersedes_fact_ref at this event's own invalidated_fact_ref (the market-context-snapshot/v1.0.yaml casp-fork rule, enforced symmetrically here)."
+    - "envelope.recorded_time MUST be later than invalidated_fact_ref's own recorded_time AND later than every event referenced in causation_refs."
+    - "Replay at a cursor earlier than this event's own recorded_time MUST NOT see this invalidation (anti-look-ahead)."
+    - "payload.computation_cursor MUST be present on every instance, with no exception — the same canonical Chapter 8 §8.5 Replay Cursor shape as market-context-snapshot/v1.0.yaml, same validity discipline (ADR-046). This is R_later — the boundary proving invalidated_fact_ref is no longer the current-valid lineage head, never the invalidated fact's own computation_cursor, never envelope.recorded_time, never a future replacement's own computation_cursor — three independent axes, never substituted for one another."
+    - "computation_cursor.recorded_time MUST be <= envelope.recorded_time of THIS exact event (Cursor → fact relation, symmetric to market-context-snapshot/v1.0.yaml's own invariant) — violation means an invalid cursor, record MUST NOT be published; no clamping, no substitution."
+  covers_context_precondition: >
+    Universal invalidation coverage precondition (context.md v0.4 §12/§14, ADR-046): let C be the
+    MarketContextSnapshot targeted by invalidated_fact_ref, R_original = C's own computation_cursor,
+    R_later = THIS event's own computation_cursor. R_later COVERS_CONTEXT R_original (context.md
+    §14's bounded, Context-scoped, partial knowledge-coverage relation — a set-inclusion/non-
+    regression proof over Context-relevant visible upstream knowledge, NEVER a platform-wide Replay-
+    Cursor total order, NEVER an ADR-009 change) MUST hold BEFORE this event may be published as a
+    current-valid lineage transition — this holds regardless of trigger class (direct correction,
+    branch (a); temporal eligible-upstream supersession, branch (b); or compound, branch (c)). If
+    coverage cannot be proven, this event MUST NOT be published as a current-valid lineage
+    transition — the cursor remains usable only for historical/counterfactual replay analysis. This
+    precondition proves only that knowledge did not regress; it never by itself proves WHY the
+    invalidation occurred (that is causation_refs/affected_upstream_roles's own role, above).
+  no_fork_and_append_only: >
+    Exactly one direct replacement may ever point supersedes_fact_ref back at this event's own
+    invalidated_fact_ref (context.md §12 rule 6) — enforced jointly with market-context-snapshot's
+    own correction-lineage invariants. Every historical lineage member — including the fact THIS
+    event invalidates — remains permanently in the log, unmutated (I-3); this event only adds a new,
+    separate negation record, never edits or removes the original.
+  no_generic_cause_prohibition: >
+    There is no generic "context_changed" or equivalent catch-all cause. Every entry in
+    causation_refs MUST be one of: payload.invalidated_fact_ref itself, or a direct cause falling
+    into exactly one of the three governed branches (a)/(b)/(c) above for some element of
+    affected_upstream_roles — nothing else is a valid causation_refs entry for this event type.
+
+compatibility_commitment: backward_only
+# Approved ADR-053 §5 (docs/adr/ADR-053.md), Chapter 10 §10.3.1 — explicit policy commitment this
+# contract_id adopts: a consumer pinned to an older market-context-fact-invalidated Event Contract
+# version must still correctly read/validate data under a newer version claimed compatible; forward
+# compatibility is NOT committed. No concrete schema delta exists yet for this first v1.0 version,
+# so no compatibility CLASSIFICATION of any delta is performed or claimed by this artifact. This
+# value is cited as already-Approved authority, not re-decided here.
+
+provenance:
+  source: docs/domain/context.md
+  source_version: "0.4"
+  source_status: Draft
+  source_sections: ["§1 Logical Market Context Subject", "§2 Canonical event envelope", "§4 MarketContextFactInvalidated", "§8 Temporal eligible-upstream supersession", "§12 Correction lineage / cursor semantics", "§14 Time semantics / COVERS_CONTEXT"]
+  source_blob: d7b2c07b82984958e52ede0d536cc443ade22577
+  event_class_authority: docs/adr/ADR-053.md
+  compatibility_commitment_authority: docs/adr/ADR-053.md
+  stream_identity_authority: docs/adr/ADR-051.md
+  causal_state_dependency_declaration_authority: docs/adr/ADR-048.md
+  drafted_at_commit: b8eb824779d7a6e08ffec49ba8dda492d2add134
+  note: >
+    Drafting-history citation ONLY (ADR-039 §"Canonical authority/source") — never required to
+    interpret this artifact's own meaning; payload_shape and payload_semantics_and_invariants above
+    are fully self-contained, condensed from context.md's own §4/§8/§12/§14 content into exactly
+    what this event's own validation needs. invalidation_reason (optional string) is the only
+    free-text payload field — no scalar `invalidation_cause` field exists in context.md §4's own
+    authoritative shape, and none is invented here. event_class and compatibility_commitment were
+    governed-authored by Approved ADR-053 (not this transaction) and are applied here by direct
+    citation. allowed_streams was governed-decided by Approved ADR-051 (not this transaction) and
+    is applied here by direct citation. causal_state_dependency_declaration above is fresh-derived
+    directly against Approved ADR-048's own grammar and this contract's own actual payload/
+    causation shape — not transcribed from context.md, which declares no such field, and not
+    borrowed from any other contract_id's own result.
