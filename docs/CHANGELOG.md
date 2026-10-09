@@ -2,6 +2,44 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-10-09 — ADR-051 APPROVED — Context Projection Output Stream Identity and Writer Authority
+
+Mechanical Chapter-11 approval-recording transaction (`workstream/m3-adr051-approval`) —
+records the Product Owner's already-made approval decision into `docs/adr/ADR-051.md`'s own
+frontmatter only: `status: Draft -> Approved`, `reviewers: [] -> [ChatGPT]`, `approved_by:
+null -> Product Owner`, `approved_at: null -> "2026-10-09T15:20:50+07:00"`, `last_review:
+null -> "2026-10-09"`; `version: "0.3"` unchanged. No other line in the file is touched —
+Decision/Alternatives/Consequences/Scope-classification prose and `depends_on`/`addresses`/
+`resolves`/`supersedes` all remain byte-identical to the reviewed v0.3 candidate. Integrated
+onto current `main` via a clean, file-scoped continuation branch — the candidate branch's own
+history is not merged wholesale.
+
+**Review A:** `CLEAN — 0 Blocker / 0 Major / 0 Minor` (all prior findings —
+`ADR051-A-MAJ-01`, `ADR051-A-MIN-01`, `ADR051-A-MAJ-02` — `CLOSED — REVIEW A VALIDATED`).
+**ADR Scope:** `ADR_REQUIRED`. **Risk Classification:** `R2`. **Product Owner chose `PROCEED
+WITHOUT CROSS-CHECK`** (cross-check `NOT PERFORMED`). **Product Owner decision (verbatim):**
+`PROCEED WITHOUT CROSS-CHECK — APPROVE ADR-051 v0.3 at
+b27387772c9ec50f430d7d48cdc9fa55874d1df2, blob 5b0ec5cac352a81a7efd93b674af5e4c40d1cb3b` —
+recorded `2026-10-09T15:20:50+07:00`.
+
+**Decision now Approved, architecture authority:** exactly one new post-Genesis Stream
+Registry stream, `context-aggregator-context`, sole writer authority `context-aggregator`,
+carrying both `MarketContextSnapshot` and `MarketContextFactInvalidated`; no instrument/
+venue/timeframe partitioning; topology selected using `ADR-036`'s established precedent,
+applied to Context's own bounded facts without importing `ADR-036`'s authoritative-domain-
+ownership semantics into `context-aggregator` — the Context authority/terminology gap
+remains explicitly open, not resolved by this approval. Registry-transition mechanics
+require a genuine `effective_from` activation event on `platform-lifecycle`. Event Contract
+`allowed_streams` eligibility is left to separate, later Event Contract authoring.
+
+**Not touched:** `stream-registry.yaml`; `module-registry.yaml`; `docs/domain/context.md`;
+any other Approved ADR; `python/context-aggregator/**`; `docs/project/milestone.md`; any
+dashboard/control-plane file. The mechanical Stream Registry transition instantiating this
+ADR's decision is a separate, later transaction — not performed here.
+
+**Files changed:** `docs/adr/ADR-051.md` (frontmatter-only), `docs/MANIFEST.md`,
+`docs/CHANGELOG.md` only.
+
 ## [Unreleased] — 2026-10-09 — `context-aggregator` Quality Tier RESOLVED — Tier 1 — Core Logic
 
 Mechanical semantic Module Registry amendment (`workstream/m3-context-aggregator-tier1-recording`)

@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.482"
+manifest_version: "10.483"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -34799,6 +34799,95 @@ brought over unmodified from the approved candidate), `docs/MANIFEST.md` (this e
 này):** `manifest_version` `"10.481"` → `"10.482"`. `current_phase` KHÔNG đổi — VẪN
 `"Phase 3 — Core Backend"`. context-aggregator Quality Tier now RESOLVED — Tier 1 — Core
 Logic (see State summary above); QG/module-approval/LIVE states unchanged; M3 remains
+`ACTIVE`, not complete.
+
+## ADR-051 atomic approval — v0.3 Approved (`ADR-051-APPROVAL-001`)
+
+**Mechanical Chapter-11 approval-recording transaction — vai trò: `ADR-051 Approval
+Recorder`.** Records an already-made Product Owner decision into `docs/adr/ADR-051.md`'s
+own frontmatter as a pure lifecycle-metadata transition — version unchanged (`"0.3"`),
+`status: Draft -> Approved`, `reviewers: [] -> [ChatGPT]`, `approved_by: null -> Product
+Owner`, `approved_at: null -> "2026-10-09T15:20:50+07:00"`, `last_review: null ->
+"2026-10-09"`. **No other line in `ADR-051.md` is touched** — Decision/Alternatives/
+Consequences/Scope-classification prose, `depends_on: ["ADR-036", "ADR-041"]`,
+`addresses`/`resolves`/`supersedes` (`[]` each) all remain byte-identical to the reviewed
+v0.3 candidate. Per this governed transaction's own explicit instruction, approval
+evidence (below) is recorded here and in `docs/CHANGELOG.md` only — not as an added body
+banner inside the ADR file itself (a deliberate, narrower choice than this repository's
+earlier `ADR-048` approval precedent, which did add body-prose status-tense
+normalization; this transaction follows its own governing instruction instead).
+
+**Fresh boundary verification (before any edit):** `origin/main` confirmed exactly
+`57099f445d3947b1fb56b542ced9bfaa0a6f0440`; reviewed candidate confirmed exactly at branch
+`workstream/m3-context-output-stream`, HEAD `b27387772c9ec50f430d7d48cdc9fa55874d1df2`;
+`docs/adr/ADR-051.md` at that HEAD confirmed exactly blob
+`5b0ec5cac352a81a7efd93b674af5e4c40d1cb3b` — all three matched expected, no drift. File
+brought over onto a fresh continuation branch from current `main` (never merging the
+candidate branch's own history wholesale) and re-verified byte-identical to the same blob
+before the frontmatter edit was made.
+
+**Review A:** `CLEAN — 0 Blocker / 0 Major / 0 Minor`, reviewed candidate
+`b27387772c9ec50f430d7d48cdc9fa55874d1df2`, reviewed ADR blob
+`5b0ec5cac352a81a7efd93b674af5e4c40d1cb3b`. All prior findings against this candidate
+(`ADR051-A-MAJ-01`, `ADR051-A-MIN-01` at v0.2; `ADR051-A-MAJ-02` at v0.3) confirmed
+`CLOSED — REVIEW A VALIDATED` at this final boundary. **ADR Scope:** `ADR_REQUIRED`
+(unchanged — Chapter 8 §8.3.1's own unconditional text: stream creation/writer-authority
+change is an Event Model change). **Risk Classification:** `R2`. **Cross-check:** `NOT
+PERFORMED` — Product Owner chose `PROCEED WITHOUT CROSS-CHECK`; per Chapter 11 §11.5, this
+is never a defect or an approval prerequisite.
+
+**Product Owner decision (verbatim):** `PROCEED WITHOUT CROSS-CHECK — APPROVE ADR-051 v0.3
+at b27387772c9ec50f430d7d48cdc9fa55874d1df2, blob 5b0ec5cac352a81a7efd93b674af5e4c40d1cb3b`
+— recorded `2026-10-09T15:20:50+07:00`. Accepts ADR-051 v0.3's complete Decision surface:
+exactly one new post-Genesis Stream Registry stream, `context-aggregator-context`, sole
+writer authority `context-aggregator`, carrying both `MarketContextSnapshot` and
+`MarketContextFactInvalidated`; no instrument/venue/timeframe partitioning; the topology
+selected using `ADR-036`'s established precedent, applied to Context's own bounded facts
+without importing `ADR-036`'s authoritative-domain-ownership semantics into
+`context-aggregator` (item 4, explicitly preserving the still-open Context authority/
+terminology gap — not resolved by this approval); registry-transition mechanics requiring
+a genuine `effective_from` activation event on `platform-lifecycle` (item 7); Event
+Contract `allowed_streams` eligibility deliberately left to separate, later Event Contract
+authoring (item 8); Track A (mechanical registry transition)/Track B (Draft Event Contract
+authoring) permitted to proceed in parallel where safe, with publication/runtime/
+authoritative use remaining fail-closed until the Stream Registry transition genuinely
+resolves (Consequences). Not expanded, reinterpreted, or altered by this approval.
+
+**Reviewed semantic candidate (distinguished from the resulting lifecycle-record artifact,
+G-ID-001):** commit `b27387772c9ec50f430d7d48cdc9fa55874d1df2`, ADR blob
+`5b0ec5cac352a81a7efd93b674af5e4c40d1cb3b`. The final `docs/adr/ADR-051.md` blob (after
+this mechanical frontmatter-only edit) is a distinct identity — never represented as the
+originally reviewed semantic candidate identity.
+
+**Immutability:** per Chapter 11 §11.3, `docs/adr/ADR-051.md` is now immutable
+byte-for-byte from this approval boundary forward. Future architecture changes require a
+new ADR with `supersedes: [ADR-051]`; this transaction does not edit ADR-051 in place
+again, does not bump its version, and does not add `superseded_by`.
+
+**Decision effect:** ADR-051 approval establishes architecture authority for a
+`context-aggregator-context` Stream Registry entry (sole writer `context-aggregator`) to
+be instantiated by a separate, later, mechanical registry-transition transaction — it
+does **not** itself: modify `stream-registry.yaml`; modify `module-registry.yaml`; author
+or publish any Event Contract; implement `context-aggregator` runtime; touch Context
+Input Contract semantics; reclassify `context-aggregator`'s Module Taxonomy type or
+`owns_authoritative_state` (remains Type 2 Projection, `false`); resolve the preserved
+Context authority/terminology tension; assign a Quality Tier; or authorize LIVE.
+
+**Not changed by this transaction:** any other Approved ADR; `docs/domain/context.md`;
+`docs/architecture/stream-registry.yaml`; `docs/architecture/module-registry.yaml`;
+`python/context-aggregator/**`; `docs/project/milestone.md`; any dashboard/control-plane
+file.
+
+**Files changed:** `docs/adr/ADR-051.md` (frontmatter-only, as detailed above),
+`docs/MANIFEST.md` (this entry), `docs/CHANGELOG.md` — verified via
+`git status --porcelain=v1`; no other file touched.
+
+**Resulting MANIFEST transition (authoritative tại atomic recording boundary — commit
+này):** `manifest_version` `"10.482"` → `"10.483"`. `current_phase` KHÔNG đổi — VẪN
+`"Phase 3 — Core Backend"`. ADR-051 now `Approved`, immutable. Context output-stream
+architecture question (M3 Context Closure derivation §5 D2) is now RESOLVED at the
+architecture-decision level; the mechanical Stream Registry transition instantiating it
+remains NOT YET performed (separate, later transaction, fresh-assessed next). M3 remains
 `ACTIVE`, not complete.
 
 ## Decision Log
