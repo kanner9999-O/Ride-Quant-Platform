@@ -2,6 +2,66 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-10-09 — Context Input Contract v1.0 PUBLISHED (immutable snapshot); current/active artifact remains Draft by design
+
+Mechanical lifecycle-recording/publication transaction (`workstream/m3-context-input-v1-publication`)
+— publishes the exact Product-Owner-approved Context Input Contract semantic candidate at commit
+`0a15219ce504e00ff4cb88e4b9428ab042fd37c2` (`workstream/m3-context-closure`) as an immutable `v1.0`
+version-snapshot artifact per `ADR-041`. Integrated onto current `main` via a clean, file-scoped
+checkout of exactly `docs/architecture/input-contracts/context-market-input.yaml` onto a fresh
+continuation branch — the Context closure derivation work on the source branch was explicitly NOT
+merged wholesale. No semantic content changed.
+
+**Review A:** `CLEAN — 0 Blocker / 0 Major / 0 Minor`. **ADR Scope:** `ADR_NOT_REQUIRED`. **Risk
+Classification:** `R2`. **Product Owner chose `PROCEED WITHOUT CROSS-CHECK`** (cross-check `NOT
+PERFORMED`). **Product Owner decision (verbatim):** `PROCEED WITHOUT CROSS-CHECK — APPROVE
+CONTEXT INPUT CONTRACT v1.0 PUBLICATION CANDIDATE at 0a15219ce504e00ff4cb88e4b9428ab042fd37c2,
+blob bfed52a679548b8e6e860f432028c8b280eb86e4` — recorded `2026-10-09T13:30+07:00`.
+
+**Published (immutable snapshot only — current/active artifact intentionally stays `status:
+Draft` per `ADR-041`'s own lifecycle design):**
+
+```text
+context-market-input/v1.0   (blob bfed52a679548b8e6e860f432028c8b280eb86e4)
+```
+
+```text
+current/active path:   docs/architecture/input-contracts/context-market-input.yaml
+                        (version "0.5", status: Draft — unchanged, intentional)
+snapshot path (new):   docs/architecture/input-contract-versions/context-market-input/v1.0.yaml
+                        (byte-identical to the current/active file at this commit)
+```
+
+No snapshot-only field, comment, `status: Published`, `approved_by`, `approved_at`, `reviewers`,
+or provenance note was added inside either YAML file — doing so would have altered the approved
+bytes. Publication/approval evidence lives in `docs/MANIFEST.md`/this entry only. From this commit
+forward, `input_contract_ref: {contract_id: context-market-input, contract_version: v1.0}`
+resolves to the immutable snapshot path — historical/exact-version resolution MUST use that path,
+never falling back to the current/active file.
+
+**Verified byte-identical to the reviewed candidate:** `input_contract_ref`, `stream_registry_version:
+v1.0`, `included_streams` (four streams, unchanged), `merge_policy`, `frontier_policy`,
+`causal_closure_policy` (`declared-state-dependencies` / `per_effect_event_contract`).
+
+**Not touched:** no Context output stream invented; no Context output Event Contract authored; no
+ADR authored or modified; `context-aggregator` runtime (`python/context-aggregator/**`)
+unchanged; `docs/domain/context.md`; `module-registry.yaml`; `stream-registry.yaml`; any other
+Input Contract/Event Contract or snapshot; the Context closure derivation artifacts on the source
+branch (confirmed not merged).
+
+**Project visibility reconciled:** `docs/project/m3-execution-control-plane.yaml`'s
+`context_publication_readiness` lane `READY → DONE` (scoped to this Input Contract publication
+only); `docs/project/milestone-dashboard.html`'s Context card/board text updated to reflect the
+Input Contract Published while Context's output stream (ADR required), output Event Contracts
+(not yet authored), and runtime integration (not yet complete) remain explicitly open.
+`docs/project/milestone.md` NOT touched — M3's acceptance condition remains **NOT YET DERIVED**,
+and **M3 remains `ACTIVE`**, not complete.
+
+**Files changed:** `docs/architecture/input-contracts/context-market-input.yaml`,
+`docs/architecture/input-contract-versions/context-market-input/v1.0.yaml` (new),
+`docs/MANIFEST.md`, `docs/CHANGELOG.md`, `docs/project/m3-execution-control-plane.yaml`,
+`docs/project/milestone-dashboard.html` only.
+
 ## [Unreleased] — 2026-10-08 — Feature v1.1 Event Contracts PUBLISHED; M3 upstream publication-prerequisite tranche complete; Context lane READY
 
 Mechanical lifecycle-recording transaction (`workstream/m3-feature-v11-publication`) — publishes

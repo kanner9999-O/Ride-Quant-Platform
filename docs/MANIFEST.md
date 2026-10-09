@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.480"
+manifest_version: "10.481"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -34576,6 +34576,87 @@ Draft, pending correction/Review A) remains separate, unaffected, later governed
 a scope-boundary interpretation question already bypassed for this concrete delta by the bounded,
 no-new-ADR application recorded in `docs/project/feature-causal-state-dependency-version-impact-001.md`
 v0.2, not a blocker to this publication.
+
+## Context Input Contract v1.0 publication (`workstream/m3-context-input-v1-publication`) — immutable `v1.0` snapshot created; current/active artifact remains Draft by design (ADR-041)
+
+Mechanical lifecycle-recording/publication transaction only — publishes the exact
+Product-Owner-approved Context Input Contract semantic candidate as an immutable `v1.0`
+version-snapshot artifact per `ADR-041`. No semantic content changed.
+
+**Artifact family:** Input Contract. **`contract_id`:** `context-market-input`.
+**`contract_version`:** `v1.0`.
+
+**Exact reviewed/approved semantic candidate:** commit `0a15219ce504e00ff4cb88e4b9428ab042fd37c2`
+(`workstream/m3-context-closure`), file `docs/architecture/input-contracts/context-market-input.yaml`,
+blob `bfed52a679548b8e6e860f432028c8b280eb86e4`. Integrated onto current `main` via a clean,
+file-scoped checkout of exactly this one path onto a fresh continuation branch
+(`workstream/m3-context-input-v1-publication`) — the Context closure derivation work on the source
+branch (`docs/project/m3-context-closure-derivation-001.md` and related artifacts) was explicitly
+NOT merged; only the one approved file was brought over, verified byte-identical
+(`bfed52a679548b8e6e860f432028c8b280eb86e4`) both before and after.
+
+**Review A:** `CLEAN — 0 Blocker / 0 Major / 0 Minor`. **ADR Scope:** `ADR_NOT_REQUIRED`.
+**Risk Classification:** `R2`. **Optional cross-check:** `NOT PERFORMED` — Product Owner
+explicitly chose `PROCEED WITHOUT CROSS-CHECK`. **Product Owner decision (verbatim):**
+`PROCEED WITHOUT CROSS-CHECK — APPROVE CONTEXT INPUT CONTRACT v1.0 PUBLICATION CANDIDATE at
+0a15219ce504e00ff4cb88e4b9428ab042fd37c2, blob bfed52a679548b8e6e860f432028c8b280eb86e4` —
+recorded `2026-10-09T13:30+07:00`.
+
+**Current/active path:** `docs/architecture/input-contracts/context-market-input.yaml` — blob
+`bfed52a679548b8e6e860f432028c8b280eb86e4`, `version: "0.5"`, **`status: Draft` — unchanged,
+intentional.** Per `ADR-041`'s own lifecycle design, the current/active artifact stays mutable
+Draft; publication is carried entirely by the immutable snapshot below, never by flipping this
+file's own `status`.
+
+**Immutable version snapshot (new):** `docs/architecture/input-contract-versions/context-market-input/v1.0.yaml`
+— blob `bfed52a679548b8e6e860f432028c8b280eb86e4`, byte-identical to the current/active file at
+this commit (verified via `git hash-object`/`cmp`). No snapshot-only field, comment, `status:
+Published`, `approved_by`, `approved_at`, `reviewers`, or provenance note was added inside either
+YAML file — doing so would have altered the approved bytes; this publication/approval evidence is
+recorded here and in `docs/CHANGELOG.md` instead, never inside the semantic artifact itself. No
+`*/v1.0.yaml` snapshot existed anywhere under `docs/architecture/input-contract-versions/context-market-input/`
+before this transaction (verified via `find` before creation).
+
+**State: `context-market-input/v1.0` is now Published and authoritatively resolvable** —
+`input_contract_ref: {contract_id: context-market-input, contract_version: v1.0}` resolves,
+from this commit forward, to the immutable snapshot path above, per `ADR-041`'s exact-version
+snapshot discipline (same pattern already established for the three Feature Input Contracts and
+the Genesis Stream Registry). **Historical/exact-version resolution MUST use the snapshot path —
+there is no fallback to the current/active file**, which remains free to continue mutating as a
+Draft (e.g. toward a future `v1.1`) without affecting this frozen `v1.0` identity.
+
+**Verified unchanged (byte-identical, confirmed by direct diff against the reviewed candidate):**
+`input_contract_ref` (`context-market-input` / `v1.0`); `stream_registry_version: v1.0`;
+`included_streams` (`market-data-ingestion-candle`, `structure-engine-structure`,
+`raw-regime-engine-regime`, `feature-engine-feature`); `merge_policy`; `frontier_policy`;
+`causal_closure_policy` (`mode: declared-state-dependencies`, `dependency_authority:
+per_effect_event_contract`).
+
+**Not touched by this transaction:** no Context output stream was invented; no Context output
+Event Contract was authored; no ADR was authored or modified; no `context-aggregator` runtime
+implementation changed (`python/context-aggregator/**` untouched); `docs/domain/context.md`;
+`docs/architecture/module-registry.yaml`; `docs/architecture/stream-registry.yaml`; any other
+Input Contract or its snapshot; any Event Contract; `docs/project/m3-context-closure-derivation-001.md`
+or any other Context-closure-derivation artifact from the source branch (confirmed NOT merged —
+only the one approved file was brought over). No ADR, WP, or workstream created. No second Review
+A performed. No second Product Owner approval requested.
+
+**Project visibility reconciled in this same transaction** (`docs/project/m3-execution-control-plane.yaml`'s
+`context_publication_readiness` lane: `READY → DONE`, scoped explicitly to this Input Contract
+publication only; `docs/project/milestone-dashboard.html`'s `Context` card/board text updated to
+state the Input Contract is Published while explicitly carrying forward that Context's own output
+stream (ADR required), output Event Contracts (not yet authored), and runtime integration (not yet
+complete) remain open — `docs/project/milestone.md` itself is NOT touched, M3's acceptance
+condition remains **NOT YET DERIVED**, unchanged, and **M3 remains `ACTIVE`**, not complete.
+
+**Files changed:** `docs/architecture/input-contracts/context-market-input.yaml` (new on this
+branch, brought over unmodified from the approved candidate), `docs/architecture/input-contract-versions/context-market-input/v1.0.yaml`
+(new), `docs/MANIFEST.md` (this entry), `docs/CHANGELOG.md`, `docs/project/m3-execution-control-plane.yaml`,
+`docs/project/milestone-dashboard.html`. `manifest_version` `"10.480"` -> `"10.481"`.
+
+**Next governed action:** Context output-stream architecture (an ADR-required Event Model change,
+Chapter 8 §8.3.1 — minting a stream identity/writer authority) / Context's own output Event
+Contract authoring / `context-aggregator` runtime integration — none performed by this transaction.
 
 ## Decision Log
 

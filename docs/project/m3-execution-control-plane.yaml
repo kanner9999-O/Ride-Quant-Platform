@@ -56,8 +56,8 @@ milestone:
     only sequences bounded workstreams and records their resulting state.
 
 planning_head: "197100785fb786278816b5b694dc9d380d9c1b8b"
-generated_at: "2026-10-08"
-state_recorded_against_head: "d49e2c6d01bc6ad4284113803a0722f8d7e6a9aa"
+generated_at: "2026-10-09"
+state_recorded_against_head: "0dbd9f44fd9fa85dbf1ccba984608380273dbade"
 candle_state: "DONE — publication: Published v1.0 (candle-closed, candle-corrected). Not a tracked lane."
 verified_fresh_this_transaction: true
 
@@ -136,8 +136,9 @@ lanes:
     packet: "docs/project/workstreams/m3/feature-future-dependency-workstream.md"
 
   - lane_id: context_publication_readiness
-    state: READY
-    owner_label: "(unassigned — no packet authored yet; lane now actionable)"
+    state: DONE
+    publication: "Context Input Contract v1.0 = Published (immutable snapshot) — scope: the Input Contract artifact only, see disposition_note"
+    owner_label: "AI Technical Architect (Claude or ChatGPT) — bounded WP Executor, per Lean Ride Operating Model v1.1 §3"
     true_dependencies: [structure, regime, feature_future_dependency_authority]
     dependency_rationale: >
       docs/architecture/input-contracts/context-market-input.yaml v0.3's own
@@ -160,7 +161,30 @@ lanes:
       control plane's four tracked lanes.
     blockers: []
     expected_outputs: []
-    next: "Context publication-readiness / integration work"
+    branch: "workstream/m3-context-input-v1-publication"
+    reviewed_semantic_boundary: "0a15219ce504e00ff4cb88e4b9428ab042fd37c2"
+    review: "CLEAN — 0 Blocker / 0 Major / 0 Minor"
+    publication_risk_classification: "R2"
+    product_owner_decision: >
+      "PROCEED WITHOUT CROSS-CHECK — APPROVE CONTEXT INPUT CONTRACT v1.0 PUBLICATION
+      CANDIDATE at 0a15219ce504e00ff4cb88e4b9428ab042fd37c2, blob
+      bfed52a679548b8e6e860f432028c8b280eb86e4", recorded 2026-10-09T13:30+07:00.
+    published_at: "2026-10-09T13:30+07:00"
+    disposition_note: >
+      This lane's own scope is the Context Input Contract's v1.0 publication ONLY
+      (docs/architecture/input-contracts/context-market-input.yaml, immutable
+      snapshot at docs/architecture/input-contract-versions/context-market-input/
+      v1.0.yaml) — the current/active file itself correctly remains status: Draft
+      by ADR-041's own design; only the snapshot is Published/immutable. This does
+      NOT publish, author, or resolve: Context's own OUTPUT stream identity (minting
+      it is itself an ADR-required Event Model change, Chapter 8 §8.3.1, not a
+      mechanical registry edit); Context's own output Event Contracts (not yet
+      authored); or context-aggregator's runtime integration (stream_ref/
+      producer_ref/publishing/frontier capture — still not done, per
+      python/context-aggregator/README.md's own "What this slice does not
+      implement" list). M3 and the overall Context workstream remain ACTIVE, not
+      complete.
+    next: "Context output-stream architecture (ADR required) / output Event Contract authoring / context-aggregator runtime integration"
     packet: null
 
 integration:
@@ -189,5 +213,5 @@ verification:
   no_adr_created_or_modified: true
   all_packet_paths_resolve: true
   dependency_graph_acyclic: true
-  each_lane_has_one_terminal_contract: "WORKSTREAM_COMPLETE | ARCHITECTURE_ESCALATION | BLOCKED_BY_EXTERNAL_DEPENDENCY — all four tracked lanes have now reached a terminal DONE/READY state; context_publication_readiness transitioned BLOCKED_BY_EXTERNAL_DEPENDENCY -> READY once its three true_dependencies each resolved"
+  each_lane_has_one_terminal_contract: "WORKSTREAM_COMPLETE | ARCHITECTURE_ESCALATION | BLOCKED_BY_EXTERNAL_DEPENDENCY — all four tracked lanes have now reached a terminal DONE/READY state; context_publication_readiness transitioned BLOCKED_BY_EXTERNAL_DEPENDENCY -> READY once its three true_dependencies each resolved, then READY -> DONE once the Context Input Contract v1.0 publication itself completed (scope: Input Contract artifact only — output stream/Event Contract/runtime integration remain separate, not-yet-done work, see that lane's own disposition_note)"
   no_lane_falsely_blocked_by_historical_sequencing: true
